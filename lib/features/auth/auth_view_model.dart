@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../core/utils/app_error_message.dart';
 import '../../data/repositories/auth_repository.dart';
 
 class AuthViewModel extends ChangeNotifier {
@@ -24,6 +25,10 @@ class AuthViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   String? get noticeMessage => _noticeMessage;
   String? get currentUserEmail => _repository?.currentUser?.email;
+  String? get currentUserName {
+    final value = _repository?.currentUser?.userMetadata?['display_name'];
+    return value is String && value.trim().isNotEmpty ? value.trim() : null;
+  }
 
   Future<bool> signIn({required String email, required String password}) async {
     if (_repository == null) return _notConfigured();
@@ -46,15 +51,18 @@ class AuthViewModel extends ChangeNotifier {
         displayName: displayName,
       );
       if (response.session == null) {
-        _noticeMessage = '账户已建立，请先检查邮箱并完成验证。';
+        _noticeMessage = 'Account created. Check your email to verify it.';
       }
       return true;
     });
   }
 
-  Future<void> signOut() async {
-    if (_repository == null) return;
-    await _repository.signOut();
+  Future<bool> signOut() async {
+    if (_repository == null) return _notConfigured();
+    return _run(() async {
+      await _repository.signOut();
+      return true;
+    });
   }
 
   Future<bool> _run(Future<bool> Function() action) async {
@@ -64,11 +72,11 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       return await action();
-    } on AuthException catch (error) {
-      _errorMessage = error.message;
-      return false;
-    } catch (_) {
-      _errorMessage = '操作失败，请稍后再试。';
+    } catch (error) {
+      _errorMessage = AppErrorMessage.from(
+        error,
+        fallback: 'Could not complete this request. Please try again.',
+      );
       return false;
     } finally {
       _isLoading = false;
@@ -77,7 +85,8 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   bool _notConfigured() {
-    _errorMessage = '尚未配置 Supabase。请先加入项目 URL 和 publishable key。';
+    _errorMessage =
+        'Supabase is not configured. Add the project URL and publishable key.';
     notifyListeners();
     return false;
   }

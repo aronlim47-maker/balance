@@ -11,6 +11,9 @@ class TaskItem {
     this.status = TaskStatus.planned,
     this.isProtected = false,
     this.isOptional = false,
+    this.remainingMinutes,
+    this.scheduledStart,
+    this.scheduledEnd,
   });
   final String id;
   final String title;
@@ -20,4 +23,9 @@ class TaskItem {
   final TaskStatus status;
   final bool isProtected;
   final bool isOptional;
+  final int? remainingMinutes;
+  final DateTime? scheduledStart;
+  final DateTime? scheduledEnd;
+
+  int get effectiveRemainingMinutes => remainingMinutes ?? estimatedMinutes;
 }

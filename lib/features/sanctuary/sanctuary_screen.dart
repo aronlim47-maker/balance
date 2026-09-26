@@ -6,5 +6,5 @@ class SanctuaryScreen extends StatelessWidget {
   const SanctuaryScreen({super.key});
   @override
   Widget build(BuildContext context) =>
-      const AppPlaceholder(title: '恢复空间', navigationIndex: 3);
+      const AppPlaceholder(title: 'Sanctuary', navigationIndex: 3);
 }

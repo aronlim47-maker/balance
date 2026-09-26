@@ -1,0 +1,38 @@
+# Balance Building sprint plan
+
+Target: try to complete Versions 1–4 before the Building deadline on **11 October 2026** (Malaysia time). The exact submission hour still needs confirmation. This is a stretch target, not a promise that all features will be finished. The repository link and a stable, testable app are the Building deliverables. After the cutoff, do not add major features; use Deployment for publishing, testing and minor fixes.
+
+The four owners should update their own boxes daily. A checked box means the work is implemented, reviewed and supported by test evidence—not merely coded. The first-release flow must remain buildable throughout the sprint. Later versions stay on separate feature branches until their gate passes.
+
+## Daily assignments
+
+| Date | Version | Lim Ze Heng | Tan Yi Ming | Chong Zhi Xuan | Matthew Thien Yung En |
+| --- | --- | --- | --- | --- | --- |
+| 26 Sep | V1 | [ ] Freeze the V1 scenario; verify app shell, routes and shared UI. | [ ] Verify Quest Board CRUD, search/filter and English task forms. | [ ] Audit existing schema, RLS, auth and repository contracts; do not redo completed groundwork. | [ ] Finalise domain fields and sample scenario; verify Today Review and rule inputs. |
+| 27 Sep | V1 | [ ] Finish War Council screen and integration with real data. | [ ] Finish Quest Board states and task validation; start Sanctuary polish. | [ ] Verify seven MVP tables, cross-user isolation and profile creation. | [ ] Finish availability entry, capacity and overload tests; validate trade-off rules. |
+| 28 Sep | V1 | [ ] Verify atomic Confirm/Undo app flow and auth UI. | [ ] Finish protected recovery and Sanctuary screen. | [ ] Verify registration, repositories, Confirm/Undo RPC and failed-save rollback. | [ ] Verify Today, protected-item and no-feasible-plan cases. |
+| 29 Sep | V1 gate | [ ] Build and install a release candidate on Android; fix integration blockers. | [ ] Check all visible English text, empty/error/loading states and accessibility. | [ ] Run migration/RLS/RPC security checks and preserve results. | [ ] Lead full-journey, widget and failure tests; record defects. |
+| 30 Sep | V2 | [ ] Approve evidence-based V2 scope and keep V1 release branch stable. | [ ] Design shared-task invitation and agreement UI. | [ ] Implement backward-compatible collaboration migration. | [ ] Review V1 feedback and define V2 acceptance tests. |
+| 1 Oct | V2 | [ ] Integrate collaboration UI without weakening V1 flow. | [ ] Implement invitation and agreement screens; test denial states. | [ ] Add participants, invitations and least-privilege shared-task access. | [ ] Implement and test Needs Agreement rules. |
+| 2 Oct | V2 | [ ] Implement reminder permissions and notifications; integrate calendar UI. | [ ] Add recurring-task controls and instance-edit tests. | [ ] Implement calendar import/sync, time-zone and revocation handling. | [ ] Test shared-task, notification and calendar failure paths. |
+| 3 Oct | V2 gate | [ ] Check iOS feasibility and release integration; do not claim iOS support without device evidence. | [ ] Finish Journey UI and collaboration usability checks. | [ ] Extend Journey weekly/monthly summary from real records; test migrations. | [ ] Lead V2 security, sync-recovery and upgrade tests. |
+| 4 Oct | V3 | [ ] Keep a releasable V1/V2 build and prepare recommendation integration boundary. | [ ] Design optional recommendation and recovery UX. | [ ] Add consent, retention, recommendation and feedback records. | [ ] Define Calamity inputs, update rules, limits and test cases. |
+| 5 Oct | V3 | [ ] Integrate explainable recommendations behind a safe feature control. | [ ] Implement personalised recovery views and explicit opt-in states. | [ ] Verify consent withdrawal, deletion and recommendation audit history. | [ ] Build rules-based baseline; compare predictive approach against it. |
+| 6 Oct | V3 gate | [ ] Integrate reversible alternatives and prepare cross-platform release evidence. | [ ] Add recommendation reject/correct/disable controls and team views. | [ ] Implement team access/aggregation; run privacy and security checks. | [ ] Test alternatives, fairness, performance, resilience and the V3 gate. |
+| 7 Oct | V4 | [ ] Build responsive authorised web dashboard. | [ ] Gather evidence of school/team demand and privacy boundaries. | [ ] Add organisations, workspaces, memberships and role-based RLS. | [ ] Validate institutional use cases and acceptance criteria. |
+| 8 Oct | V4 | [ ] Integrate approved education/project systems with revocation and retry. | [ ] Build privacy-preserving team capacity views. | [ ] Implement aggregated capacity and enterprise sign-in/account lifecycle. | [ ] Test role boundaries, consent and cross-user visibility. |
+| 9 Oct | V4 gate | [ ] Implement offline client sync, controlled API/webhooks and integration docs. | [ ] Run web/mobile usability and accessibility checks. | [ ] Implement conflict-safe storage, export/transfer/deletion and audit controls. | [ ] Lead scale, backup, recovery, compliance and failure tests. |
+| 10 Oct | Release freeze | [ ] Integrate only gate-passing work; create release tag, signed APK and rollback notes. | [ ] Verify final English UI, judge journey and screenshots. | [ ] Verify production migration, RLS, judge account and deterministic demo data. | [ ] Run full regression on at least two Android devices and close critical defects. |
+| 11 Oct | Building submission | [ ] Submit repository link before the organiser's exact cutoff; archive build evidence. | [ ] Verify judge instructions and accessible demo flow. | [ ] Re-check judge account, database isolation and restore instructions. | [ ] Sign off test log and list unresolved limitations honestly. |
+
+## Release gates and evidence
+
+- **V1 — 29 Sep:** Registration/login, tasks, availability, overload, trade-off, Confirm/Undo, Sanctuary and Journey work end-to-end with real data. Invalid moves fail safely; RLS prevents cross-user access. Android release candidate installs and runs. Lim owns the release decision; Matthew owns test evidence; each feature owner tests their module.
+- **V2 — 3 Oct:** Existing users upgrade without data loss or unintended sharing. Invitations, agreement, notifications, recurring work, calendar handling and Journey expansion pass permission and sync-recovery tests. Lim owns the release decision; Chong owns migration/RLS evidence; Matthew owns test evidence.
+- **V3 — 6 Oct:** Consent and withdrawal work. Every recommendation is explainable, optional and reversible; predictive features are included only if they beat the rules baseline without unacceptable safety or fairness issues. Lim owns the release decision; Matthew owns evaluation; Chong owns privacy/security evidence.
+- **V4 — 9 Oct:** Organisation access, web, integrations, SSO, offline sync, privacy requests and APIs pass role, conflict, audit and recovery tests. School/team demand and required external accounts must be real evidence, not assumed. Lim owns integration/release; Chong owns access/data; Matthew owns validation; Tan owns user evidence and UI.
+- **Final — 10–11 Oct:** If a gate fails, do not merge that version into the judged build. Submit the strongest stable version with a truthful list of completed and deferred features. No major feature push after the Building cutoff.
+
+## Daily handoff rule
+
+Each owner reports: finished task, test or screenshot evidence, blocker, and next action. Lim records the merge decision. Do not mark a box complete without evidence. Any external dependency (iOS device/Mac, institution partner, SSO provider, calendar credentials) must be reported early; unavailable dependencies are blockers, not simulated completion.

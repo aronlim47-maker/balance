@@ -33,29 +33,36 @@ class BalanceScaffold extends StatelessWidget {
       title: Text(title),
       actions: [
         ...?actions,
-        Consumer<AuthViewModel>(
-          builder: (context, auth, _) {
-            if (!auth.isConfigured) return const SizedBox.shrink();
-            return PopupMenuButton<String>(
-              icon: const Icon(Icons.account_circle_outlined),
-              tooltip: auth.currentUserEmail ?? '账户',
-              onSelected: (value) {
-                if (value == 'signOut') auth.signOut();
-              },
-              itemBuilder: (_) => [
-                PopupMenuItem(
-                  enabled: false,
-                  child: Text(auth.currentUserEmail ?? '已登录'),
-                ),
-                const PopupMenuDivider(),
-                const PopupMenuItem(value: 'signOut', child: Text('退出登录')),
-              ],
-            );
-          },
+        IconButton(
+          tooltip: 'Profile',
+          onPressed: () => context.push(AppRoutes.profile),
+          icon: const Icon(Icons.account_circle_outlined),
         ),
       ],
     ),
-    body: SafeArea(child: body),
+    body: SafeArea(
+      child: Column(
+        children: [
+          Consumer<AuthViewModel>(
+            builder: (context, auth, _) => auth.isConfigured
+                ? const SizedBox.shrink()
+                : Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    child: const Text(
+                      'Local preview · Changes are not saved to Supabase',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+          ),
+          Expanded(child: body),
+        ],
+      ),
+    ),
     bottomNavigationBar: NavigationBar(
       selectedIndex: currentIndex,
       onDestinationSelected: (index) => context.go(_routes[index]),

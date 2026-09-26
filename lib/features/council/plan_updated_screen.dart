@@ -5,66 +5,122 @@ import 'package:provider/provider.dart';
 import '../../core/shared_widgets/section_header.dart';
 import 'war_council_view_model.dart';
 
-class PlanUpdatedScreen extends StatelessWidget {
+class PlanUpdatedScreen extends StatefulWidget {
   const PlanUpdatedScreen({super.key, required this.changeId});
   final String changeId;
 
   @override
+  State<PlanUpdatedScreen> createState() => _PlanUpdatedScreenState();
+}
+
+class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<WarCouncilViewModel>().loadChange(widget.changeId);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<WarCouncilViewModel>();
+    final change = viewModel.currentChange?.id == widget.changeId
+        ? viewModel.currentChange
+        : null;
+    final hasKnownChange = change != null;
+    final taskTitle =
+        change?.consequences['task_title'] as String? ??
+        viewModel.confirmedOption?.taskTitle ??
+        'Selected task';
+    final movedMinutes =
+        (change?.consequences['moved_minutes'] as num?)?.toInt() ??
+        viewModel.confirmedOption?.movedMinutes;
     return Scaffold(
       appBar: AppBar(title: const Text('Plan updated')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            Icon(
-              viewModel.wasUndone ? Icons.undo_rounded : Icons.check_circle,
-              size: 64,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+            if (viewModel.isLoadingChange && !hasKnownChange)
+              const Center(child: CircularProgressIndicator())
+            else
+              Icon(
+                !hasKnownChange
+                    ? Icons.info_outline
+                    : viewModel.wasUndone
+                    ? Icons.undo_rounded
+                    : Icons.check_circle,
+                size: 64,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             const SizedBox(height: 18),
             SectionHeader(
-              title: viewModel.wasUndone
+              title: !hasKnownChange
+                  ? viewModel.isLoadingChange
+                        ? 'Loading plan…'
+                        : 'Plan unavailable'
+                  : viewModel.wasUndone
                   ? 'Changes were undone'
-                  : 'Your evening is balanced',
-              subtitle: viewModel.wasUndone
-                  ? 'Task placements and recovery time were restored.'
-                  : 'The selected move and recovery reservation were saved together.',
+                  : 'Plan confirmed',
+              subtitle: !hasKnownChange
+                  ? viewModel.changeNotFound
+                        ? 'This plan record could not be found. Return to War Council and refresh.'
+                        : 'Check the plan status before making another change.'
+                  : viewModel.wasUndone
+                  ? 'The task placement was restored in Supabase.'
+                  : 'The task move was saved in Supabase.',
             ),
             const SizedBox(height: 22),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  children: [
-                    const ListTile(
-                      leading: Icon(Icons.event_repeat),
-                      title: Text('Research task'),
-                      subtitle: Text('150 minutes moved to tomorrow'),
-                    ),
-                    const Divider(),
-                    const ListTile(
-                      leading: Icon(Icons.spa_outlined),
-                      title: Text('Recovery protected'),
-                      subtitle: Text('30 minutes reserved tonight'),
-                    ),
-                    const Divider(),
-                    ListTile(
-                      leading: const Icon(Icons.receipt_long_outlined),
-                      title: const Text('Change reference'),
-                      subtitle: Text(changeId),
-                    ),
-                  ],
+            if (hasKnownChange)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.event_repeat),
+                        title: Text(taskTitle),
+                        subtitle: Text(
+                          movedMinutes == null
+                              ? 'Task placement changed'
+                              : '$movedMinutes minutes moved',
+                        ),
+                      ),
+                      const Divider(),
+                      ListTile(
+                        leading: const Icon(Icons.receipt_long_outlined),
+                        title: const Text('Change reference'),
+                        subtitle: Text(widget.changeId),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
             const SizedBox(height: 22),
-            if (!viewModel.wasUndone)
+            if (viewModel.errorMessage != null) ...[
+              Text(
+                viewModel.errorMessage!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (!hasKnownChange && !viewModel.isLoadingChange)
+              OutlinedButton(
+                onPressed: () => viewModel.loadChange(widget.changeId),
+                child: const Text('Try again'),
+              ),
+            if (!viewModel.wasUndone && change != null)
               OutlinedButton.icon(
-                onPressed: viewModel.undoPlan,
+                onPressed: viewModel.isSaving
+                    ? null
+                    : () => _undo(context, viewModel),
                 icon: const Icon(Icons.undo),
-                label: const Text('Undo this plan'),
+                label: Text(
+                  viewModel.isSaving ? 'Restoring…' : 'Undo this plan',
+                ),
               ),
             const SizedBox(height: 10),
             FilledButton(
@@ -74,6 +130,17 @@ class PlanUpdatedScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _undo(
+    BuildContext context,
+    WarCouncilViewModel viewModel,
+  ) async {
+    final undone = await viewModel.undoPlan(widget.changeId);
+    if (!context.mounted || undone) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(viewModel.errorMessage ?? 'Undo failed.')),
     );
   }
 }

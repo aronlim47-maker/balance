@@ -45,14 +45,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      '欢迎回到 Balance',
+                      'Welcome back to Balance',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      '登录后继续管理你的任务和恢复时间。',
+                      'Sign in to manage your tasks and recovery time.',
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 28),
@@ -61,12 +61,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       keyboardType: TextInputType.emailAddress,
                       autofillHints: const [AutofillHints.email],
                       decoration: const InputDecoration(
-                        labelText: '邮箱',
+                        labelText: 'Email',
                         prefixIcon: Icon(Icons.email_outlined),
                       ),
                       validator: (value) =>
                           value == null || !value.contains('@')
-                          ? '请输入有效邮箱'
+                          ? 'Enter a valid email address.'
                           : null,
                     ),
                     const SizedBox(height: 14),
@@ -75,11 +75,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: true,
                       autofillHints: const [AutofillHints.password],
                       decoration: const InputDecoration(
-                        labelText: '密码',
+                        labelText: 'Password',
                         prefixIcon: Icon(Icons.lock_outline),
                       ),
                       validator: (value) => value == null || value.length < 6
-                          ? '密码至少需要 6 个字符'
+                          ? 'Password must be at least 6 characters.'
                           : null,
                     ),
                     if (auth.errorMessage != null) ...[
@@ -94,11 +94,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 22),
                     FilledButton(
                       onPressed: auth.isLoading ? null : _submit,
-                      child: Text(auth.isLoading ? '登录中…' : '登录'),
+                      child: Text(auth.isLoading ? 'Signing in…' : 'Sign in'),
                     ),
                     TextButton(
                       onPressed: () => context.go('/register'),
-                      child: const Text('还没有账户？注册'),
+                      child: const Text('New to Balance? Create an account'),
                     ),
                   ],
                 ),
