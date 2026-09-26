@@ -44,22 +44,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      '建立账户',
+                      'Create an account',
                       style: Theme.of(context).textTheme.headlineMedium
                           ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 8),
-                    const Text('每位用户的数据会通过 Supabase RLS 独立保护。'),
+                    const Text(
+                      'Your planning data stays private to your account.',
+                    ),
                     const SizedBox(height: 26),
                     TextFormField(
                       controller: _nameController,
                       decoration: const InputDecoration(
-                        labelText: '显示名称',
+                        labelText: 'Display name',
                         prefixIcon: Icon(Icons.person_outline),
                       ),
                       validator: (value) =>
                           value == null || value.trim().isEmpty
-                          ? '请输入显示名称'
+                          ? 'Enter a display name.'
                           : null,
                     ),
                     const SizedBox(height: 14),
@@ -67,12 +69,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
-                        labelText: '邮箱',
+                        labelText: 'Email',
                         prefixIcon: Icon(Icons.email_outlined),
                       ),
                       validator: (value) =>
                           value == null || !value.contains('@')
-                          ? '请输入有效邮箱'
+                          ? 'Enter a valid email address.'
                           : null,
                     ),
                     const SizedBox(height: 14),
@@ -80,11 +82,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: _passwordController,
                       obscureText: true,
                       decoration: const InputDecoration(
-                        labelText: '密码',
+                        labelText: 'Password',
                         prefixIcon: Icon(Icons.lock_outline),
                       ),
                       validator: (value) => value == null || value.length < 8
-                          ? '密码至少需要 8 个字符'
+                          ? 'Password must be at least 8 characters.'
                           : null,
                     ),
                     if (auth.errorMessage != null) ...[
@@ -108,11 +110,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const SizedBox(height: 22),
                     FilledButton(
                       onPressed: auth.isLoading ? null : _submit,
-                      child: Text(auth.isLoading ? '建立中…' : '注册'),
+                      child: Text(
+                        auth.isLoading ? 'Creating account…' : 'Sign up',
+                      ),
                     ),
                     TextButton(
                       onPressed: () => context.go('/login'),
-                      child: const Text('已有账户？登录'),
+                      child: const Text('Already have an account? Sign in'),
                     ),
                   ],
                 ),

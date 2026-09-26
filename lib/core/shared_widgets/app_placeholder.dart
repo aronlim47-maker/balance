@@ -9,7 +9,7 @@ class AppPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = Center(child: Text('$title 由对应组员继续开发'));
+    final content = Center(child: Text('$title is coming soon.'));
     if (navigationIndex == null) {
       return Scaffold(
         appBar: AppBar(title: Text(title)),

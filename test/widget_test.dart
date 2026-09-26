@@ -7,11 +7,13 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:balance/app.dart';
+import 'package:balance/features/today/today_screen.dart';
 
 void main() {
   testWidgets('Balance opens the Today page', (WidgetTester tester) async {
     await tester.pumpWidget(const BalanceApp());
     await tester.pumpAndSettle();
-    expect(find.text('今日状态'), findsOneWidget);
+    expect(find.byType(TodayScreen), findsOneWidget);
+    expect(find.text('Daily capacity'), findsOneWidget);
   });
 }

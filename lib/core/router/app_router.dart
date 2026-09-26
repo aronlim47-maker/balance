@@ -7,6 +7,7 @@ import '../../features/auth/login_screen.dart';
 import '../../features/auth/register_screen.dart';
 import '../../features/journey/journey_screen.dart';
 import '../../features/quests/quest_board_screen.dart';
+import '../../features/profile/profile_screen.dart';
 import '../../features/sanctuary/sanctuary_screen.dart';
 import '../../features/today/today_screen.dart';
 
@@ -18,6 +19,7 @@ abstract final class AppRoutes {
   static const council = '/council';
   static const sanctuary = '/sanctuary';
   static const journey = '/journey';
+  static const profile = '/profile';
 }
 
 GoRouter buildAppRouter(AuthViewModel authViewModel) => GoRouter(
@@ -56,5 +58,6 @@ GoRouter buildAppRouter(AuthViewModel authViewModel) => GoRouter(
       builder: (_, _) => const SanctuaryScreen(),
     ),
     GoRoute(path: AppRoutes.journey, builder: (_, _) => const JourneyScreen()),
+    GoRoute(path: AppRoutes.profile, builder: (_, _) => const ProfileScreen()),
   ],
 );
