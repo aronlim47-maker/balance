@@ -1,4 +1,5 @@
 import '../../domain/models/check_in.dart';
+import '../../domain/enums/energy_level.dart';
 
 abstract final class CheckInMapper {
   static CheckIn fromJson(Map<String, dynamic> json) => CheckIn(
@@ -9,6 +10,12 @@ abstract final class CheckInMapper {
     physical: (json['physical'] as num?)?.toInt(),
     social: (json['social'] as num?)?.toInt(),
     errands: (json['errands'] as num?)?.toInt(),
+    mentalEnergyLevel: EnergyLevel.fromStorage(
+      json['mental_energy_level'] as String?,
+    ),
+    physicalEnergyLevel: EnergyLevel.fromStorage(
+      json['physical_energy_level'] as String?,
+    ),
   );
 
   static Map<String, dynamic> toUpsert(CheckIn checkIn, String userId) => {
@@ -19,6 +26,8 @@ abstract final class CheckInMapper {
     'physical': checkIn.physical,
     'social': checkIn.social,
     'errands': checkIn.errands,
+    'mental_energy_level': checkIn.mentalEnergyLevel?.name,
+    'physical_energy_level': checkIn.physicalEnergyLevel?.name,
   };
 
   static String dateValue(DateTime value) =>

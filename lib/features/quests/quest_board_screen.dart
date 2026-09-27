@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/shared_widgets/balance_scaffold.dart';
 import '../../data/repositories/task_repository.dart';
 import '../../domain/enums/task_flexibility.dart';
+import '../../domain/enums/load_category.dart';
 import '../../domain/enums/task_status.dart';
 import '../../domain/models/task_item.dart';
 import 'quest_board_view_model.dart';
@@ -161,6 +162,42 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
+                PopupMenuButton<String>(
+                  tooltip: 'Filter by category',
+                  onSelected: (value) {
+                    if (value == 'uncategorized') {
+                      viewModel.setCategoryFilter(
+                        null,
+                        uncategorizedOnly: true,
+                      );
+                    } else {
+                      viewModel.setCategoryFilter(
+                        LoadCategory.fromStorage(value == 'all' ? null : value),
+                      );
+                    }
+                  },
+                  itemBuilder: (_) => [
+                    const PopupMenuItem(
+                      value: 'all',
+                      child: Text('All categories'),
+                    ),
+                    for (final category in LoadCategory.values)
+                      PopupMenuItem(
+                        value: category.name,
+                        child: Text(category.label),
+                      ),
+                    const PopupMenuItem(
+                      value: 'uncategorized',
+                      child: Text('Needs Review'),
+                    ),
+                  ],
+                  child: Chip(
+                    label: Text(
+                      'Category: ${viewModel.uncategorizedOnly ? 'Needs Review' : viewModel.categoryFilter?.label ?? 'All'}',
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 PopupMenuButton<String>(
                   tooltip: 'Filter by status',
                   onSelected: (value) =>
