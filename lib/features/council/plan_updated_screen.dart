@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/shared_widgets/section_header.dart';
+import '../../domain/enums/plan_status.dart';
 import 'war_council_view_model.dart';
 
 class PlanUpdatedScreen extends StatefulWidget {
@@ -31,6 +32,11 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
         ? viewModel.currentChange
         : null;
     final hasKnownChange = change != null;
+    final isConfirmed =
+        change?.status == PlanStatus.confirmed && !viewModel.wasUndone;
+    final isUndone =
+        hasKnownChange &&
+        (change.status == PlanStatus.undone || viewModel.wasUndone);
     final taskTitle =
         change?.consequences['task_title'] as String? ??
         viewModel.confirmedOption?.taskTitle ??
@@ -48,11 +54,11 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
               const Center(child: CircularProgressIndicator())
             else
               Icon(
-                !hasKnownChange
-                    ? Icons.info_outline
-                    : viewModel.wasUndone
+                isUndone
                     ? Icons.undo_rounded
-                    : Icons.check_circle,
+                    : isConfirmed
+                    ? Icons.check_circle
+                    : Icons.info_outline,
                 size: 64,
                 color: Theme.of(context).colorScheme.primary,
               ),
@@ -62,16 +68,20 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                   ? viewModel.isLoadingChange
                         ? 'Loading plan…'
                         : 'Plan unavailable'
-                  : viewModel.wasUndone
+                  : isUndone
                   ? 'Changes were undone'
-                  : 'Plan confirmed',
+                  : isConfirmed
+                  ? 'Plan confirmed'
+                  : 'Plan not confirmed',
               subtitle: !hasKnownChange
                   ? viewModel.changeNotFound
                         ? 'This plan record could not be found. Return to War Council and refresh.'
                         : 'Check the plan status before making another change.'
-                  : viewModel.wasUndone
+                  : isUndone
                   ? 'The task placement was restored in Supabase.'
-                  : 'The task move was saved in Supabase.',
+                  : isConfirmed
+                  ? 'The task move was saved in Supabase.'
+                  : 'No task move was applied.',
             ),
             const SizedBox(height: 22),
             if (hasKnownChange)
@@ -84,7 +94,11 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                         leading: const Icon(Icons.event_repeat),
                         title: Text(taskTitle),
                         subtitle: Text(
-                          movedMinutes == null
+                          isUndone
+                              ? 'Move reversed'
+                              : !isConfirmed
+                              ? 'No move applied'
+                              : movedMinutes == null
                               ? 'Task placement changed'
                               : '$movedMinutes minutes moved',
                         ),
@@ -112,11 +126,9 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                 onPressed: () => viewModel.loadChange(widget.changeId),
                 child: const Text('Try again'),
               ),
-            if (!viewModel.wasUndone && change != null)
+            if (viewModel.canUndoCurrentChange)
               OutlinedButton.icon(
-                onPressed: viewModel.isSaving
-                    ? null
-                    : () => _undo(context, viewModel),
+                onPressed: () => _undo(context, viewModel),
                 icon: const Icon(Icons.undo),
                 label: Text(
                   viewModel.isSaving ? 'Restoring…' : 'Undo this plan',

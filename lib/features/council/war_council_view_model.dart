@@ -132,6 +132,10 @@ class WarCouncilViewModel extends ChangeNotifier {
   String? get selectedOptionId => _selectedOptionId;
   bool get isSaving => _isSaving;
   bool get wasUndone => _wasUndone;
+  bool get canUndoCurrentChange =>
+      _currentChange?.status == PlanStatus.confirmed &&
+      !_wasUndone &&
+      !_isSaving;
   TradeOffPlan? get selectedOption =>
       _options.where((option) => option.id == _selectedOptionId).firstOrNull;
   ValidationStatus get validationStatus {
@@ -297,7 +301,11 @@ class WarCouncilViewModel extends ChangeNotifier {
   }
 
   Future<bool> undoPlan(String changeId) async {
-    if (_planRepository == null || _isSaving) return false;
+    if (_planRepository == null ||
+        !canUndoCurrentChange ||
+        _currentChange?.id != changeId) {
+      return false;
+    }
     _isSaving = true;
     _errorMessage = null;
     notifyListeners();
@@ -320,6 +328,7 @@ class WarCouncilViewModel extends ChangeNotifier {
 
   Future<void> loadChange(String changeId) async {
     if (_planRepository == null) return;
+    final keepSuccessfulUndo = _wasUndone && _currentChange?.id == changeId;
     _isLoadingChange = true;
     _changeNotFound = false;
     _errorMessage = null;
@@ -331,11 +340,18 @@ class WarCouncilViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       final changes = await _planRepository.fetchPlanChanges();
-      _currentChange =
-          changes.where((change) => change.id == changeId).firstOrNull ??
-          _currentChange;
+      final fetched = changes
+          .where((change) => change.id == changeId)
+          .firstOrNull;
+      final justConfirmed =
+          _confirmedOption != null &&
+          !_wasUndone &&
+          _currentChange?.id == changeId &&
+          _currentChange?.status == PlanStatus.confirmed;
+      _currentChange = fetched ?? (justConfirmed ? _currentChange : null);
       _changeNotFound = _currentChange == null;
-      _wasUndone = _currentChange?.status == PlanStatus.undone;
+      _wasUndone =
+          keepSuccessfulUndo || _currentChange?.status == PlanStatus.undone;
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,

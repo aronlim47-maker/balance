@@ -5,6 +5,8 @@ import 'package:balance/data/mappers/recovery_mapper.dart';
 import 'package:balance/data/mappers/task_mapper.dart';
 import 'package:balance/data/repositories/plan_repository.dart';
 import 'package:balance/domain/enums/plan_status.dart';
+import 'package:balance/domain/enums/energy_level.dart';
+import 'package:balance/domain/enums/load_category.dart';
 import 'package:balance/domain/enums/task_flexibility.dart';
 import 'package:balance/domain/enums/task_status.dart';
 import 'package:balance/domain/enums/validation_status.dart';
@@ -29,15 +31,31 @@ void main() {
         'status': 'planned',
         'is_protected': false,
         'is_optional': true,
+        'load_category': 'study',
       });
 
       expect(task.remainingMinutes, 60);
       expect(task.flexibility, TaskFlexibility.needsAgreement);
       expect(task.status, TaskStatus.planned);
+      expect(task.loadCategory, LoadCategory.study);
+      expect(TaskMapper.toUpdate(task), containsPair('load_category', 'study'));
       expect(
         TaskMapper.toInsert(task, 'user-1'),
         containsPair('user_id', 'user-1'),
       );
+    });
+
+    test('keeps an old task without category in Needs Review state', () {
+      final task = TaskMapper.fromJson({
+        'id': 'legacy-1',
+        'title': 'Old assignment',
+        'estimated_minutes': 30,
+        'due_at': '2026-09-30T10:00:00Z',
+        'flexibility': 'flexible',
+        'status': 'planned',
+      });
+      expect(task.loadCategory, isNull);
+      expect(TaskMapper.toUpdate(task), isNot(contains('load_category')));
     });
 
     test('omits untouched schedule fields but can explicitly clear them', () {
@@ -85,9 +103,17 @@ void main() {
         'physical': 3,
         'social': 5,
         'errands': 2,
+        'mental_energy_level': 'moderate',
+        'physical_energy_level': 'high',
       });
 
       expect(checkIn.sleepHours, 7.5);
+      expect(checkIn.mentalEnergyLevel, EnergyLevel.moderate);
+      expect(checkIn.physicalEnergyLevel, EnergyLevel.high);
+      expect(
+        CheckInMapper.toUpsert(checkIn, 'user-1'),
+        containsPair('mental_energy_level', 'moderate'),
+      );
       expect(
         CheckInMapper.toUpsert(checkIn, 'user-1'),
         containsPair('check_in_date', '2026-09-29'),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/enums/task_flexibility.dart';
+import '../../domain/enums/load_category.dart';
 import '../../domain/enums/task_status.dart';
 import '../../domain/models/task_item.dart';
 
@@ -22,8 +23,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   late TaskFlexibility _flexibility;
   late TaskStatus _status;
   late bool _isProtected;
+  String? _protectedCommitmentType;
   late bool _isOptional;
   late bool _isScheduled;
+  LoadCategory? _loadCategory;
   DateTime? _scheduledStart;
 
   bool get _isEditing => widget.task != null;
@@ -41,7 +44,9 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     _flexibility = task?.flexibility ?? TaskFlexibility.flexible;
     _status = task?.status ?? TaskStatus.planned;
     _isProtected = task?.isProtected ?? false;
+    _protectedCommitmentType = task?.protectedCommitmentType;
     _isOptional = task?.isOptional ?? false;
+    _loadCategory = task?.loadCategory;
     _scheduledStart = task?.scheduledStart?.toLocal();
     _isScheduled = _scheduledStart != null;
   }
@@ -129,6 +134,26 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               onTap: _pickDueAt,
             ),
             const SizedBox(height: 12),
+            DropdownButtonFormField<LoadCategory>(
+              initialValue: _loadCategory,
+              decoration: const InputDecoration(labelText: 'Task category'),
+              items: [
+                for (final category in LoadCategory.values)
+                  DropdownMenuItem(
+                    value: category,
+                    child: Text(category.label),
+                  ),
+              ],
+              validator: (value) => value == null
+                  ? 'Choose a task category before saving.'
+                  : null,
+              onChanged: (value) => setState(() => _loadCategory = value),
+            ),
+            if (_isEditing && widget.task!.loadCategory == null) ...[
+              const SizedBox(height: 6),
+              const Text('Choose a category for this older task.'),
+            ],
+            const SizedBox(height: 12),
             DropdownButtonFormField<TaskFlexibility>(
               initialValue: _flexibility,
               decoration: const InputDecoration(labelText: 'Flexibility'),
@@ -177,9 +202,19 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             SwitchListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
               title: const Text('Protected task'),
-              subtitle: const Text('Prevent automatic rescheduling.'),
               value: _isProtected,
               onChanged: (value) => setState(() => _isProtected = value),
+            ),
+            if (_isProtected) DropdownButtonFormField<String?>(
+              initialValue: _protectedCommitmentType,
+              decoration: const InputDecoration(labelText: 'Protected commitment type'),
+              items: const [
+                DropdownMenuItem(value: null, child: Text('Other protected task')),
+                DropdownMenuItem(value: 'work_shift', child: Text('Work shift')),
+                DropdownMenuItem(value: 'family_duty', child: Text('Family duty')),
+                DropdownMenuItem(value: 'sleep_minimum', child: Text('Sleep minimum')),
+              ],
+              onChanged: (value) => setState(() => _protectedCommitmentType = value),
             ),
             SwitchListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
@@ -190,9 +225,6 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             SwitchListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
               title: const Text('Schedule work time'),
-              subtitle: const Text(
-                'Place the remaining work inside an available time block.',
-              ),
               value: _isScheduled,
               onChanged: (value) => setState(() {
                 _isScheduled = value;
@@ -322,7 +354,9 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
         flexibility: _flexibility,
         status: _status,
         isProtected: _isProtected,
+        protectedCommitmentType: _isProtected ? _protectedCommitmentType : null,
         isOptional: _isOptional,
+        loadCategory: _loadCategory,
       ),
     );
   }

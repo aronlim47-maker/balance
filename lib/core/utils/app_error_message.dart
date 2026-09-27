@@ -114,7 +114,7 @@ abstract final class AppErrorMessage {
       '42501' || 'PGRST301' =>
         'You do not have access to this item. Sign in again and retry.',
       'PGRST116' => 'This item is no longer available. Refresh and try again.',
-      'PGRST202' || '42883' => 'This feature needs the latest database update. Please contact the project owner.',
+      'PGRST202' || 'PGRST204' || '42703' || '42883' => 'This feature needs the latest database update. Please contact the project owner.',
       _ => fallback,
     };
   }

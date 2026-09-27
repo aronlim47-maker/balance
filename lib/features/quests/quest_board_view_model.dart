@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../core/utils/app_error_message.dart';
 import '../../data/repositories/task_repository.dart';
 import '../../domain/enums/task_flexibility.dart';
+import '../../domain/enums/load_category.dart';
 import '../../domain/enums/task_status.dart';
 import '../../domain/models/task_item.dart';
 
@@ -15,6 +16,8 @@ class QuestBoardViewModel extends ChangeNotifier {
   final List<TaskItem> _tasks = [];
   String _searchQuery = '';
   TaskStatus? _statusFilter;
+  LoadCategory? _categoryFilter;
+  bool _uncategorizedOnly = false;
   TaskFlexibility? _flexibilityFilter;
   bool? _protectedFilter;
   DateTime? _startDate;
@@ -24,6 +27,8 @@ class QuestBoardViewModel extends ChangeNotifier {
   List<TaskItem> get tasks => List.unmodifiable(_tasks);
   String get searchQuery => _searchQuery;
   TaskStatus? get statusFilter => _statusFilter;
+  LoadCategory? get categoryFilter => _categoryFilter;
+  bool get uncategorizedOnly => _uncategorizedOnly;
   TaskFlexibility? get flexibilityFilter => _flexibilityFilter;
   bool? get protectedFilter => _protectedFilter;
   DateTime? get startDate => _startDate;
@@ -32,6 +37,8 @@ class QuestBoardViewModel extends ChangeNotifier {
   bool get hasActiveFilters =>
       _searchQuery.isNotEmpty ||
       _statusFilter != null ||
+      _categoryFilter != null ||
+      _uncategorizedOnly ||
       _flexibilityFilter != null ||
       _protectedFilter != null ||
       _startDate != null;
@@ -43,6 +50,10 @@ class QuestBoardViewModel extends ChangeNotifier {
         return false;
       }
       if (_statusFilter != null && task.status != _statusFilter) return false;
+      if (_categoryFilter != null && task.loadCategory != _categoryFilter) {
+        return false;
+      }
+      if (_uncategorizedOnly && task.loadCategory != null) return false;
       if (_flexibilityFilter != null &&
           task.flexibility != _flexibilityFilter) {
         return false;
@@ -81,6 +92,15 @@ class QuestBoardViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setCategoryFilter(
+    LoadCategory? value, {
+    bool uncategorizedOnly = false,
+  }) {
+    _categoryFilter = value;
+    _uncategorizedOnly = uncategorizedOnly;
+    notifyListeners();
+  }
+
   void setFlexibilityFilter(TaskFlexibility? value) {
     _flexibilityFilter = value;
     notifyListeners();
@@ -106,6 +126,8 @@ class QuestBoardViewModel extends ChangeNotifier {
   void clearFilters() {
     _searchQuery = '';
     _statusFilter = null;
+    _categoryFilter = null;
+    _uncategorizedOnly = false;
     _flexibilityFilter = null;
     _protectedFilter = null;
     _startDate = null;

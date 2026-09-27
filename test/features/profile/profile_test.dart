@@ -15,7 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  test('summarizes local tasks and labels workload pressure', () async {
+  test('summarizes local tasks and keeps missing dimensions unknown', () async {
     final now = DateTime.now();
     final day = DateTime(now.year, now.month, now.day);
     final tasks = LocalTaskRepository();
@@ -44,7 +44,8 @@ void main() {
     expect(viewModel.completedTaskCount, 0);
     expect(viewModel.confirmedPlanCount, isNull);
     expect(viewModel.todayCapacity.overloadMinutes, 60);
-    expect(viewModel.stressMeterPercent, 100);
+    expect(viewModel.stressMeterPercent, isNull);
+    expect(viewModel.worldStatus.label, 'Not enough data');
     viewModel.dispose();
   });
 
@@ -85,7 +86,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Profile'), findsOneWidget);
-    expect(find.text('Stress meter'), findsOneWidget);
+    expect(find.text('World Status'), findsOneWidget);
     expect(find.textContaining('Local preview'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Sign out'), 240);
     final signOut = tester.widget<FilledButton>(

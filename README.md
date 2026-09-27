@@ -5,7 +5,7 @@ Balance is a Flutter workload-planning application. The current foundation inclu
 ## Supabase setup
 
 1. Create a Supabase project.
-2. Open the Supabase SQL Editor and run the migrations in order: `supabase/migrations/202609240001_initial_schema.sql`, then `supabase/migrations/202609250001_war_council_integrity.sql`. If the first migration has already been applied, run only the second one.
+2. Open the Supabase SQL Editor and run each unapplied migration once, in filename order: `202609240001_initial_schema.sql`, `202609250001_war_council_integrity.sql`, `202609270001_world_status_achievements.sql`, then `202609270002_verified_progress.sql`. For an existing database, apply only migrations not already run. Migration 002 depends on 001.
 3. Copy `.env.example` to `.env`.
 4. Put the project URL and publishable key in `.env`. Never use the `service_role` key in the Flutter application.
 5. Run the app with:
@@ -13,6 +13,8 @@ Balance is a Flutter workload-planning application. The current foundation inclu
 ```powershell
 flutter run --dart-define-from-file=.env
 ```
+
+In Android Studio, the local `main.dart` Flutter run configuration includes `--dart-define-from-file=.env` in **Additional run args**. Select that configuration and the Android emulator, stop any old local-preview instance, then press Run again. If Android Studio recreates the configuration, add the same argument under **Run > Edit Configurations > Flutter > Additional run args**. A hot reload cannot change compile-time Dart defines; start a new run.
 
 For an Android APK, build it with the same compile-time configuration:
 
@@ -37,6 +39,12 @@ Without Supabase values, the app stays in local development mode so UI work and 
 User-facing failures are translated into concise English guidance for common authentication, connectivity, scheduling, permission and database cases. Unknown technical errors are not displayed verbatim; the app asks the user to retry instead.
 
 ## Verification
+
+After migration 002, run `supabase/manual/20260927_verified_progress_checks.sql` in the SQL Editor. Its read-only checks verify function availability, grants and RLS configuration. Then sign in through the app with two distinct accounts and confirm each account sees only its own tasks, recovery slots, snapshots and awards. The SQL Editor's privileged role cannot prove user isolation.
+
+With one account, record a protected recovery slot in Sanctuary; check its achievement in Journey. Create a protected work shift task; check Protected Limit. Confirm a feasible Council plan and undo it; Safe Trade-off must stay unlocked. Save a Journey reflection; Reflection should unlock. Early Review requires an overloaded current day and a task whose local deadline is on a later day. Team Coordination remains locked until the V2 shared-task workflow supplies real evidence. Retry the same actions or use a second device: `user_achievements` must keep one award per key. Today and Profile must show the same five-dimension score after refresh. Journey shows only actually captured days; missing history says “No record”.
+
+The SQL file is prepared locally; a passing Flutter test does not apply it to Supabase. `capture_world_status` records today's server-derived snapshot when Today loads. It does not backfill historic days. Open the app on multiple days to accumulate a real trend. The configured profile time zone should match the device for day boundaries.
 
 ```powershell
 flutter analyze

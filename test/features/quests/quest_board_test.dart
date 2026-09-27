@@ -1,5 +1,6 @@
 import 'package:balance/data/repositories/task_repository.dart';
 import 'package:balance/domain/enums/task_flexibility.dart';
+import 'package:balance/domain/enums/load_category.dart';
 import 'package:balance/domain/enums/task_status.dart';
 import 'package:balance/domain/models/task_item.dart';
 import 'package:balance/features/auth/auth_view_model.dart';
@@ -60,12 +61,14 @@ void main() {
               dueAt: DateTime(2026, 10, 2, 18),
               flexibility: TaskFlexibility.fixed,
               isProtected: true,
+              loadCategory: LoadCategory.study,
             ),
             TaskItem(
               id: 'lab',
               title: 'Database lab',
               estimatedMinutes: 60,
               dueAt: DateTime(2026, 10, 1, 12),
+              loadCategory: LoadCategory.errand,
             ),
             TaskItem(
               id: 'reading',
@@ -85,8 +88,17 @@ void main() {
         ]);
         viewModel.setSearchQuery('MATH');
         expect(viewModel.visibleTasks.single.id, 'math');
-        viewModel.setStatusFilter(TaskStatus.completed);
+        viewModel.setCategoryFilter(LoadCategory.study);
+        expect(viewModel.visibleTasks.single.id, 'math');
+        viewModel.setCategoryFilter(LoadCategory.social);
         expect(viewModel.visibleTasks, isEmpty);
+        viewModel.clearFilters();
+        viewModel.setCategoryFilter(null, uncategorizedOnly: true);
+        expect(viewModel.visibleTasks.single.id, 'reading');
+        expect(viewModel.hasActiveFilters, isTrue);
+        viewModel.clearFilters();
+        viewModel.setStatusFilter(TaskStatus.completed);
+        expect(viewModel.visibleTasks.single.id, 'reading');
         viewModel.clearFilters();
         viewModel.setFlexibilityFilter(TaskFlexibility.fixed);
         viewModel.setProtectedFilter(true);
@@ -149,6 +161,42 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Math assignment'), findsNothing);
     expect(find.text('Database lab'), findsOneWidget);
+  });
+
+  testWidgets('category menu filters Quest Board cards', (tester) async {
+    final repository = _FakeTaskRepository([
+      TaskItem(
+        id: 'study',
+        title: 'Study report',
+        estimatedMinutes: 60,
+        dueAt: DateTime(2026, 10, 1),
+        loadCategory: LoadCategory.study,
+      ),
+      TaskItem(
+        id: 'exercise',
+        title: 'Evening walk',
+        estimatedMinutes: 30,
+        dueAt: DateTime(2026, 10, 2),
+        loadCategory: LoadCategory.exercise,
+      ),
+    ]);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthViewModel()),
+          Provider<TaskRepository>.value(value: repository),
+        ],
+        child: const MaterialApp(home: QuestBoardScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Category: All'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Exercise').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Evening walk'), findsOneWidget);
+    expect(find.text('Study report'), findsNothing);
+    expect(find.text('Clear filters'), findsOneWidget);
   });
 }
 

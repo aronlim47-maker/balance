@@ -1,4 +1,5 @@
 import '../../domain/enums/task_flexibility.dart';
+import '../../domain/enums/load_category.dart';
 import '../../domain/enums/task_status.dart';
 import '../../domain/models/task_item.dart';
 
@@ -14,7 +15,9 @@ abstract final class TaskMapper {
     flexibility: _flexibility(json['flexibility'] as String),
     status: _status(json['status'] as String),
     isProtected: json['is_protected'] as bool? ?? false,
+    protectedCommitmentType: json['protected_commitment_type'] as String?,
     isOptional: json['is_optional'] as bool? ?? false,
+    loadCategory: LoadCategory.fromStorage(json['load_category'] as String?),
   );
 
   static Map<String, dynamic> toInsert(TaskItem task, String userId) => {
@@ -32,8 +35,10 @@ abstract final class TaskMapper {
     'due_at': task.dueAt.toUtc().toIso8601String(),
     'flexibility': _flexibilityValue(task.flexibility),
     'is_protected': task.isProtected,
+    'protected_commitment_type': task.isProtected ? task.protectedCommitmentType : null,
     'is_optional': task.isOptional,
     'status': task.status.name,
+    if (task.loadCategory != null) 'load_category': task.loadCategory!.name,
     if (task.scheduledStart != null || clearSchedule)
       'scheduled_start': task.scheduledStart?.toUtc().toIso8601String(),
     if (task.scheduledEnd != null || clearSchedule)

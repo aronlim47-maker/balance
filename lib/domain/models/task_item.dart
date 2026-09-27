@@ -1,4 +1,5 @@
 import '../enums/task_flexibility.dart';
+import '../enums/load_category.dart';
 import '../enums/task_status.dart';
 
 class TaskItem {
@@ -10,7 +11,9 @@ class TaskItem {
     this.flexibility = TaskFlexibility.flexible,
     this.status = TaskStatus.planned,
     this.isProtected = false,
+    this.protectedCommitmentType,
     this.isOptional = false,
+    this.loadCategory,
     this.remainingMinutes,
     this.scheduledStart,
     this.scheduledEnd,
@@ -22,7 +25,10 @@ class TaskItem {
   final TaskFlexibility flexibility;
   final TaskStatus status;
   final bool isProtected;
+  /// work_shift, family_duty or sleep_minimum for a protected commitment.
+  final String? protectedCommitmentType;
   final bool isOptional;
+  final LoadCategory? loadCategory;
   final int? remainingMinutes;
   final DateTime? scheduledStart;
   final DateTime? scheduledEnd;

@@ -15,6 +15,11 @@ import '../../domain/models/plan_reservation.dart';
 import '../../domain/models/recovery_slot.dart';
 import '../../domain/models/task_item.dart';
 import '../../domain/usecases/daily_capacity.dart';
+import '../../data/repositories/check_in_repository.dart';
+import '../../data/repositories/movement_repository.dart';
+import '../../data/repositories/social_repository.dart';
+import '../today/today_view_model.dart';
+import '../../domain/usecases/world_status_calculator.dart';
 
 class ProfileViewModel extends ChangeNotifier {
   ProfileViewModel(
@@ -23,7 +28,13 @@ class ProfileViewModel extends ChangeNotifier {
     this._planRepository,
     this._recoveryRepository,
     this._profileRepository,
-  ]);
+    CheckInRepository? checkIns,
+    MovementRepository? movement,
+    SocialRepository? social,
+  ]) : _worldStatus = TodayViewModel(_taskRepository, _availabilityRepository,
+          _planRepository, _recoveryRepository, null, checkIns, movement, social);
+
+  final TodayViewModel _worldStatus;
 
   final TaskRepository _taskRepository;
   final AvailabilityRepository _availabilityRepository;
@@ -63,18 +74,13 @@ class ProfileViewModel extends ChangeNotifier {
     recoverySlots: _recovery,
   );
 
-  /// A workload proxy, not a measurement of the person's mental health.
-  int get stressMeterPercent {
-    final capacity = todayCapacity;
-    if (capacity.plannedMinutes == 0) return 0;
-    final utilization = capacity.availableMinutes == 0
-        ? 1.0
-        : capacity.plannedMinutes / capacity.availableMinutes;
-    final deadlinePressure = capacity.overloadMinutes / capacity.plannedMinutes;
-    final ratio = utilization > deadlinePressure
-        ? utilization
-        : deadlinePressure;
-    return (ratio * 100).clamp(0, 100).round();
+  WorldStatusResult get worldStatus => _worldStatus.worldStatus;
+  int? get stressMeterPercent => worldStatus.totalScore;
+
+  @override
+  void dispose() {
+    _worldStatus.dispose();
+    super.dispose();
   }
 
   Future<void> load() async {
@@ -82,6 +88,12 @@ class ProfileViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
+      _worldStatus.selectDay(DateTime.now());
+      await _worldStatus.load();
+      if (_worldStatus.errorMessage != null) {
+        _errorMessage = _worldStatus.errorMessage;
+        return;
+      }
       final results = await Future.wait<Object>([
         _taskRepository.fetchTasks(),
         _availabilityRepository.fetchAvailability(),

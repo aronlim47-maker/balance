@@ -8,6 +8,9 @@ import '../../data/repositories/recovery_repository.dart';
 import '../../data/repositories/task_repository.dart';
 import '../auth/auth_view_model.dart';
 import 'profile_view_model.dart';
+import '../../data/repositories/check_in_repository.dart';
+import '../../data/repositories/movement_repository.dart';
+import '../../data/repositories/social_repository.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -20,6 +23,9 @@ class ProfileScreen extends StatelessWidget {
       context.read<PlanRepository?>(),
       context.read<RecoveryRepository?>(),
       context.read<ProfileRepository?>(),
+      context.read<CheckInRepository?>(),
+      context.read<MovementRepository?>(),
+      context.read<SocialRepository?>(),
     )..load(),
     child: const _ProfileContent(),
   );
@@ -180,7 +186,7 @@ class _ProfileContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Stress meter',
+                  'World Status',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 8),
@@ -191,11 +197,12 @@ class _ProfileContent extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '$stressPercent% workload pressure',
+                          stressPercent == null ? 'Not enough data' :
+                          '$stressPercent/100${profile.worldStatus.isPartial ? ' · Partial' : ''}',
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 12),
-                        LinearProgressIndicator(
+                        if (stressPercent != null) LinearProgressIndicator(
                           value: stressPercent / 100,
                           minHeight: 12,
                           borderRadius: BorderRadius.circular(12),
@@ -205,7 +212,7 @@ class _ProfileContent extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         const Text(
-                          'Estimated from today’s planned work, available time and deadline gap. This is not a health assessment.',
+                          'The same five-dimension score as Today. Missing data is not zero pressure. Not a health assessment.',
                         ),
                       ],
                     ),
