@@ -10,7 +10,7 @@ checks complete until the SQL has run on a disposable Supabase database.
 - Typed row models and strict date-only `LocalDate`.
 - Read mappers, `WorldStatusRepository`, `JourneyRepository` and proposed
   `PlanningInputRepository` contracts. `PlanningReadService` implements the two
-  read repositories; input writes remain an interface only. Services are not
+  read repositories; PlanningInputService implements the raw input write contract. Services are not
   wired into Provider/screens until the migration is deployed and verified.
 - Local mapper/date tests and a rollback-only SQL security test script.
 
@@ -126,3 +126,47 @@ Verification: static analysis clean; 55 tests passed (9 new mocked-HTTP adapter
 tests). `http` 1.6.0 is now an explicit dev dependency; its locked version did not
 change. Tests cover pagination, owner/date/version filters, crossing-midnight
 events, missing migration errors, invalid ranges, absent data and logout races.
+
+## Raw input adapter follow-up (28 September 2026)
+
+PlanningInputService now implements all seven PlanningInputRepository methods:
+category, existing-review energy, exercise, social event, weekly response,
+reflection and overload acknowledgement. It is intentionally not registered in
+Provider until the draft schema and Lim's missing integration files are reconciled.
+
+- Session determines user_id; updates and duplicate reads include owner filters.
+  RLS and composite foreign keys must still be verified in a disposable database.
+- UUID request IDs must be retained by callers across retries. A unique violation
+  returns the existing owner/request row only when its input payload matches.
+  Different payloads fail; other unique violations and server errors propagate.
+  No automatic retry and no overwrite-on-conflict for append operations.
+- This deduplicates retained rows, not a durable request ledger: manually deleting
+  an input permits recreation; editing it makes the original retry conflict.
+- Explicit UTC instants are required. Dates/Monday week boundaries must already
+  have been derived in the profile time zone. Unknown conflict/energy stays null.
+- saveReviewEnergy patches an existing check-in only. Save the normal check-in
+  first; the adapter never fabricates legacy ratings. A missing/hidden row fails.
+- reviewed_at is server-generated. Inputs are not trusted eligibility evidence.
+  No snapshot, planning-event or award write is exposed by this adapter.
+- A session change discards responses; it cannot undo a write already accepted
+  by the server. Refresh the original account before deciding whether to retry.
+
+Validation: 14 new mocked HTTP tests passed; the full isolated source-copy suite
+passed 69 tests. No live Supabase calls were made. Flutter analyze was attempted
+but the sandbox denied creation of AppData/Local/.dartServer even after granting
+filesystem permission. Static analysis still needs a normal-user run.
+
+## Synchronization blocker and next integration
+
+User preference: before each coding session check/fetch GitHub and integrate
+teammate updates while preserving local changes. The user fetched origin/master
+at ae812fb (Version 1.2). Do not claim it was merged: this remote tree references
+21 absent Dart files and migration 002 is documented but absent. Its migration
+001 is absent too; our branch contains the draft 001. Wait for Lim's complete
+source/SQL before reconciling the duplicate model/repository contracts.
+
+Remaining dependent work: reconcile the deployed schema, wire adapters into the
+latest UI, run clean/legacy database migrations and two-account RLS tests, verify
+trusted snapshot/award RPCs and concurrent deduplication, then run device journeys.
+Weekly metric definitions require the calculator/evidence contracts; do not invent
+scores or replace missing history with zero. No production migration was applied.

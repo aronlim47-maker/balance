@@ -4,6 +4,7 @@ import '../../domain/models/planning_data.dart';
 /// Proposed write contract for Tan and Matthew; not wired into the existing UI.
 /// Implementations obtain user_id from the session and validate owned links.
 /// Reuse requestId on retry; conflicting payloads for the same key must fail.
+/// Deduplication applies while the original input row is retained unchanged.
 abstract interface class PlanningInputRepository {
   Future<void> setTaskCategory(String taskId, LoadCategory category);
   Future<void> saveReviewEnergy({
