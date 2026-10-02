@@ -14,6 +14,6 @@ void main() {
     await tester.pumpWidget(const BalanceApp());
     await tester.pumpAndSettle();
     expect(find.byType(TodayScreen), findsOneWidget);
-    expect(find.text('Daily capacity'), findsOneWidget);
+    expect(find.text('World Status'), findsOneWidget);
   });
 }

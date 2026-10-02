@@ -20,6 +20,7 @@ class AuthViewModel extends ChangeNotifier {
   String? _noticeMessage;
 
   bool get isConfigured => _repository != null;
+  String? get currentUserId => _repository?.currentUser?.id;
   bool get isAuthenticated => !isConfigured || _repository?.currentUser != null;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;

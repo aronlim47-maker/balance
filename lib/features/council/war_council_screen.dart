@@ -42,10 +42,8 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
             const SizedBox(height: 18),
             SectionHeader(
               title: viewModel.capacity.overloadMinutes > 0
-                  ? 'This day is overloaded'
-                  : 'This day is balanced',
-              subtitle:
-                  'Review real work and available time before changing a plan.',
+                  ? 'Over capacity'
+                  : 'On track',
             ),
             const SizedBox(height: 18),
             _CapacitySummary(viewModel: viewModel),
@@ -74,8 +72,8 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     padding: const EdgeInsets.all(18),
                     child: Text(
                       viewModel.isConfigured
-                          ? 'The War Council database migration must be applied before confirming plans.'
-                          : 'Connect Supabase to confirm a plan. Local mode is for preview only.',
+                          ? 'Database update needed to confirm plans.'
+                          : 'Connect Supabase to confirm plans.',
                     ),
                   ),
                 ),
@@ -121,7 +119,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                   child: Padding(
                     padding: EdgeInsets.all(18),
                     child: Text(
-                      'This idea changes work that needs another person’s agreement. Obtain agreement and update the task in Quest Board before confirming a plan.',
+                      'Get agreement and update the task before confirming.',
                     ),
                   ),
                 ),
@@ -129,7 +127,13 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
               const SizedBox(height: 26),
               const SectionHeader(
                 title: 'Choose a plan',
-                subtitle: 'Flexible work can be confirmed. Agreement-dependent ideas are shown for review only.',
+                subtitle: 'Suggestions only. Nothing moves until confirmed.',
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () => context.go(AppRoutes.today),
+                icon: const Icon(Icons.today_outlined),
+                label: const Text('Back to Today'),
               ),
               const SizedBox(height: 12),
               if (viewModel.options.isEmpty)
@@ -141,6 +145,15 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     description: option.description,
                     movedMinutes: option.movedMinutes,
                     recoveryMinutes: 0,
+                    protectedSummary:
+                        'Existing protected tasks and recovery stay unchanged.',
+                    costSummary:
+                        '${option.movedMinutes} min added on ${DateFormat.MMMd().format(option.proposedStart.toLocal())}.',
+                    roomSummary:
+                        '${option.movedMinutes} min moved from this day. Recovery time is not reserved by this suggestion.',
+                    reviewSummary: option.needsAgreement
+                        ? 'Get agreement before this change can be confirmed.'
+                        : 'Check the proposed time and deadline before confirming.',
                     needsAgreement: option.needsAgreement,
                     isSelected: viewModel.selectedOptionId == option.id,
                     onTap: () => viewModel.selectOption(option.id),
@@ -200,16 +213,16 @@ class _NoPlanGuidance extends StatelessWidget {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(18),
-          child: Text('There is no capacity gap to resolve on this day.'),
+          child: Text('No capacity gap today.'),
         ),
       );
     }
 
     final reason = viewModel.allDayTasksProtected
-        ? 'All tasks on this day are fixed or protected, so Balance will not move them automatically.'
+        ? 'All tasks are fixed or protected.'
         : viewModel.hasUnscheduledFlexibleWork
-        ? 'Some flexible tasks have a deadline but no scheduled work time. Automatic moves require a scheduled task and a free slot before its deadline.'
-        : 'No safe automatic move fits before the current deadlines.';
+        ? 'Schedule flexible work before its deadline to compare moves.'
+        : 'No safe move fits before the deadlines.';
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(18),
@@ -217,25 +230,19 @@ class _NoPlanGuidance extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'What can you do?',
+              'No feasible plan yet',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(reason),
             const SizedBox(height: 12),
             const Text(
-              '1. Check Today and add only time you can realistically use before the deadline.\n'
-              '2. Review tasks in Quest Board. Change protection only if you chose it and the commitment is genuinely flexible.\n'
-              '3. If the gap remains, ask the lecturer or group for a later deadline or smaller scope, then update the task after they agree.',
+              'Check real availability, review flexible tasks, or ask for a deadline change.',
             ),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               children: [
-                OutlinedButton(
-                  onPressed: () => context.go(AppRoutes.today),
-                  child: const Text('Check availability'),
-                ),
                 OutlinedButton(
                   onPressed: () => context.go(AppRoutes.quests),
                   child: const Text('Review tasks'),

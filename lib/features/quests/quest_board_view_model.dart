@@ -1,20 +1,23 @@
-import 'package:flutter/foundation.dart';
+import '../../core/state/lifecycle_notifier.dart';
 
 import '../../core/utils/app_error_message.dart';
 import '../../data/repositories/task_repository.dart';
 import '../../domain/enums/task_flexibility.dart';
+import '../../domain/enums/load_category.dart';
 import '../../domain/enums/task_status.dart';
 import '../../domain/models/task_item.dart';
 
 enum QuestSort { dueSoonest, dueLatest, title, remainingMost }
 
-class QuestBoardViewModel extends ChangeNotifier {
+class QuestBoardViewModel extends LifecycleNotifier {
   QuestBoardViewModel(this._repository);
 
   final TaskRepository _repository;
   final List<TaskItem> _tasks = [];
   String _searchQuery = '';
   TaskStatus? _statusFilter;
+  LoadCategory? _categoryFilter;
+  bool _uncategorizedOnly = false;
   TaskFlexibility? _flexibilityFilter;
   bool? _protectedFilter;
   DateTime? _startDate;
@@ -24,6 +27,8 @@ class QuestBoardViewModel extends ChangeNotifier {
   List<TaskItem> get tasks => List.unmodifiable(_tasks);
   String get searchQuery => _searchQuery;
   TaskStatus? get statusFilter => _statusFilter;
+  LoadCategory? get categoryFilter => _categoryFilter;
+  bool get uncategorizedOnly => _uncategorizedOnly;
   TaskFlexibility? get flexibilityFilter => _flexibilityFilter;
   bool? get protectedFilter => _protectedFilter;
   DateTime? get startDate => _startDate;
@@ -32,6 +37,8 @@ class QuestBoardViewModel extends ChangeNotifier {
   bool get hasActiveFilters =>
       _searchQuery.isNotEmpty ||
       _statusFilter != null ||
+      _categoryFilter != null ||
+      _uncategorizedOnly ||
       _flexibilityFilter != null ||
       _protectedFilter != null ||
       _startDate != null;
@@ -43,6 +50,10 @@ class QuestBoardViewModel extends ChangeNotifier {
         return false;
       }
       if (_statusFilter != null && task.status != _statusFilter) return false;
+      if (_categoryFilter != null && task.loadCategory != _categoryFilter) {
+        return false;
+      }
+      if (_uncategorizedOnly && task.loadCategory != null) return false;
       if (_flexibilityFilter != null &&
           task.flexibility != _flexibilityFilter) {
         return false;
@@ -81,6 +92,15 @@ class QuestBoardViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setCategoryFilter(
+    LoadCategory? value, {
+    bool uncategorizedOnly = false,
+  }) {
+    _categoryFilter = value;
+    _uncategorizedOnly = uncategorizedOnly;
+    notifyListeners();
+  }
+
   void setFlexibilityFilter(TaskFlexibility? value) {
     _flexibilityFilter = value;
     notifyListeners();
@@ -106,6 +126,8 @@ class QuestBoardViewModel extends ChangeNotifier {
   void clearFilters() {
     _searchQuery = '';
     _statusFilter = null;
+    _categoryFilter = null;
+    _uncategorizedOnly = false;
     _flexibilityFilter = null;
     _protectedFilter = null;
     _startDate = null;
@@ -117,36 +139,50 @@ class QuestBoardViewModel extends ChangeNotifier {
       DateTime(date.year, date.month, date.day);
 
   bool _isLoading = false;
+  int _loadVersion = 0;
+  bool _isSaving = false;
   bool get isLoading => _isLoading;
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
   Future<void> loadTasks() async {
+    if (isDisposed || _isSaving) return;
+    final version = ++_loadVersion;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
+      final tasks = await _repository.fetchTasks();
+      if (isDisposed || version != _loadVersion) return;
       _tasks
         ..clear()
-        ..addAll(await _repository.fetchTasks());
+        ..addAll(tasks);
     } catch (error) {
+      if (isDisposed || version != _loadVersion) return;
       _errorMessage = AppErrorMessage.from(
         error,
         fallback: 'Could not load tasks. Please try again.',
       );
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (!isDisposed && version == _loadVersion) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
   Future<bool> saveTask(TaskItem task) async {
+    if (isDisposed || _isSaving) return false;
+    _isSaving = true;
+    ++_loadVersion;
+    _isLoading = false;
     _errorMessage = null;
     notifyListeners();
     try {
       final saved = task.id.isEmpty
           ? await _repository.createTask(task)
           : await _repository.updateTask(task);
+      if (isDisposed) return true;
       final index = _tasks.indexWhere((item) => item.id == saved.id);
       if (index == -1) {
         _tasks.add(saved);
@@ -163,14 +199,22 @@ class QuestBoardViewModel extends ChangeNotifier {
       );
       notifyListeners();
       return false;
+    } finally {
+      _isSaving = false;
+      notifyListeners();
     }
   }
 
   Future<bool> deleteTask(String taskId) async {
+    if (isDisposed || _isSaving) return false;
+    _isSaving = true;
+    ++_loadVersion;
+    _isLoading = false;
     _errorMessage = null;
     notifyListeners();
     try {
       await _repository.deleteTask(taskId);
+      if (isDisposed) return true;
       _tasks.removeWhere((task) => task.id == taskId);
       notifyListeners();
       return true;
@@ -181,6 +225,15 @@ class QuestBoardViewModel extends ChangeNotifier {
       );
       notifyListeners();
       return false;
+    } finally {
+      _isSaving = false;
+      notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    ++_loadVersion;
+    super.dispose();
   }
 }

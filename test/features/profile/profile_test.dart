@@ -6,6 +6,7 @@ import 'package:balance/data/repositories/recovery_repository.dart';
 import 'package:balance/data/repositories/task_repository.dart';
 import 'package:balance/domain/models/availability_block.dart';
 import 'package:balance/domain/models/app_profile.dart';
+import 'package:balance/domain/models/movement_models.dart';
 import 'package:balance/domain/models/task_item.dart';
 import 'package:balance/features/auth/auth_view_model.dart';
 import 'package:balance/features/profile/profile_screen.dart';
@@ -15,7 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  test('summarizes local tasks and labels workload pressure', () async {
+  test('summarizes local tasks and keeps missing dimensions unknown', () async {
     final now = DateTime.now();
     final day = DateTime(now.year, now.month, now.day);
     final tasks = LocalTaskRepository();
@@ -44,7 +45,30 @@ void main() {
     expect(viewModel.completedTaskCount, 0);
     expect(viewModel.confirmedPlanCount, isNull);
     expect(viewModel.todayCapacity.overloadMinutes, 60);
-    expect(viewModel.stressMeterPercent, 100);
+    expect(viewModel.stressMeterPercent, isNull);
+    expect(viewModel.worldStatus.label, 'Not enough data');
+    viewModel.dispose();
+  });
+
+  test('loads shared profile and World Status data only once', () async {
+    final tasks = _CountingTasks();
+    final availability = _CountingAvailability();
+    final movement = _CountingMovement();
+    final viewModel = ProfileViewModel(
+      tasks,
+      availability,
+      null,
+      null,
+      null,
+      null,
+      movement,
+    );
+
+    await viewModel.load();
+
+    expect(tasks.reads, 1);
+    expect(availability.reads, 1);
+    expect(movement.reads, 1);
     viewModel.dispose();
   });
 
@@ -85,7 +109,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Profile'), findsOneWidget);
-    expect(find.text('Stress meter'), findsOneWidget);
+    expect(find.text('World Status'), findsOneWidget);
     expect(find.textContaining('Local preview'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Sign out'), 240);
     final signOut = tester.widget<FilledButton>(
@@ -93,6 +117,33 @@ void main() {
     );
     expect(signOut.onPressed, isNull);
   });
+}
+
+class _CountingTasks extends LocalTaskRepository {
+  int reads = 0;
+  @override
+  Future<List<TaskItem>> fetchTasks() {
+    reads++;
+    return super.fetchTasks();
+  }
+}
+
+class _CountingAvailability extends LocalAvailabilityRepository {
+  int reads = 0;
+  @override
+  Future<List<AvailabilityBlock>> fetchAvailability() {
+    reads++;
+    return super.fetchAvailability();
+  }
+}
+
+class _CountingMovement extends LocalMovementRepository {
+  int reads = 0;
+  @override
+  Future<MovementSettings> fetchSettings() {
+    reads++;
+    return super.fetchSettings();
+  }
 }
 
 class _FakeProfileRepository implements ProfileRepository {

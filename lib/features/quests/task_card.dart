@@ -32,19 +32,19 @@ class TaskCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${task.effectiveRemainingMinutes} min remaining · '
+                  '${task.effectiveRemainingMinutes} min · '
                   'Due ${DateFormat.yMMMd().add_jm().format(task.dueAt.toLocal())}',
                 ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 6,
-                  children: [
-                    Chip(label: Text(_label(task.flexibility.name))),
-                    Chip(label: Text(_label(task.status.name))),
-                    if (task.isProtected) const Chip(label: Text('Protected')),
-                    if (task.isOptional) const Chip(label: Text('Optional')),
-                  ],
+                const SizedBox(height: 6),
+                Text(
+                  [
+                    task.loadCategory?.label ?? 'Needs Review',
+                    _label(task.flexibility.name),
+                    _label(task.status.name),
+                    if (task.isProtected) 'Protected',
+                    if (task.isOptional) 'Optional',
+                  ].join(' · '),
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
             ),

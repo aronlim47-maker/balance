@@ -46,6 +46,12 @@ class AvailabilityService implements AvailabilityRepository {
   @override
   Future<void> deleteAvailability(String blockId) async {
     requireAuthenticatedUserId(_client);
-    await _client.from('availability_blocks').delete().eq('id', blockId);
+    final deleted = await _client
+        .from('availability_blocks')
+        .delete()
+        .eq('id', blockId)
+        .select('id')
+        .maybeSingle();
+    if (deleted == null) throw StateError('Deletion not confirmed');
   }
 }

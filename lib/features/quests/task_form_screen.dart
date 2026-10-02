@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/enums/task_flexibility.dart';
+import '../../domain/enums/load_category.dart';
 import '../../domain/enums/task_status.dart';
 import '../../domain/models/task_item.dart';
 
@@ -22,8 +23,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   late TaskFlexibility _flexibility;
   late TaskStatus _status;
   late bool _isProtected;
+  String? _protectedCommitmentType;
   late bool _isOptional;
   late bool _isScheduled;
+  LoadCategory? _loadCategory;
   DateTime? _scheduledStart;
 
   bool get _isEditing => widget.task != null;
@@ -41,7 +44,9 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     _flexibility = task?.flexibility ?? TaskFlexibility.flexible;
     _status = task?.status ?? TaskStatus.planned;
     _isProtected = task?.isProtected ?? false;
+    _protectedCommitmentType = task?.protectedCommitmentType;
     _isOptional = task?.isOptional ?? false;
+    _loadCategory = task?.loadCategory;
     _scheduledStart = task?.scheduledStart?.toLocal();
     _isScheduled = _scheduledStart != null;
   }
@@ -110,8 +115,8 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                   return 'Enter a number greater than zero.';
                 }
                 if (_isEditing &&
-                    minutes < widget.task!.effectiveRemainingMinutes) {
-                  return 'Estimate cannot be below the remaining minutes.';
+                    widget.task!.remainingAfterEstimate(minutes) < 0) {
+                  return 'Duration cannot be below already allocated work.';
                 }
                 return null;
               },
@@ -128,6 +133,26 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               trailing: const Icon(Icons.calendar_month_outlined),
               onTap: _pickDueAt,
             ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<LoadCategory>(
+              initialValue: _loadCategory,
+              decoration: const InputDecoration(labelText: 'Task category'),
+              items: [
+                for (final category in LoadCategory.values)
+                  DropdownMenuItem(
+                    value: category,
+                    child: Text(category.label),
+                  ),
+              ],
+              validator: (value) => value == null
+                  ? 'Choose a task category before saving.'
+                  : null,
+              onChanged: (value) => setState(() => _loadCategory = value),
+            ),
+            if (_isEditing && widget.task!.loadCategory == null) ...[
+              const SizedBox(height: 6),
+              const Text('Choose a category for this older task.'),
+            ],
             const SizedBox(height: 12),
             DropdownButtonFormField<TaskFlexibility>(
               initialValue: _flexibility,
@@ -177,10 +202,36 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             SwitchListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
               title: const Text('Protected task'),
-              subtitle: const Text('Prevent automatic rescheduling.'),
               value: _isProtected,
               onChanged: (value) => setState(() => _isProtected = value),
             ),
+            if (_isProtected)
+              DropdownButtonFormField<String?>(
+                initialValue: _protectedCommitmentType,
+                decoration: const InputDecoration(
+                  labelText: 'Protected commitment type',
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: null,
+                    child: Text('Other protected task'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'work_shift',
+                    child: Text('Work shift'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'family_duty',
+                    child: Text('Family duty'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'sleep_minimum',
+                    child: Text('Sleep minimum'),
+                  ),
+                ],
+                onChanged: (value) =>
+                    setState(() => _protectedCommitmentType = value),
+              ),
             SwitchListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
               title: const Text('Optional task'),
@@ -190,9 +241,6 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             SwitchListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
               title: const Text('Schedule work time'),
-              subtitle: const Text(
-                'Place the remaining work inside an available time block.',
-              ),
               value: _isScheduled,
               onChanged: (value) => setState(() {
                 _isScheduled = value;
@@ -262,9 +310,13 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     });
   }
 
-  int get _scheduledMinutes =>
-      widget.task?.effectiveRemainingMinutes ??
-      (int.tryParse(_minutesController.text) ?? 0);
+  int get _scheduledMinutes {
+    final estimate = int.tryParse(_minutesController.text) ?? 0;
+    final original = widget.task;
+    return original == null
+        ? estimate
+        : original.remainingAfterEstimate(estimate);
+  }
 
   Future<void> _pickScheduledStart() async {
     final current = _scheduledStart ?? DateTime.now();
@@ -294,6 +346,16 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     final original = widget.task;
+    if (_scheduledMinutes < 0 || (_isScheduled && _scheduledMinutes == 0)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'The duration cannot be less than already allocated work. Review the plan first.',
+          ),
+        ),
+      );
+      return;
+    }
     final scheduledStart = _isScheduled ? _scheduledStart : null;
     final scheduledEnd = scheduledStart?.add(
       Duration(minutes: _scheduledMinutes),
@@ -313,16 +375,19 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
       context,
       TaskItem(
         id: original?.id ?? '',
+        version: original?.version ?? 1,
         title: _titleController.text.trim(),
         estimatedMinutes: int.parse(_minutesController.text),
-        remainingMinutes: original?.remainingMinutes,
+        remainingMinutes: _scheduledMinutes,
         dueAt: _dueAt,
         scheduledStart: scheduledStart,
         scheduledEnd: scheduledEnd,
         flexibility: _flexibility,
         status: _status,
         isProtected: _isProtected,
+        protectedCommitmentType: _isProtected ? _protectedCommitmentType : null,
         isOptional: _isOptional,
+        loadCategory: _loadCategory,
       ),
     );
   }

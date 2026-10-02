@@ -9,7 +9,10 @@ import 'package:balance/domain/models/plan_change.dart';
 import 'package:balance/domain/models/plan_reservation.dart';
 import 'package:balance/domain/models/task_item.dart';
 import 'package:balance/features/council/war_council_view_model.dart';
+import 'package:balance/features/council/plan_updated_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   test('marks a matching, flexible plan feasible and confirms it', () async {
@@ -99,6 +102,73 @@ void main() {
     expect(fixture.viewModel.changeNotFound, isFalse);
     fixture.dispose();
   });
+
+  test('draft plan is not confirmed and cannot be undone', () async {
+    final fixture = await _Fixture.create(serverOverload: 120);
+    fixture.plans.changeRows = [
+      const PlanChange(id: 'draft-1', status: PlanStatus.draft),
+    ];
+    await fixture.viewModel.loadChange('draft-1');
+
+    expect(fixture.viewModel.currentChange?.status, PlanStatus.draft);
+    expect(fixture.viewModel.canUndoCurrentChange, isFalse);
+    expect(await fixture.viewModel.undoPlan('draft-1'), isFalse);
+    expect(fixture.plans.undoCalls, 0);
+    fixture.dispose();
+  });
+
+  test('confirmed plan can be undone once', () async {
+    final fixture = await _Fixture.create(serverOverload: 120);
+    fixture.plans.changeRows = [
+      const PlanChange(id: 'confirmed-1', status: PlanStatus.confirmed),
+    ];
+    await fixture.viewModel.loadChange('confirmed-1');
+
+    expect(fixture.viewModel.canUndoCurrentChange, isTrue);
+    expect(await fixture.viewModel.undoPlan('confirmed-1'), isTrue);
+    expect(fixture.viewModel.wasUndone, isTrue);
+    expect(fixture.viewModel.canUndoCurrentChange, isFalse);
+    expect(await fixture.viewModel.undoPlan('confirmed-1'), isFalse);
+    expect(fixture.plans.undoCalls, 1);
+    fixture.dispose();
+  });
+
+  test('successful undo reports a failed refresh accurately', () async {
+    final fixture = await _Fixture.create(serverOverload: 120);
+    fixture.plans.changeRows = [
+      const PlanChange(id: 'confirmed-1', status: PlanStatus.confirmed),
+    ];
+    await fixture.viewModel.loadChange('confirmed-1');
+    fixture.plans.failReservationReads = true;
+
+    expect(await fixture.viewModel.undoPlan('confirmed-1'), isTrue);
+    expect(fixture.plans.undoCalls, 1);
+    expect(fixture.viewModel.wasUndone, isTrue);
+    expect(fixture.viewModel.refreshWarning, contains('plan was undone'));
+
+    fixture.dispose();
+  });
+
+  testWidgets('draft result page never claims a plan was confirmed', (
+    tester,
+  ) async {
+    final fixture = await _Fixture.create(serverOverload: 120);
+    fixture.plans.changeRows = [
+      const PlanChange(id: 'draft-1', status: PlanStatus.draft),
+    ];
+    await tester.pumpWidget(
+      ChangeNotifierProvider.value(
+        value: fixture.viewModel,
+        child: const MaterialApp(home: PlanUpdatedScreen(changeId: 'draft-1')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Plan not confirmed'), findsOneWidget);
+    expect(find.text('No move applied'), findsOneWidget);
+    expect(find.text('Undo this plan'), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    fixture.dispose();
+  });
 }
 
 class _Fixture {
@@ -176,6 +246,9 @@ class _FakePlanRepository implements PlanRepository {
 
   final int serverOverload;
   int confirmCalls = 0;
+  int undoCalls = 0;
+  bool failReservationReads = false;
+  List<PlanChange> changeRows = const [];
 
   @override
   Future<int> calculateDayOverload(DateTime day) async => serverOverload;
@@ -184,10 +257,13 @@ class _FakePlanRepository implements PlanRepository {
   Future<bool> hasWarCouncilMigration() async => true;
 
   @override
-  Future<List<PlanReservation>> fetchPlanReservations() async => const [];
+  Future<List<PlanReservation>> fetchPlanReservations() async {
+    if (failReservationReads) throw StateError('Simulated read failure');
+    return const [];
+  }
 
   @override
-  Future<List<PlanChange>> fetchPlanChanges() async => const [];
+  Future<List<PlanChange>> fetchPlanChanges() async => changeRows;
 
   @override
   Future<PlanChange> confirm({
@@ -201,5 +277,7 @@ class _FakePlanRepository implements PlanRepository {
   }
 
   @override
-  Future<void> undo(String changeId) async {}
+  Future<void> undo(String changeId) async {
+    undoCalls++;
+  }
 }
