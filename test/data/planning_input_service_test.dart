@@ -245,7 +245,7 @@ void main() {
       expect(jsonDecode(r.body), {
         'user_id': 'owner-a',
         'week_start': '2026-09-28',
-        'no_social_commitments': false,
+        'no_commitments': false,
       });
       expect(r.url.queryParameters['on_conflict'], 'user_id,week_start');
       return http.Response('', 204);
@@ -256,14 +256,12 @@ void main() {
     );
   });
 
-  test('overload acknowledgement leaves reviewed_at to database', () async {
+  test('overload acknowledgement uses verified server RPC', () async {
     respond = (r) async {
       final body = jsonDecode(r.body) as Map<String, dynamic>;
-      expect(
-        body.keys,
-        unorderedEquals(['user_id', 'request_id', 'task_id', 'local_date']),
-      );
-      return http.Response(jsonEncode({...body, 'id': 'saved'}), 201);
+      expect(r.url.path, '/rest/v1/rpc/acknowledge_overload');
+      expect(body, {'p_task': taskId});
+      return http.Response('', 204);
     };
     await service.acknowledgeOverload(
       requestId: requestId,
