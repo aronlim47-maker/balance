@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import '../../core/state/lifecycle_notifier.dart';
 
 import '../../core/state/planning_day_controller.dart';
 import '../../core/utils/app_error_message.dart';
@@ -19,7 +19,7 @@ import '../../domain/usecases/daily_capacity.dart';
 import '../../domain/usecases/generate_trade_offs.dart';
 import '../../domain/usecases/validate_plan.dart';
 
-class WarCouncilViewModel extends ChangeNotifier {
+class WarCouncilViewModel extends LifecycleNotifier {
   WarCouncilViewModel(
     this._taskRepository,
     this._availabilityRepository,
@@ -48,8 +48,11 @@ class WarCouncilViewModel extends ChangeNotifier {
   bool _changeNotFound = false;
   int? _serverOverloadMinutes;
   int _capacityCheckId = 0;
+  int _loadVersion = 0;
+  int _changeVersion = 0;
   String? _capacityCheckError;
   String? _errorMessage;
+  String? _refreshWarning;
   PlanChange? _currentChange;
   TradeOffPlan? _confirmedOption;
 
@@ -118,6 +121,7 @@ class WarCouncilViewModel extends ChangeNotifier {
   String? get capacityCheckError => _capacityCheckError;
   bool get isConfigured => _planRepository != null;
   String? get errorMessage => _errorMessage;
+  String? get refreshWarning => _refreshWarning;
   PlanChange? get currentChange => _currentChange;
   TradeOffPlan? get confirmedOption => _confirmedOption;
 
@@ -162,22 +166,32 @@ class WarCouncilViewModel extends ChangeNotifier {
       !_isSaving &&
       !_isLoading;
 
-  Future<void> load() async {
+  Future<void> load({bool afterMutation = false}) async {
+    if (isDisposed || (_isSaving && !afterMutation)) return;
+    final version = ++_loadVersion;
+    ++_capacityCheckId;
+    _isCheckingCapacity = false;
     _isLoading = true;
     _errorMessage = null;
+    _refreshWarning = null;
     notifyListeners();
     try {
       final tasks = await _taskRepository.fetchTasks();
+      if (isDisposed || version != _loadVersion) return;
       final availability = await _availabilityRepository.fetchAvailability();
+      if (isDisposed || version != _loadVersion) return;
       final reservations = _planRepository == null
           ? <PlanReservation>[]
           : await _planRepository.fetchPlanReservations();
+      if (isDisposed || version != _loadVersion) return;
       final recovery = _recoveryRepository == null
           ? <RecoverySlot>[]
           : await _recoveryRepository.fetchRecoverySlots();
+      if (isDisposed || version != _loadVersion) return;
       final migrationReady = _planRepository == null
           ? false
           : await _planRepository.hasWarCouncilMigration();
+      if (isDisposed || version != _loadVersion) return;
       _tasks
         ..clear()
         ..addAll(tasks);
@@ -194,14 +208,17 @@ class WarCouncilViewModel extends ChangeNotifier {
       _regenerateOptions();
       if (_migrationReady) await _checkServerCapacity();
     } catch (error) {
+      if (isDisposed || version != _loadVersion) return;
       _errorMessage = AppErrorMessage.from(
         error,
         fallback: 'Could not load plan options. Please try again.',
       );
       _options = const [];
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (!isDisposed && version == _loadVersion) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -229,6 +246,7 @@ class WarCouncilViewModel extends ChangeNotifier {
   }
 
   Future<void> _checkServerCapacity() async {
+    if (isDisposed) return;
     final repository = _planRepository;
     if (repository == null) return;
     final checkId = ++_capacityCheckId;
@@ -262,10 +280,13 @@ class WarCouncilViewModel extends ChangeNotifier {
   }
 
   Future<String?> confirmSelectedPlan() async {
-    if (!canConfirm) return null;
+    if (isDisposed || !canConfirm) return null;
+    ++_changeVersion;
+    _isLoadingChange = false;
     final option = selectedOption!;
     _isSaving = true;
     _errorMessage = null;
+    _refreshWarning = null;
     _wasUndone = false;
     notifyListeners();
     try {
@@ -284,6 +305,7 @@ class WarCouncilViewModel extends ChangeNotifier {
           'moved_minutes': option.movedMinutes,
         },
       );
+      if (isDisposed) return change.id;
       _currentChange = change;
       _changeNotFound = false;
       _confirmedOption = option;
@@ -301,18 +323,27 @@ class WarCouncilViewModel extends ChangeNotifier {
   }
 
   Future<bool> undoPlan(String changeId) async {
-    if (_planRepository == null ||
+    if (isDisposed ||
+        _planRepository == null ||
         !canUndoCurrentChange ||
         _currentChange?.id != changeId) {
       return false;
     }
     _isSaving = true;
+    ++_changeVersion;
+    ++_loadVersion;
+    _isLoadingChange = false;
     _errorMessage = null;
+    _refreshWarning = null;
     notifyListeners();
     try {
       await _planRepository.undo(changeId);
       _wasUndone = true;
-      await load();
+      await load(afterMutation: true);
+      if (_errorMessage != null) {
+        _refreshWarning = 'The plan was undone, but the latest plan could not be loaded. Try refreshing.';
+        notifyListeners();
+      }
       return true;
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
@@ -327,7 +358,8 @@ class WarCouncilViewModel extends ChangeNotifier {
   }
 
   Future<void> loadChange(String changeId) async {
-    if (_planRepository == null) return;
+    if (isDisposed || _planRepository == null || _isSaving) return;
+    final version = ++_changeVersion;
     final keepSuccessfulUndo = _wasUndone && _currentChange?.id == changeId;
     _isLoadingChange = true;
     _changeNotFound = false;
@@ -340,6 +372,7 @@ class WarCouncilViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       final changes = await _planRepository.fetchPlanChanges();
+      if (isDisposed || version != _changeVersion) return;
       final fetched = changes
           .where((change) => change.id == changeId)
           .firstOrNull;
@@ -353,13 +386,24 @@ class WarCouncilViewModel extends ChangeNotifier {
       _wasUndone =
           keepSuccessfulUndo || _currentChange?.status == PlanStatus.undone;
     } catch (error) {
+      if (isDisposed || version != _changeVersion) return;
       _errorMessage = AppErrorMessage.from(
         error,
         fallback: 'Could not load this plan. Please try again.',
       );
     } finally {
-      _isLoadingChange = false;
-      notifyListeners();
+      if (!isDisposed && version == _changeVersion) {
+        _isLoadingChange = false;
+        notifyListeners();
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    ++_loadVersion;
+    ++_changeVersion;
+    ++_capacityCheckId;
+    super.dispose();
   }
 }

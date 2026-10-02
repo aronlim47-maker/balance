@@ -150,9 +150,17 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
     WarCouncilViewModel viewModel,
   ) async {
     final undone = await viewModel.undoPlan(widget.changeId);
-    if (!context.mounted || undone) return;
+    if (!context.mounted || (undone && viewModel.refreshWarning == null)) {
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(viewModel.errorMessage ?? 'Undo failed.')),
+      SnackBar(
+        content: Text(
+          undone
+              ? viewModel.refreshWarning!
+              : viewModel.errorMessage ?? 'Undo failed.',
+        ),
+      ),
     );
   }
 }

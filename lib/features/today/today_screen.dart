@@ -232,11 +232,13 @@ class _TodayContent extends StatelessWidget {
     bool value,
   ) async {
     final saved = await viewModel.setNoSocialCommitments(value);
-    if (!context.mounted || saved) return;
+    if (!context.mounted || (saved && viewModel.refreshWarning == null)) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          viewModel.errorMessage ?? 'Could not save your response.',
+          saved
+              ? viewModel.refreshWarning!
+              : viewModel.errorMessage ?? 'Could not save your response.',
         ),
       ),
     );
@@ -295,7 +297,7 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           saved
-              ? 'Social event saved.'
+              ? viewModel.refreshWarning ?? 'Social event saved.'
               : viewModel.errorMessage ?? 'Could not save the event.',
         ),
       ),
@@ -330,7 +332,7 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           removed
-              ? 'Social event removed.'
+              ? viewModel.refreshWarning ?? 'Social event removed.'
               : viewModel.errorMessage ?? 'Could not remove the event.',
         ),
       ),
@@ -397,12 +399,14 @@ class _TodayContent extends StatelessWidget {
     MovementSettings settings,
   ) async {
     final saved = await viewModel.saveMovementSettings(settings);
-    if (!context.mounted || saved) return;
+    if (!context.mounted || (saved && viewModel.refreshWarning == null)) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          viewModel.errorMessage ??
-              'Could not save movement settings. Please try again.',
+          saved
+              ? viewModel.refreshWarning!
+              : viewModel.errorMessage ??
+                    'Could not save movement settings. Please try again.',
         ),
       ),
     );
@@ -425,7 +429,7 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           saved
-              ? 'Exercise recorded.'
+              ? viewModel.refreshWarning ?? 'Exercise recorded.'
               : viewModel.errorMessage ??
                     'Could not save exercise. Please try again.',
         ),
@@ -464,7 +468,7 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           removed
-              ? viewModel.errorMessage ?? 'Exercise record removed.'
+              ? viewModel.refreshWarning ?? 'Exercise record removed.'
               : viewModel.errorMessage ??
                     'Could not remove exercise. Please try again.',
         ),

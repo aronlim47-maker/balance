@@ -15,6 +15,12 @@ abstract final class AppErrorMessage {
     }
 
     final description = error.toString().toLowerCase();
+    if (description.contains('deletion not confirmed')) {
+      return 'The deletion could not be confirmed. Refresh the list; the item may already be gone or no longer editable.';
+    }
+    if (description.contains('task edit conflict')) {
+      return 'This task changed or was removed. Refresh the list and review it before saving again.';
+    }
     if (_looksLikeNetworkFailure(description)) {
       return 'Could not connect. Check your internet connection and try again.';
     }
@@ -85,6 +91,11 @@ abstract final class AppErrorMessage {
     }
     if (detail.contains('deadline')) {
       return 'Choose a time before the task deadline.';
+    }
+    if (detail.contains(
+      'duration cannot be less than already allocated work',
+    )) {
+      return 'Duration cannot be below already allocated work. Review the plan first.';
     }
     if (detail.contains('undo') ||
         detail.contains('task changed after this plan') ||

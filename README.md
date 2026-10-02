@@ -5,7 +5,7 @@ Balance is a Flutter workload-planning application. The current foundation inclu
 ## Supabase setup
 
 1. Create a Supabase project.
-2. Open the Supabase SQL Editor and run each unapplied migration once, in filename order: `202609240001_initial_schema.sql`, `202609250001_war_council_integrity.sql`, `202609270001_world_status_achievements.sql`, then `202609270002_verified_progress.sql`. For an existing database, apply only migrations not already run. Migration 002 depends on 001.
+2. Open the Supabase SQL Editor and run each unapplied migration once, in filename order: `202609240001_initial_schema.sql`, `202609250001_war_council_integrity.sql`, `202609270001_world_status_achievements.sql`, `202609270002_verified_progress.sql`, `202610010001_planning_consistency.sql`, `202610010002_atomic_social_event.sql`, then `202610020001_recovery_history.sql`. For an existing database, apply only migrations not already run. Each migration depends on those before it. Social-event creation requires the atomic-social-event migration; do not fall back to separate writes. Recovery history requires the last migration and is recorded only when today's World Status is captured; past days are not backfilled.
 3. Copy `.env.example` to `.env`.
 4. Put the project URL and publishable key in `.env`. Never use the `service_role` key in the Flutter application.
 5. Run the app with:

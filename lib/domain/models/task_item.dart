@@ -17,14 +17,17 @@ class TaskItem {
     this.remainingMinutes,
     this.scheduledStart,
     this.scheduledEnd,
+    this.version = 1,
   });
   final String id;
+  final int version;
   final String title;
   final int estimatedMinutes;
   final DateTime dueAt;
   final TaskFlexibility flexibility;
   final TaskStatus status;
   final bool isProtected;
+
   /// work_shift, family_duty or sleep_minimum for a protected commitment.
   final String? protectedCommitmentType;
   final bool isOptional;
@@ -34,4 +37,25 @@ class TaskItem {
   final DateTime? scheduledEnd;
 
   int get effectiveRemainingMinutes => remainingMinutes ?? estimatedMinutes;
+
+  /// Keep the work already allocated outside the remaining task unchanged.
+  int remainingAfterEstimate(int estimate) =>
+      effectiveRemainingMinutes + estimate - estimatedMinutes;
+
+  TaskItem withVersion(int value) => TaskItem(
+    id: id,
+    title: title,
+    estimatedMinutes: estimatedMinutes,
+    dueAt: dueAt,
+    flexibility: flexibility,
+    status: status,
+    isProtected: isProtected,
+    protectedCommitmentType: protectedCommitmentType,
+    isOptional: isOptional,
+    loadCategory: loadCategory,
+    remainingMinutes: remainingMinutes,
+    scheduledStart: scheduledStart,
+    scheduledEnd: scheduledEnd,
+    version: value,
+  );
 }

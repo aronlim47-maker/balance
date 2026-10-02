@@ -55,6 +55,7 @@ class _BalanceAppState extends State<BalanceApp> {
   late final RecoveryRepository? _recoveryRepository;
   late final ProfileRepository? _profileRepository;
   late final PlanningDayController _planningDayController;
+  String? _sessionUserId;
 
   @override
   void initState() {
@@ -93,11 +94,21 @@ class _BalanceAppState extends State<BalanceApp> {
         : null;
     _planningDayController = PlanningDayController();
     _router = buildAppRouter(_authViewModel);
+    _sessionUserId = _authViewModel.currentUserId;
+    _authViewModel.addListener(_handleAccountChange);
+  }
+
+  void _handleAccountChange() {
+    final userId = _authViewModel.currentUserId;
+    if (!mounted || userId == _sessionUserId) return;
+    _planningDayController.selectDay(DateTime.now());
+    setState(() => _sessionUserId = userId);
   }
 
   @override
   void dispose() {
     _router.dispose();
+    _authViewModel.removeListener(_handleAccountChange);
     _authViewModel.dispose();
     _planningDayController.dispose();
     super.dispose();
@@ -106,6 +117,7 @@ class _BalanceAppState extends State<BalanceApp> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
+      key: ValueKey(_sessionUserId),
       providers: [
         ChangeNotifierProvider.value(value: _authViewModel),
         ChangeNotifierProvider.value(value: _planningDayController),
@@ -127,10 +139,16 @@ class _BalanceAppState extends State<BalanceApp> {
         Provider<PlanRepository?>.value(value: _planRepository),
         Provider<RecoveryRepository?>.value(value: _recoveryRepository),
         Provider<ProfileRepository?>.value(value: _profileRepository),
-        Provider<WorldHistoryRepository?>(create: (_) => widget.supabaseConfigured
-          ? WorldHistoryService(Supabase.instance.client) : null),
-        Provider<VerifiedProgressService?>(create: (_) => widget.supabaseConfigured
-          ? VerifiedProgressService(Supabase.instance.client) : null),
+        Provider<WorldHistoryRepository?>(
+          create: (_) => widget.supabaseConfigured
+              ? WorldHistoryService(Supabase.instance.client)
+              : null,
+        ),
+        Provider<VerifiedProgressService?>(
+          create: (_) => widget.supabaseConfigured
+              ? VerifiedProgressService(Supabase.instance.client)
+              : null,
+        ),
       ],
       child: MaterialApp.router(
         title: 'Balance',

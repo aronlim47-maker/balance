@@ -27,6 +27,14 @@ class DailyCapacity {
     Iterable<RecoverySlot> recoverySlots = const [],
   }) {
     final localDay = DateTime(day.year, day.month, day.day);
+    final taskRows = tasks.toList();
+    final inactiveIds = taskRows
+        .where((task) => task.status != TaskStatus.planned)
+        .map((task) => task.id)
+        .toSet();
+    final activeReservations = reservations
+        .where((item) => !inactiveIds.contains(item.taskId))
+        .toList();
     final availableMinutes = availability
         .where((block) => block.isAvailable)
         .fold<int>(
@@ -50,7 +58,7 @@ class DailyCapacity {
                   ? task.effectiveRemainingMinutes
                   : 0);
         });
-    final reservedMinutes = reservations.fold<int>(
+    final reservedMinutes = activeReservations.fold<int>(
       0,
       (total, item) =>
           total + overlapMinutes(item.startAt, item.endAt, localDay),
@@ -100,7 +108,7 @@ class DailyCapacity {
                     ? task.effectiveRemainingMinutes
                     : 0);
           });
-      final reservedByCutoff = reservations.fold<int>(
+      final reservedByCutoff = activeReservations.fold<int>(
         0,
         (total, item) =>
             total + _overlapUntil(item.startAt, item.endAt, localDay, cutoff),

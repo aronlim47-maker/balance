@@ -2,6 +2,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/models/plan_change.dart';
+import '../../domain/enums/plan_status.dart';
+import '../../domain/enums/validation_status.dart';
 import '../../domain/models/plan_reservation.dart';
 import '../mappers/plan_mapper.dart';
 import '../repositories/plan_repository.dart';
@@ -25,17 +27,14 @@ class PlanService implements PlanRepository {
   @override
   Future<List<PlanReservation>> fetchPlanReservations() async {
     requireAuthenticatedUserId(_client);
-    final changes = await fetchPlanChanges();
-    final confirmedIds = changes
-        .where((change) => change.status.name == 'confirmed')
-        .map((change) => change.id)
-        .toSet();
-    if (confirmedIds.isEmpty) return const [];
     final rows = await _client
         .from('plan_change_items')
-        .select('plan_change_id,task_id,proposed_start,proposed_end');
+        .select(
+          'plan_change_id,task_id,proposed_start,proposed_end,tasks!inner(status),plan_changes!inner(status)',
+        )
+        .eq('tasks.status', 'planned')
+        .eq('plan_changes.status', 'confirmed');
     return rows
-        .where((row) => confirmedIds.contains(row['plan_change_id']))
         .map(
           (row) => PlanReservation(
             taskId: row['task_id'] as String,
@@ -100,12 +99,15 @@ class PlanService implements PlanRepository {
         'p_consequences': consequences,
       },
     );
-    final row = await _client
-        .from('plan_changes')
-        .select()
-        .eq('id', changeId)
-        .single();
-    return PlanMapper.fromJson(row);
+    // The RPC returns an ID only after the transaction has committed.
+    // Detail loading belongs to the result page and must not turn success
+    // into a failed confirmation if a subsequent request loses connectivity.
+    return PlanChange(
+      id: changeId,
+      status: PlanStatus.confirmed,
+      validationStatus: ValidationStatus.feasible,
+      consequences: consequences,
+    );
   }
 
   @override

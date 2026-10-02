@@ -46,14 +46,24 @@ class TaskService implements TaskRepository {
         .from('tasks')
         .update(TaskMapper.toUpdate(task, clearSchedule: clearSchedule))
         .eq('id', task.id)
+        .eq('version', task.version)
         .select()
-        .single();
+        .maybeSingle();
+    if (row == null) {
+      throw StateError('Task edit conflict: refresh before editing again.');
+    }
     return TaskMapper.fromJson(row);
   }
 
   @override
   Future<void> deleteTask(String taskId) async {
     requireAuthenticatedUserId(_client);
-    await _client.from('tasks').delete().eq('id', taskId);
+    final deleted = await _client
+        .from('tasks')
+        .delete()
+        .eq('id', taskId)
+        .select('id')
+        .maybeSingle();
+    if (deleted == null) throw StateError('Deletion not confirmed');
   }
 }

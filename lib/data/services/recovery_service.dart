@@ -46,6 +46,12 @@ class RecoveryService implements RecoveryRepository {
   @override
   Future<void> deleteRecoverySlot(String slotId) async {
     requireAuthenticatedUserId(_client);
-    await _client.from('recovery_slots').delete().eq('id', slotId);
+    final deleted = await _client
+        .from('recovery_slots')
+        .delete()
+        .eq('id', slotId)
+        .select('id')
+        .maybeSingle();
+    if (deleted == null) throw StateError('Deletion not confirmed');
   }
 }

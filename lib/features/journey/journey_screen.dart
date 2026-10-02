@@ -15,9 +15,10 @@ class JourneyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
-    create: (_) =>
-        JourneyViewModel(context.read<AchievementRepository>(),
-          context.read<WorldHistoryRepository?>())..load(),
+    create: (_) => JourneyViewModel(
+      context.read<AchievementRepository>(),
+      context.read<WorldHistoryRepository?>(),
+    )..load(),
     child: const _JourneyContent(),
   );
 }
@@ -36,36 +37,79 @@ class _JourneyContent extends StatelessWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           children: [
-            Text('Weekly pattern', style: Theme.of(context).textTheme.titleLarge),
-            Row(children: [
-              IconButton(tooltip: 'Previous week', onPressed: () => viewModel.shiftWeek(-1),
-                icon: const Icon(Icons.chevron_left)),
-              Expanded(child: Text('${DateFormat.MMMd().format(viewModel.weekStart)} – '
-                '${DateFormat.MMMd().format(viewModel.weekStart.add(const Duration(days: 6)))}',
-                textAlign: TextAlign.center)),
-              IconButton(tooltip: 'Next week', onPressed: () => viewModel.shiftWeek(1),
-                icon: const Icon(Icons.chevron_right)),
-            ]),
+            Text(
+              'Weekly pattern',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            Row(
+              children: [
+                IconButton(
+                  tooltip: 'Previous week',
+                  onPressed: () => viewModel.shiftWeek(-1),
+                  icon: const Icon(Icons.chevron_left),
+                ),
+                Expanded(
+                  child: Text(
+                    '${DateFormat.MMMd().format(viewModel.weekStart)} – '
+                    '${DateFormat.MMMd().format(viewModel.weekStart.add(const Duration(days: 6)))}',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Next week',
+                  onPressed: () => viewModel.shiftWeek(1),
+                  icon: const Icon(Icons.chevron_right),
+                ),
+              ],
+            ),
             if (viewModel.weekError != null) Text(viewModel.weekError!),
-            if (viewModel.week != null) Card(child: Padding(
-              padding: const EdgeInsets.all(16), child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('Protected recovery on ${viewModel.week!.protectedRecoveryDays} of 7 days'),
-                  const SizedBox(height: 8),
-                  for (var i=0; i<7; i++) Row(children: [
-                    Expanded(child: Text(DateFormat.E().format(viewModel.weekStart.add(Duration(days:i))))),
-                    Text(viewModel.week!.dailyScores[i] == null ? 'No record' :
-                      '${viewModel.week!.dailyScores[i]}/100'),
-                  ]),
-                  const SizedBox(height: 4),
-                  const Text('Only days captured at the time have a score.'),
-                ]))),
+            if (viewModel.week != null)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        viewModel.week!.recoveryRecordedDays == 0
+                            ? 'No recorded recovery history for this week.'
+                            : 'Protected recovery on ${viewModel.week!.protectedRecoveryDays} of ${viewModel.week!.recoveryRecordedDays} recorded days',
+                      ),
+                      const SizedBox(height: 8),
+                      for (var i = 0; i < 7; i++)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                DateFormat.E().format(
+                                  viewModel.weekStart.add(Duration(days: i)),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              viewModel.week!.dailyScores[i] == null
+                                  ? 'No record'
+                                  : '${viewModel.week!.dailyScores[i]}/100',
+                            ),
+                          ],
+                        ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Only days captured at the time have a score.',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             if (viewModel.week == null && viewModel.weekError == null)
-              const Text('Connect your account to see recorded weekly patterns.'),
+              const Text(
+                'Connect your account to see recorded weekly patterns.',
+              ),
             const SizedBox(height: 20),
             OutlinedButton.icon(
               onPressed: context.read<VerifiedProgressService?>() == null
-                  ? null : () => _reflect(context, viewModel),
+                  ? null
+                  : () => _reflect(context, viewModel),
               icon: const Icon(Icons.edit_note),
               label: const Text('Add optional reflection'),
             ),
@@ -107,21 +151,44 @@ class _JourneyContent extends StatelessWidget {
     ),
   );
 
-  Future<void> _reflect(BuildContext context, JourneyViewModel viewModel) async {
+  Future<void> _reflect(
+    BuildContext context,
+    JourneyViewModel viewModel,
+  ) async {
     final service = context.read<VerifiedProgressService?>();
     if (service == null) return;
     final controller = TextEditingController();
-    final content = await showDialog<String>(context: context, builder: (dialogContext) => AlertDialog(
-      title: const Text('Weekly reflection'),
-      content: TextField(controller: controller, maxLines: 4, maxLength: 500,
-        decoration: const InputDecoration(hintText: 'What worked for you this week?')),
-      actions: [TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
-        FilledButton(onPressed: () => Navigator.pop(dialogContext, controller.text.trim()), child: const Text('Save'))],
-    ));
+    final content = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Weekly reflection'),
+        content: TextField(
+          controller: controller,
+          maxLines: 4,
+          maxLength: 500,
+          decoration: const InputDecoration(
+            hintText: 'What worked for you this week?',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.pop(dialogContext, controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
     controller.dispose();
     if (!context.mounted || content == null) return;
     if (content.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Write a reflection first.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Write a reflection first.')),
+      );
       return;
     }
     try {
@@ -129,12 +196,21 @@ class _JourneyContent extends StatelessWidget {
       await viewModel.load();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Reflection saved.')));
+          SnackBar(content: Text(viewModel.reflectionSavedMessage)),
+        );
       }
     } catch (error) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(AppErrorMessage.from(error, fallback: 'Could not save reflection. Try again.'))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppErrorMessage.from(
+                error,
+                fallback: 'Could not save reflection. Try again.',
+              ),
+            ),
+          ),
+        );
       }
     }
   }
