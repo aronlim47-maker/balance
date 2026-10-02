@@ -27,16 +27,24 @@ List<WorldSocialEvent> socialLoadForWeek(
       final right = to.isBefore(b) ? to : b;
       if (right.isAfter(left)) overlaps.add((left, right));
     }
+
     for (final other in events) {
       if (other.id != event.id) add(other.startAt, other.endAt);
     }
     for (final task in tasks) {
-      if (task.id != event.taskId && task.status == TaskStatus.planned &&
-          task.scheduledStart != null && task.scheduledEnd != null) {
+      if (task.id != event.taskId &&
+          task.status == TaskStatus.planned &&
+          task.scheduledStart != null &&
+          task.scheduledEnd != null) {
         add(task.scheduledStart!, task.scheduledEnd!);
       }
     }
     for (final slot in reservations) {
+      if (tasks.any(
+        (task) => task.id == slot.taskId && task.status != TaskStatus.planned,
+      )) {
+        continue;
+      }
       if (slot.taskId != event.taskId) add(slot.startAt, slot.endAt);
     }
     for (final slot in recovery) {
@@ -56,11 +64,13 @@ List<WorldSocialEvent> socialLoadForWeek(
       }
     }
     if (right != null) seconds += right.difference(left!).inSeconds;
-    result.add(WorldSocialEvent(
-      durationMinutes: b.difference(a).inMinutes,
-      pressure: event.pressure,
-      conflictMinutes: seconds ~/ 60,
-    ));
+    result.add(
+      WorldSocialEvent(
+        durationMinutes: b.difference(a).inMinutes,
+        pressure: event.pressure,
+        conflictMinutes: seconds ~/ 60,
+      ),
+    );
   }
   return result;
 }

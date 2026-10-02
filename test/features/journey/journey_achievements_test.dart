@@ -23,7 +23,7 @@ void main() {
   });
 
   test(
-    'failed refresh clears awards instead of showing stale unlocks',
+    'failed refresh retains the last confirmed awards with an error notice',
     () async {
       final repository = _FakeAchievementRepository();
       final viewModel = JourneyViewModel(repository);
@@ -31,7 +31,8 @@ void main() {
       repository.fail = true;
       await viewModel.load();
       expect(viewModel.definitions, hasLength(7));
-      expect(viewModel.unlockedCount, 0);
+      expect(viewModel.unlockedCount, 1);
+      expect(viewModel.awardFor('protected_rest'), isNotNull);
       expect(viewModel.errorMessage, isNotNull);
     },
   );

@@ -7,23 +7,25 @@ import 'package:balance/features/today/today_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
   test('calculates planned, available and overload minutes', () async {
     final tasks = LocalTaskRepository();
     final availability = LocalAvailabilityRepository();
-    final day = DateTime(2026, 9, 30);
+    final day = today;
     await tasks.createTask(
       TaskItem(
         id: '',
         title: 'Build demo',
         estimatedMinutes: 300,
-        dueAt: DateTime(2026, 9, 30, 17),
+        dueAt: today.add(const Duration(hours: 17)),
       ),
     );
     await availability.createAvailability(
       AvailabilityBlock(
         id: '',
-        startAt: DateTime(2026, 9, 30, 9),
-        endAt: DateTime(2026, 9, 30, 12),
+        startAt: today.add(const Duration(hours: 9)),
+        endAt: today.add(const Duration(hours: 12)),
         isAvailable: true,
       ),
     );
@@ -58,14 +60,14 @@ void main() {
     final viewModel = TodayViewModel(
       LocalTaskRepository(),
       LocalAvailabilityRepository(),
-    )..selectDay(DateTime(2026, 9, 30));
+    )..selectDay(today);
     await viewModel.load();
 
     final saved = await viewModel.saveAvailability(
       AvailabilityBlock(
         id: '',
-        startAt: DateTime(2026, 9, 30, 9),
-        endAt: DateTime(2026, 9, 30, 10),
+        startAt: today.add(const Duration(hours: 9)),
+        endAt: today.add(const Duration(hours: 10)),
         isAvailable: true,
       ),
     );
@@ -82,21 +84,21 @@ void main() {
     () async {
       final tasks = LocalTaskRepository();
       final availability = LocalAvailabilityRepository();
-      final day = DateTime(2026, 9, 30);
+      final day = today;
       await tasks.createTask(
         TaskItem(
           id: '',
           title: 'Course assignment',
           estimatedMinutes: 60,
-          dueAt: DateTime(2026, 9, 30, 17),
+          dueAt: today.add(const Duration(hours: 17)),
           loadCategory: LoadCategory.study,
         ),
       );
       await availability.createAvailability(
         AvailabilityBlock(
           id: '',
-          startAt: DateTime(2026, 9, 30, 9),
-          endAt: DateTime(2026, 9, 30, 11),
+          startAt: today.add(const Duration(hours: 9)),
+          endAt: today.add(const Duration(hours: 11)),
           isAvailable: true,
         ),
       );
@@ -122,21 +124,21 @@ void main() {
       final tasks = LocalTaskRepository();
       final availability = LocalAvailabilityRepository();
       final reviews = LocalCheckInRepository();
-      final day = DateTime(2026, 9, 30);
+      final day = today;
       await tasks.createTask(
         TaskItem(
           id: '',
           title: 'Study',
           estimatedMinutes: 60,
-          dueAt: DateTime(2026, 9, 30, 17),
+          dueAt: today.add(const Duration(hours: 17)),
           loadCategory: LoadCategory.study,
         ),
       );
       await availability.createAvailability(
         AvailabilityBlock(
           id: '',
-          startAt: DateTime(2026, 9, 30, 9),
-          endAt: DateTime(2026, 9, 30, 11),
+          startAt: today.add(const Duration(hours: 9)),
+          endAt: today.add(const Duration(hours: 11)),
           isAvailable: true,
         ),
       );

@@ -1,11 +1,46 @@
 import 'package:balance/data/repositories/local_planning_repositories.dart';
 import 'package:balance/domain/models/movement_models.dart';
 import 'package:balance/domain/models/social_event_record.dart';
+import 'package:balance/domain/models/task_item.dart';
 import 'package:balance/domain/usecases/world_status_calculator.dart';
 import 'package:balance/features/today/today_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test(
+    'saved social response remains successful when the refresh fails',
+    () async {
+      final tasks = _ReadFailingTasks();
+      final social = LocalSocialRepository();
+      final viewModel = TodayViewModel(
+        tasks,
+        LocalAvailabilityRepository(),
+        null,
+        null,
+        null,
+        null,
+        null,
+        social,
+      );
+      await viewModel.load();
+      tasks.failReads = true;
+
+      expect(await viewModel.setNoSocialCommitments(true), isTrue);
+      expect(viewModel.refreshWarning, contains('saved, but'));
+      expect(viewModel.errorMessage, isNotNull);
+      expect(
+        await social.fetchNoCommitmentsForWeek(viewModel.selectedDay),
+        isTrue,
+      );
+
+      tasks.failReads = false;
+      await viewModel.load();
+      expect(viewModel.refreshWarning, isNull);
+      expect(viewModel.noSocialCommitments, isTrue);
+      viewModel.dispose();
+    },
+  );
+
   test('Social needs weekly event evidence', () async {
     final now = DateTime.now();
     final day = DateTime(now.year, now.month, now.day);
@@ -60,8 +95,8 @@ void main() {
     'Physical needs opt-in and an actual record, and can return to Unknown',
     () async {
       final now = DateTime.now();
-      final day = DateTime(now.year, now.month, now.day - 2);
-      final occurredAt = DateTime(day.year, day.month, day.day, 12);
+      final day = DateTime(now.year, now.month, now.day);
+      final occurredAt = day;
       final movement = LocalMovementRepository();
       final viewModel = TodayViewModel(
         LocalTaskRepository(),
@@ -120,4 +155,13 @@ void main() {
       );
     },
   );
+}
+
+class _ReadFailingTasks extends LocalTaskRepository {
+  bool failReads = false;
+  @override
+  Future<List<TaskItem>> fetchTasks() {
+    if (failReads) throw StateError('Simulated read failure');
+    return super.fetchTasks();
+  }
 }

@@ -352,6 +352,30 @@ class DimensionResult {
 }
 
 class WorldStatusResult {
+  factory WorldStatusResult.fromSnapshot(Map<String, dynamic> row) {
+    final dimensions = <WorldDimension, DimensionResult>{};
+    for (final dimension in WorldDimension.values) {
+      final value = row['${dimension.name}_score'] as num?;
+      dimensions[dimension] = value == null
+          ? const DimensionResult.unknown('No value was recorded for this day.')
+          : DimensionResult.fromRaw(value.toDouble());
+    }
+    final coverage = (row['coverage'] as num).toDouble();
+    return WorldStatusResult(
+      dimensions: dimensions,
+      totalScore: (row['total_score'] as num?)?.toInt(),
+      coverage: coverage,
+      // Older snapshots do not record component-level coverage.
+      isPartial: row['is_partial'] as bool? ?? true,
+      trend: switch (row['trend']) {
+        'rising' => WorldTrend.rising,
+        'easing' => WorldTrend.easing,
+        'stable' => WorldTrend.stable,
+        _ => WorldTrend.notEnoughHistory,
+      },
+    );
+  }
+
   const WorldStatusResult({
     required this.dimensions,
     required this.totalScore,

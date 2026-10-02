@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import '../../core/state/lifecycle_notifier.dart';
 
 import '../../core/utils/app_error_message.dart';
 import '../../core/state/planning_day_controller.dart';
@@ -22,7 +22,7 @@ import '../../domain/usecases/world_status_calculator.dart';
 import '../../domain/usecases/social_conflicts.dart';
 import '../../data/repositories/world_history_repository.dart';
 
-class TodayViewModel extends ChangeNotifier {
+class TodayViewModel extends LifecycleNotifier {
   TodayViewModel(
     this._taskRepository,
     this._availabilityRepository, [
@@ -48,6 +48,7 @@ class TodayViewModel extends ChangeNotifier {
   final WorldHistoryRepository? _historyRepository;
   List<int?> _previousTotals = List.filled(7, null);
   String? historyNotice;
+  WorldStatusResult? _historicalStatus;
   final List<TaskItem> _tasks = [];
   final List<AvailabilityBlock> _availability = [];
   final List<PlanReservation> _reservations = [];
@@ -64,12 +65,20 @@ class TodayViewModel extends ChangeNotifier {
   bool _noSocialCommitments = false;
   bool _isSavingSocial = false;
   bool _isSavingReview = false;
+  bool _isSavingAvailability = false;
   bool _isSavingMovement = false;
   String? _errorMessage;
+  String? _refreshWarning;
 
   DateTime get selectedDay => _selectedDay;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  String? get refreshWarning => _refreshWarning;
+  List<TaskItem> get allTasks => List.unmodifiable(_tasks);
+  List<AvailabilityBlock> get allAvailability =>
+      List.unmodifiable(_availability);
+  List<PlanReservation> get allReservations => List.unmodifiable(_reservations);
+  List<RecoverySlot> get allRecoverySlots => List.unmodifiable(_recoverySlots);
   CheckIn? get checkIn => _checkIn;
   bool get isSavingReview => _isSavingReview;
   bool get isSavingMovement => _isSavingMovement;
@@ -122,6 +131,21 @@ class TodayViewModel extends ChangeNotifier {
   /// Unknown dimensions stay unknown until their own evidence is available.
   WorldStatusResult get worldStatus {
     final day = _selectedDay;
+    if (day.isBefore(_dateOnly(DateTime.now()))) {
+      return _historicalStatus ??
+          WorldStatusResult(
+            dimensions: {
+              for (final dimension in WorldDimension.values)
+                dimension: const DimensionResult.unknown(
+                  'No snapshot was recorded for this day.',
+                ),
+            },
+            totalScore: null,
+            coverage: 0,
+            isPartial: false,
+            trend: WorldTrend.notEnoughHistory,
+          );
+    }
     final hasAvailability = availabilityForDay.any(
       (block) => block.isAvailable,
     );
@@ -169,10 +193,12 @@ class TodayViewModel extends ChangeNotifier {
   }
 
   Future<void> load() async {
+    if (isDisposed || _isSavingReview || _isSavingAvailability) return;
     final loadingDay = _selectedDay;
     final loadVersion = ++_loadVersion;
     _isLoading = true;
     _errorMessage = null;
+    _refreshWarning = null;
     notifyListeners();
     try {
       final reviewFuture = _checkInRepository?.fetchCheckIn(loadingDay);
@@ -211,7 +237,8 @@ class TodayViewModel extends ChangeNotifier {
       final exerciseDay = results[extra + 3] as List<ExerciseLog>?;
       final socialEvents = results[extra + 4] as List<SocialEventRecord>?;
       final noSocialCommitments = results[extra + 5] as bool?;
-      if (loadVersion != _loadVersion ||
+      if (isDisposed ||
+          loadVersion != _loadVersion ||
           !DailyCapacity.sameDay(loadingDay, _selectedDay)) {
         return;
       }
@@ -245,6 +272,25 @@ class TodayViewModel extends ChangeNotifier {
       _noSocialCommitments = noSocialCommitments ?? false;
       _hasLoaded = true;
       historyNotice = null;
+      _historicalStatus = null;
+      if (loadingDay.isBefore(_dateOnly(DateTime.now()))) {
+        try {
+          final snapshot = await _historyRepository?.loadDaySnapshot(
+            loadingDay,
+          );
+          if (loadVersion == _loadVersion) {
+            _historicalStatus = snapshot;
+            historyNotice = snapshot == null
+                ? 'No workload record for this day.'
+                : 'Recorded workload. The schedule below shows current task data.';
+          }
+        } catch (_) {
+          if (loadVersion == _loadVersion) {
+            historyNotice =
+                'Recorded workload is unavailable. Pull to refresh.';
+          }
+        }
+      }
       if (_historyRepository != null) {
         try {
           final totals = await _historyRepository.loadPreviousWeek(loadingDay);
@@ -252,7 +298,7 @@ class TodayViewModel extends ChangeNotifier {
         } catch (_) {
           if (loadVersion == _loadVersion) {
             _previousTotals = List.filled(7, null);
-            historyNotice = 'History is unavailable. Pull to refresh.';
+            historyNotice ??= 'History is unavailable. Pull to refresh.';
           }
         }
       }
@@ -270,10 +316,12 @@ class TodayViewModel extends ChangeNotifier {
     }
   }
 
-  void selectDay(DateTime day) {
+  void selectDay(DateTime day, {bool reload = true}) {
+    if (isDisposed) return;
     _selectedDay = _dateOnly(day);
     _hasLoaded = false;
     _previousTotals = List.filled(7, null);
+    _historicalStatus = null;
     _checkIn = null;
     _latestExercise = null;
     _exerciseLogsForDay.clear();
@@ -281,10 +329,18 @@ class TodayViewModel extends ChangeNotifier {
     _noSocialCommitments = false;
     _planningDayController?.selectDay(_selectedDay);
     notifyListeners();
-    if (_checkInRepository != null ||
-        _movementRepository != null ||
-        _socialRepository != null) {
+    if (reload &&
+        (_checkInRepository != null ||
+            _movementRepository != null ||
+            _socialRepository != null)) {
       load();
+    }
+  }
+
+  void _recordRefreshWarningIfNeeded() {
+    if (_errorMessage != null) {
+      _refreshWarning = 'Your change was saved, but the latest view could not be loaded. Pull to refresh.';
+      notifyListeners();
     }
   }
 
@@ -303,6 +359,7 @@ class TodayViewModel extends ChangeNotifier {
     try {
       await _socialRepository.saveNoCommitmentsForWeek(savingDay, value);
       await load();
+      _recordRefreshWarningIfNeeded();
       return true;
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
@@ -318,7 +375,6 @@ class TodayViewModel extends ChangeNotifier {
 
   Future<bool> addSocialEvent(SocialEventRecord event) async {
     if (_socialRepository == null || _isSavingSocial) return false;
-    final savingDay = _selectedDay;
     final day = event.startAt.toLocal();
     final selectedWeek = _dateOnly(_selectedDay)
         .subtract(Duration(days: _selectedDay.weekday - 1));
@@ -332,11 +388,9 @@ class TodayViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      if (_noSocialCommitments) {
-        await _socialRepository.saveNoCommitmentsForWeek(savingDay, false);
-      }
       await _socialRepository.createEvent(event);
       await load();
+      _recordRefreshWarningIfNeeded();
       return true;
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
@@ -358,6 +412,7 @@ class TodayViewModel extends ChangeNotifier {
     try {
       await _socialRepository.deleteEvent(id);
       await load();
+      _recordRefreshWarningIfNeeded();
       return true;
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
@@ -379,6 +434,7 @@ class TodayViewModel extends ChangeNotifier {
     try {
       await _movementRepository.saveSettings(settings);
       await load();
+      _recordRefreshWarningIfNeeded();
       return true;
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
@@ -415,6 +471,7 @@ class TodayViewModel extends ChangeNotifier {
     try {
       await _movementRepository.createExerciseLog(log);
       await load();
+      _recordRefreshWarningIfNeeded();
       return true;
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
@@ -436,6 +493,7 @@ class TodayViewModel extends ChangeNotifier {
     try {
       await _movementRepository.deleteExerciseLog(id);
       await load();
+      _recordRefreshWarningIfNeeded();
       return true;
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
@@ -450,12 +508,16 @@ class TodayViewModel extends ChangeNotifier {
   }
 
   Future<bool> saveDailyReview(CheckIn review) async {
-    if (_checkInRepository == null) return false;
+    if (isDisposed || _checkInRepository == null || _isSavingReview) {
+      return false;
+    }
+    _invalidateLoads();
     _isSavingReview = true;
     _errorMessage = null;
     notifyListeners();
     try {
       final saved = await _checkInRepository.saveCheckIn(review);
+      if (isDisposed) return true;
       if (DailyCapacity.sameDay(saved.date, _selectedDay)) {
         _checkIn = saved;
       }
@@ -473,12 +535,16 @@ class TodayViewModel extends ChangeNotifier {
   }
 
   Future<bool> saveAvailability(AvailabilityBlock block) async {
+    if (isDisposed || _isSavingAvailability) return false;
+    _isSavingAvailability = true;
+    _invalidateLoads();
     _errorMessage = null;
     notifyListeners();
     try {
       final saved = block.id.isEmpty
           ? await _availabilityRepository.createAvailability(block)
           : await _availabilityRepository.updateAvailability(block);
+      if (isDisposed) return true;
       final index = _availability.indexWhere((item) => item.id == saved.id);
       if (index == -1) {
         _availability.add(saved);
@@ -495,14 +561,21 @@ class TodayViewModel extends ChangeNotifier {
       );
       notifyListeners();
       return false;
+    } finally {
+      _isSavingAvailability = false;
+      notifyListeners();
     }
   }
 
   Future<bool> deleteAvailability(String blockId) async {
+    if (isDisposed || _isSavingAvailability) return false;
+    _isSavingAvailability = true;
+    _invalidateLoads();
     _errorMessage = null;
     notifyListeners();
     try {
       await _availabilityRepository.deleteAvailability(blockId);
+      if (isDisposed) return true;
       _availability.removeWhere((block) => block.id == blockId);
       notifyListeners();
       return true;
@@ -513,7 +586,15 @@ class TodayViewModel extends ChangeNotifier {
       );
       notifyListeners();
       return false;
+    } finally {
+      _isSavingAvailability = false;
+      notifyListeners();
     }
+  }
+
+  void _invalidateLoads() {
+    ++_loadVersion;
+    _isLoading = false;
   }
 
   bool _belongsToSelectedDay(TaskItem task) {
@@ -533,4 +614,10 @@ class TodayViewModel extends ChangeNotifier {
 
   static DateTime _dateOnly(DateTime value) =>
       DateTime(value.year, value.month, value.day);
+
+  @override
+  void dispose() {
+    ++_loadVersion;
+    super.dispose();
+  }
 }

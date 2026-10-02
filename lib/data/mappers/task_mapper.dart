@@ -6,6 +6,7 @@ import '../../domain/models/task_item.dart';
 abstract final class TaskMapper {
   static TaskItem fromJson(Map<String, dynamic> json) => TaskItem(
     id: json['id'] as String,
+    version: (json['version'] as num?)?.toInt() ?? 1,
     title: json['title'] as String,
     estimatedMinutes: (json['estimated_minutes'] as num).toInt(),
     remainingMinutes: (json['remaining_minutes'] as num?)?.toInt(),
@@ -35,7 +36,9 @@ abstract final class TaskMapper {
     'due_at': task.dueAt.toUtc().toIso8601String(),
     'flexibility': _flexibilityValue(task.flexibility),
     'is_protected': task.isProtected,
-    'protected_commitment_type': task.isProtected ? task.protectedCommitmentType : null,
+    'protected_commitment_type': task.isProtected
+        ? task.protectedCommitmentType
+        : null,
     'is_optional': task.isOptional,
     'status': task.status.name,
     if (task.loadCategory != null) 'load_category': task.loadCategory!.name,

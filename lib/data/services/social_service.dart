@@ -70,18 +70,17 @@ class SocialService implements SocialRepository {
 
   @override
   Future<SocialEventRecord> createEvent(SocialEventRecord event) async {
-    final userId = requireAuthenticatedUserId(_client);
-    final row = await _client
-        .from('social_events')
-        .insert({
-          'user_id': userId,
-          'start_at': event.startAt.toUtc().toIso8601String(),
-          'end_at': event.endAt.toUtc().toIso8601String(),
-          'pressure_level': event.pressure.name,
-          'task_id': event.taskId,
-        })
-        .select('id,start_at,end_at,pressure_level,task_id')
-        .single();
+    requireAuthenticatedUserId(_client);
+    final row = await _client.rpc<Map<String, dynamic>>(
+      'create_social_event',
+      params: {
+        'p_start_at': event.startAt.toUtc().toIso8601String(),
+        'p_end_at': event.endAt.toUtc().toIso8601String(),
+        'p_pressure_level': event.pressure.name,
+        'p_task_id': event.taskId,
+        'p_week_start': _weekStart(event.startAt.toLocal()),
+      },
+    );
     return SocialEventRecord(
       id: row['id'] as String,
       taskId: row['task_id'] as String?,

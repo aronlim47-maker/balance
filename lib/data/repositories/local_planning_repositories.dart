@@ -41,8 +41,12 @@ class LocalTaskRepository implements TaskRepository {
   Future<TaskItem> updateTask(TaskItem task) async {
     final index = _tasks.indexWhere((item) => item.id == task.id);
     if (index == -1) throw StateError('Task not found.');
-    _tasks[index] = task;
-    return task;
+    if (_tasks[index].version != task.version) {
+      throw StateError('Task edit conflict: refresh before editing again.');
+    }
+    final saved = task.withVersion(task.version + 1);
+    _tasks[index] = saved;
+    return saved;
   }
 
   @override
@@ -205,6 +209,7 @@ class LocalSocialRepository implements SocialRepository {
       pressure: event.pressure,
     );
     events.add(saved);
+    _weekResponses[_weekStart(event.startAt.toLocal())] = false;
     return saved;
   }
 

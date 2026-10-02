@@ -133,6 +133,22 @@ void main() {
     fixture.dispose();
   });
 
+  test('successful undo reports a failed refresh accurately', () async {
+    final fixture = await _Fixture.create(serverOverload: 120);
+    fixture.plans.changeRows = [
+      const PlanChange(id: 'confirmed-1', status: PlanStatus.confirmed),
+    ];
+    await fixture.viewModel.loadChange('confirmed-1');
+    fixture.plans.failReservationReads = true;
+
+    expect(await fixture.viewModel.undoPlan('confirmed-1'), isTrue);
+    expect(fixture.plans.undoCalls, 1);
+    expect(fixture.viewModel.wasUndone, isTrue);
+    expect(fixture.viewModel.refreshWarning, contains('plan was undone'));
+
+    fixture.dispose();
+  });
+
   testWidgets('draft result page never claims a plan was confirmed', (
     tester,
   ) async {
@@ -231,6 +247,7 @@ class _FakePlanRepository implements PlanRepository {
   final int serverOverload;
   int confirmCalls = 0;
   int undoCalls = 0;
+  bool failReservationReads = false;
   List<PlanChange> changeRows = const [];
 
   @override
@@ -240,7 +257,10 @@ class _FakePlanRepository implements PlanRepository {
   Future<bool> hasWarCouncilMigration() async => true;
 
   @override
-  Future<List<PlanReservation>> fetchPlanReservations() async => const [];
+  Future<List<PlanReservation>> fetchPlanReservations() async {
+    if (failReservationReads) throw StateError('Simulated read failure');
+    return const [];
+  }
 
   @override
   Future<List<PlanChange>> fetchPlanChanges() async => changeRows;

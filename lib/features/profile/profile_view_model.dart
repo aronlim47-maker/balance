@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import '../../core/state/lifecycle_notifier.dart';
 
 import '../../core/utils/app_error_message.dart';
 import '../../data/repositories/availability_repository.dart';
@@ -21,25 +21,30 @@ import '../../data/repositories/social_repository.dart';
 import '../today/today_view_model.dart';
 import '../../domain/usecases/world_status_calculator.dart';
 
-class ProfileViewModel extends ChangeNotifier {
+class ProfileViewModel extends LifecycleNotifier {
   ProfileViewModel(
-    this._taskRepository,
-    this._availabilityRepository, [
+    TaskRepository taskRepository,
+    AvailabilityRepository availabilityRepository, [
     this._planRepository,
-    this._recoveryRepository,
+    RecoveryRepository? recoveryRepository,
     this._profileRepository,
     CheckInRepository? checkIns,
     MovementRepository? movement,
     SocialRepository? social,
-  ]) : _worldStatus = TodayViewModel(_taskRepository, _availabilityRepository,
-          _planRepository, _recoveryRepository, null, checkIns, movement, social);
+  ]) : _worldStatus = TodayViewModel(
+         taskRepository,
+         availabilityRepository,
+         _planRepository,
+         recoveryRepository,
+         null,
+         checkIns,
+         movement,
+         social,
+       );
 
   final TodayViewModel _worldStatus;
 
-  final TaskRepository _taskRepository;
-  final AvailabilityRepository _availabilityRepository;
   final PlanRepository? _planRepository;
-  final RecoveryRepository? _recoveryRepository;
   final ProfileRepository? _profileRepository;
 
   List<TaskItem> _tasks = const [];
@@ -49,6 +54,7 @@ class ProfileViewModel extends ChangeNotifier {
   List<RecoverySlot> _recovery = const [];
   AppProfile? _userProfile;
   bool _isLoading = false;
+  int _loadVersion = 0;
   bool _isSavingTimeZone = false;
   String? _errorMessage;
 
@@ -79,53 +85,52 @@ class ProfileViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
+    ++_loadVersion;
     _worldStatus.dispose();
     super.dispose();
   }
 
   Future<void> load() async {
+    if (isDisposed) return;
+    final version = ++_loadVersion;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      _worldStatus.selectDay(DateTime.now());
+      _worldStatus.selectDay(DateTime.now(), reload: false);
       await _worldStatus.load();
+      if (isDisposed || version != _loadVersion) return;
       if (_worldStatus.errorMessage != null) {
         _errorMessage = _worldStatus.errorMessage;
         return;
       }
+      _tasks = _worldStatus.allTasks;
+      _availability = _worldStatus.allAvailability;
+      _reservations = _worldStatus.allReservations;
+      _recovery = _worldStatus.allRecoverySlots;
       final results = await Future.wait<Object>([
-        _taskRepository.fetchTasks(),
-        _availabilityRepository.fetchAvailability(),
         if (_planRepository != null) _planRepository.fetchPlanChanges(),
-        if (_planRepository != null) _planRepository.fetchPlanReservations(),
-        if (_recoveryRepository != null)
-          _recoveryRepository.fetchRecoverySlots(),
         if (_profileRepository != null) _profileRepository.fetchProfile(),
       ]);
+      if (isDisposed || version != _loadVersion) return;
       var index = 0;
-      _tasks = results[index++] as List<TaskItem>;
-      _availability = results[index++] as List<AvailabilityBlock>;
       _plans = _planRepository == null
           ? const []
           : results[index++] as List<PlanChange>;
-      _reservations = _planRepository == null
-          ? const []
-          : results[index++] as List<PlanReservation>;
-      _recovery = _recoveryRepository == null
-          ? const []
-          : results[index++] as List<RecoverySlot>;
       _userProfile = _profileRepository == null
           ? null
           : results[index] as AppProfile;
     } catch (error) {
+      if (isDisposed || version != _loadVersion) return;
       _errorMessage = AppErrorMessage.from(
         error,
         fallback: 'Could not load your profile. Please try again.',
       );
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (!isDisposed && version == _loadVersion) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
