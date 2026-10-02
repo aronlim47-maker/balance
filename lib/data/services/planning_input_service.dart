@@ -6,7 +6,7 @@ import '../mappers/planning_data_mapper.dart';
 import '../repositories/planning_input_repository.dart';
 import 'authenticated_user.dart';
 
-/// Raw inputs for the draft 001 schema. Does not calculate or award progress.
+/// Raw inputs for the deployed Version 1.4 schema.
 /// RLS and composite foreign keys remain the authority for linked ownership.
 class PlanningInputService implements PlanningInputRepository {
   PlanningInputService(this._client);
@@ -108,10 +108,15 @@ class PlanningInputService implements PlanningInputRepository {
     required LocalDate date,
     required EnergyLevel? mental,
     required EnergyLevel? physical,
-  }) => _updateOne('check_ins', 'check_in_date', date.toString(), {
-    'mental_energy_level': mental?.name,
-    'physical_energy_level': physical?.name,
-  });
+  }) async {
+    if (mental == EnergyLevel.neutral || physical == EnergyLevel.neutral) {
+      throw ArgumentError('Neutral is only valid for social pressure.');
+    }
+    await _updateOne('check_ins', 'check_in_date', date.toString(), {
+      'mental_energy_level': mental?.name,
+      'physical_energy_level': physical?.name,
+    });
+  }
 
   @override
   Future<ExerciseLog> confirmExercise({
@@ -121,8 +126,12 @@ class PlanningInputService implements PlanningInputRepository {
     String? taskId,
     String? intensity,
   }) async {
-    if (durationMinutes <= 0) {
-      throw ArgumentError('Duration must be positive.');
+    if (durationMinutes < 1 || durationMinutes > 1440) {
+      throw ArgumentError('Duration must be between 1 and 1440 minutes.');
+    }
+    if (intensity != null &&
+        !const ['low', 'moderate', 'high'].contains(intensity)) {
+      throw ArgumentError('Invalid exercise intensity.');
     }
     return PlanningDataMapper.exerciseLog(
       await _insert(
@@ -182,7 +191,7 @@ class PlanningInputService implements PlanningInputRepository {
     await _client.from('social_week_responses').upsert({
       'user_id': owner,
       'week_start': weekStart.toString(),
-      'no_social_commitments': noSocialCommitments,
+      'no_commitments': noSocialCommitments,
     }, onConflict: 'user_id,week_start');
     _checkOwner(owner);
   }
@@ -200,7 +209,7 @@ class PlanningInputService implements PlanningInputRepository {
       await _insert('reflections', {
         'request_id': _uuid(requestId),
         'local_date': date.toString(),
-        'content': content,
+        'body': content,
       }),
     );
   }
@@ -211,10 +220,11 @@ class PlanningInputService implements PlanningInputRepository {
     required String taskId,
     required LocalDate localDate,
   }) async {
-    await _insert('overload_reviews', {
-      'request_id': _uuid(requestId),
-      'task_id': _uuid(taskId),
-      'local_date': localDate.toString(),
-    });
+    final owner = requireAuthenticatedUserId(_client);
+    await _client.rpc(
+      'acknowledge_overload',
+      params: {'p_task': _uuid(taskId)},
+    );
+    _checkOwner(owner);
   }
 }

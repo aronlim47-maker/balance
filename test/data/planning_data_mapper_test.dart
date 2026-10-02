@@ -66,7 +66,7 @@ void main() {
       final response = PlanningDataMapper.socialWeekResponse({
         'user_id': 'owner',
         'week_start': '2026-09-21',
-        'no_social_commitments': true,
+        'no_commitments': true,
       });
       expect(response.noSocialCommitments, isTrue);
       expect(response.weekStart, LocalDate(2026, 9, 21));
@@ -88,6 +88,31 @@ void main() {
     expect(log.requestId, 'stable-request');
     expect(log.intensity, isNull);
     expect(log.occurredAt, DateTime.utc(2026, 9, 27, 10));
+  });
+
+  test('legacy reflection retains unknown date and maps canonical body', () {
+    final reflection = PlanningDataMapper.reflectionEntry({
+      'id': 'legacy',
+      'user_id': 'owner',
+      'body': 'Rest helped.',
+      'created_at': '2026-09-28T00:00:00Z',
+    });
+    expect(reflection.localDate, isNull);
+    expect(reflection.requestId, 'legacy');
+    expect(reflection.content, 'Rest helped.');
+  });
+
+  test('legacy social event accepts neutral pressure and missing retry ID', () {
+    final event = PlanningDataMapper.socialEvent({
+      'id': 'legacy',
+      'user_id': 'owner',
+      'start_at': '2026-09-28T00:00:00Z',
+      'end_at': '2026-09-28T01:00:00Z',
+      'pressure_level': 'neutral',
+    });
+    expect(event.pressureLevel, EnergyLevel.neutral);
+    expect(event.requestId, 'legacy');
+    expect(event.hasConflict, isNull);
   });
 
   test('award retains historical evidence and original rule version', () {

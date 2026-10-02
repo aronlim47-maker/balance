@@ -2,7 +2,7 @@ import 'local_date.dart';
 
 enum LoadCategory { study, errand, social, exercise, other }
 
-enum EnergyLevel { low, moderate, high }
+enum EnergyLevel { low, moderate, high, neutral }
 
 enum WorldStatusTrend { rising, stable, easing, notEnoughHistory }
 
@@ -87,7 +87,7 @@ class ReflectionEntry {
   });
   final String id;
   final String userId;
-  final LocalDate localDate;
+  final LocalDate? localDate;
   final String content;
   final String requestId;
   final DateTime createdAt;
