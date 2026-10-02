@@ -136,9 +136,9 @@ class _TodayContent extends StatelessWidget {
                 trackingEnabled: enabled,
                 targetDays: viewModel.movementSettings.targetDays,
                 targetRecoveryMinutes:
-                    viewModel.movementSettings.targetRecoveryMinutes,
+                viewModel.movementSettings.targetRecoveryMinutes,
                 targetSocialMinutesWeek:
-                    viewModel.movementSettings.targetSocialMinutesWeek,
+                viewModel.movementSettings.targetSocialMinutesWeek,
               ),
             ),
             onTargetDaysChanged: (days) => _saveMovementSettings(
@@ -148,9 +148,9 @@ class _TodayContent extends StatelessWidget {
                 trackingEnabled: viewModel.movementSettings.trackingEnabled,
                 targetDays: days,
                 targetRecoveryMinutes:
-                    viewModel.movementSettings.targetRecoveryMinutes,
+                viewModel.movementSettings.targetRecoveryMinutes,
                 targetSocialMinutesWeek:
-                    viewModel.movementSettings.targetSocialMinutesWeek,
+                viewModel.movementSettings.targetSocialMinutesWeek,
               ),
             ),
             onAdd: () => _openExercise(context, viewModel),
@@ -181,7 +181,7 @@ class _TodayContent extends StatelessWidget {
             )
           else
             ...viewModel.availabilityForDay.map(
-              (block) => Padding(
+                  (block) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: _AvailabilityCard(
                   block: block,
@@ -199,7 +199,7 @@ class _TodayContent extends StatelessWidget {
             const _EmptyCard(message: 'No planned tasks are due on this day.')
           else
             ...viewModel.tasksForDay.map(
-              (task) => Card(
+                  (task) => Card(
                 margin: const EdgeInsets.only(bottom: 10),
                 child: ListTile(
                   title: Text(task.title),
@@ -227,10 +227,10 @@ class _TodayContent extends StatelessWidget {
   }
 
   Future<void> _setNoSocialCommitments(
-    BuildContext context,
-    TodayViewModel viewModel,
-    bool value,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      bool value,
+      ) async {
     final saved = await viewModel.setNoSocialCommitments(value);
     if (!context.mounted || (saved && viewModel.refreshWarning == null)) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -245,9 +245,9 @@ class _TodayContent extends StatelessWidget {
   }
 
   Future<void> _acknowledgeOverload(
-    BuildContext context,
-    TodayViewModel viewModel,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      ) async {
     final service = context.read<VerifiedProgressService?>();
     final candidate = viewModel.earlyReviewCandidate;
     if (service == null || candidate == null) return;
@@ -277,9 +277,9 @@ class _TodayContent extends StatelessWidget {
   }
 
   Future<void> _openSocialEvent(
-    BuildContext context,
-    TodayViewModel viewModel,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      ) async {
     final event = await showModalBottomSheet<SocialEventRecord>(
       context: context,
       isScrollControlled: true,
@@ -305,10 +305,10 @@ class _TodayContent extends StatelessWidget {
   }
 
   Future<void> _deleteSocialEvent(
-    BuildContext context,
-    TodayViewModel viewModel,
-    SocialEventRecord event,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      SocialEventRecord event,
+      ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -340,10 +340,10 @@ class _TodayContent extends StatelessWidget {
   }
 
   Future<void> _openAvailabilityForm(
-    BuildContext context,
-    TodayViewModel viewModel, {
-    AvailabilityBlock? block,
-  }) async {
+      BuildContext context,
+      TodayViewModel viewModel, {
+        AvailabilityBlock? block,
+      }) async {
     final result = await showModalBottomSheet<AvailabilityBlock>(
       context: context,
       isScrollControlled: true,
@@ -366,9 +366,9 @@ class _TodayContent extends StatelessWidget {
   }
 
   Future<void> _openDailyReview(
-    BuildContext context,
-    TodayViewModel viewModel,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      ) async {
     final review = await showModalBottomSheet<CheckIn>(
       context: context,
       isScrollControlled: true,
@@ -387,17 +387,17 @@ class _TodayContent extends StatelessWidget {
           saved
               ? 'Daily Review saved.'
               : viewModel.errorMessage ??
-                    'Could not save Daily Review. Please try again.',
+              'Could not save Daily Review. Please try again.',
         ),
       ),
     );
   }
 
   Future<void> _saveMovementSettings(
-    BuildContext context,
-    TodayViewModel viewModel,
-    MovementSettings settings,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      MovementSettings settings,
+      ) async {
     final saved = await viewModel.saveMovementSettings(settings);
     if (!context.mounted || (saved && viewModel.refreshWarning == null)) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -406,21 +406,24 @@ class _TodayContent extends StatelessWidget {
           saved
               ? viewModel.refreshWarning!
               : viewModel.errorMessage ??
-                    'Could not save movement settings. Please try again.',
+              'Could not save movement settings. Please try again.',
         ),
       ),
     );
   }
 
   Future<void> _openExercise(
-    BuildContext context,
-    TodayViewModel viewModel,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      ) async {
     final log = await showModalBottomSheet<ExerciseLog>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => ExerciseLogSheet(day: viewModel.selectedDay),
+      builder: (_) => ExerciseLogSheet(
+        day: viewModel.selectedDay,
+        tasks: viewModel.exerciseTasks,
+      ),
     );
     if (log == null || !context.mounted) return;
     final saved = await viewModel.recordExercise(log);
@@ -431,17 +434,17 @@ class _TodayContent extends StatelessWidget {
           saved
               ? viewModel.refreshWarning ?? 'Exercise recorded.'
               : viewModel.errorMessage ??
-                    'Could not save exercise. Please try again.',
+              'Could not save exercise. Please try again.',
         ),
       ),
     );
   }
 
   Future<void> _deleteExercise(
-    BuildContext context,
-    TodayViewModel viewModel,
-    ExerciseLog log,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      ExerciseLog log,
+      ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -470,17 +473,17 @@ class _TodayContent extends StatelessWidget {
           removed
               ? viewModel.refreshWarning ?? 'Exercise record removed.'
               : viewModel.errorMessage ??
-                    'Could not remove exercise. Please try again.',
+              'Could not remove exercise. Please try again.',
         ),
       ),
     );
   }
 
   Future<void> _deleteAvailability(
-    BuildContext context,
-    TodayViewModel viewModel,
-    AvailabilityBlock block,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      AvailabilityBlock block,
+      ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -507,7 +510,7 @@ class _TodayContent extends StatelessWidget {
           deleted
               ? 'Time block deleted.'
               : viewModel.errorMessage ??
-                    'The time block could not be deleted.',
+              'The time block could not be deleted.',
         ),
       ),
     );
@@ -569,7 +572,7 @@ class _AvailabilityCard extends StatelessWidget {
       title: Text(block.label ?? (block.isAvailable ? 'Available' : 'Blocked')),
       subtitle: Text(
         '${DateFormat.jm().format(block.startAt.toLocal())} – '
-        '${DateFormat.jm().format(block.endAt.toLocal())}',
+            '${DateFormat.jm().format(block.endAt.toLocal())}',
       ),
       trailing: PopupMenuButton<String>(
         onSelected: (value) => value == 'edit' ? onEdit() : onDelete(),
