@@ -121,12 +121,13 @@ class _SocialEventSheetState extends State<SocialEventSheet> {
           Text(DateFormat.yMMMMd().format(widget.day)),
           if (widget.tasks.isNotEmpty) DropdownButtonFormField<String?>(
             initialValue: _taskId,
+            isExpanded: true,
             decoration: const InputDecoration(labelText: 'Linked social task (optional)'),
             items: [
               const DropdownMenuItem(value: null, child: Text('No linked task')),
               for (final task in widget.tasks)
                 DropdownMenuItem(value: task.id, child: Text(task.title,
-                  overflow: TextOverflow.ellipsis)),
+                    overflow: TextOverflow.ellipsis)),
             ],
             onChanged: (value) => setState(() {
               _taskId = value;
@@ -178,6 +179,10 @@ class _SocialEventSheetState extends State<SocialEventSheet> {
           ],
           const SizedBox(height: 18),
           FilledButton(onPressed: _save, child: const Text('Save event')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
         ],
       ),
     ),
@@ -187,7 +192,7 @@ class _SocialEventSheetState extends State<SocialEventSheet> {
     final minutes = int.tryParse(_minutes.text.trim());
     if (minutes == null || minutes < 1 || minutes > 720 || _pressure == null) {
       setState(
-        () => _error = 'Enter 1–720 minutes and choose a pressure level.',
+            () => _error = 'Enter 1–720 minutes and choose a pressure level.',
       );
       return;
     }

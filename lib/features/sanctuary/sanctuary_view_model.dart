@@ -57,8 +57,8 @@ class SanctuaryViewModel extends LifecycleNotifier {
       return false;
     }
     if (slots.any(
-      (other) =>
-          other.id != slot.id &&
+          (other) =>
+      other.id != slot.id &&
           other.startAt.isBefore(slot.endAt) &&
           other.endAt.isAfter(slot.startAt),
     )) {
@@ -72,6 +72,36 @@ class SanctuaryViewModel extends LifecycleNotifier {
       } else {
         await repository!.updateRecoverySlot(slot);
       }
+    });
+  }
+
+  /// Records (or clears) that the user finished the optional activity.
+  ///
+  /// This only changes `completedAt`. It never changes the reserved time,
+  /// never records energy, and never lowers any workload score.
+  Future<bool> setActivityDone(RecoverySlot slot, {required bool done}) async {
+    if (isDisposed || busy || repository == null) return false;
+    if (slot.planChangeId != null) {
+      error = 'Council plan slots can only be changed from Council.';
+      notifyListeners();
+      return false;
+    }
+    if (done && DateTime.now().isBefore(slot.startAt)) {
+      error = 'You can mark this done once the recovery time has started.';
+      notifyListeners();
+      return false;
+    }
+    final updated = RecoverySlot(
+      id: slot.id,
+      startAt: slot.startAt,
+      endAt: slot.endAt,
+      isProtected: slot.isProtected,
+      planChangeId: slot.planChangeId,
+      selectedActivity: slot.selectedActivity,
+      completedAt: done ? DateTime.now() : null,
+    );
+    return _mutate(() async {
+      await repository!.updateRecoverySlot(updated);
     });
   }
 
@@ -92,7 +122,7 @@ class SanctuaryViewModel extends LifecycleNotifier {
       error = AppErrorMessage.from(
         e,
         fallback:
-            'Could not save recovery time. Check availability and try again.',
+        'Could not save recovery time. Check availability and try again.',
       );
       _mutating = false;
       notifyListeners();

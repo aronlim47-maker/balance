@@ -136,7 +136,11 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             const SizedBox(height: 12),
             DropdownButtonFormField<LoadCategory>(
               initialValue: _loadCategory,
-              decoration: const InputDecoration(labelText: 'Task category'),
+              decoration: InputDecoration(
+                labelText: 'Task category',
+                helperText: _categoryHelp(_loadCategory),
+                helperMaxLines: 3,
+              ),
               items: [
                 for (final category in LoadCategory.values)
                   DropdownMenuItem(
@@ -285,6 +289,21 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
       ),
     ),
   );
+
+  /// Explains each category so students pick one on purpose.
+  /// The app never guesses a category from the task title.
+  static String _categoryHelp(LoadCategory? category) => switch (category) {
+    null =>
+    'Study: coursework, revision · Errand: admin, chores, shopping · '
+        'Social: meetups · Exercise: sport · Other: anything else',
+    LoadCategory.study =>
+    'Coursework, homework, revision and academic projects.',
+    LoadCategory.errand =>
+    'Admin, purchases, household jobs and other practical tasks.',
+    LoadCategory.social => 'A planned meeting or social commitment.',
+    LoadCategory.exercise => 'A planned sport or movement session.',
+    LoadCategory.other => 'Anything that does not fit the other categories.',
+  };
 
   Future<void> _pickDueAt() async {
     final date = await showDatePicker(

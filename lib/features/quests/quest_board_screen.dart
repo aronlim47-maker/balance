@@ -3,11 +3,15 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/shared_widgets/balance_scaffold.dart';
+import '../../core/utils/app_error_message.dart';
+import '../../data/repositories/movement_repository.dart';
 import '../../data/repositories/task_repository.dart';
 import '../../domain/enums/task_flexibility.dart';
 import '../../domain/enums/load_category.dart';
 import '../../domain/enums/task_status.dart';
+import '../../domain/models/movement_models.dart';
 import '../../domain/models/task_item.dart';
+import '../today/movement_card.dart';
 import 'quest_board_view_model.dart';
 import 'task_card.dart';
 import 'task_form_screen.dart';
@@ -18,7 +22,7 @@ class QuestBoardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
     create: (_) =>
-        QuestBoardViewModel(context.read<TaskRepository>())..loadTasks(),
+    QuestBoardViewModel(context.read<TaskRepository>())..loadTasks(),
     child: const _QuestBoardContent(),
   );
 }
@@ -91,37 +95,37 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
             onRefresh: viewModel.loadTasks,
             child: visibleTasks.isEmpty
                 ? ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      const SizedBox(height: 80),
-                      const Icon(Icons.search_off_outlined, size: 48),
-                      const SizedBox(height: 12),
-                      const Center(child: Text('No matching tasks')),
-                      const SizedBox(height: 8),
-                      Center(
-                        child: TextButton(
-                          onPressed: () => _clearFilters(viewModel),
-                          child: const Text('Clear filters'),
-                        ),
-                      ),
-                    ],
-                  )
-                : ListView.separated(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    itemCount: visibleTasks.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final task = visibleTasks[index];
-                      return TaskCard(
-                        task: task,
-                        onEdit: () =>
-                            _openTaskForm(context, viewModel, task: task),
-                        onDelete: () =>
-                            _confirmDelete(context, viewModel, task),
-                      );
-                    },
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                const SizedBox(height: 80),
+                const Icon(Icons.search_off_outlined, size: 48),
+                const SizedBox(height: 12),
+                const Center(child: Text('No matching tasks')),
+                const SizedBox(height: 8),
+                Center(
+                  child: TextButton(
+                    onPressed: () => _clearFilters(viewModel),
+                    child: const Text('Clear filters'),
                   ),
+                ),
+              ],
+            )
+                : ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              itemCount: visibleTasks.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final task = visibleTasks[index];
+                return TaskCard(
+                  task: task,
+                  onEdit: () =>
+                      _openTaskForm(context, viewModel, task: task),
+                  onDelete: () =>
+                      _confirmDelete(context, viewModel, task),
+                );
+              },
+            ),
           ),
         ),
       ],
@@ -146,13 +150,13 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
               suffixIcon: viewModel.searchQuery.isEmpty
                   ? null
                   : IconButton(
-                      tooltip: 'Clear search',
-                      onPressed: () {
-                        _searchController.clear();
-                        viewModel.setSearchQuery('');
-                      },
-                      icon: const Icon(Icons.close),
-                    ),
+                tooltip: 'Clear search',
+                onPressed: () {
+                  _searchController.clear();
+                  viewModel.setSearchQuery('');
+                },
+                icon: const Icon(Icons.close),
+              ),
               border: const OutlineInputBorder(),
               isDense: true,
             ),
@@ -305,9 +309,9 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   }
 
   Future<void> _pickDateRange(
-    BuildContext context,
-    QuestBoardViewModel viewModel,
-  ) async {
+      BuildContext context,
+      QuestBoardViewModel viewModel,
+      ) async {
     final range = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2000),
@@ -344,10 +348,10 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   };
 
   Future<void> _openTaskForm(
-    BuildContext context,
-    QuestBoardViewModel viewModel, {
-    TaskItem? task,
-  }) async {
+      BuildContext context,
+      QuestBoardViewModel viewModel, {
+        TaskItem? task,
+      }) async {
     final result = await showModalBottomSheet<TaskItem>(
       context: context,
       isScrollControlled: true,
@@ -368,13 +372,92 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
           ? (task == null ? 'Task created.' : 'Task updated.')
           : viewModel.errorMessage ?? 'The task could not be saved.',
     );
+    final justCompletedExercise =
+        saved &&
+            task != null &&
+            task.status != TaskStatus.completed &&
+            result.status == TaskStatus.completed &&
+            result.loadCategory == LoadCategory.exercise;
+    if (justCompletedExercise && context.mounted) {
+      await _offerExerciseLog(context, result);
+    }
+  }
+
+  static MovementRepository? _readMovement(BuildContext context) {
+    try {
+      return context.read<MovementRepository>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  /// Asks the user to confirm the real exercise after completing an
+  /// Exercise task. Nothing is recorded unless the user confirms the
+  /// actual time and duration; Skip and Cancel leave Physical unchanged.
+  Future<void> _offerExerciseLog(BuildContext context, TaskItem task) async {
+    final movement = _readMovement(context);
+    if (movement == null) return;
+    final wantsLog = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Record this exercise?'),
+        content: Text(
+          'You completed "${task.title}". Record when it happened and how '
+              'long it actually took? Skipping changes nothing.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Skip'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Record exercise'),
+          ),
+        ],
+      ),
+    );
+    if (wantsLog != true || !context.mounted) return;
+
+    final now = DateTime.now();
+    final scheduled = task.scheduledStart?.toLocal();
+    final day = scheduled != null && scheduled.isBefore(now)
+        ? DateTime(scheduled.year, scheduled.month, scheduled.day)
+        : DateTime(now.year, now.month, now.day);
+    final log = await showModalBottomSheet<ExerciseLog>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      useSafeArea: true,
+      builder: (_) => ExerciseLogSheet(
+        day: day,
+        tasks: [task],
+        initialTaskId: task.id,
+        initialMinutes: task.estimatedMinutes,
+      ),
+    );
+    if (log == null || !context.mounted) return;
+    try {
+      await movement.createExerciseLog(log);
+      if (context.mounted) _showResult(context, true, 'Exercise recorded.');
+    } catch (error) {
+      if (!context.mounted) return;
+      _showResult(
+        context,
+        false,
+        AppErrorMessage.from(
+          error,
+          fallback: 'Could not record the exercise. Please try again.',
+        ),
+      );
+    }
   }
 
   Future<void> _confirmDelete(
-    BuildContext context,
-    QuestBoardViewModel viewModel,
-    TaskItem task,
-  ) async {
+      BuildContext context,
+      QuestBoardViewModel viewModel,
+      TaskItem task,
+      ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(

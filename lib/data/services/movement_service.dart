@@ -15,8 +15,8 @@ class MovementService implements MovementRepository {
     final row = await _client
         .from('world_status_settings')
         .select(
-          'movement_tracking_enabled,movement_target_days,target_recovery_minutes,target_social_minutes_week',
-        )
+      'movement_tracking_enabled,movement_target_days,target_recovery_minutes,target_social_minutes_week',
+    )
         .eq('user_id', userId)
         .maybeSingle();
     if (row == null) return const MovementSettings();
@@ -29,15 +29,15 @@ class MovementService implements MovementRepository {
     final row = await _client
         .from('world_status_settings')
         .upsert({
-          'user_id': userId,
-          'movement_tracking_enabled': settings.trackingEnabled,
-          'movement_target_days': settings.targetDays,
-          'target_recovery_minutes': settings.targetRecoveryMinutes,
-          'target_social_minutes_week': settings.targetSocialMinutesWeek,
-        }, onConflict: 'user_id')
+      'user_id': userId,
+      'movement_tracking_enabled': settings.trackingEnabled,
+      'movement_target_days': settings.targetDays,
+      'target_recovery_minutes': settings.targetRecoveryMinutes,
+      'target_social_minutes_week': settings.targetSocialMinutesWeek,
+    }, onConflict: 'user_id')
         .select(
-          'movement_tracking_enabled,movement_target_days,target_recovery_minutes,target_social_minutes_week',
-        )
+      'movement_tracking_enabled,movement_target_days,target_recovery_minutes,target_social_minutes_week',
+    )
         .single();
     return _settings(row);
   }
@@ -75,12 +75,13 @@ class MovementService implements MovementRepository {
     final row = await _client
         .from('exercise_logs')
         .insert({
-          'user_id': userId,
-          'occurred_at': log.occurredAt.toUtc().toIso8601String(),
-          'duration_minutes': log.durationMinutes,
-          'intensity': log.intensity,
-          'source': 'manual',
-        })
+      'user_id': userId,
+      'occurred_at': log.occurredAt.toUtc().toIso8601String(),
+      'duration_minutes': log.durationMinutes,
+      'intensity': log.intensity,
+      'task_id': log.taskId,
+      'source': log.taskId == null ? 'manual' : 'task_confirmation',
+    })
         .select('id,task_id,occurred_at,duration_minutes,intensity')
         .single();
     return _log(row);
@@ -97,9 +98,9 @@ class MovementService implements MovementRepository {
         trackingEnabled: row['movement_tracking_enabled'] as bool? ?? false,
         targetDays: (row['movement_target_days'] as num?)?.toInt() ?? 3,
         targetRecoveryMinutes:
-            (row['target_recovery_minutes'] as num?)?.toInt() ?? 30,
+        (row['target_recovery_minutes'] as num?)?.toInt() ?? 30,
         targetSocialMinutesWeek:
-            (row['target_social_minutes_week'] as num?)?.toInt() ?? 300,
+        (row['target_social_minutes_week'] as num?)?.toInt() ?? 300,
       );
 
   static ExerciseLog _log(Map<String, dynamic> row) => ExerciseLog(

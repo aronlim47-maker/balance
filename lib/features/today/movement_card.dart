@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/models/movement_models.dart';
+import '../../domain/models/task_item.dart';
 
 class MovementCard extends StatelessWidget {
   const MovementCard({
@@ -57,8 +58,8 @@ class MovementCard extends StatelessWidget {
                     onChanged: isSaving
                         ? null
                         : (value) {
-                            if (value != null) onTargetDaysChanged(value);
-                          },
+                      if (value != null) onTargetDaysChanged(value);
+                    },
                     items: [
                       for (var days = 1; days <= 14; days++)
                         DropdownMenuItem(
@@ -88,7 +89,8 @@ class MovementCard extends StatelessWidget {
                   leading: const Icon(Icons.directions_run_outlined),
                   title: Text('${log.durationMinutes} minutes recorded'),
                   subtitle: Text(
-                    DateFormat.jm().format(log.occurredAt.toLocal()),
+                    '${DateFormat.jm().format(log.occurredAt.toLocal())}'
+                        '${log.taskId != null ? ' · Linked to a task' : ''}',
                   ),
                   trailing: IconButton(
                     tooltip: 'Remove exercise record',
@@ -105,8 +107,24 @@ class MovementCard extends StatelessWidget {
 }
 
 class ExerciseLogSheet extends StatefulWidget {
-  const ExerciseLogSheet({super.key, required this.day});
+  const ExerciseLogSheet({
+    super.key,
+    required this.day,
+    this.tasks = const [],
+    this.initialTaskId,
+    this.initialMinutes,
+  });
+
   final DateTime day;
+
+  /// Exercise tasks the user may link this record to (optional).
+  final List<TaskItem> tasks;
+
+  /// Pre-selected task, e.g. when confirming a just-completed Exercise task.
+  final String? initialTaskId;
+
+  /// Suggested duration. The user must still confirm the real value.
+  final int? initialMinutes;
 
   @override
   State<ExerciseLogSheet> createState() => _ExerciseLogSheetState();
@@ -115,6 +133,7 @@ class ExerciseLogSheet extends StatefulWidget {
 class _ExerciseLogSheetState extends State<ExerciseLogSheet> {
   final _minutesController = TextEditingController();
   late TimeOfDay _time;
+  String? _taskId;
   String? _error;
 
   @override
@@ -123,11 +142,17 @@ class _ExerciseLogSheetState extends State<ExerciseLogSheet> {
     final now = DateTime.now();
     final isToday =
         now.year == widget.day.year &&
-        now.month == widget.day.month &&
-        now.day == widget.day.day;
+            now.month == widget.day.month &&
+            now.day == widget.day.day;
     _time = isToday
         ? TimeOfDay.fromDateTime(now)
         : const TimeOfDay(hour: 18, minute: 0);
+    if (widget.tasks.any((task) => task.id == widget.initialTaskId)) {
+      _taskId = widget.initialTaskId;
+    }
+    if (widget.initialMinutes != null) {
+      _minutesController.text = widget.initialMinutes.toString();
+    }
   }
 
   @override
@@ -158,6 +183,26 @@ class _ExerciseLogSheetState extends State<ExerciseLogSheet> {
           ),
           const SizedBox(height: 16),
           Text('Date: ${DateFormat.yMMMMd().format(widget.day)}'),
+          if (widget.tasks.isNotEmpty)
+            DropdownButtonFormField<String?>(
+              initialValue: _taskId,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                labelText: 'Linked exercise task (optional)',
+              ),
+              items: [
+                const DropdownMenuItem(
+                  value: null,
+                  child: Text('No linked task'),
+                ),
+                for (final task in widget.tasks)
+                  DropdownMenuItem(
+                    value: task.id,
+                    child: Text(task.title, overflow: TextOverflow.ellipsis),
+                  ),
+              ],
+              onChanged: (value) => setState(() => _taskId = value),
+            ),
           ListTile(
             contentPadding: EdgeInsets.zero,
             title: const Text('Time completed'),
@@ -215,7 +260,12 @@ class _ExerciseLogSheetState extends State<ExerciseLogSheet> {
     }
     Navigator.pop(
       context,
-      ExerciseLog(id: '', occurredAt: occurredAt, durationMinutes: minutes),
+      ExerciseLog(
+        id: '',
+        occurredAt: occurredAt,
+        durationMinutes: minutes,
+        taskId: _taskId,
+      ),
     );
   }
 }
