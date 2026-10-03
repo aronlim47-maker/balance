@@ -8,6 +8,13 @@ import '../../domain/usecases/world_status_calculator.dart';
 class WorldHistoryService implements WorldHistoryRepository {
   WorldHistoryService(this.client);
   final SupabaseClient client;
+
+  void _checkOwner(String user) {
+    if (client.auth.currentUser?.id != user) {
+      throw StateError('Account changed. Reload this view.');
+    }
+  }
+
   @override
   Future<WorldStatusResult?> loadDaySnapshot(DateTime day) async {
     final user = requireAuthenticatedUserId(client);
@@ -18,6 +25,7 @@ class WorldHistoryService implements WorldHistoryRepository {
         .eq('formula_version', WorldStatusCalculator.formulaVersion)
         .eq('local_date', DateFormat('yyyy-MM-dd').format(day))
         .maybeSingle();
+    _checkOwner(user);
     return row == null ? null : WorldStatusResult.fromSnapshot(row);
   }
 
@@ -25,6 +33,7 @@ class WorldHistoryService implements WorldHistoryRepository {
   Future<List<int?>> loadPreviousWeek(DateTime selectedDay) async {
     final user = requireAuthenticatedUserId(client);
     await client.rpc('capture_world_status');
+    _checkOwner(user);
     final dates = List.generate(
       7,
       (i) => DateFormat('yyyy-MM-dd').format(
@@ -35,9 +44,10 @@ class WorldHistoryService implements WorldHistoryRepository {
         .from('world_status_snapshots')
         .select('local_date,total_score')
         .eq('user_id', user)
-        .eq('formula_version', 'world_status_v1')
+        .eq('formula_version', WorldStatusCalculator.formulaVersion)
         .gte('local_date', dates.first)
         .lte('local_date', dates.last);
+    _checkOwner(user);
     final scores = {
       for (final row in rows)
         row['local_date'] as String: (row['total_score'] as num?)?.toInt(),
@@ -63,9 +73,10 @@ class WorldHistoryService implements WorldHistoryRepository {
         .from('world_status_snapshots')
         .select('local_date,total_score,had_protected_recovery')
         .eq('user_id', user)
-        .eq('formula_version', 'world_status_v1')
+        .eq('formula_version', WorldStatusCalculator.formulaVersion)
         .gte('local_date', dates.first)
         .lte('local_date', dates.last);
+    _checkOwner(user);
     final scores = {
       for (final row in rows)
         row['local_date'] as String: (row['total_score'] as num?)?.toInt(),
