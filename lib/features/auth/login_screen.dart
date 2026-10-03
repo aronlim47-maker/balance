@@ -97,6 +97,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(auth.isLoading ? 'Signing in…' : 'Sign in'),
                     ),
                     TextButton(
+                      onPressed: auth.isLoading
+                          ? null
+                          : () => context.go('/account-help'),
+                      child: const Text(
+                        'Forgot password or need verification?',
+                      ),
+                    ),
+                    TextButton(
                       onPressed: () => context.go('/register'),
                       child: const Text('New to Balance? Create an account'),
                     ),

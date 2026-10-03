@@ -40,6 +40,30 @@ User-facing failures are translated into concise English guidance for common aut
 
 ## Verification
 
+### Account recovery on mobile
+
+In Supabase Authentication URL Configuration, add exactly
+`com.balance.app://auth-callback/` to Redirect URLs. Keep the standard confirmation
+and recovery email templates pointing to Supabase's generated confirmation link.
+The Android/iOS handlers pass the callback to Supabase for verification; a route
+name alone cannot authorize a password update. Install a freshly rebuilt app after
+changing native link configuration; hot reload cannot add an Android intent filter.
+
+From Sign in, choose **Forgot password or need verification?**. Enter the account
+email, then choose a reset link or resend verification. Open the new email link on
+the same device and installation that requested it (PKCE verification uses local
+state). A verified recovery link opens Choose a new password. Set matching
+passwords with at least 8 characters, or Cancel and sign out. Invalid/expired
+links show safe guidance; request a fresh link. Rate limits and email delivery
+remain governed by the project's Auth configuration. Messages intentionally do
+not confirm whether an email belongs to an account.
+
+Acceptance on a real device: test signup verification, verification resend,
+password recovery with the app open and closed, expired/used links, cancellation,
+then sign out and confirm the old password fails and the new password works.
+These email delivery/native-link cases are not proven by widget tests. iOS link
+configuration is prepared but requires verification on macOS and an iPhone.
+
 After migration 002, run `supabase/manual/20260927_verified_progress_checks.sql` in the SQL Editor. Its read-only checks verify function availability, grants and RLS configuration. Then sign in through the app with two distinct accounts and confirm each account sees only its own tasks, recovery slots, snapshots and awards. The SQL Editor's privileged role cannot prove user isolation.
 
 With one account, record a protected recovery slot in Sanctuary; check its achievement in Journey. Create a protected work shift task; check Protected Limit. Confirm a feasible Council plan and undo it; Safe Trade-off must stay unlocked. Save a Journey reflection; Reflection should unlock. Early Review requires an overloaded current day and a task whose local deadline is on a later day. Team Coordination remains locked until the V2 shared-task workflow supplies real evidence. Retry the same actions or use a second device: `user_achievements` must keep one award per key. Today and Profile must show the same five-dimension score after refresh. Journey shows only actually captured days; missing history says “No record”.

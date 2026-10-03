@@ -107,7 +107,9 @@ device/profile timezone differences are not supported end-to-end yet.
 - Require category on new inserts only after agreeing legacy-client support.
 - Durable cross-restart retry/outbox and concurrent pagination snapshot consistency.
 - Multi-task Council proposals and recovery creation integrated into one plan UI.
-- Password reset/resend confirmation and verified email deep-link handling.
+- Password reset/resend and guarded mobile callbacks are implemented in the
+  4 October update; redirect allowlist, email delivery and real-device link tests
+  remain pending. See README and MVP1_ACCEPTANCE.md.
 - Full Journey sleep/weekly planned-vs-available metrics and explainable patterns.
 - Real-account/two-device E2E, fresh/upgrade APK tests, performance profiling.
 - Permanent Android application ID and private release signing (owner decisions).
