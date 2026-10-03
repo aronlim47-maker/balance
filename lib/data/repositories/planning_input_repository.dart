@@ -36,6 +36,10 @@ abstract interface class PlanningInputRepository {
     required LocalDate date,
     required String content,
   });
+
+  /// Uses the existing verified RPC. The server determines the review date.
+  /// requestId/localDate are retained for source compatibility, not deduplication.
+  /// Do not treat this method as an idempotent raw-input insert.
   Future<void> acknowledgeOverload({
     required String requestId,
     required String taskId,

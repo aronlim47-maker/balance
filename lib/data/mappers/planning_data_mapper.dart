@@ -20,7 +20,7 @@ abstract final class PlanningDataMapper {
     durationMinutes: (row['duration_minutes'] as num).toInt(),
     intensity: row['intensity'] as String?,
     source: row['source'] as String,
-    requestId: row['request_id'] as String,
+    requestId: row['request_id'] as String? ?? row['id'] as String,
   );
   static SocialEvent socialEvent(Map<String, dynamic> row) => SocialEvent(
     id: row['id'] as String,
@@ -30,21 +30,23 @@ abstract final class PlanningDataMapper {
     endAt: DateTime.parse(row['end_at'] as String).toUtc(),
     pressureLevel: EnergyLevel.values.byName(row['pressure_level'] as String),
     hasConflict: row['has_conflict'] as bool?,
-    requestId: row['request_id'] as String,
+    requestId: row['request_id'] as String? ?? row['id'] as String,
   );
   static SocialWeekResponse socialWeekResponse(Map<String, dynamic> row) =>
       SocialWeekResponse(
         userId: row['user_id'] as String,
         weekStart: LocalDate.parse(row['week_start'] as String),
-        noSocialCommitments: row['no_social_commitments'] as bool,
+        noSocialCommitments: row['no_commitments'] as bool,
       );
   static ReflectionEntry reflectionEntry(Map<String, dynamic> row) =>
       ReflectionEntry(
         id: row['id'] as String,
         userId: row['user_id'] as String,
-        localDate: LocalDate.parse(row['local_date'] as String),
-        content: row['content'] as String,
-        requestId: row['request_id'] as String,
+        localDate: row['local_date'] == null
+            ? null
+            : LocalDate.parse(row['local_date'] as String),
+        content: row['body'] as String,
+        requestId: row['request_id'] as String? ?? row['id'] as String,
         createdAt: DateTime.parse(row['created_at'] as String).toUtc(),
       );
   static WorldStatusSnapshot worldStatusSnapshot(Map<String, dynamic> row) =>
@@ -77,13 +79,13 @@ abstract final class PlanningDataMapper {
     achievementKey: row['achievement_key'] as String,
     practicalName: row['practical_name'] as String,
     rpgName: row['rpg_name'] as String,
-    unlockCondition: row['unlock_condition'] as String,
+    unlockCondition: row['condition_text'] as String,
     ruleVersion: row['rule_version'] as String,
   );
   static PlanningEvent planningEvent(Map<String, dynamic> row) => PlanningEvent(
     id: row['id'] as String,
     userId: row['user_id'] as String,
-    eventKey: row['event_key'] as String,
+    eventKey: row['source_key'] as String,
     eventType: row['event_type'] as String,
     occurredAt: DateTime.parse(row['occurred_at'] as String).toUtc(),
     evidence: Map<String, dynamic>.unmodifiable(
