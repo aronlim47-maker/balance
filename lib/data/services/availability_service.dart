@@ -4,6 +4,7 @@ import '../../domain/models/availability_block.dart';
 import '../mappers/availability_mapper.dart';
 import '../repositories/availability_repository.dart';
 import 'authenticated_user.dart';
+import 'owned_rows.dart';
 
 class AvailabilityService implements AvailabilityRepository {
   AvailabilityService(this._client);
@@ -12,11 +13,15 @@ class AvailabilityService implements AvailabilityRepository {
 
   @override
   Future<List<AvailabilityBlock>> fetchAvailability() async {
-    requireAuthenticatedUserId(_client);
-    final rows = await _client
-        .from('availability_blocks')
-        .select()
-        .order('start_at');
+    final rows = await readOwnedRows(
+      _client,
+      (owner) => _client
+          .from('availability_blocks')
+          .select()
+          .eq('user_id', owner)
+          .order('start_at')
+          .order('id'),
+    );
     return rows.map(AvailabilityMapper.fromJson).toList(growable: false);
   }
 

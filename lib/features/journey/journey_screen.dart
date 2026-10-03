@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../core/router/app_router.dart';
 
 import '../../core/shared_widgets/balance_scaffold.dart';
 import '../../data/repositories/achievement_repository.dart';
@@ -112,6 +115,13 @@ class _JourneyContent extends StatelessWidget {
                   : () => _reflect(context, viewModel),
               icon: const Icon(Icons.edit_note),
               label: const Text('Add optional reflection'),
+            ),
+            TextButton.icon(
+              onPressed: context.read<VerifiedProgressService?>() == null
+                  ? null
+                  : () => context.push(AppRoutes.reflectionHistory),
+              icon: const Icon(Icons.history),
+              label: const Text('View my reflections'),
             ),
             Text(
               'Achievements',

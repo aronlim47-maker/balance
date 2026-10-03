@@ -32,6 +32,8 @@ Target: submit a stable source repository by **11 October 2026, Malaysia time**.
 
 ## Gates and constraints
 
+- **3 Oct repair update:** The compile regression is fixed locally. Destination-day moved-task display, overdue task picker, refresh warnings, snapshot refresh, paginated reads, retry-safe input, plan history and reflection history are implemented. Chong must review/rehearse the two `20261003` migrations and run the corrected rollback-only security/occupancy scripts. These new migrations have not been executed remotely in this update. See `docs/20261003_FIX_AND_DATABASE_HANDOFF.md`; prior unchecked release/security gates remain unchecked.
+
 - **V1:** Personal tasks, five-dimension World Status, safe planning, Sanctuary and private weekly Journey work with real data. All seven achievement cards and conditions are displayed. Six personal achievements can unlock when their evidence exists. Team Coordination stays Locked until V2 real shared-task evidence exists.
 - **V2:** Shared tasks and Needs Agreement work with correct permissions. Team Coordination becomes unlockable only from a verified shared-task event. Repeated taps or two devices still produce one award.
 - **V3:** Recommendations require opt-in, explanations, user control and a tested rules baseline. Predictive behavior is included only after evaluation.

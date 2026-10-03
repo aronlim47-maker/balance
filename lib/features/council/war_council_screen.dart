@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../core/shared_widgets/balance_scaffold.dart';
 import '../../core/shared_widgets/section_header.dart';
 import '../../core/router/app_router.dart';
+import '../../core/state/planning_day_controller.dart';
 import '../../domain/enums/validation_status.dart';
 import 'trade_off_option_card.dart';
 import 'war_council_view_model.dart';
@@ -32,6 +33,13 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
     return BalanceScaffold(
       title: 'War Council',
       currentIndex: 2,
+      actions: [
+        IconButton(
+          tooltip: 'Plan history',
+          onPressed: () => context.push(AppRoutes.planHistory),
+          icon: const Icon(Icons.history),
+        ),
+      ],
       body: RefreshIndicator(
         onRefresh: viewModel.load,
         child: ListView(
@@ -131,7 +139,12 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
-                onPressed: () => context.go(AppRoutes.today),
+                onPressed: () {
+                  context.read<PlanningDayController>().selectDay(
+                    DateTime.now(),
+                  );
+                  context.go(AppRoutes.today);
+                },
                 icon: const Icon(Icons.today_outlined),
                 label: const Text('Back to Today'),
               ),

@@ -44,22 +44,22 @@ values ('00000000-0000-4000-8000-0000000000a1',current_setting('balance.test_use
 select pg_temp.assert_true((select load_category is null from public.tasks
   where id='00000000-0000-4000-8000-0000000000a1'), 'legacy category preserved');
 
-insert into public.planning_events(id,user_id,event_key,event_type,occurred_at,evidence)
+insert into public.planning_events(id,user_id,source_key,event_type,occurred_at,evidence)
 values ('00000000-0000-4000-8000-0000000000e1',current_setting('balance.test_user_a')::uuid,
-  'sql-test:event-a','fixture',now(),'{}');
+  'sql-test:event-a','reflection',now(),'{}');
 insert into public.user_achievements(user_id,achievement_key,rule_version,source_event_id,occurred_at)
-values(current_setting('balance.test_user_a')::uuid,'reflection','achievements_v1',
+values(current_setting('balance.test_user_a')::uuid,'reflection','achievement_v1',
   '00000000-0000-4000-8000-0000000000e1',now());
 do $$ begin
   begin
     insert into public.user_achievements(user_id,achievement_key,rule_version,source_event_id,occurred_at)
-    values(current_setting('balance.test_user_a')::uuid,'reflection','achievements_v1',
+    values(current_setting('balance.test_user_a')::uuid,'reflection','achievement_v1',
       '00000000-0000-4000-8000-0000000000e1',now());
     raise exception 'FAIL: duplicate award accepted';
   exception when unique_violation then null; end;
   begin
     insert into public.user_achievements(user_id,achievement_key,rule_version,source_event_id,occurred_at)
-    values(current_setting('balance.test_user_b')::uuid,'reflection','achievements_v1',
+    values(current_setting('balance.test_user_b')::uuid,'reflection','achievement_v1',
       '00000000-0000-4000-8000-0000000000e1',now());
     raise exception 'FAIL: cross-user event link accepted';
   exception when foreign_key_violation then null; end;
@@ -67,22 +67,22 @@ end $$;
 
 select set_config('request.jwt.claim.sub', current_setting('balance.test_user_a'), true);
 set local role authenticated;
-insert into public.exercise_logs(user_id,task_id,occurred_at,duration_minutes,request_id)
-values(auth.uid(),'00000000-0000-4000-8000-0000000000a1',now(),30,'00000000-0000-4000-8000-0000000000d1');
+insert into public.exercise_logs(user_id,task_id,occurred_at,duration_minutes,request_id,source)
+values(auth.uid(),'00000000-0000-4000-8000-0000000000a1',now(),30,'00000000-0000-4000-8000-0000000000d1','manual');
 do $$ begin
   begin
-    insert into public.exercise_logs(user_id,task_id,occurred_at,duration_minutes,request_id)
-    values(auth.uid(),'00000000-0000-4000-8000-0000000000b1',now(),30,gen_random_uuid());
+    insert into public.exercise_logs(user_id,task_id,occurred_at,duration_minutes,request_id,source)
+    values(auth.uid(),'00000000-0000-4000-8000-0000000000b1',now(),30,gen_random_uuid(),'manual');
     raise exception 'FAIL: cross-user task link accepted';
   exception when foreign_key_violation then null; end;
   begin
-    insert into public.exercise_logs(user_id,occurred_at,duration_minutes,request_id)
-    values(auth.uid(),now(),30,'00000000-0000-4000-8000-0000000000d1');
+    insert into public.exercise_logs(user_id,occurred_at,duration_minutes,request_id,source)
+    values(auth.uid(),now(),30,'00000000-0000-4000-8000-0000000000d1','manual');
     raise exception 'FAIL: duplicate request accepted';
   exception when unique_violation then null; end;
   begin
-    insert into public.planning_events(user_id,event_key,event_type,occurred_at,evidence)
-    values(auth.uid(),'forged','fixture',now(),'{}');
+    insert into public.planning_events(user_id,source_key,event_type,occurred_at,evidence)
+    values(auth.uid(),'forged','reflection',now(),'{}');
     raise exception 'FAIL: forged event accepted';
   exception when insufficient_privilege then null; end;
 end $$;

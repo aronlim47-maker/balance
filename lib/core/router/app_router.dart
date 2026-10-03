@@ -1,11 +1,13 @@
 import 'package:go_router/go_router.dart';
 
 import '../../features/council/plan_updated_screen.dart';
+import '../../features/council/plan_history_screen.dart';
 import '../../features/council/war_council_screen.dart';
 import '../../features/auth/auth_view_model.dart';
 import '../../features/auth/login_screen.dart';
 import '../../features/auth/register_screen.dart';
 import '../../features/journey/journey_screen.dart';
+import '../../features/journey/reflection_history_screen.dart';
 import '../../features/quests/quest_board_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/sanctuary/sanctuary_screen.dart';
@@ -17,8 +19,10 @@ abstract final class AppRoutes {
   static const today = '/today';
   static const quests = '/quests';
   static const council = '/council';
+  static const planHistory = '/council/history';
   static const sanctuary = '/sanctuary';
   static const journey = '/journey';
+  static const reflectionHistory = '/journey/reflections';
   static const profile = '/profile';
 }
 
@@ -49,6 +53,10 @@ GoRouter buildAppRouter(AuthViewModel authViewModel) => GoRouter(
       builder: (_, _) => const WarCouncilScreen(),
     ),
     GoRoute(
+      path: AppRoutes.planHistory,
+      builder: (_, _) => const PlanHistoryScreen(),
+    ),
+    GoRoute(
       path: '/council/updated/:changeId',
       builder: (_, state) =>
           PlanUpdatedScreen(changeId: state.pathParameters['changeId']!),
@@ -58,6 +66,10 @@ GoRouter buildAppRouter(AuthViewModel authViewModel) => GoRouter(
       builder: (_, _) => const SanctuaryScreen(),
     ),
     GoRoute(path: AppRoutes.journey, builder: (_, _) => const JourneyScreen()),
+    GoRoute(
+      path: AppRoutes.reflectionHistory,
+      builder: (_, _) => const ReflectionHistoryScreen(),
+    ),
     GoRoute(path: AppRoutes.profile, builder: (_, _) => const ProfileScreen()),
   ],
 );

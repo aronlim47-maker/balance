@@ -1,5 +1,9 @@
 # Zhi Xuan: data foundation draft
 
+> Historical 27 September draft. Current integration status, correct schema names,
+> new migrations and remaining checks are in `20261003_FIX_AND_DATABASE_HANDOFF.md`.
+> Do not use the deployment status or proposed vocabulary below as current facts.
+
 Status: local implementation draft; not deployed to Supabase. Existing auth,
 RPCs and screens are unchanged. Do not mark the sprint's database/security
 checks complete until the SQL has run on a disposable Supabase database.
