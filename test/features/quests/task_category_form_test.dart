@@ -62,7 +62,7 @@ void main() {
         '60',
       );
       await tester.scrollUntilVisible(
-        find.text('Save changes'),
+        find.widgetWithText(FilledButton, 'Save changes'),
         300,
         scrollable: find
             .descendant(
@@ -72,10 +72,16 @@ void main() {
             .first,
       );
       await tester.pumpAndSettle();
-      final saveButton = find.widgetWithText(FilledButton, 'Save changes');
-      await tester.ensureVisible(saveButton);
+      await Scrollable.ensureVisible(
+        tester.element(find.widgetWithText(FilledButton, 'Save changes')),
+        alignment: 0.5,
+      );
       await tester.pumpAndSettle();
-      await tester.tap(saveButton);
+      expect(
+        find.widgetWithText(FilledButton, 'Save changes').hitTestable(),
+        findsOneWidget,
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Save changes'));
       await tester.pumpAndSettle();
       expect(saved?.estimatedMinutes, 60);
       expect(saved?.remainingMinutes, 60);
