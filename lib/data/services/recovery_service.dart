@@ -4,6 +4,7 @@ import '../../domain/models/recovery_slot.dart';
 import '../mappers/recovery_mapper.dart';
 import '../repositories/recovery_repository.dart';
 import 'authenticated_user.dart';
+import 'owned_rows.dart';
 
 class RecoveryService implements RecoveryRepository {
   RecoveryService(this._client);
@@ -12,11 +13,15 @@ class RecoveryService implements RecoveryRepository {
 
   @override
   Future<List<RecoverySlot>> fetchRecoverySlots() async {
-    requireAuthenticatedUserId(_client);
-    final rows = await _client
-        .from('recovery_slots')
-        .select()
-        .order('start_at');
+    final rows = await readOwnedRows(
+      _client,
+      (owner) => _client
+          .from('recovery_slots')
+          .select()
+          .eq('user_id', owner)
+          .order('start_at')
+          .order('id'),
+    );
     return rows.map(RecoveryMapper.fromJson).toList(growable: false);
   }
 

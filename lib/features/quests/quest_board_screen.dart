@@ -22,7 +22,7 @@ class QuestBoardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
     create: (_) =>
-    QuestBoardViewModel(context.read<TaskRepository>())..loadTasks(),
+        QuestBoardViewModel(context.read<TaskRepository>())..loadTasks(),
     child: const _QuestBoardContent(),
   );
 }
@@ -90,42 +90,51 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
     return Column(
       children: [
         _filters(context, viewModel),
+        if (viewModel.errorMessage != null)
+          ListTile(
+            leading: const Icon(Icons.cloud_off_outlined),
+            title: Text(viewModel.errorMessage!),
+            trailing: TextButton(
+              onPressed: viewModel.loadTasks,
+              child: const Text('Retry'),
+            ),
+          ),
         Expanded(
           child: RefreshIndicator(
             onRefresh: viewModel.loadTasks,
             child: visibleTasks.isEmpty
                 ? ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              children: [
-                const SizedBox(height: 80),
-                const Icon(Icons.search_off_outlined, size: 48),
-                const SizedBox(height: 12),
-                const Center(child: Text('No matching tasks')),
-                const SizedBox(height: 8),
-                Center(
-                  child: TextButton(
-                    onPressed: () => _clearFilters(viewModel),
-                    child: const Text('Clear filters'),
-                  ),
-                ),
-              ],
-            )
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      const SizedBox(height: 80),
+                      const Icon(Icons.search_off_outlined, size: 48),
+                      const SizedBox(height: 12),
+                      const Center(child: Text('No matching tasks')),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: TextButton(
+                          onPressed: () => _clearFilters(viewModel),
+                          child: const Text('Clear filters'),
+                        ),
+                      ),
+                    ],
+                  )
                 : ListView.separated(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              itemCount: visibleTasks.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final task = visibleTasks[index];
-                return TaskCard(
-                  task: task,
-                  onEdit: () =>
-                      _openTaskForm(context, viewModel, task: task),
-                  onDelete: () =>
-                      _confirmDelete(context, viewModel, task),
-                );
-              },
-            ),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    itemCount: visibleTasks.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final task = visibleTasks[index];
+                      return TaskCard(
+                        task: task,
+                        onEdit: () =>
+                            _openTaskForm(context, viewModel, task: task),
+                        onDelete: () =>
+                            _confirmDelete(context, viewModel, task),
+                      );
+                    },
+                  ),
           ),
         ),
       ],
@@ -150,13 +159,13 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
               suffixIcon: viewModel.searchQuery.isEmpty
                   ? null
                   : IconButton(
-                tooltip: 'Clear search',
-                onPressed: () {
-                  _searchController.clear();
-                  viewModel.setSearchQuery('');
-                },
-                icon: const Icon(Icons.close),
-              ),
+                      tooltip: 'Clear search',
+                      onPressed: () {
+                        _searchController.clear();
+                        viewModel.setSearchQuery('');
+                      },
+                      icon: const Icon(Icons.close),
+                    ),
               border: const OutlineInputBorder(),
               isDense: true,
             ),
@@ -309,9 +318,9 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   }
 
   Future<void> _pickDateRange(
-      BuildContext context,
-      QuestBoardViewModel viewModel,
-      ) async {
+    BuildContext context,
+    QuestBoardViewModel viewModel,
+  ) async {
     final range = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2000),
@@ -348,10 +357,10 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   };
 
   Future<void> _openTaskForm(
-      BuildContext context,
-      QuestBoardViewModel viewModel, {
-        TaskItem? task,
-      }) async {
+    BuildContext context,
+    QuestBoardViewModel viewModel, {
+    TaskItem? task,
+  }) async {
     final result = await showModalBottomSheet<TaskItem>(
       context: context,
       isScrollControlled: true,
@@ -374,10 +383,10 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
     );
     final justCompletedExercise =
         saved &&
-            task != null &&
-            task.status != TaskStatus.completed &&
-            result.status == TaskStatus.completed &&
-            result.loadCategory == LoadCategory.exercise;
+        task != null &&
+        task.status != TaskStatus.completed &&
+        result.status == TaskStatus.completed &&
+        result.loadCategory == LoadCategory.exercise;
     if (justCompletedExercise && context.mounted) {
       await _offerExerciseLog(context, result);
     }
@@ -403,7 +412,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
         title: const Text('Record this exercise?'),
         content: Text(
           'You completed "${task.title}". Record when it happened and how '
-              'long it actually took? Skipping changes nothing.',
+          'long it actually took? Skipping changes nothing.',
         ),
         actions: [
           TextButton(
@@ -454,10 +463,10 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   }
 
   Future<void> _confirmDelete(
-      BuildContext context,
-      QuestBoardViewModel viewModel,
-      TaskItem task,
-      ) async {
+    BuildContext context,
+    QuestBoardViewModel viewModel,
+    TaskItem task,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(

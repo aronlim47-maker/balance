@@ -8,6 +8,7 @@ import '../../domain/models/plan_reservation.dart';
 import '../mappers/plan_mapper.dart';
 import '../repositories/plan_repository.dart';
 import 'authenticated_user.dart';
+import 'owned_rows.dart';
 
 class PlanService implements PlanRepository {
   PlanService(this._client);
@@ -16,24 +17,32 @@ class PlanService implements PlanRepository {
 
   @override
   Future<List<PlanChange>> fetchPlanChanges() async {
-    requireAuthenticatedUserId(_client);
-    final rows = await _client
-        .from('plan_changes')
-        .select()
-        .order('created_at', ascending: false);
+    final rows = await readOwnedRows(
+      _client,
+      (owner) => _client
+          .from('plan_changes')
+          .select()
+          .eq('user_id', owner)
+          .order('created_at', ascending: false)
+          .order('id'),
+    );
     return rows.map(PlanMapper.fromJson).toList(growable: false);
   }
 
   @override
   Future<List<PlanReservation>> fetchPlanReservations() async {
-    requireAuthenticatedUserId(_client);
-    final rows = await _client
-        .from('plan_change_items')
-        .select(
-          'plan_change_id,task_id,proposed_start,proposed_end,tasks!inner(status),plan_changes!inner(status)',
-        )
-        .eq('tasks.status', 'planned')
-        .eq('plan_changes.status', 'confirmed');
+    final rows = await readOwnedRows(
+      _client,
+      (owner) => _client
+          .from('plan_change_items')
+          .select(
+            'plan_change_id,task_id,proposed_start,proposed_end,tasks!inner(status),plan_changes!inner(status)',
+          )
+          .eq('tasks.status', 'planned')
+          .eq('plan_changes.status', 'confirmed')
+          .eq('plan_changes.user_id', owner)
+          .order('id'),
+    );
     return rows
         .map(
           (row) => PlanReservation(

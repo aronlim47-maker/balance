@@ -5,6 +5,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('overdue task opens its date picker without an assertion', (
+    tester,
+  ) async {
+    final task = TaskItem(
+      id: 'old',
+      title: 'Overdue report',
+      estimatedMinutes: 60,
+      dueAt: DateTime.now().subtract(const Duration(days: 5)),
+      loadCategory: LoadCategory.study,
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: TaskFormScreen(task: task)),
+      ),
+    );
+    await tester.tap(find.text('Due date and time'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DatePickerDialog), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets(
     'reducing unallocated duration saves matching remaining minutes',
     (tester) async {

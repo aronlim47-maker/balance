@@ -3,11 +3,17 @@ import 'package:intl/intl.dart';
 
 import '../../domain/enums/task_flexibility.dart';
 import '../../domain/models/task_item.dart';
+import '../../domain/models/plan_reservation.dart';
 
 class TodayTaskDetailsSheet extends StatelessWidget {
-  const TodayTaskDetailsSheet({super.key, required this.task});
+  const TodayTaskDetailsSheet({
+    super.key,
+    required this.task,
+    this.reservations = const [],
+  });
 
   final TaskItem task;
+  final List<PlanReservation> reservations;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +32,12 @@ class TodayTaskDetailsSheet extends StatelessWidget {
               value: '${task.effectiveRemainingMinutes} min',
             ),
             _Detail(label: 'Due', value: due),
+            for (final reservation in reservations)
+              _Detail(
+                label: 'Council slot',
+                value:
+                    '${DateFormat.MMMd().add_jm().format(reservation.startAt.toLocal())} – ${DateFormat.MMMd().add_jm().format(reservation.endAt.toLocal())}',
+              ),
             if (scheduled)
               _Detail(
                 label: 'Scheduled',
@@ -55,7 +67,9 @@ class TodayTaskDetailsSheet extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              scheduled
+              reservations.isNotEmpty
+                  ? 'Council moved part of this task here. Its reserved time counts toward this day’s capacity.'
+                  : scheduled
                   ? 'Scheduled work overlaps this day and counts toward its capacity.'
                   : 'Due on this day. Remaining work counts toward capacity, but no time slot is reserved.',
             ),

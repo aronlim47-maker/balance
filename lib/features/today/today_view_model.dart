@@ -24,16 +24,16 @@ import '../../data/repositories/world_history_repository.dart';
 
 class TodayViewModel extends LifecycleNotifier {
   TodayViewModel(
-      this._taskRepository,
-      this._availabilityRepository, [
-        this._planRepository,
-        this._recoveryRepository,
-        this._planningDayController,
-        this._checkInRepository,
-        this._movementRepository,
-        this._socialRepository,
-        this._historyRepository,
-      ]) : _selectedDay = _dateOnly(DateTime.now()) {
+    this._taskRepository,
+    this._availabilityRepository, [
+    this._planRepository,
+    this._recoveryRepository,
+    this._planningDayController,
+    this._checkInRepository,
+    this._movementRepository,
+    this._socialRepository,
+    this._historyRepository,
+  ]) : _selectedDay = _dateOnly(DateTime.now()) {
     _selectedDay = _planningDayController?.selectedDay ?? _selectedDay;
   }
 
@@ -95,34 +95,35 @@ class TodayViewModel extends LifecycleNotifier {
   List<TaskItem> get socialTasks => _tasks
       .where(
         (task) =>
-    task.status == TaskStatus.planned &&
-        task.loadCategory == LoadCategory.social,
-  )
+            task.status == TaskStatus.planned &&
+            task.loadCategory == LoadCategory.social,
+      )
       .toList();
+
   /// Exercise tasks that an exercise record may be linked to.
   /// Cancelled tasks are excluded; the user still confirms the real time
   /// and duration, so nothing is logged automatically.
   List<TaskItem> get exerciseTasks => _tasks
       .where(
         (task) =>
-    task.status != TaskStatus.cancelled &&
-        task.loadCategory == LoadCategory.exercise,
-  )
+            task.status != TaskStatus.cancelled &&
+            task.loadCategory == LoadCategory.exercise,
+      )
       .toList();
   TaskItem? get earlyReviewCandidate =>
       !DailyCapacity.sameDay(_selectedDay, DateTime.now())
-          ? null
-          : _tasks
-          .where(
-            (task) =>
-        task.status == TaskStatus.planned &&
-            DateTime(
-              task.dueAt.toLocal().year,
-              task.dueAt.toLocal().month,
-              task.dueAt.toLocal().day,
-            ).isAfter(_selectedDay),
-      )
-          .firstOrNull;
+      ? null
+      : _tasks
+            .where(
+              (task) =>
+                  task.status == TaskStatus.planned &&
+                  DateTime(
+                    task.dueAt.toLocal().year,
+                    task.dueAt.toLocal().month,
+                    task.dueAt.toLocal().day,
+                  ).isAfter(_selectedDay),
+            )
+            .firstOrNull;
   List<AvailabilityBlock> get availabilityForDay =>
       _availability.where(_overlapsSelectedDay).toList();
 
@@ -157,7 +158,7 @@ class TodayViewModel extends LifecycleNotifier {
           );
     }
     final hasAvailability = availabilityForDay.any(
-          (block) => block.isAvailable,
+      (block) => block.isAvailable,
     );
     return const WorldStatusCalculator().calculate(
       WorldStatusInput(
@@ -168,15 +169,15 @@ class TodayViewModel extends LifecycleNotifier {
         availableMinutes: hasAvailability ? capacity.availableMinutes : null,
         unfinishedTasks: _hasLoaded
             ? _tasks
-            .where((task) => task.status == TaskStatus.planned)
-            .map(
-              (task) => WorldStatusTask(
-            remainingMinutes: task.effectiveRemainingMinutes,
-            dueAt: task.dueAt.toLocal(),
-            category: task.loadCategory,
-          ),
-        )
-            .toList()
+                  .where((task) => task.status == TaskStatus.planned)
+                  .map(
+                    (task) => WorldStatusTask(
+                      remainingMinutes: task.effectiveRemainingMinutes,
+                      dueAt: task.dueAt.toLocal(),
+                      category: task.loadCategory,
+                    ),
+                  )
+                  .toList()
             : null,
         protectedRecoveryMinutes: _recoveryRepository == null || !_hasLoaded
             ? null
@@ -191,12 +192,12 @@ class TodayViewModel extends LifecycleNotifier {
         socialEvents: _socialEvents == null
             ? null
             : socialLoadForWeek(
-          day,
-          _socialEvents!,
-          _tasks,
-          _reservations,
-          _recoverySlots,
-        ),
+                day,
+                _socialEvents!,
+                _tasks,
+                _reservations,
+                _recoverySlots,
+              ),
         noSocialCommitments: _noSocialCommitments,
       ),
     );
@@ -215,8 +216,8 @@ class TodayViewModel extends LifecycleNotifier {
       final movementSettingsFuture = _movementRepository?.fetchSettings();
       final latestExerciseFuture = _movementRepository
           ?.fetchLatestExerciseBefore(
-        DateTime(loadingDay.year, loadingDay.month, loadingDay.day + 1),
-      );
+            DateTime(loadingDay.year, loadingDay.month, loadingDay.day + 1),
+          );
       final exerciseDayFuture = _movementRepository?.fetchExerciseLogsForDay(
         loadingDay,
       );
@@ -239,8 +240,8 @@ class TodayViewModel extends LifecycleNotifier {
       ]);
       final extra =
           2 +
-              (_planRepository == null ? 0 : 1) +
-              (_recoveryRepository == null ? 0 : 1);
+          (_planRepository == null ? 0 : 1) +
+          (_recoveryRepository == null ? 0 : 1);
       final review = results[extra] as CheckIn?;
       final movementSettings = results[extra + 1] as MovementSettings?;
       final latestExercise = results[extra + 2] as ExerciseLog?;
@@ -297,7 +298,7 @@ class TodayViewModel extends LifecycleNotifier {
         } catch (_) {
           if (loadVersion == _loadVersion) {
             historyNotice =
-            'Recorded workload is unavailable. Pull to refresh.';
+                'Recorded workload is unavailable. Pull to refresh.';
           }
         }
       }
@@ -359,7 +360,7 @@ class TodayViewModel extends LifecycleNotifier {
     final savingDay = _selectedDay;
     if (value && socialEvents.isNotEmpty) {
       _errorMessage =
-      'Remove this week’s events before selecting no commitments.';
+          'Remove this week’s events before selecting no commitments.';
       notifyListeners();
       return false;
     }
@@ -524,6 +525,7 @@ class TodayViewModel extends LifecycleNotifier {
     _invalidateLoads();
     _isSavingReview = true;
     _errorMessage = null;
+    _refreshWarning = null;
     notifyListeners();
     try {
       final saved = await _checkInRepository.saveCheckIn(review);
@@ -531,6 +533,7 @@ class TodayViewModel extends LifecycleNotifier {
       if (DailyCapacity.sameDay(saved.date, _selectedDay)) {
         _checkIn = saved;
       }
+      await _refreshHistoryAfterSave();
       return true;
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
@@ -549,6 +552,7 @@ class TodayViewModel extends LifecycleNotifier {
     _isSavingAvailability = true;
     _invalidateLoads();
     _errorMessage = null;
+    _refreshWarning = null;
     notifyListeners();
     try {
       final saved = block.id.isEmpty
@@ -563,6 +567,7 @@ class TodayViewModel extends LifecycleNotifier {
       }
       _availability.sort((a, b) => a.startAt.compareTo(b.startAt));
       notifyListeners();
+      await _refreshHistoryAfterSave();
       return true;
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
@@ -582,12 +587,14 @@ class TodayViewModel extends LifecycleNotifier {
     _isSavingAvailability = true;
     _invalidateLoads();
     _errorMessage = null;
+    _refreshWarning = null;
     notifyListeners();
     try {
       await _availabilityRepository.deleteAvailability(blockId);
       if (isDisposed) return true;
       _availability.removeWhere((block) => block.id == blockId);
       notifyListeners();
+      await _refreshHistoryAfterSave();
       return true;
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
@@ -609,6 +616,7 @@ class TodayViewModel extends LifecycleNotifier {
 
   bool _belongsToSelectedDay(TaskItem task) {
     if (task.status != TaskStatus.planned) return false;
+    if (reservationsForTask(task).isNotEmpty) return true;
     if (task.scheduledStart != null && task.scheduledEnd != null) {
       return DailyCapacity.overlapsDay(
         task.scheduledStart!,
@@ -617,6 +625,34 @@ class TodayViewModel extends LifecycleNotifier {
       );
     }
     return DailyCapacity.sameDay(task.dueAt.toLocal(), _selectedDay);
+  }
+
+  List<PlanReservation> reservationsForTask(TaskItem task) => _reservations
+      .where(
+        (reservation) =>
+            reservation.taskId == task.id &&
+            DailyCapacity.overlapsDay(
+              reservation.startAt,
+              reservation.endAt,
+              _selectedDay,
+            ),
+      )
+      .toList(growable: false);
+
+  Future<void> _refreshHistoryAfterSave() async {
+    final history = _historyRepository;
+    if (history == null || isDisposed) return;
+    final day = _selectedDay;
+    final version = _loadVersion;
+    try {
+      final totals = await history.loadPreviousWeek(day);
+      if (!isDisposed && version == _loadVersion) _previousTotals = totals;
+    } catch (_) {
+      if (!isDisposed && version == _loadVersion) {
+        _refreshWarning =
+            'Saved, but workload history could not refresh. Pull to retry.';
+      }
+    }
   }
 
   bool _overlapsSelectedDay(AvailabilityBlock block) =>

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 /// update state or notify listeners once their screen has closed.
 abstract class LifecycleNotifier extends ChangeNotifier {
   bool _disposed = false;
+
   bool get isDisposed => _disposed;
 
   @override

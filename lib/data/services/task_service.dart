@@ -4,6 +4,7 @@ import '../../domain/models/task_item.dart';
 import '../mappers/task_mapper.dart';
 import '../repositories/task_repository.dart';
 import 'authenticated_user.dart';
+import 'owned_rows.dart';
 
 class TaskService implements TaskRepository {
   TaskService(this._client);
@@ -12,8 +13,15 @@ class TaskService implements TaskRepository {
 
   @override
   Future<List<TaskItem>> fetchTasks() async {
-    requireAuthenticatedUserId(_client);
-    final rows = await _client.from('tasks').select().order('due_at');
+    final rows = await readOwnedRows(
+      _client,
+      (owner) => _client
+          .from('tasks')
+          .select()
+          .eq('user_id', owner)
+          .order('due_at')
+          .order('id'),
+    );
     return rows.map(TaskMapper.fromJson).toList(growable: false);
   }
 

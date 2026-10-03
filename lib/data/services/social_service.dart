@@ -4,11 +4,14 @@ import '../../domain/models/social_event_record.dart';
 import '../../domain/usecases/world_status_calculator.dart';
 import '../repositories/social_repository.dart';
 import 'authenticated_user.dart';
+import 'owned_rows.dart';
+import 'retry_safe_write.dart';
 
 class SocialService implements SocialRepository {
   SocialService(this._client);
 
   final SupabaseClient _client;
+  final _writes = RetrySafeWrite();
 
   @override
   Future<List<SocialEventRecord>> fetchEventsForWeek(DateTime day) async {
@@ -16,12 +19,17 @@ class SocialService implements SocialRepository {
     final localDay = DateTime(day.year, day.month, day.day);
     final start = localDay.subtract(Duration(days: localDay.weekday - 1));
     final end = start.add(const Duration(days: 7));
-    final rows = await _client
-        .from('social_events')
-        .select('id,start_at,end_at,pressure_level,task_id')
-        .eq('user_id', userId)
-        .gt('end_at', start.toUtc().toIso8601String())
-        .lt('start_at', end.toUtc().toIso8601String());
+    final rows = await readOwnedRows(
+      _client,
+      (_) => _client
+          .from('social_events')
+          .select('id,start_at,end_at,pressure_level,task_id')
+          .eq('user_id', userId)
+          .gt('end_at', start.toUtc().toIso8601String())
+          .lt('start_at', end.toUtc().toIso8601String())
+          .order('start_at')
+          .order('id'),
+    );
     return rows
         .map((row) {
           final starts = DateTime.parse(row['start_at'] as String);
@@ -71,15 +79,21 @@ class SocialService implements SocialRepository {
   @override
   Future<SocialEventRecord> createEvent(SocialEventRecord event) async {
     requireAuthenticatedUserId(_client);
-    final row = await _client.rpc<Map<String, dynamic>>(
-      'create_social_event',
-      params: {
-        'p_start_at': event.startAt.toUtc().toIso8601String(),
-        'p_end_at': event.endAt.toUtc().toIso8601String(),
-        'p_pressure_level': event.pressure.name,
-        'p_task_id': event.taskId,
-        'p_week_start': _weekStart(event.startAt.toLocal()),
-      },
+    final payload = {
+      'p_start_at': event.startAt.toUtc().toIso8601String(),
+      'p_end_at': event.endAt.toUtc().toIso8601String(),
+      'p_pressure_level': event.pressure.name,
+      'p_task_id': event.taskId,
+      'p_week_start': _weekStart(event.startAt.toLocal()),
+    };
+    final row = await _writes.run(
+      _client,
+      'social_event',
+      payload,
+      (requestId, _) => _client.rpc<Map<String, dynamic>>(
+        'create_social_event_once',
+        params: {...payload, 'p_request_id': requestId},
+      ),
     );
     return SocialEventRecord(
       id: row['id'] as String,
@@ -93,11 +107,14 @@ class SocialService implements SocialRepository {
   @override
   Future<void> deleteEvent(String id) async {
     final userId = requireAuthenticatedUserId(_client);
-    await _client
+    final deleted = await _client
         .from('social_events')
         .delete()
         .eq('id', id)
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .select('id')
+        .maybeSingle();
+    if (deleted == null) throw StateError('Deletion not confirmed');
   }
 
   static String _weekStart(DateTime day) {
