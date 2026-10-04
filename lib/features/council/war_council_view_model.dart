@@ -18,6 +18,7 @@ import '../../domain/models/task_item.dart';
 import '../../domain/usecases/daily_capacity.dart';
 import '../../domain/usecases/generate_trade_offs.dart';
 import '../../domain/usecases/validate_plan.dart';
+import '../../domain/usecases/preview_trade_off.dart';
 
 class WarCouncilViewModel extends LifecycleNotifier {
   WarCouncilViewModel(
@@ -47,6 +48,7 @@ class WarCouncilViewModel extends LifecycleNotifier {
   bool _isLoadingChange = false;
   bool _changeNotFound = false;
   int? _serverOverloadMinutes;
+  DateTime? _serverCapacityDay;
   int _capacityCheckId = 0;
   int _loadVersion = 0;
   int _changeVersion = 0;
@@ -55,6 +57,16 @@ class WarCouncilViewModel extends LifecycleNotifier {
   String? _refreshWarning;
   PlanChange? _currentChange;
   TradeOffPlan? _confirmedOption;
+  int _reviewRevision = 0;
+  int get reviewRevision => _reviewRevision;
+  TradeOffPreview previewFor(TradeOffPlan option) => previewTradeOff(
+    option: option,
+    sourceDay: selectedDay,
+    tasks: _tasks,
+    availability: _availability,
+    reservations: _reservations,
+    recoverySlots: _recoverySlots,
+  );
 
   DateTime get selectedDay => _planningDayController.selectedDay;
   List<TradeOffPlan> get options => List.unmodifiable(_options);
@@ -117,6 +129,7 @@ class WarCouncilViewModel extends LifecycleNotifier {
   bool get changeNotFound => _changeNotFound;
   bool get capacityMatchesServer =>
       _serverOverloadMinutes != null &&
+      _serverCapacityDay == selectedDay &&
       _serverOverloadMinutes == capacity.overloadMinutes;
   String? get capacityCheckError => _capacityCheckError;
   bool get isConfigured => _planRepository != null;
@@ -163,11 +176,13 @@ class WarCouncilViewModel extends LifecycleNotifier {
   bool get canConfirm =>
       validationStatus == ValidationStatus.feasible &&
       selectedOption != null &&
+      previewFor(selectedOption!).canApply &&
       !_isSaving &&
       !_isLoading;
 
   Future<void> load({bool afterMutation = false}) async {
     if (isDisposed || (_isSaving && !afterMutation)) return;
+    ++_reviewRevision;
     final version = ++_loadVersion;
     ++_capacityCheckId;
     _isCheckingCapacity = false;
@@ -223,6 +238,8 @@ class WarCouncilViewModel extends LifecycleNotifier {
   }
 
   void selectDay(DateTime day) {
+    if (isDisposed || _isSaving) return;
+    ++_reviewRevision;
     _planningDayController.selectDay(day);
     _regenerateOptions();
     notifyListeners();
@@ -249,16 +266,19 @@ class WarCouncilViewModel extends LifecycleNotifier {
     if (isDisposed) return;
     final repository = _planRepository;
     if (repository == null) return;
+    ++_reviewRevision;
     final checkId = ++_capacityCheckId;
     final day = selectedDay;
     _isCheckingCapacity = true;
     _serverOverloadMinutes = null;
+    _serverCapacityDay = null;
     _capacityCheckError = null;
     notifyListeners();
     try {
       final overload = await repository.calculateDayOverload(day);
       if (checkId != _capacityCheckId) return;
       _serverOverloadMinutes = overload;
+      _serverCapacityDay = day;
     } catch (error) {
       if (checkId != _capacityCheckId) return;
       _capacityCheckError = AppErrorMessage.from(
@@ -274,12 +294,26 @@ class WarCouncilViewModel extends LifecycleNotifier {
   }
 
   void selectOption(String id) {
+    if (isDisposed || _isSaving) return;
     if (!_options.any((option) => option.id == id)) return;
+    ++_reviewRevision;
     _selectedOptionId = id;
     notifyListeners();
   }
 
-  Future<String?> confirmSelectedPlan() async {
+  Future<String?> confirmSelectedPlan({
+    String? expectedOptionId,
+    int? expectedRevision,
+    DateTime? expectedSourceDay,
+  }) async {
+    if (expectedOptionId != null &&
+        (expectedOptionId != _selectedOptionId ||
+            (expectedSourceDay != null && expectedSourceDay != selectedDay) ||
+            expectedRevision != _reviewRevision)) {
+      _errorMessage = 'The plan changed while you were reviewing it. Refresh and review again.';
+      notifyListeners();
+      return null;
+    }
     if (isDisposed || !canConfirm) return null;
     ++_changeVersion;
     _isLoadingChange = false;
@@ -294,6 +328,9 @@ class WarCouncilViewModel extends LifecycleNotifier {
         moves: [
           PlanMove(
             taskId: option.taskId,
+            expectedTaskVersion: _tasks
+                .singleWhere((task) => task.id == option.taskId)
+                .version,
             proposedStart: option.proposedStart,
             proposedEnd: option.proposedEnd,
             movedMinutes: option.movedMinutes,

@@ -15,6 +15,66 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  test(
+    'capacity evidence and review belong to the original selected day',
+    () async {
+      final fixture = await _Fixture.create(serverOverload: 120);
+      addTearDown(fixture.dispose);
+      await fixture.viewModel.load();
+      final originalDay = fixture.viewModel.selectedDay;
+      final optionId = fixture.viewModel.selectedOptionId;
+      final revision = fixture.viewModel.reviewRevision;
+      fixture.dayController.selectDay(originalDay.add(const Duration(days: 1)));
+      expect(fixture.viewModel.capacityMatchesServer, isFalse);
+      expect(
+        await fixture.viewModel.confirmSelectedPlan(
+          expectedOptionId: optionId,
+          expectedRevision: revision,
+          expectedSourceDay: originalDay,
+        ),
+        isNull,
+      );
+      expect(fixture.plans.confirmCalls, 0);
+    },
+  );
+  test(
+    'reviewing an option does not write; stale review cannot confirm',
+    () async {
+      final fixture = await _Fixture.create(serverOverload: 120);
+      addTearDown(fixture.dispose);
+      await fixture.viewModel.load();
+      final option = fixture.viewModel.selectedOption!;
+      final revision = fixture.viewModel.reviewRevision;
+      final preview = fixture.viewModel.previewFor(option);
+      expect(preview.canApply, isTrue);
+      expect(fixture.plans.confirmCalls, 0);
+      await fixture.viewModel.load();
+      expect(
+        await fixture.viewModel.confirmSelectedPlan(
+          expectedOptionId: option.id,
+          expectedRevision: revision,
+        ),
+        isNull,
+      );
+      expect(fixture.plans.confirmCalls, 0);
+      expect(fixture.viewModel.errorMessage, contains('changed while'));
+    },
+  );
+
+  test('current explicit review confirms only the selected option', () async {
+    final fixture = await _Fixture.create(serverOverload: 120);
+    addTearDown(fixture.dispose);
+    await fixture.viewModel.load();
+    expect(
+      await fixture.viewModel.confirmSelectedPlan(
+        expectedOptionId: fixture.viewModel.selectedOptionId,
+        expectedRevision: fixture.viewModel.reviewRevision,
+      ),
+      'change-1',
+    );
+    expect(fixture.plans.confirmCalls, 1);
+    expect(fixture.plans.lastMoves.single.expectedTaskVersion, 1);
+  });
   test('marks a matching, flexible plan feasible and confirms it', () async {
     final fixture = await _Fixture.create(serverOverload: 120);
     await fixture.viewModel.load();
@@ -246,6 +306,7 @@ class _FakePlanRepository implements PlanRepository {
 
   final int serverOverload;
   int confirmCalls = 0;
+  List<PlanMove> lastMoves = const [];
   int undoCalls = 0;
   bool failReservationReads = false;
   List<PlanChange> changeRows = const [];
@@ -273,6 +334,7 @@ class _FakePlanRepository implements PlanRepository {
     Map<String, dynamic> consequences = const <String, dynamic>{},
   }) async {
     confirmCalls++;
+    lastMoves = moves;
     return const PlanChange(id: 'change-1', status: PlanStatus.confirmed);
   }
 

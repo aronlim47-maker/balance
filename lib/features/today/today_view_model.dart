@@ -1,6 +1,7 @@
 import '../../core/state/lifecycle_notifier.dart';
 
 import '../../core/utils/app_error_message.dart';
+import '../../core/utils/calendar_week.dart';
 import '../../core/state/planning_day_controller.dart';
 import '../../data/repositories/availability_repository.dart';
 import '../../data/repositories/check_in_repository.dart';
@@ -387,9 +388,8 @@ class TodayViewModel extends LifecycleNotifier {
   Future<bool> addSocialEvent(SocialEventRecord event) async {
     if (_socialRepository == null || _isSavingSocial) return false;
     final day = event.startAt.toLocal();
-    final selectedWeek = _dateOnly(_selectedDay)
-        .subtract(Duration(days: _selectedDay.weekday - 1));
-    final eventWeek = _dateOnly(day).subtract(Duration(days: day.weekday - 1));
+    final selectedWeek = CalendarWeek.start(_selectedDay);
+    final eventWeek = CalendarWeek.start(day);
     if (!DailyCapacity.sameDay(selectedWeek, eventWeek)) {
       _errorMessage = 'Choose a date in the selected week.';
       notifyListeners();

@@ -7,18 +7,21 @@ class PlanMove {
     required this.proposedStart,
     required this.proposedEnd,
     required this.movedMinutes,
+    required this.expectedTaskVersion,
   });
 
   final String taskId;
   final DateTime proposedStart;
   final DateTime proposedEnd;
   final int movedMinutes;
+  final int expectedTaskVersion;
 
   Map<String, dynamic> toJson() => {
     'task_id': taskId,
     'proposed_start': proposedStart.toUtc().toIso8601String(),
     'proposed_end': proposedEnd.toUtc().toIso8601String(),
     'moved_minutes': movedMinutes,
+    'expected_task_version': expectedTaskVersion,
   };
 }
 

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../core/router/app_router.dart';
 
 import '../../data/repositories/availability_repository.dart';
 import '../../data/repositories/plan_repository.dart';
@@ -197,19 +200,21 @@ class _ProfileContent extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          stressPercent == null ? 'Not enough data' :
-                          '$stressPercent/100${profile.worldStatus.isPartial ? ' · Partial' : ''}',
+                          stressPercent == null
+                              ? 'Not enough data'
+                              : '$stressPercent/100${profile.worldStatus.isPartial ? ' · Partial' : ''}',
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 12),
-                        if (stressPercent != null) LinearProgressIndicator(
-                          value: stressPercent / 100,
-                          minHeight: 12,
-                          borderRadius: BorderRadius.circular(12),
-                          color: stressPercent >= 70
-                              ? colors.error
-                              : colors.primary,
-                        ),
+                        if (stressPercent != null)
+                          LinearProgressIndicator(
+                            value: stressPercent / 100,
+                            minHeight: 12,
+                            borderRadius: BorderRadius.circular(12),
+                            color: stressPercent >= 70
+                                ? colors.error
+                                : colors.primary,
+                          ),
                         const SizedBox(height: 12),
                         const Text(
                           'The same five-dimension score as Today. Missing data is not zero pressure. Not a health assessment.',
@@ -220,6 +225,15 @@ class _ProfileContent extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 24),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.notifications_outlined),
+                  title: const Text('Task reminders'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(AppRoutes.reminders),
+                ),
+              ),
+              const SizedBox(height: 12),
               FilledButton.icon(
                 onPressed: auth.isConfigured && !auth.isLoading
                     ? () async {

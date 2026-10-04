@@ -1,5 +1,14 @@
 # Balance
 
+## Latest Council upgrade (4 October)
+
+After every earlier migration, apply
+`supabase/migrations/202610040001_plan_review_version.sql` once. Council now
+requires schema version 3: confirmation carries the reviewed task version and
+the server rejects missing/stale versions before writing. Existing databases
+must apply only unapplied migrations, not rerun the initial schema. See
+`docs/20261004_AUDIT_FIXES.md` for the two-device acceptance test and release gates.
+
 Balance is a Flutter workload-planning application with personal tasks, five-dimension World Status, Supabase authentication, safe Council Confirm/Undo, Sanctuary, private Journey and plan/reflection history. This is an implemented V1 foundation, not a claim that release and live security gates have passed.
 
 ## Supabase setup

@@ -72,6 +72,9 @@ abstract final class AppErrorMessage {
   }
 
   static String _database(String message, String? code, String fallback) {
+    if (code == '40001') {
+      return 'This plan changed. Refresh and review it before confirming again.';
+    }
     final detail = message.toLowerCase();
     if (_looksLikeNetworkFailure(detail)) {
       return 'Could not connect. Check your internet connection and try again.';

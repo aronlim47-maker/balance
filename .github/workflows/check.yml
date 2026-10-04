@@ -22,6 +22,11 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter test
+      - name: Web compilation check (test configuration; not a deployed release)
+        run: >-
+          flutter build web --release
+          --dart-define=SUPABASE_URL=https://example.supabase.co
+          --dart-define=SUPABASE_PUBLISHABLE_KEY=sb_publishable_ci_compile_only
       - name: SQL syntax only (not a database/RLS execution test)
         run: |
           python3 -m pip install --target .dart_tool/sql-audit pglast==8.4

@@ -10,6 +10,7 @@ import '../../core/state/planning_day_controller.dart';
 import '../../domain/enums/validation_status.dart';
 import 'trade_off_option_card.dart';
 import 'war_council_view_model.dart';
+import 'plan_comparison_sheet.dart';
 
 class WarCouncilScreen extends StatefulWidget {
   const WarCouncilScreen({super.key});
@@ -151,7 +152,30 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
               const SizedBox(height: 12),
               if (viewModel.options.isEmpty)
                 _NoPlanGuidance(viewModel: viewModel)
-              else
+              else ...[
+                if (viewModel.options.length > 1)
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.compare_arrows),
+                    label: const Text('Compare plans'),
+                    onPressed: viewModel.isSaving
+                        ? null
+                        : () async {
+                            final selected = await showModalBottomSheet<String>(
+                              context: context,
+                              isScrollControlled: true,
+                              useSafeArea: true,
+                              builder: (_) => PlanComparisonSheet(
+                                previews: [
+                                  for (final option in viewModel.options)
+                                    viewModel.previewFor(option),
+                                ],
+                              ),
+                            );
+                            if (selected != null && context.mounted) {
+                              viewModel.selectOption(selected);
+                            }
+                          },
+                  ),
                 for (final option in viewModel.options) ...[
                   TradeOffOptionCard(
                     title: option.title,
@@ -168,11 +192,15 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                         ? 'Get agreement before this change can be confirmed.'
                         : 'Check the proposed time and deadline before confirming.',
                     needsAgreement: option.needsAgreement,
+                    capacitySummary:
+                        viewModel.previewFor(option).issue ??
+                        'Affected-day gaps after move: 0 min',
                     isSelected: viewModel.selectedOptionId == option.id,
                     onTap: () => viewModel.selectOption(option.id),
                   ),
                   const SizedBox(height: 12),
                 ],
+              ],
               const SizedBox(height: 8),
               FilledButton.icon(
                 onPressed: viewModel.canConfirm
@@ -199,7 +227,25 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
     BuildContext context,
     WarCouncilViewModel viewModel,
   ) async {
-    final changeId = await viewModel.confirmSelectedPlan();
+    final option = viewModel.selectedOption;
+    if (option == null || !viewModel.canConfirm) return;
+    final revision = viewModel.reviewRevision;
+    final sourceDay = viewModel.selectedDay;
+    final accepted = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => PlanComparisonSheet(
+        previews: [viewModel.previewFor(option)],
+        confirmation: true,
+      ),
+    );
+    if (accepted == null || !context.mounted) return;
+    final changeId = await viewModel.confirmSelectedPlan(
+      expectedOptionId: option.id,
+      expectedRevision: revision,
+      expectedSourceDay: sourceDay,
+    );
     if (!context.mounted) return;
     if (changeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(

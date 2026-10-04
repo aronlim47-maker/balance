@@ -16,7 +16,9 @@ Existing authentication and repository ownership rules are unchanged.
 
 ## MVP2: Lim-owned work still required
 
-- [ ] Reminder settings, permission handling, scheduling, cancellation and quiet hours.
+- [x] Local deadline reminder settings, explicit permission request, scheduling,
+  cancellation and quiet hours implemented; domain/controller tests pass.
+  Native permission and delivery acceptance remains unchecked below.
 - [ ] Device notification verification, including denied permissions and changed tasks.
 - [ ] Remote push delivery: select/configure a provider; coordinate owner-bound device
   token storage with Chong. No credentials or server endpoints are assumed to exist.
@@ -27,6 +29,9 @@ Existing authentication and repository ownership rules are unchanged.
 
 ## MVP3: Lim-owned work still required
 
+- [x] Compare existing single-task alternatives with calculated affected-day
+  capacity, explicit trade-offs and a final confirmation preview. Stale-review
+  and date-bound server-capacity guards implemented. See MVP3_COUNCIL_COMPARISON.md.
 - [ ] Integrate Matthew's multi-alternative recommendation contract into Council.
 - [ ] Verify every option displays moves, unchanged protected commitments, costs and
   resulting capacity before confirmation.
@@ -36,6 +41,9 @@ Existing authentication and repository ownership rules are unchanged.
 
 ## MVP4: Lim-owned work still required
 
+- [x] Configured Web compilation, English startup, same-site email callback policy,
+  local login/account-help smoke test and candidate-build workflow prepared.
+  Flutter analysis passed; all 188 tests passed. See MVP4_WEB_RELEASE.md.
 - [ ] Web build and browser acceptance for the existing personal-workload flows.
 - [ ] Authorized organization dashboard after Chong provides membership/role RLS.
 - [ ] Approved education/project-management integration with revocation and audit.
