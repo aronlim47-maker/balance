@@ -25,3 +25,25 @@ users and concurrent updates. Local syntax/unit checks do not prove these gates.
 
 Production app ID/signing, device notification delivery, iOS and full MVP2–4
 backlog remain separate release gates. This change does not deploy or push code.
+
+## Remote acceptance follow-up
+
+Lim approved the first three-script repair transaction. It succeeded and the
+updated active-planning/retry script passed with final rollback. The security
+script passed using two existing Auth identities as local database claims, not
+actual browser login sessions. No fixture tasks remained after the first test.
+
+World Status snapshot execution revealed a separate partially installed
+verified-progress dependency graph. The additive `202610040002` repair restores
+only missing original helpers, evaluator/acknowledgement RPCs and award triggers.
+Existing definitions and snapshots are preserved. Helpers stay private; only
+the two owner-bound public RPCs regain authenticated execution permission.
+Lim approved this second repair with “solve it”. After Dashboard recovery,
+a read-only catalog query confirmed the initial submission had not installed
+the helpers. Resubmission succeeded: snapshot helper/evaluator present and
+four award triggers installed. `verified_progress_runtime.sql` passed (daily
+snapshot, trusted reflection evidence, repeat evaluation and private helper
+permissions), with rollback. The planning/retry and cross-account security
+scripts then passed again with the new triggers active and final rollback.
+Actual authenticated browser/device flows remain separate acceptance gates;
+database role/claims tests are not two live login sessions or concurrency tests.

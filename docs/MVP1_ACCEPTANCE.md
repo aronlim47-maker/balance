@@ -26,6 +26,10 @@ and otherwise explains why no feasible plan is available.
 
 - [ ] Apply only unapplied migrations in README order; rehearse clean install and upgrade.
 - [ ] Verify create_social_event_once and active planning occupancy against real tables.
+- [x] 4 Oct SQL-role/claims rollback test: stale/missing task versions rejected;
+  Confirm/Undo, completed/cancelled occupancy release and social retry passed.
+- [x] 4 Oct two-account SQL-role/claims test: activity/award isolation, linked-task
+  ownership, duplicate requests/awards and forged event-write rejection passed.
 - [ ] Two Auth users cannot read or change each other's tasks, plans, reviews or awards.
 - [ ] Duplicate/uncertain requests and concurrent Confirm/Undo keep consistent records.
 - [x] Mobile redirect allowlist configured with the exact approved callback.
@@ -56,6 +60,28 @@ and otherwise explains why no feasible plan is available.
 7. Sign out and verify private data is inaccessible. Repeat with the second account.
 
 ## Evidence log
+
+4 October remote repair and acceptance (after commit `9e0ef61`): with Lim's
+approval, `202610030001`, `202610030002`, then `202610040001` were applied inside
+one transaction. The database returned Council schema 3 and the retry-safe social
+RPC existed. `active_planning_and_retry.sql` was updated for task-version consent
+and executed with final rollback. A read-only check found zero leftover fixture
+tasks. The existing World Status/achievement security script also passed with two
+existing accounts, `SET LOCAL ROLE authenticated` and local JWT subject claims.
+This tests database policy behavior, not two independently signed-in UI sessions
+or simultaneous network requests. Do not mark those broader gates complete.
+
+The exact app commit was rebuilt successfully: configured Android test APK
+(56.2 MB) and configured Web release. The APK still uses debug signing. During
+Web acceptance, the app displayed "History is unavailable"; a rollback RPC test
+identified missing `_ws_cap`, `_ws_components` and verified-achievement engine
+dependencies. Repair migration `202610040002_restore_progress_helpers.sql` and
+runtime test `verified_progress_runtime.sql` are complete for this database gate.
+Lim authorized the repair with “solve it”. After recovery, a catalog query proved
+the initial submission had not installed the helpers. Resubmission succeeded
+(helper/evaluator present, four triggers). Runtime snapshot/achievement checks
+and both planning/retry and security regression scripts passed with rollback.
+This does not complete actual browser/device or concurrent-session acceptance.
 
 4 October local verification: Flutter analysis passed and all 166 tests passed.
 The configured Android test APK built successfully at

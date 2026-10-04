@@ -54,6 +54,20 @@ Existing authentication and repository ownership rules are unchanged.
 
 ## Completion evidence
 
+### 4 October database acceptance update
+
+- [x] Remote Confirm/Undo, stale-version rejection, occupancy and social retry
+  assertions passed with rollback after restoring the missing progress helpers.
+- [x] Snapshot capture, trusted achievement evidence and duplicate prevention
+  passed; the scoped cross-owner database security script also passed.
+- [ ] Verify Today history and Journey achievements through the actual app.
+- [ ] Verify two actual signed-in app accounts and concurrent-device behavior.
+
+The deployed backend exercise in MVP3 has database-level evidence now, but its
+broader checkbox remains open until app-flow acceptance. This update does not
+complete notifications, integrations, organization access, offline sync or release.
+Details: `MVP1_ACCEPTANCE.md` and `20261004_AUDIT_FIXES.md`.
+
 Check a box only after implementation and the relevant test evidence exist. Local
 widget tests do not prove push delivery, calendar authorization, RLS, iOS support,
 offline safety or production release readiness. Never include account secrets in
