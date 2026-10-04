@@ -28,71 +28,119 @@ class BalanceScaffold extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text(title),
-      actions: [
-        ...?actions,
-        IconButton(
-          tooltip: 'Profile',
-          onPressed: () => context.push(AppRoutes.profile),
-          icon: const Icon(Icons.account_circle_outlined),
-        ),
-      ],
-    ),
-    body: SafeArea(
-      child: Column(
-        children: [
-          Consumer<AuthViewModel>(
-            builder: (context, auth, _) => auth.isConfigured
-                ? const SizedBox.shrink()
-                : Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    child: const Text(
-                      'Local preview · Changes are not saved to Supabase',
-                      textAlign: TextAlign.center,
-                    ),
+  Widget build(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width >= 840;
+    final content = Column(
+      children: [
+        Consumer<AuthViewModel>(
+          builder: (context, auth, _) => auth.isConfigured
+              ? const SizedBox.shrink()
+              : Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  child: const Text(
+                    'Local preview · Changes are not saved to Supabase',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+        ),
+        Expanded(child: body),
+      ],
+    );
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        actions: [
+          ...?actions,
+          IconButton(
+            tooltip: 'Profile',
+            onPressed: () => context.push(AppRoutes.profile),
+            icon: const Icon(Icons.account_circle_outlined),
           ),
-          Expanded(child: body),
         ],
       ),
-    ),
-    bottomNavigationBar: NavigationBar(
-      selectedIndex: currentIndex,
-      onDestinationSelected: (index) => context.go(_routes[index]),
-      destinations: const [
-        NavigationDestination(
-          icon: Icon(Icons.today_outlined),
-          selectedIcon: Icon(Icons.today),
-          label: 'Today',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.task_alt_outlined),
-          selectedIcon: Icon(Icons.task_alt),
-          label: 'Quests',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.balance_outlined),
-          selectedIcon: Icon(Icons.balance),
-          label: 'Council',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.spa_outlined),
-          selectedIcon: Icon(Icons.spa),
-          label: 'Sanctuary',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.route_outlined),
-          selectedIcon: Icon(Icons.route),
-          label: 'Journey',
-        ),
-      ],
-    ),
-  );
+      body: SafeArea(
+        child: wide
+            ? Row(
+                children: [
+                  NavigationRail(
+                    selectedIndex: currentIndex,
+                    labelType: NavigationRailLabelType.all,
+                    onDestinationSelected: (index) =>
+                        context.go(_routes[index]),
+                    destinations: const [
+                      NavigationRailDestination(
+                        icon: Icon(Icons.today_outlined),
+                        label: Text('Today'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.task_alt),
+                        label: Text('Quests'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.balance),
+                        label: Text('Council'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.spa_outlined),
+                        label: Text('Sanctuary'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.route_outlined),
+                        label: Text('Journey'),
+                      ),
+                    ],
+                  ),
+                  const VerticalDivider(width: 1),
+                  Expanded(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1100),
+                        child: content,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : content,
+      ),
+      bottomNavigationBar: wide
+          ? null
+          : NavigationBar(
+              selectedIndex: currentIndex,
+              onDestinationSelected: (index) => context.go(_routes[index]),
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.today_outlined),
+                  selectedIcon: Icon(Icons.today),
+                  label: 'Today',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.task_alt_outlined),
+                  selectedIcon: Icon(Icons.task_alt),
+                  label: 'Quests',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.balance_outlined),
+                  selectedIcon: Icon(Icons.balance),
+                  label: 'Council',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.spa_outlined),
+                  selectedIcon: Icon(Icons.spa),
+                  label: 'Sanctuary',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.route_outlined),
+                  selectedIcon: Icon(Icons.route),
+                  label: 'Journey',
+                ),
+              ],
+            ),
+    );
+  }
 }
