@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 
 import '../repositories/auth_repository.dart';
+import '../../core/config/auth_redirect_policy.dart';
 
 class SupabaseAuthService implements AuthRepository {
   SupabaseAuthService(this._client);
@@ -36,12 +37,13 @@ class SupabaseAuthService implements AuthRepository {
   @override
   Future<void> signOut() => _client.auth.signOut();
 
-  static String? get emailRedirect =>
-      !kIsWeb &&
-          (defaultTargetPlatform == TargetPlatform.android ||
-              defaultTargetPlatform == TargetPlatform.iOS)
-      ? 'com.balance.app://auth-callback/'
-      : null;
+  static String? get emailRedirect {
+    if (kIsWeb) return webEmailRedirect(Uri.base);
+    return defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS
+        ? 'com.balance.app://auth-callback/'
+        : null;
+  }
 
   @override
   Future<void> requestPasswordReset(String email) => _client.auth

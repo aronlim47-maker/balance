@@ -152,10 +152,12 @@ void main() {
         proposedStart: DateTime.utc(2026, 9, 29, 14),
         proposedEnd: DateTime.utc(2026, 9, 29, 15),
         movedMinutes: 60,
+        expectedTaskVersion: 7,
       );
 
       expect(slot.isProtected, isTrue);
       expect(move.toJson(), containsPair('moved_minutes', 60));
+      expect(move.toJson(), containsPair('expected_task_version', 7));
     });
   });
 

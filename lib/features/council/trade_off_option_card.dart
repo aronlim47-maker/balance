@@ -14,6 +14,7 @@ class TradeOffOptionCard extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     this.needsAgreement = false,
+    this.capacitySummary,
   });
 
   final String title;
@@ -26,6 +27,7 @@ class TradeOffOptionCard extends StatelessWidget {
   final String reviewSummary;
   final bool isSelected;
   final bool needsAgreement;
+  final String? capacitySummary;
   final VoidCallback onTap;
 
   @override
@@ -95,6 +97,7 @@ class TradeOffOptionCard extends StatelessWidget {
             ),
           ),
           ExpansionTile(
+            subtitle: capacitySummary == null ? null : Text(capacitySummary!),
             title: const Text('See trade-offs'),
             childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             children: [

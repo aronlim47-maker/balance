@@ -13,6 +13,7 @@ import '../../features/quests/quest_board_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/sanctuary/sanctuary_screen.dart';
 import '../../features/today/today_screen.dart';
+import '../../features/reminders/reminder_settings_screen.dart';
 
 abstract final class AppRoutes {
   static const login = '/login';
@@ -27,6 +28,7 @@ abstract final class AppRoutes {
   static const journey = '/journey';
   static const reflectionHistory = '/journey/reflections';
   static const profile = '/profile';
+  static const reminders = '/profile/reminders';
 }
 
 GoRouter buildAppRouter(AuthViewModel authViewModel) => GoRouter(
@@ -91,5 +93,9 @@ GoRouter buildAppRouter(AuthViewModel authViewModel) => GoRouter(
       builder: (_, _) => const ReflectionHistoryScreen(),
     ),
     GoRoute(path: AppRoutes.profile, builder: (_, _) => const ProfileScreen()),
+    GoRoute(
+      path: AppRoutes.reminders,
+      builder: (_, _) => const ReminderSettingsScreen(),
+    ),
   ],
 );

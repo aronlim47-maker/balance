@@ -25,6 +25,9 @@ declare
   recovery uuid;
   target_block uuid;
   before_minutes integer;
+  reviewed_version integer;
+  proposal jsonb;
+  previous_changes integer;
 begin
   foreach state in array array['completed','cancelled'] loop
     insert into public.availability_blocks(user_id,start_at,end_at,block_type)
@@ -38,9 +41,34 @@ begin
         base+interval '9 hours',base+interval '12 hours','study') returning id into mover;
     insert into public.tasks(user_id,title,estimated_minutes,remaining_minutes,due_at,load_category)
       values(auth.uid(),'SQL deadline work',120,120,base+interval '12 hours','study');
+    select version into reviewed_version from public.tasks where id=mover;
+    proposal := jsonb_build_array(jsonb_build_object(
+      'task_id',mover,'proposed_start',base+interval '1 day 9 hours',
+      'proposed_end',base+interval '1 day 11 hours','moved_minutes',120,
+      'expected_task_version',reviewed_version));
+    select count(*) into previous_changes from public.plan_changes where user_id=auth.uid();
+    -- Model an edit after the preview, before confirmation.
+    -- Use the same editable field as the app; the trigger advances version.
+    update public.tasks set title='SQL edited after review' where id=mover;
+    begin
+      perform public.confirm_plan_change(proposal);
+      raise exception 'FAIL: stale task version was accepted';
+    exception when serialization_failure then null;
+    end;
+    begin
+      perform public.confirm_plan_change(jsonb_build_array((proposal->0)-'expected_task_version'));
+      raise exception 'FAIL: missing task version was accepted';
+    exception when serialization_failure then null;
+    end;
+    if (select count(*) from public.plan_changes where user_id=auth.uid()) <> previous_changes
+       or (select remaining_minutes from public.tasks where id=mover) <> 180 then
+      raise exception 'FAIL: rejected proposal changed persistent planning state';
+    end if;
+    select version into reviewed_version from public.tasks where id=mover;
     change_id := public.confirm_plan_change(jsonb_build_array(jsonb_build_object(
       'task_id',mover,'proposed_start',base+interval '1 day 9 hours',
-      'proposed_end',base+interval '1 day 11 hours','moved_minutes',120)));
+      'proposed_end',base+interval '1 day 11 hours','moved_minutes',120,
+      'expected_task_version',reviewed_version)));
     if public.calculate_day_overload(auth.uid(),base::date) <> 0 then
       raise exception 'FAIL: confirm did not clear source overload';
     end if;
@@ -81,7 +109,8 @@ begin
     before_minutes := public.calculate_day_overload(auth.uid(),base::date);
     change_id := public.confirm_plan_change(jsonb_build_array(jsonb_build_object(
       'task_id',next_mover,'proposed_start',base+interval '1 day 9 hours',
-      'proposed_end',base+interval '1 day 11 hours','moved_minutes',120)));
+      'proposed_end',base+interval '1 day 11 hours','moved_minutes',120,
+      'expected_task_version',1)));
     perform public.undo_plan_change(change_id);
     if public.calculate_day_overload(auth.uid(),base::date) <> before_minutes then
       raise exception 'FAIL: undo did not restore the original overload';

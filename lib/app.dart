@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +34,9 @@ import 'features/council/war_council_view_model.dart';
 import 'data/repositories/world_history_repository.dart';
 import 'data/services/world_history_service.dart';
 import 'data/services/verified_progress_service.dart';
+import 'data/services/device_reminder_gateway.dart';
+import 'data/repositories/reminding_task_repository.dart';
+import 'features/reminders/reminder_controller.dart';
 
 class BalanceApp extends StatefulWidget {
   const BalanceApp({super.key, this.supabaseConfigured = false});
@@ -42,7 +47,7 @@ class BalanceApp extends StatefulWidget {
   State<BalanceApp> createState() => _BalanceAppState();
 }
 
-class _BalanceAppState extends State<BalanceApp> {
+class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
   late final AuthViewModel _authViewModel;
   late final AchievementRepository _achievementRepository;
   late final GoRouter _router;
@@ -56,6 +61,7 @@ class _BalanceAppState extends State<BalanceApp> {
   late final ProfileRepository? _profileRepository;
   late final PlanningDayController _planningDayController;
   String? _sessionUserId;
+  late final ReminderController _reminders;
 
   @override
   void initState() {
@@ -68,9 +74,18 @@ class _BalanceAppState extends State<BalanceApp> {
     _achievementRepository = widget.supabaseConfigured
         ? AchievementService(Supabase.instance.client)
         : LocalAchievementRepository();
-    _taskRepository = widget.supabaseConfigured
+    final rawTasks = widget.supabaseConfigured
         ? TaskService(Supabase.instance.client)
         : LocalTaskRepository();
+    _reminders = ReminderController(
+      rawTasks,
+      DeviceReminderGateway(),
+      DeviceReminderStore(),
+    );
+    _taskRepository = RemindingTaskRepository(
+      rawTasks,
+      () => _reminders.available ? _reminders.refresh() : Future<void>.value(),
+    );
     _availabilityRepository = widget.supabaseConfigured
         ? AvailabilityService(Supabase.instance.client)
         : LocalAvailabilityRepository();
@@ -96,17 +111,31 @@ class _BalanceAppState extends State<BalanceApp> {
     _router = buildAppRouter(_authViewModel);
     _sessionUserId = _authViewModel.currentUserId;
     _authViewModel.addListener(_handleAccountChange);
+    WidgetsBinding.instance.addObserver(this);
+    if (widget.supabaseConfigured) {
+      unawaited(_reminders.setOwner(_sessionUserId));
+    }
   }
 
   void _handleAccountChange() {
     final userId = _authViewModel.currentUserId;
     if (!mounted || userId == _sessionUserId) return;
     _planningDayController.selectDay(DateTime.now());
+    unawaited(_reminders.setOwner(userId));
     setState(() => _sessionUserId = userId);
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && widget.supabaseConfigured) {
+      unawaited(_reminders.refresh());
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _reminders.dispose();
     _router.dispose();
     _authViewModel.removeListener(_handleAccountChange);
     _authViewModel.dispose();
@@ -119,6 +148,7 @@ class _BalanceAppState extends State<BalanceApp> {
     return MultiProvider(
       key: ValueKey(_sessionUserId),
       providers: [
+        ChangeNotifierProvider.value(value: _reminders),
         ChangeNotifierProvider.value(value: _authViewModel),
         ChangeNotifierProvider.value(value: _planningDayController),
         ChangeNotifierProvider(

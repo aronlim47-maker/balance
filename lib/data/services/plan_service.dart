@@ -71,7 +71,7 @@ class PlanService implements PlanRepository {
     requireAuthenticatedUserId(_client);
     try {
       final version = await _client.rpc<int>('war_council_schema_version');
-      return version >= 2;
+      return version >= 3;
     } on PostgrestException catch (error) {
       if (error.code == 'PGRST202' || error.code == '42883') return false;
       rethrow;

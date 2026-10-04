@@ -1,5 +1,20 @@
 # Balance
 
+## Latest Council upgrade (4 October)
+
+After every earlier migration, apply
+`supabase/migrations/202610040001_plan_review_version.sql` once. Council now
+requires schema version 3: confirmation carries the reviewed task version and
+the server rejects missing/stale versions before writing. Existing databases
+must apply only unapplied migrations, not rerun the initial schema. See
+`docs/20261004_AUDIT_FIXES.md` for the two-device acceptance test and release gates.
+
+For a partially installed verified-progress backend, apply the next additive
+repair `202610040002_restore_progress_helpers.sql`. It installs missing original
+dependencies without replacing existing definitions or reconstructing historical
+scores. Validate with `supabase/tests/verified_progress_runtime.sql` on a disposable
+database; it uses an existing Auth test user and rolls back its fixture writes.
+
 Balance is a Flutter workload-planning application with personal tasks, five-dimension World Status, Supabase authentication, safe Council Confirm/Undo, Sanctuary, private Journey and plan/reflection history. This is an implemented V1 foundation, not a claim that release and live security gates have passed.
 
 ## Supabase setup
@@ -68,7 +83,10 @@ After migration 002, run `supabase/manual/20260927_verified_progress_checks.sql`
 
 With one account, record a protected recovery slot in Sanctuary; check its achievement in Journey. Create a protected work shift task; check Protected Limit. Confirm a feasible Council plan and undo it; Safe Trade-off must stay unlocked. Save a Journey reflection; Reflection should unlock. Early Review requires an overloaded current day and a task whose local deadline is on a later day. Team Coordination remains locked until the V2 shared-task workflow supplies real evidence. Retry the same actions or use a second device: `user_achievements` must keep one award per key. Today and Profile must show the same five-dimension score after refresh. Journey shows only actually captured days; missing history says “No record”.
 
-The SQL file is prepared locally; a passing Flutter test does not apply it to Supabase. `capture_world_status` records today's server-derived snapshot when Today loads. It does not backfill historic days. Open the app on multiple days to accumulate a real trend. The configured profile time zone should match the device for day boundaries.
+`capture_world_status` records today's server-derived snapshot when Today loads.
+It does not backfill historic days. Open the app on multiple days to accumulate
+a real trend. The configured profile time zone should match the device for day
+boundaries. For the verified remote deployment state, see the 4 October record below.
 
 ```powershell
 flutter analyze
@@ -77,4 +95,29 @@ flutter test
 
 ## 3 October fixes and database handoff
 
-See [current handoff](docs/20261003_FIX_AND_DATABASE_HANDOFF.md) for migration dependencies, corrected rollback-only SQL tests, retry limitations and remaining release gates. Deploy the new migrations before distributing this client: social-event creation now requires `create_social_event_once`. The new migrations have been syntax-checked locally, not executed remotely as part of this change. Flutter tests do not prove RLS or remote function behavior.
+See [3 October handoff](docs/20261003_FIX_AND_DATABASE_HANDOFF.md) for migration
+dependencies and retry limitations. Its deployment statements are historical;
+the 4 October record below supersedes them. Flutter tests alone do not prove RLS
+or remote function behavior.
+
+## 4 October remote repair and acceptance
+
+Project `zuilqjrwpyilsbaitmwo`: migrations `202610030001`, `202610030002`,
+`202610040001` and additive repair `202610040002` were applied with Lim's approval.
+The repair restores missing snapshot helpers, owner-bound achievement/review RPCs
+and four award triggers without replacing existing snapshot formulas or guessing
+historical scores. Private helpers remain unavailable to client roles.
+
+Three transaction/rollback scripts passed against this project:
+
+- `supabase/tests/verified_progress_runtime.sql`: today's snapshot, verified
+  reflection evidence, repeat evaluation without duplicate awards, private helpers.
+- `supabase/tests/active_planning_and_retry.sql`: stale/missing versions,
+  Confirm/Undo, active occupancy and retry-safe social saves.
+- `supabase/tests/world_status_achievements.sql`: its RLS, grants, trusted-write
+  and cross-owner assertions using existing Auth identities as database claims.
+
+Test fixture writes were rolled back. These tests do not prove two live app
+sessions, simultaneous requests, mobile email callbacks or notification delivery.
+See [acceptance checklist](docs/MVP1_ACCEPTANCE.md) and
+[repair evidence](docs/20261004_AUDIT_FIXES.md). No whole-MVP completion is implied.

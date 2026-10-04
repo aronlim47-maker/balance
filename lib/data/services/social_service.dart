@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../core/utils/calendar_week.dart';
+
 import '../../domain/models/social_event_record.dart';
 import '../../domain/usecases/world_status_calculator.dart';
 import '../repositories/social_repository.dart';
@@ -16,9 +18,8 @@ class SocialService implements SocialRepository {
   @override
   Future<List<SocialEventRecord>> fetchEventsForWeek(DateTime day) async {
     final userId = requireAuthenticatedUserId(_client);
-    final localDay = DateTime(day.year, day.month, day.day);
-    final start = localDay.subtract(Duration(days: localDay.weekday - 1));
-    final end = start.add(const Duration(days: 7));
+    final start = CalendarWeek.start(day);
+    final end = CalendarWeek.end(day);
     final rows = await readOwnedRows(
       _client,
       (_) => _client
@@ -118,8 +119,7 @@ class SocialService implements SocialRepository {
   }
 
   static String _weekStart(DateTime day) {
-    final localDay = DateTime(day.year, day.month, day.day);
-    final start = localDay.subtract(Duration(days: localDay.weekday - 1));
+    final start = CalendarWeek.start(day);
     final year = start.year.toString().padLeft(4, '0');
     final month = start.month.toString().padLeft(2, '0');
     final date = start.day.toString().padLeft(2, '0');

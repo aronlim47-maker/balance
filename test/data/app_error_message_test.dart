@@ -5,6 +5,18 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() {
   const fallback = 'Please try again.';
 
+  test('stale plan version gives a safe refresh instruction', () {
+    final message = AppErrorMessage.from(
+      const PostgrestException(
+        message: 'private task version details',
+        code: '40001',
+      ),
+      fallback: fallback,
+    );
+    expect(message, contains('Refresh and review'));
+    expect(message, isNot(contains('private')));
+  });
+
   test('never exposes an unknown exception', () {
     final message = AppErrorMessage.from(
       Exception('internal database host and stack trace'),
