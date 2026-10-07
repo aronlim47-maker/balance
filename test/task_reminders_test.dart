@@ -8,7 +8,7 @@ import 'package:balance/domain/models/task_item.dart';
 import 'package:balance/domain/usecases/plan_task_reminders.dart';
 import 'package:balance/features/reminders/reminder_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:timezone/data/latest.dart' as tzdata;
+import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 TaskItem task(

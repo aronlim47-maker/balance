@@ -35,7 +35,7 @@ class DailyReviewCard extends StatelessWidget {
           review == null
               ? 'Optional'
               : 'Mental: ${review!.mentalEnergyLevel?.label ?? 'Unknown'} · '
-                    'Physical: ${review!.physicalEnergyLevel?.label ?? 'Unknown'}',
+              'Physical: ${review!.physicalEnergyLevel?.label ?? 'Unknown'}',
           style: const TextStyle(color: BalanceColors.textMuted),
         ),
         if (review?.sleepHours != null)
@@ -97,109 +97,113 @@ class _DailyReviewSheetState extends State<DailyReviewSheet> {
         20,
         20 + MediaQuery.viewInsetsOf(context).bottom,
       ),
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          const Eyebrow('Status appraisal'),
-          const SizedBox(height: 8),
-          const Text(
-            'Daily Review',
-            style: TextStyle(
-              fontFamily: AppTheme.displayFont,
-              fontWeight: FontWeight.w700,
-              fontSize: 28,
-              letterSpacing: 0.6,
-            ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Share only what you want. Skipping does not count as low energy.',
-            style: TextStyle(color: BalanceColors.textMuted, height: 1.35),
-          ),
-          const SizedBox(height: 16),
-          _EnergyChoice(
-            label: 'Mental energy',
-            hint: 'energy right now',
-            value: _mentalEnergy,
-            onChanged: (value) => setState(() => _mentalEnergy = value),
-          ),
-          const SizedBox(height: 12),
-          _EnergyChoice(
-            label: 'Physical energy',
-            hint: 'body right now',
-            value: _physicalEnergy,
-            onChanged: (value) => setState(() => _physicalEnergy = value),
-          ),
-          const SizedBox(height: 12),
-          RpgPanel(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const PanelHeader('Rest'),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    for (final hours in _restPresets) ...[
-                      Expanded(
-                        child: _RestPreset(
-                          label: hours == 8 ? '8h+' : '${hours}h',
-                          selected:
-                              double.tryParse(_sleepController.text.trim()) ==
-                              hours.toDouble(),
-                          onTap: () => setState(() {
-                            _sleepController.text = hours.toString();
-                            _error = null;
-                          }),
-                        ),
-                      ),
-                      if (hours != _restPresets.last) const SizedBox(width: 8),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _sleepController,
-                  onChanged: (_) => setState(() {}),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: const InputDecoration(
-                    labelText: 'Hours of rest (optional)',
-                    hintText: '7.5',
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  _sleepController.text.trim().isEmpty
-                      ? 'Nothing recorded for last night.'
-                      : 'Exact hours can be typed above.',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: BalanceColors.textMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (_error != null) ...[
+      // A Column inside a scroll view builds every row, so off-screen
+      // buttons such as "Skip for now" always exist (ListView builds lazily).
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Eyebrow('Status appraisal'),
             const SizedBox(height: 8),
-            Text(
-              _error!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            const Text(
+              'Daily Review',
+              style: TextStyle(
+                fontFamily: AppTheme.displayFont,
+                fontWeight: FontWeight.w700,
+                fontSize: 28,
+                letterSpacing: 0.6,
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Share only what you want. Skipping does not count as low energy.',
+              style: TextStyle(color: BalanceColors.textMuted, height: 1.35),
+            ),
+            const SizedBox(height: 16),
+            _EnergyChoice(
+              label: 'Mental energy',
+              hint: 'energy right now',
+              value: _mentalEnergy,
+              onChanged: (value) => setState(() => _mentalEnergy = value),
+            ),
+            const SizedBox(height: 12),
+            _EnergyChoice(
+              label: 'Physical energy',
+              hint: 'body right now',
+              value: _physicalEnergy,
+              onChanged: (value) => setState(() => _physicalEnergy = value),
+            ),
+            const SizedBox(height: 12),
+            RpgPanel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const PanelHeader('Rest'),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      for (final hours in _restPresets) ...[
+                        Expanded(
+                          child: _RestPreset(
+                            label: hours == 8 ? '8h+' : '${hours}h',
+                            selected:
+                            double.tryParse(_sleepController.text.trim()) ==
+                                hours.toDouble(),
+                            onTap: () => setState(() {
+                              _sleepController.text = hours.toString();
+                              _error = null;
+                            }),
+                          ),
+                        ),
+                        if (hours != _restPresets.last) const SizedBox(width: 8),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _sleepController,
+                    onChanged: (_) => setState(() {}),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(
+                      labelText: 'Hours of rest (optional)',
+                      hintText: '7.5',
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    _sleepController.text.trim().isEmpty
+                        ? 'Nothing recorded for last night.'
+                        : 'Exact hours can be typed above.',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: BalanceColors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _error!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
+            const SizedBox(height: 18),
+            FilledButton.icon(
+              onPressed: _save,
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: const Text('Save review'),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Skip for now'),
             ),
           ],
-          const SizedBox(height: 18),
-          FilledButton.icon(
-            onPressed: _save,
-            icon: const Icon(Icons.play_arrow_rounded),
-            label: const Text('Save review'),
-          ),
-          const SizedBox(height: 4),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Skip for now'),
-          ),
-        ],
+        ),
       ),
     ),
   );

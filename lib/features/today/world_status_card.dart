@@ -90,33 +90,40 @@ class WorldStatusCard extends StatelessWidget {
                 children: [
                   const RpgLabel('Calamity', tone: RpgTone.neutral, size: 13),
                   const SizedBox(width: 8),
-                  const Text(
-                    'workload trend',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: BalanceColors.textMuted,
+                  const Flexible(
+                    child: Text(
+                      'workload trend',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: BalanceColors.textMuted,
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  Text(
-                    switch (status.trend) {
-                      WorldTrend.rising => 'Trend: Rising',
-                      WorldTrend.easing => 'Trend: Easing',
-                      WorldTrend.stable => 'Trend: Stable',
-                      WorldTrend.notEnoughHistory =>
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      switch (status.trend) {
+                        WorldTrend.rising => 'Trend: Rising',
+                        WorldTrend.easing => 'Trend: Easing',
+                        WorldTrend.stable => 'Trend: Stable',
+                        WorldTrend.notEnoughHistory =>
                         'Trend: Not enough history',
-                    },
-                    style: TextStyle(
-                      fontFamily: AppTheme.displayFont,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                      letterSpacing: 0.8,
-                      color: switch (status.trend) {
-                        WorldTrend.rising => BalanceColors.warning,
-                        WorldTrend.easing => BalanceColors.calm,
-                        WorldTrend.stable => BalanceColors.text,
-                        WorldTrend.notEnoughHistory => BalanceColors.textMuted,
                       },
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                        fontFamily: AppTheme.displayFont,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        letterSpacing: 0.8,
+                        color: switch (status.trend) {
+                          WorldTrend.rising => BalanceColors.warning,
+                          WorldTrend.easing => BalanceColors.calm,
+                          WorldTrend.stable => BalanceColors.text,
+                          WorldTrend.notEnoughHistory =>
+                          BalanceColors.textMuted,
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -242,7 +249,7 @@ class _CapacityPanel extends StatelessWidget {
             height: 10,
             gap: 3,
             semanticsLabel:
-                '$plannedMinutes minutes planned, $availableMinutes minutes available',
+            '$plannedMinutes minutes planned, $availableMinutes minutes available',
           ),
           const SizedBox(height: 10),
           Wrap(
@@ -313,9 +320,9 @@ class _DimensionRow extends StatelessWidget {
           child: score == null
               ? const SegmentMeter(filled: 0)
               : SegmentMeter.fromScore(
-                  score,
-                  semanticsLabel: '$name planning load $score',
-                ),
+            score,
+            semanticsLabel: '$name planning load $score',
+          ),
         ),
         const SizedBox(width: 10),
         SizedBox(

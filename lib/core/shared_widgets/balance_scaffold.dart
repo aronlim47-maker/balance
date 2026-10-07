@@ -8,7 +8,10 @@ import '../theme/balance_colors.dart';
 import '../../features/auth/auth_view_model.dart';
 import 'rpg_widgets.dart';
 
-/// Shared page shell: RPG header + bottom navigation.
+/// Shared page shell: RPG header + responsive navigation.
+///
+/// Phones (< 840 px wide) get a bottom [NavigationBar]; wider screens get a
+/// [NavigationRail] sidebar with the content centred (max 1100 px).
 ///
 /// [title] is the small eyebrow line (e.g. "Quest Board"); [headline] is the
 /// large title under it (e.g. "Quest Log"). When [headline] is omitted the
@@ -45,63 +48,163 @@ class BalanceScaffold extends StatelessWidget {
     AppRoutes.journey,
   ];
 
+  static const _labels = ['Today', 'Quests', 'Council', 'Sanctuary', 'Journey'];
+
+  static Widget _icon(int index, {required bool selected}) {
+    final color = selected ? BalanceColors.accentBright : BalanceColors.textMuted;
+    return switch (index) {
+      0 => DiamondIcon(size: 20, color: color, strokeWidth: 1.6),
+      1 => Icon(Icons.notes_rounded, size: 22, color: color),
+      2 => DiamondIcon(size: 20, filled: true, color: color),
+      3 => Icon(Icons.eco_outlined, size: 21, color: color),
+      _ => Icon(Icons.bar_chart_rounded, size: 22, color: color),
+    };
+  }
+
+  static const _navLabelStyle = TextStyle(
+    fontFamily: AppTheme.displayFont,
+    fontWeight: FontWeight.w700,
+    fontSize: 11.5,
+    letterSpacing: 1.2,
+  );
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: BalanceColors.background,
-    body: SafeArea(
-      bottom: false,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _Header(
-            eyebrow: headline == null ? null : title,
-            headline: headline ?? title,
-            subtitle: subtitle,
-            trailing: headerTrailing,
-            tone: eyebrowTone,
-            actions: [
-              ...?actions,
-              IconButton(
-                tooltip: 'Profile',
-                onPressed: () => context.push(AppRoutes.profile),
-                icon: const Icon(Icons.account_circle_outlined),
-              ),
-            ],
+  Widget build(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width >= 840;
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _Header(
+          eyebrow: headline == null ? null : title,
+          headline: headline ?? title,
+          subtitle: subtitle,
+          trailing: headerTrailing,
+          tone: eyebrowTone,
+          actions: [
+            ...?actions,
+            IconButton(
+              tooltip: 'Profile',
+              onPressed: () => context.push(AppRoutes.profile),
+              icon: const Icon(Icons.account_circle_outlined),
+            ),
+          ],
+        ),
+        Consumer<AuthViewModel>(
+          builder: (context, auth, _) => auth.isConfigured
+              ? const SizedBox.shrink()
+              : Container(
+            width: double.infinity,
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+            decoration: BoxDecoration(
+              color: BalanceColors.warningBg,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: BalanceColors.warningBorder),
+            ),
+            child: const Text(
+              'Local preview · Changes are not saved to Supabase',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: BalanceColors.warning, fontSize: 13),
+            ),
           ),
-          Consumer<AuthViewModel>(
-            builder: (context, auth, _) => auth.isConfigured
-                ? const SizedBox.shrink()
-                : Container(
-              width: double.infinity,
-              margin: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
+        ),
+        Expanded(child: body),
+      ],
+    );
+
+    return Scaffold(
+      backgroundColor: BalanceColors.background,
+      body: SafeArea(
+        bottom: wide,
+        child: wide
+            ? Row(
+          children: [
+            NavigationRailTheme(
+              data: NavigationRailThemeData(
+                backgroundColor: BalanceColors.surfaceSunken,
+                indicatorColor: BalanceColors.accentDim,
+                indicatorShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                selectedLabelTextStyle: _navLabelStyle.copyWith(
+                  color: BalanceColors.text,
+                ),
+                unselectedLabelTextStyle: _navLabelStyle.copyWith(
+                  color: BalanceColors.textMuted,
+                ),
               ),
-              decoration: BoxDecoration(
-                color: BalanceColors.warningBg,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: BalanceColors.warningBorder),
+              child: NavigationRail(
+                selectedIndex: currentIndex,
+                labelType: NavigationRailLabelType.all,
+                onDestinationSelected: (index) =>
+                    context.go(_routes[index]),
+                destinations: [
+                  for (var i = 0; i < _labels.length; i++)
+                    NavigationRailDestination(
+                      icon: _icon(i, selected: false),
+                      selectedIcon: _icon(i, selected: true),
+                      label: Text(_labels[i]),
+                    ),
+                ],
               ),
-              child: const Text(
-                'Local preview · Changes are not saved to Supabase',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: BalanceColors.warning,
-                  fontSize: 13,
+            ),
+            const VerticalDivider(width: 1),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1100),
+                  child: content,
                 ),
               ),
             ),
-          ),
-          Expanded(child: body),
-        ],
+          ],
+        )
+            : content,
       ),
-    ),
-    bottomNavigationBar: _RpgNavigationBar(
-      currentIndex: currentIndex,
-      onSelected: (index) => context.go(_routes[index]),
-    ),
-  );
+      bottomNavigationBar: wide
+          ? null
+          : NavigationBarTheme(
+        data: NavigationBarThemeData(
+          backgroundColor: BalanceColors.surfaceSunken,
+          surfaceTintColor: Colors.transparent,
+          indicatorColor: BalanceColors.accentDim,
+          indicatorShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+          ),
+          height: 68,
+          labelTextStyle: WidgetStateProperty.resolveWith(
+                (states) => _navLabelStyle.copyWith(
+              color: states.contains(WidgetState.selected)
+                  ? BalanceColors.text
+                  : BalanceColors.textMuted,
+            ),
+          ),
+        ),
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            border: Border(
+              top: BorderSide(color: BalanceColors.outline),
+            ),
+          ),
+          child: NavigationBar(
+            selectedIndex: currentIndex,
+            onDestinationSelected: (index) => context.go(_routes[index]),
+            destinations: [
+              for (var i = 0; i < _labels.length; i++)
+                NavigationDestination(
+                  icon: _icon(i, selected: false),
+                  selectedIcon: _icon(i, selected: true),
+                  label: _labels[i].toUpperCase(),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _Header extends StatelessWidget {
@@ -125,156 +228,47 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.fromLTRB(20, 4, 8, 10),
     child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: eyebrow == null
-                  ? const SizedBox.shrink()
-                  : Align(
-                alignment: Alignment.centerLeft,
-                child: Eyebrow(eyebrow!, tone: tone),
-              ),
-            ),
-            ...actions,
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(child: Semantics(header: true, child: RpgHeadline(headline))),
-              if (trailing != null) ...[const SizedBox(width: 8), trailing!],
-            ],
-          ),
-        ),
-        if (subtitle != null) ...[
-          const SizedBox(height: 6),
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Text(
-              subtitle!,
-              style: const TextStyle(
-                color: BalanceColors.textMuted,
-                fontSize: 15,
-                height: 1.35,
-              ),
-            ),
-          ),
-        ],
-      ],
-    ),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+    Row(
+    children: [
+    Expanded(
+    child: eyebrow == null
+        ? const SizedBox.shrink()
+        : Align(
+    alignment: Alignment.centerLeft,
+    child: Eyebrow(eyebrow!, tone: tone),
+  ),
+  ),
+  ...actions,
+  ],
+  ),
+  Padding(
+  padding: const EdgeInsets.only(right: 12),
+  child: Row(
+  children: [
+  Expanded(
+  child: Semantics(header: true, child: RpgHeadline(headline)),
+  ),
+  ?trailing,
+  ],
+  ),
+  ),
+  if (subtitle != null) ...[
+  const SizedBox(height: 6),
+  Padding(
+  padding: const EdgeInsets.only(right: 12),
+  child: Text(
+  subtitle!,
+  style: const TextStyle(
+  color: BalanceColors.textMuted,
+  fontSize: 15,
+  height: 1.35,
+  ),
+  ),
+  ),
+  ],
+  ],
+  ),
   );
-}
-
-class _NavItem {
-  const _NavItem(this.label, this.build);
-  final String label;
-  final Widget Function(bool selected, Color color) build;
-}
-
-class _RpgNavigationBar extends StatelessWidget {
-  const _RpgNavigationBar({required this.currentIndex, required this.onSelected});
-
-  final int currentIndex;
-  final ValueChanged<int> onSelected;
-
-  static final _items = <_NavItem>[
-    _NavItem(
-      'Today',
-          (selected, color) =>
-          DiamondIcon(size: 20, filled: false, color: color, strokeWidth: 1.6),
-    ),
-    _NavItem(
-      'Quests',
-          (selected, color) => Icon(Icons.notes_rounded, size: 22, color: color),
-    ),
-    _NavItem(
-      'Council',
-          (selected, color) => DiamondIcon(size: 20, filled: true, color: color),
-    ),
-    _NavItem(
-      'Sanctuary',
-          (selected, color) => Icon(Icons.eco_outlined, size: 21, color: color),
-    ),
-    _NavItem(
-      'Journey',
-          (selected, color) =>
-          Icon(Icons.bar_chart_rounded, size: 22, color: color),
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: const BoxDecoration(
-      color: BalanceColors.surfaceSunken,
-      border: Border(top: BorderSide(color: BalanceColors.outline)),
-    ),
-    child: SafeArea(
-      top: false,
-      child: SizedBox(
-        height: 64,
-        child: Row(
-          children: [
-            for (var i = 0; i < _items.length; i++)
-              Expanded(
-                child: _NavButton(
-                  item: _items[i],
-                  selected: i == currentIndex,
-                  onTap: () => onSelected(i),
-                ),
-              ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-class _NavButton extends StatelessWidget {
-  const _NavButton({
-    required this.item,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final _NavItem item;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = selected ? BalanceColors.accentBright : BalanceColors.textMuted;
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: item.label,
-      excludeSemantics: true,
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            item.build(selected, color),
-            const SizedBox(height: 6),
-            Text(
-              item.label.toUpperCase(),
-              maxLines: 1,
-              overflow: TextOverflow.fade,
-              softWrap: false,
-              style: TextStyle(
-                fontFamily: AppTheme.displayFont,
-                fontWeight: FontWeight.w700,
-                fontSize: 11.5,
-                letterSpacing: 1.2,
-                color: selected ? BalanceColors.text : color,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/balance_colors.dart';
 import 'package:intl/intl.dart';
+import '../../core/theme/balance_colors.dart';
 
 import '../../domain/enums/task_flexibility.dart';
 import '../../domain/enums/load_category.dart';
@@ -310,7 +310,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     final date = await showDatePicker(
       context: context,
       initialDate: _dueAt,
-      firstDate: DateTime.now(),
+      firstDate: _dueAt.isBefore(DateTime.now()) ? _dueAt : DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 3650)),
     );
     if (date == null || !mounted) return;

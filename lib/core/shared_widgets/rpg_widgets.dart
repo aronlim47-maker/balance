@@ -298,7 +298,7 @@ class PanelHeader extends StatelessWidget {
       Row(
         children: [
           Expanded(child: RpgLabel(title, tone: tone, size: 14, spacing: 2.4)),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
       if (divider) ...[
@@ -534,7 +534,7 @@ class DiamondOptionRow extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     ),
