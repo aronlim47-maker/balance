@@ -29,6 +29,8 @@ void main() {
     );
     await tester.tap(find.text('Open review'));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Skip for now'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Skip for now'));
     await tester.pumpAndSettle();
     expect(saved, isNull);
@@ -58,9 +60,10 @@ void main() {
     );
     await tester.tap(find.text('Open review'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(DropdownButtonFormField<EnergyLevel?>).first);
+    // Mental energy is the first group of energy rows.
+    await tester.tap(find.text('Moderate').first);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Moderate').last);
+    await tester.ensureVisible(find.text('Save review'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Save review'));
     await tester.pumpAndSettle();

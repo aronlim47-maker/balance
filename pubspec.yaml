@@ -39,10 +39,9 @@ dependencies:
   go_router: ^17.1.0
   intl: ^0.20.2
   uuid: ^4.5.3
-  flutter_local_notifications: ^20.0.0
-  flutter_timezone: ^5.0.0
-  timezone: ^0.10.1
-  shared_preferences: ^2.5.3
+  timezone: ^0.11.1
+  flutter_local_notifications: ^22.3.1
+  flutter_timezone: ^5.1.1
 
 dev_dependencies:
   http: ^1.6.0
@@ -70,6 +69,26 @@ flutter:
     - assets/fonts/
     - assets/icons/
     - assets/images/
+
+  # Balance RPG look: Rajdhani for headings/labels, Barlow for body text.
+  # Both are SIL Open Font License fonts (licences in assets/fonts).
+  fonts:
+    - family: Rajdhani
+      fonts:
+        - asset: assets/fonts/Rajdhani-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Rajdhani-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Rajdhani-Bold.ttf
+          weight: 700
+    - family: Barlow
+      fonts:
+        - asset: assets/fonts/Barlow-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Barlow-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Barlow-SemiBold.ttf
+          weight: 600
 
   # To add assets to your application, add an assets section, like this:
   # assets:

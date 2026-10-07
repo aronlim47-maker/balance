@@ -3,6 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/shared_widgets/balance_scaffold.dart';
+import '../../core/shared_widgets/rpg_widgets.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/theme/balance_colors.dart';
 import '../../core/state/planning_day_controller.dart';
 import '../../data/repositories/availability_repository.dart';
 import '../../data/repositories/check_in_repository.dart';
@@ -16,7 +19,6 @@ import '../../domain/models/check_in.dart';
 import '../../domain/models/movement_models.dart';
 import '../../domain/models/social_event_record.dart';
 import '../../domain/models/task_item.dart';
-import '../../domain/usecases/daily_capacity.dart';
 import 'availability_form_sheet.dart';
 import 'capacity_gap_card.dart';
 import 'daily_review_card.dart';
@@ -55,7 +57,10 @@ class _TodayContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Consumer<TodayViewModel>(
     builder: (context, viewModel, _) => BalanceScaffold(
-      title: 'Today',
+      title: 'World Status',
+      headline: 'Today',
+      subtitle: DateFormat('EEEE, d MMMM').format(viewModel.selectedDay),
+      headerTrailing: _StatusBadge(label: viewModel.worldStatus.label),
       currentIndex: 0,
       actions: [
         IconButton(
@@ -102,13 +107,14 @@ class _TodayContent extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           _DaySelector(viewModel: viewModel),
-          if (viewModel.errorMessage != null)
-            Text(
-              viewModel.errorMessage!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+          if (viewModel.historyNotice != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                viewModel.historyNotice!,
+                style: const TextStyle(color: BalanceColors.textMuted),
+              ),
             ),
-          if (viewModel.refreshWarning != null) Text(viewModel.refreshWarning!),
-          if (viewModel.historyNotice != null) Text(viewModel.historyNotice!),
           const SizedBox(height: 16),
           WorldStatusCard(
             plannedMinutes: viewModel.plannedMinutes,
@@ -143,9 +149,9 @@ class _TodayContent extends StatelessWidget {
                 trackingEnabled: enabled,
                 targetDays: viewModel.movementSettings.targetDays,
                 targetRecoveryMinutes:
-                    viewModel.movementSettings.targetRecoveryMinutes,
+                viewModel.movementSettings.targetRecoveryMinutes,
                 targetSocialMinutesWeek:
-                    viewModel.movementSettings.targetSocialMinutesWeek,
+                viewModel.movementSettings.targetSocialMinutesWeek,
               ),
             ),
             onTargetDaysChanged: (days) => _saveMovementSettings(
@@ -155,9 +161,9 @@ class _TodayContent extends StatelessWidget {
                 trackingEnabled: viewModel.movementSettings.trackingEnabled,
                 targetDays: days,
                 targetRecoveryMinutes:
-                    viewModel.movementSettings.targetRecoveryMinutes,
+                viewModel.movementSettings.targetRecoveryMinutes,
                 targetSocialMinutesWeek:
-                    viewModel.movementSettings.targetSocialMinutesWeek,
+                viewModel.movementSettings.targetSocialMinutesWeek,
               ),
             ),
             onAdd: () => _openExercise(context, viewModel),
@@ -188,7 +194,7 @@ class _TodayContent extends StatelessWidget {
             )
           else
             ...viewModel.availabilityForDay.map(
-              (block) => Padding(
+                  (block) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: _AvailabilityCard(
                   block: block,
@@ -206,17 +212,31 @@ class _TodayContent extends StatelessWidget {
             const _EmptyCard(message: 'No planned tasks are due on this day.')
           else
             ...viewModel.tasksForDay.map(
-              (task) => Card(
+                  (task) => RpgPanel(
+                tone: RpgTone.muted,
                 margin: const EdgeInsets.only(bottom: 10),
+                padding: EdgeInsets.zero,
+                onTap: () => _showTaskDetails(context, task),
                 child: ListTile(
-                  title: Text(task.title),
+                  leading: DiamondIcon(
+                    size: 16,
+                    color: task.isProtected
+                        ? BalanceColors.calm
+                        : BalanceColors.textFaint,
+                  ),
+                  title: Text(
+                    task.title,
+                    style: const TextStyle(
+                      fontFamily: AppTheme.displayFont,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                      letterSpacing: 0.6,
+                    ),
+                  ),
                   subtitle: Text(
-                    viewModel.reservationsForTask(task).isNotEmpty
-                        ? '${viewModel.reservationsForTask(task).fold<int>(0, (total, slot) => total + DailyCapacity.overlapMinutes(slot.startAt, slot.endAt, viewModel.selectedDay))} min moved here · View times'
-                        : '${task.effectiveRemainingMinutes} min · ${task.scheduledStart == null ? 'Due this day' : 'Scheduled this day'}',
+                    '${task.effectiveRemainingMinutes} min · ${task.scheduledStart == null ? 'Due this day' : 'Scheduled this day'}',
                   ),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _showTaskDetails(context, task, viewModel),
                 ),
               ),
             ),
@@ -225,28 +245,21 @@ class _TodayContent extends StatelessWidget {
     );
   }
 
-  void _showTaskDetails(
-    BuildContext context,
-    TaskItem task,
-    TodayViewModel viewModel,
-  ) {
+  void _showTaskDetails(BuildContext context, TaskItem task) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       useSafeArea: true,
-      builder: (_) => TodayTaskDetailsSheet(
-        task: task,
-        reservations: viewModel.reservationsForTask(task),
-      ),
+      builder: (_) => TodayTaskDetailsSheet(task: task),
     );
   }
 
   Future<void> _setNoSocialCommitments(
-    BuildContext context,
-    TodayViewModel viewModel,
-    bool value,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      bool value,
+      ) async {
     final saved = await viewModel.setNoSocialCommitments(value);
     if (!context.mounted || (saved && viewModel.refreshWarning == null)) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -261,9 +274,9 @@ class _TodayContent extends StatelessWidget {
   }
 
   Future<void> _acknowledgeOverload(
-    BuildContext context,
-    TodayViewModel viewModel,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      ) async {
     final service = context.read<VerifiedProgressService?>();
     final candidate = viewModel.earlyReviewCandidate;
     if (service == null || candidate == null) return;
@@ -293,9 +306,9 @@ class _TodayContent extends StatelessWidget {
   }
 
   Future<void> _openSocialEvent(
-    BuildContext context,
-    TodayViewModel viewModel,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      ) async {
     final event = await showModalBottomSheet<SocialEventRecord>(
       context: context,
       isScrollControlled: true,
@@ -321,10 +334,10 @@ class _TodayContent extends StatelessWidget {
   }
 
   Future<void> _deleteSocialEvent(
-    BuildContext context,
-    TodayViewModel viewModel,
-    SocialEventRecord event,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      SocialEventRecord event,
+      ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -356,10 +369,10 @@ class _TodayContent extends StatelessWidget {
   }
 
   Future<void> _openAvailabilityForm(
-    BuildContext context,
-    TodayViewModel viewModel, {
-    AvailabilityBlock? block,
-  }) async {
+      BuildContext context,
+      TodayViewModel viewModel, {
+        AvailabilityBlock? block,
+      }) async {
     final result = await showModalBottomSheet<AvailabilityBlock>(
       context: context,
       isScrollControlled: true,
@@ -374,10 +387,7 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           saved
-              ? viewModel.refreshWarning ??
-                    (block == null
-                        ? 'Time block added.'
-                        : 'Time block updated.')
+              ? (block == null ? 'Time block added.' : 'Time block updated.')
               : viewModel.errorMessage ?? 'The time block could not be saved.',
         ),
       ),
@@ -385,9 +395,9 @@ class _TodayContent extends StatelessWidget {
   }
 
   Future<void> _openDailyReview(
-    BuildContext context,
-    TodayViewModel viewModel,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      ) async {
     final review = await showModalBottomSheet<CheckIn>(
       context: context,
       isScrollControlled: true,
@@ -404,19 +414,19 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           saved
-              ? viewModel.refreshWarning ?? 'Daily Review saved.'
+              ? 'Daily Review saved.'
               : viewModel.errorMessage ??
-                    'Could not save Daily Review. Please try again.',
+              'Could not save Daily Review. Please try again.',
         ),
       ),
     );
   }
 
   Future<void> _saveMovementSettings(
-    BuildContext context,
-    TodayViewModel viewModel,
-    MovementSettings settings,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      MovementSettings settings,
+      ) async {
     final saved = await viewModel.saveMovementSettings(settings);
     if (!context.mounted || (saved && viewModel.refreshWarning == null)) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -425,16 +435,16 @@ class _TodayContent extends StatelessWidget {
           saved
               ? viewModel.refreshWarning!
               : viewModel.errorMessage ??
-                    'Could not save movement settings. Please try again.',
+              'Could not save movement settings. Please try again.',
         ),
       ),
     );
   }
 
   Future<void> _openExercise(
-    BuildContext context,
-    TodayViewModel viewModel,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      ) async {
     final log = await showModalBottomSheet<ExerciseLog>(
       context: context,
       isScrollControlled: true,
@@ -453,17 +463,17 @@ class _TodayContent extends StatelessWidget {
           saved
               ? viewModel.refreshWarning ?? 'Exercise recorded.'
               : viewModel.errorMessage ??
-                    'Could not save exercise. Please try again.',
+              'Could not save exercise. Please try again.',
         ),
       ),
     );
   }
 
   Future<void> _deleteExercise(
-    BuildContext context,
-    TodayViewModel viewModel,
-    ExerciseLog log,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      ExerciseLog log,
+      ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -492,17 +502,17 @@ class _TodayContent extends StatelessWidget {
           removed
               ? viewModel.refreshWarning ?? 'Exercise record removed.'
               : viewModel.errorMessage ??
-                    'Could not remove exercise. Please try again.',
+              'Could not remove exercise. Please try again.',
         ),
       ),
     );
   }
 
   Future<void> _deleteAvailability(
-    BuildContext context,
-    TodayViewModel viewModel,
-    AvailabilityBlock block,
-  ) async {
+      BuildContext context,
+      TodayViewModel viewModel,
+      AvailabilityBlock block,
+      ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -527,9 +537,9 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           deleted
-              ? viewModel.refreshWarning ?? 'Time block deleted.'
+              ? 'Time block deleted.'
               : viewModel.errorMessage ??
-                    'The time block could not be deleted.',
+              'The time block could not be deleted.',
         ),
       ),
     );
@@ -541,41 +551,89 @@ class _DaySelector extends StatelessWidget {
 
   final TodayViewModel viewModel;
 
+  String _relative(DateTime day) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final diff = DateTime(day.year, day.month, day.day).difference(today).inDays;
+    return switch (diff) {
+      0 => 'Viewing today',
+      1 => 'Viewing tomorrow',
+      -1 => 'Viewing yesterday',
+      _ => 'Viewing ${DateFormat.MMMd().format(day)}',
+    };
+  }
+
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      IconButton(
+      RpgSquareButton(
         tooltip: 'Previous day',
         onPressed: () => viewModel.selectDay(
           viewModel.selectedDay.subtract(const Duration(days: 1)),
         ),
-        icon: const Icon(Icons.chevron_left),
+        icon: Icons.arrow_back,
       ),
       Expanded(
-        child: Column(
-          children: [
-            Text(
-              DateFormat.EEEE().format(viewModel.selectedDay),
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            Text(DateFormat.yMMMMd().format(viewModel.selectedDay)),
-            if (!DateUtils.isSameDay(viewModel.selectedDay, DateTime.now()))
-              TextButton(
-                onPressed: () => viewModel.selectDay(DateTime.now()),
-                child: const Text('Go to today'),
-              ),
-          ],
+        child: Center(
+          child: RpgLabel(
+            _relative(viewModel.selectedDay),
+            tone: RpgTone.accent,
+            size: 13,
+          ),
         ),
       ),
-      IconButton(
+      RpgSquareButton(
         tooltip: 'Next day',
         onPressed: () => viewModel.selectDay(
           viewModel.selectedDay.add(const Duration(days: 1)),
         ),
-        icon: const Icon(Icons.chevron_right),
+        icon: Icons.arrow_forward,
       ),
     ],
   );
+}
+
+/// Small status tag next to the TODAY headline, e.g. "BUILDING".
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final tone = switch (label) {
+      'Low' => RpgTone.calm,
+      'Building' => RpgTone.warning,
+      'High' => RpgTone.warning,
+      'Over capacity' => RpgTone.danger,
+      _ => RpgTone.muted,
+    };
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: tone == RpgTone.muted ? Colors.transparent : tone.background,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: tone.border),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DiamondIcon(size: 10, filled: true, color: tone.foreground),
+              const SizedBox(width: 6),
+              RpgLabel(
+                label == 'Not enough data' ? 'No data yet' : label,
+                tone: tone == RpgTone.muted ? RpgTone.muted : tone,
+                size: 12,
+                spacing: 1.6,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _AvailabilityCard extends StatelessWidget {
@@ -590,15 +648,29 @@ class _AvailabilityCard extends StatelessWidget {
   final VoidCallback onDelete;
 
   @override
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) => RpgPanel(
+    tone: block.isAvailable ? RpgTone.muted : RpgTone.danger,
+    padding: EdgeInsets.zero,
     child: ListTile(
-      leading: Icon(block.isAvailable ? Icons.event_available : Icons.block),
-      title: Text(block.label ?? (block.isAvailable ? 'Available' : 'Blocked')),
+      leading: Icon(
+        block.isAvailable ? Icons.event_available : Icons.block,
+        color: block.isAvailable ? BalanceColors.accentBright : BalanceColors.danger,
+      ),
+      title: Text(
+        block.label ?? (block.isAvailable ? 'Available' : 'Blocked'),
+        style: const TextStyle(
+          fontFamily: AppTheme.displayFont,
+          fontWeight: FontWeight.w700,
+          fontSize: 16,
+          letterSpacing: 0.8,
+        ),
+      ),
       subtitle: Text(
         '${DateFormat.jm().format(block.startAt.toLocal())} – '
-        '${DateFormat.jm().format(block.endAt.toLocal())}',
+            '${DateFormat.jm().format(block.endAt.toLocal())}',
       ),
       trailing: PopupMenuButton<String>(
+        tooltip: 'Time block actions',
         onSelected: (value) => value == 'edit' ? onEdit() : onDelete(),
         itemBuilder: (_) => const [
           PopupMenuItem(value: 'edit', child: Text('Edit')),
@@ -617,14 +689,11 @@ class _SectionTitle extends StatelessWidget {
   final VoidCallback? onAction;
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(
-        child: Text(title, style: Theme.of(context).textTheme.titleLarge),
-      ),
-      if (actionLabel != null)
-        TextButton(onPressed: onAction, child: Text(actionLabel!)),
-    ],
+  Widget build(BuildContext context) => SectionRule(
+    title,
+    trailing: actionLabel == null
+        ? null
+        : TextButton(onPressed: onAction, child: Text(actionLabel!)),
   );
 }
 
@@ -634,7 +703,13 @@ class _EmptyCard extends StatelessWidget {
   final String message;
 
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(padding: const EdgeInsets.all(20), child: Text(message)),
+  Widget build(BuildContext context) => RpgPanel(
+    tone: RpgTone.muted,
+    dashed: true,
+    padding: const EdgeInsets.all(18),
+    child: Text(
+      message,
+      style: const TextStyle(color: BalanceColors.textMuted),
+    ),
   );
 }

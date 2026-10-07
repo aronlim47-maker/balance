@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../core/shared_widgets/rpg_widgets.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/theme/balance_colors.dart';
+
 class TradeOffOptionCard extends StatelessWidget {
   const TradeOffOptionCard({
     super.key,
@@ -14,7 +18,6 @@ class TradeOffOptionCard extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     this.needsAgreement = false,
-    this.capacitySummary,
   });
 
   final String title;
@@ -27,44 +30,53 @@ class TradeOffOptionCard extends StatelessWidget {
   final String reviewSummary;
   final bool isSelected;
   final bool needsAgreement;
-  final String? capacitySummary;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Card(
-      color: isSelected
-          ? colors.primaryContainer.withValues(alpha: 0.45)
-          : null,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          InkWell(
+  Widget build(BuildContext context) => RpgPanel(
+    selected: isSelected,
+    padding: EdgeInsets.zero,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          button: true,
+          selected: isSelected,
+          child: InkWell(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(20),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    isSelected
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_off,
-                    color: isSelected
-                        ? colors.primary
-                        : colors.onSurfaceVariant,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 3),
+                    child: DiamondIcon(
+                      size: 16,
+                      filled: isSelected,
+                      color: isSelected
+                          ? BalanceColors.accentBright
+                          : BalanceColors.textFaint,
+                    ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           title,
-                          style: Theme.of(context).textTheme.titleMedium,
+                          style: const TextStyle(
+                            fontFamily: AppTheme.displayFont,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 19,
+                            letterSpacing: 0.8,
+                            height: 1.15,
+                          ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
+                        const RpgLabel('What changes', size: 11),
+                        const SizedBox(height: 2),
                         Text(
                           description,
                           maxLines: 2,
@@ -73,83 +85,96 @@ class TradeOffOptionCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  if (isSelected) ...[
+                    const SizedBox(width: 8),
+                    const RpgTag('Selected', tone: RpgTone.accent),
+                  ],
                 ],
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Wrap(
-              spacing: 8,
-              children: [
-                _Tag(icon: Icons.swap_horiz, label: '$movedMinutes min moved'),
-                if (recoveryMinutes > 0)
-                  _Tag(
-                    icon: Icons.spa_outlined,
-                    label: '$recoveryMinutes min recovery',
-                  ),
-                if (needsAgreement)
-                  const _Tag(
-                    icon: Icons.groups_outlined,
-                    label: 'Needs agreement',
-                  ),
-              ],
-            ),
-          ),
-          ExpansionTile(
-            subtitle: capacitySummary == null ? null : Text(capacitySummary!),
-            title: const Text('See trade-offs'),
-            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(44, 4, 16, 0),
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 6,
             children: [
-              _EffectLine(label: 'Protected', value: protectedSummary),
-              const SizedBox(height: 8),
-              _EffectLine(label: 'Cost', value: costSummary),
-              const SizedBox(height: 8),
-              _EffectLine(label: 'Room created', value: roomSummary),
-              const SizedBox(height: 8),
-              _EffectLine(
-                label: 'Check before confirming',
-                value: reviewSummary,
-              ),
+              RpgTag('$movedMinutes min moved', icon: Icons.swap_horiz),
+              if (recoveryMinutes > 0)
+                RpgTag(
+                  '$recoveryMinutes min recovery',
+                  tone: RpgTone.calm,
+                  icon: Icons.eco_outlined,
+                ),
+              if (needsAgreement)
+                const RpgTag(
+                  'Needs agreement',
+                  tone: RpgTone.warning,
+                  icon: Icons.groups_outlined,
+                ),
             ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+        ExpansionTile(
+          tilePadding: const EdgeInsets.fromLTRB(44, 0, 12, 0),
+          title: const Text(
+            'See trade-offs',
+            style: TextStyle(color: BalanceColors.accentBright, fontSize: 14),
+          ),
+          childrenPadding: const EdgeInsets.fromLTRB(44, 0, 16, 16),
+          expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _EffectLine(
+              label: 'Protected',
+              value: protectedSummary,
+              valueColor: BalanceColors.calm,
+            ),
+            const SizedBox(height: 10),
+            _EffectLine(label: 'Cost', value: costSummary),
+            const SizedBox(height: 10),
+            _EffectLine(label: 'Room created', value: roomSummary),
+            const SizedBox(height: 10),
+            _EffectLine(
+              label: 'Check before confirming',
+              value: reviewSummary,
+              valueColor: BalanceColors.warning,
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
 }
 
 class _EffectLine extends StatelessWidget {
-  const _EffectLine({required this.label, required this.value});
+  const _EffectLine({
+    required this.label,
+    required this.value,
+    this.valueColor = BalanceColors.text,
+  });
 
   final String label;
   final String value;
+  final Color valueColor;
 
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: Theme.of(context).textTheme.labelMedium),
-      Text(value),
+      // Wording kept as-is (not uppercased) so labels stay stable.
+      Text(
+        label,
+        style: const TextStyle(
+          fontFamily: AppTheme.displayFont,
+          fontWeight: FontWeight.w700,
+          fontSize: 12,
+          letterSpacing: 1.8,
+          color: BalanceColors.textMuted,
+        ),
+      ),
+      const SizedBox(height: 2),
+      Text(value, style: TextStyle(color: valueColor, height: 1.35)),
     ],
-  );
-}
-
-class _Tag extends StatelessWidget {
-  const _Tag({required this.icon, required this.label});
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(999),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [Icon(icon, size: 16), const SizedBox(width: 5), Text(label)],
-    ),
   );
 }

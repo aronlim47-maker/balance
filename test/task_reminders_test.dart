@@ -12,10 +12,10 @@ import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 TaskItem task(
-  String id,
-  DateTime due, {
-  TaskStatus status = TaskStatus.planned,
-}) => TaskItem(
+    String id,
+    DateTime due, {
+      TaskStatus status = TaskStatus.planned,
+    }) => TaskItem(
   id: id,
   title: 'Private title',
   estimatedMinutes: 30,
@@ -101,12 +101,15 @@ void main() {
     );
     final reminders = planTaskReminders(tasks, enabled, now, tz.UTC);
     expect(reminders.map((r) => r.taskId), ['a']);
-    expect(reminders.single.at.toUtc(), now.add(const Duration(minutes: 90)));
+    expect(
+      reminders.single.at.isAtSameMomentAs(now.add(const Duration(minutes: 90))),
+      isTrue,
+    );
   });
 
   test(
     'Quiet hours use device zone, with inclusive start and exclusive end',
-    () {
+        () {
       final zone = tz.getLocation('Asia/Kuala_Lumpur');
       final tasks = [
         task('start', DateTime.utc(2026, 10, 4, 14, 30)),
@@ -128,7 +131,7 @@ void main() {
   test('Same-day quiet hours, equal endpoints invalid, limit nearest 50', () {
     final tasks = List.generate(
       65,
-      (i) => task('$i', now.add(Duration(hours: i + 1))),
+          (i) => task('$i', now.add(Duration(hours: i + 1))),
     );
     expect(planTaskReminders(tasks, enabled, now, tz.UTC), hasLength(50));
     expect(
@@ -157,7 +160,10 @@ void main() {
       now,
       tz.getLocation('America/New_York'),
     );
-    expect(result.single.at.toUtc(), due.subtract(const Duration(minutes: 30)));
+    expect(
+      result.single.at.isAtSameMomentAs(due.subtract(const Duration(minutes: 30))),
+      isTrue,
+    );
   });
 
   test('Startup does not request permission; denied enabling never persists enabled', () async {
@@ -232,7 +238,7 @@ void main() {
 
   test(
     'Account switch during scheduling leaves no stale owner reminder',
-    () async {
+        () async {
       final inner = LocalTaskRepository();
       await inner.createTask(
         task('', DateTime.now().add(const Duration(days: 2))),
@@ -261,7 +267,7 @@ void main() {
 
   test(
     'Offline refresh preserves existing reminders and reports a safe warning',
-    () async {
+        () async {
       final tasks = FailingReadTasks();
       await tasks.createTask(
         task('', DateTime.now().add(const Duration(days: 2))),
@@ -285,7 +291,7 @@ void main() {
 
   test(
     'Committed create, update and delete do not wait for reminder I/O',
-    () async {
+        () async {
       final inner = LocalTaskRepository();
       final gate = Completer<void>();
       final repo = RemindingTaskRepository(inner, () => gate.future);

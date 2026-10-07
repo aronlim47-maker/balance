@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/balance_colors.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/enums/task_flexibility.dart';
@@ -124,7 +125,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             const SizedBox(height: 12),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              tileColor: Colors.white,
+              tileColor: BalanceColors.surfaceSunken,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -259,7 +260,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               const SizedBox(height: 8),
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                tileColor: Colors.white,
+                tileColor: BalanceColors.surfaceSunken,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -294,12 +295,12 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   /// The app never guesses a category from the task title.
   static String _categoryHelp(LoadCategory? category) => switch (category) {
     null =>
-      'Study: coursework, revision · Errand: admin, chores, shopping · '
-          'Social: meetups · Exercise: sport · Other: anything else',
+    'Study: coursework, revision · Errand: admin, chores, shopping · '
+        'Social: meetups · Exercise: sport · Other: anything else',
     LoadCategory.study =>
-      'Coursework, homework, revision and academic projects.',
+    'Coursework, homework, revision and academic projects.',
     LoadCategory.errand =>
-      'Admin, purchases, household jobs and other practical tasks.',
+    'Admin, purchases, household jobs and other practical tasks.',
     LoadCategory.social => 'A planned meeting or social commitment.',
     LoadCategory.exercise => 'A planned sport or movement session.',
     LoadCategory.other => 'Anything that does not fit the other categories.',
@@ -309,7 +310,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     final date = await showDatePicker(
       context: context,
       initialDate: _dueAt,
-      firstDate: _dueAt.isBefore(DateTime.now()) ? _dueAt : DateTime.now(),
+      firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 3650)),
     );
     if (date == null || !mounted) return;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/balance_colors.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/models/availability_block.dart';
@@ -173,7 +174,7 @@ class _TimeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListTile(
-    tileColor: Colors.white,
+    tileColor: BalanceColors.surfaceSunken,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     title: Text(label),
     subtitle: Text(DateFormat.jm().format(value)),

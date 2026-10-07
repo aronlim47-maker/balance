@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/shared_widgets/section_header.dart';
+import '../../core/theme/balance_colors.dart';
 import '../../domain/enums/plan_status.dart';
 import 'war_council_view_model.dart';
 
@@ -45,7 +47,10 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
         (change?.consequences['moved_minutes'] as num?)?.toInt() ??
         viewModel.confirmedOption?.movedMinutes;
     return Scaffold(
-      appBar: AppBar(title: const Text('Plan updated')),
+      appBar: AppBar(
+        title: const Eyebrow('War Council'),
+        titleSpacing: 0,
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -53,14 +58,20 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
             if (viewModel.isLoadingChange && !hasKnownChange)
               const Center(child: CircularProgressIndicator())
             else
-              Icon(
-                isUndone
-                    ? Icons.undo_rounded
-                    : isConfirmed
-                    ? Icons.check_circle
-                    : Icons.info_outline,
-                size: 64,
-                color: Theme.of(context).colorScheme.primary,
+              Align(
+                alignment: Alignment.centerLeft,
+                child: _DiamondBadge(
+                  icon: isUndone
+                      ? Icons.undo_rounded
+                      : isConfirmed
+                      ? Icons.check
+                      : Icons.info_outline,
+                  tone: isConfirmed
+                      ? RpgTone.calm
+                      : isUndone
+                      ? RpgTone.accent
+                      : RpgTone.muted,
+                ),
               ),
             const SizedBox(height: 18),
             SectionHeader(
@@ -85,13 +96,21 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
             ),
             const SizedBox(height: 22),
             if (hasKnownChange)
-              Card(
+              RpgPanel(
                 child: Padding(
-                  padding: const EdgeInsets.all(18),
+                  padding: const EdgeInsets.all(2),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      RpgLabel(isUndone ? 'What was restored' : 'What moved'),
                       ListTile(
-                        leading: const Icon(Icons.event_repeat),
+                        leading: DiamondIcon(
+                          size: 12,
+                          filled: true,
+                          color: isConfirmed
+                              ? BalanceColors.accentBright
+                              : BalanceColors.textFaint,
+                        ),
                         title: Text(taskTitle),
                         subtitle: Text(
                           isUndone
@@ -105,9 +124,24 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                       ),
                       const Divider(),
                       ListTile(
-                        leading: const Icon(Icons.receipt_long_outlined),
-                        title: const Text('Change reference'),
-                        subtitle: Text(widget.changeId),
+                        leading: const Icon(
+                          Icons.receipt_long_outlined,
+                          size: 20,
+                        ),
+                        title: const Text(
+                          'Change reference',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: BalanceColors.textMuted,
+                          ),
+                        ),
+                        subtitle: Text(
+                          widget.changeId,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: BalanceColors.textFaint,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -135,9 +169,10 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                 ),
               ),
             const SizedBox(height: 10),
-            FilledButton(
+            FilledButton.icon(
               onPressed: () => context.go('/today'),
-              child: const Text('Return to Today'),
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: const Text('Return to Today'),
             ),
           ],
         ),
@@ -163,4 +198,23 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
       ),
     );
   }
+}
+
+/// Outlined diamond with an icon inside, shown at the top of the page.
+class _DiamondBadge extends StatelessWidget {
+  const _DiamondBadge({required this.icon, required this.tone});
+  final IconData icon;
+  final RpgTone tone;
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    dimension: 64,
+    child: Stack(
+      alignment: Alignment.center,
+      children: [
+        DiamondIcon(size: 60, color: tone.border, strokeWidth: 1.6),
+        Icon(icon, size: 24, color: tone.foreground),
+      ],
+    ),
+  );
 }
