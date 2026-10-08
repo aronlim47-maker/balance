@@ -25,10 +25,11 @@ class WorldStatusCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'World Status',
+                  'Workload Overview',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
+              const SizedBox(width: 8),
               Text(
                 status.totalScore == null
                     ? 'Not enough data'
@@ -36,6 +37,7 @@ class WorldStatusCard extends StatelessWidget {
               ),
             ],
           ),
+          Text('World Status', style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 14),
           Row(
             children: [
@@ -75,14 +77,11 @@ class WorldStatusCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               for (final dimension in WorldDimension.values) ...[
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '${_name(dimension)}: ${status.dimensions[dimension]!.reason ?? _source(dimension)}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                _DimensionExplanation(
+                  name: _name(dimension),
+                  result: status.dimensions[dimension]!,
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
               ],
               const Text(
                 'Unknown means missing information, not zero pressure. This is a planning aid, not a health assessment.',
@@ -102,13 +101,62 @@ class WorldStatusCard extends StatelessWidget {
     WorldDimension.errands => 'Errands',
   };
 
-  static String _source(WorldDimension dimension) => switch (dimension) {
-    WorldDimension.mental => 'Tasks, capacity, Daily Review and recovery',
-    WorldDimension.time => 'Availability, tasks, deadlines and recovery',
-    WorldDimension.physical => 'Confirmed exercise and optional energy',
-    WorldDimension.social => 'Confirmed events and schedule conflicts',
-    WorldDimension.errands => 'User-categorised practical tasks',
-  };
+}
+
+class _DimensionExplanation extends StatelessWidget {
+  const _DimensionExplanation({required this.name, required this.result});
+
+  final String name;
+  final DimensionResult result;
+
+  @override
+  Widget build(BuildContext context) => ExpansionTile(
+    tilePadding: EdgeInsets.zero,
+    childrenPadding: const EdgeInsets.only(left: 12, bottom: 8),
+    dense: true,
+    title: Text(
+      '$name · ${result.score == null ? 'Unknown' : '${result.score}/100'}',
+      style: Theme.of(context).textTheme.bodySmall,
+    ),
+    subtitle: result.reason == null
+        ? null
+        : Text(result.reason!, style: Theme.of(context).textTheme.bodySmall),
+    children: [
+      if (result.contributions.isEmpty)
+        const Align(
+          alignment: Alignment.centerLeft,
+          child: Text('No component-level data is available for this snapshot.'),
+        )
+      else
+        for (final contribution in result.contributions) ...[
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '${contribution.label}: '
+              '${contribution.score == null ? 'Unknown' : '${contribution.score!.round()}/100'}'
+              '${contribution.points == null ? '' : ' · +${contribution.points!.toStringAsFixed(1)} pts'}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              contribution.evidence,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+          if (contribution.sources.isNotEmpty)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Records: ${contribution.sources.join(', ')}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          const SizedBox(height: 6),
+        ],
+    ],
+  );
 }
 
 class _DimensionRow extends StatelessWidget {

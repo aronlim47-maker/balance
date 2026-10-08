@@ -142,6 +142,41 @@ void main() {
     expect(await service.loadDaySnapshot(DateTime(2026, 10, 3)), isNull);
   });
 
+  test(
+    'failed capture still reads existing history without inventing days',
+    () async {
+      respond = (request) async {
+        if (request.url.path.endsWith('/rpc/capture_world_status')) {
+          return http.Response('{"code":"XX000","message":"failed"}', 500);
+        }
+        return http.Response(
+          '[{"local_date":"2026-10-01","total_score":42}]',
+          200,
+        );
+      };
+      expect(await service.loadPreviousWeek(DateTime(2026, 10, 3)), [
+        null,
+        null,
+        null,
+        null,
+        null,
+        42,
+        null,
+      ]);
+      expect(reads, hasLength(2));
+      expect(service.captureNotice, contains('Existing history'));
+    },
+  );
+
+  test('capture and history failure still propagates the read error', () async {
+    respond = (_) async =>
+        http.Response('{"code":"42501","message":"denied"}', 403);
+    await expectLater(
+      service.loadPreviousWeek(DateTime(2026, 10, 3)),
+      throwsA(isA<PostgrestException>()),
+    );
+  });
+
   test('logout during daily read rejects even a missing result', () async {
     respond = (_) async {
       await client.auth.signOut();

@@ -33,30 +33,33 @@ class RecoveryService implements RecoveryRepository {
         .insert(RecoveryMapper.toInsert(slot, userId))
         .select()
         .single();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return RecoveryMapper.fromJson(row);
   }
 
   @override
   Future<RecoverySlot> updateRecoverySlot(RecoverySlot slot) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     final row = await _client
         .from('recovery_slots')
         .update(RecoveryMapper.toUpdate(slot))
         .eq('id', slot.id)
         .select()
         .single();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return RecoveryMapper.fromJson(row);
   }
 
   @override
   Future<void> deleteRecoverySlot(String slotId) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     final deleted = await _client
         .from('recovery_slots')
         .delete()
         .eq('id', slotId)
         .select('id')
         .maybeSingle();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     if (deleted == null) throw StateError('Deletion not confirmed');
   }
 }

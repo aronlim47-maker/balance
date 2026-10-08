@@ -237,6 +237,63 @@ void main() {
     expect(options, hasLength(3));
     expect(options.map((item) => item.taskId).toSet(), hasLength(3));
   });
+
+  test('combines multiple task moves when no single move clears the gap', () {
+    final options = generateTradeOffs(
+      day: day,
+      tasks: [
+        _task(id: 'first', start: DateTime(2026, 9, 30, 9), minutes: 60),
+        _task(id: 'second', start: DateTime(2026, 9, 30, 10), minutes: 60),
+      ],
+      availability: [_available(DateTime(2026, 10, 1, 9), 120)],
+      now: now,
+    );
+
+    expect(options, hasLength(1));
+    final plan = options.single;
+    expect(plan.allMoves, hasLength(2));
+    expect(plan.allMoves.map((move) => move.taskId), ['first', 'second']);
+    expect(plan.allMoves.map((move) => move.movedMinutes), [60, 60]);
+    expect(plan.movedMinutes, 120);
+    expect(plan.title, contains('2 tasks'));
+  });
+
+  test('does not combine protected work or exceed destination capacity', () {
+    final first = _task(
+      id: 'first',
+      start: DateTime(2026, 9, 30, 9),
+      minutes: 60,
+    );
+    expect(
+      generateTradeOffs(
+        day: day,
+        tasks: [
+          first,
+          _task(
+            id: 'protected',
+            start: DateTime(2026, 9, 30, 10),
+            minutes: 60,
+            protected: true,
+          ),
+        ],
+        availability: [_available(DateTime(2026, 10, 1, 9), 120)],
+        now: now,
+      ),
+      isEmpty,
+    );
+    expect(
+      generateTradeOffs(
+        day: day,
+        tasks: [
+          first,
+          _task(id: 'second', start: DateTime(2026, 9, 30, 10), minutes: 60),
+        ],
+        availability: [_available(DateTime(2026, 10, 1, 9), 60)],
+        now: now,
+      ),
+      isEmpty,
+    );
+  });
 }
 
 TaskItem _task({

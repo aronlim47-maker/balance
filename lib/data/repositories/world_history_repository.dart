@@ -20,3 +20,8 @@ abstract interface class WorldHistoryRepository {
   Future<List<int?>> loadPreviousWeek(DateTime selectedDay);
   Future<WeeklyJourney> loadWeek(DateTime weekStart);
 }
+
+/// Optional status: historical reads can succeed even when today's capture fails.
+abstract interface class SnapshotCaptureStatus {
+  String? get captureNotice;
+}

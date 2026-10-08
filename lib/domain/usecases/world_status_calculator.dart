@@ -55,23 +55,95 @@ class WorldStatusCalculator {
           );
 
     final mental = _components([
-      MapEntry(.30, _energyPressure(input.mentalEnergy)),
-      MapEntry(
-        .25,
-        countPressure == null || deadlinePressure == null
+      _WorldStatusComponent(
+        label: 'Daily Review energy',
+        weight: .30,
+        score: _energyPressure(input.mentalEnergy),
+        evidence: input.mentalEnergy == null
+            ? 'No energy rating was shared.'
+            : 'Reported ${input.mentalEnergy!.name} energy.',
+      ),
+      _WorldStatusComponent(
+        label: 'Tasks and deadlines',
+        weight: .25,
+        score: countPressure == null || deadlinePressure == null
             ? null
             : (countPressure + deadlinePressure) / 2,
+        evidence: taskCount == null || dueSoon == null
+            ? 'Task data is unavailable.'
+            : '$taskCount unfinished tasks; $dueSoon min due within 48 hours.',
+        sources: tasks
+            ?.where((task) => _isDueSoon(task, input.windowStart))
+            .map((task) => task.title)
+            .toList(growable: false),
       ),
-      MapEntry(.25, capacityPressure),
-      MapEntry(.20, recoveryDeficit),
+      _WorldStatusComponent(
+        label: 'Capacity pressure',
+        weight: .25,
+        score: capacityPressure,
+        evidence: input.plannedMinutes == null || input.availableMinutes == null
+            ? 'Planned or available minutes are missing.'
+            : '${input.plannedMinutes} min planned; ${input.availableMinutes} min available.',
+        sources: tasks
+            ?.where((task) => task.scheduledStart != null)
+            .map((task) => task.title)
+            .toList(growable: false),
+      ),
+      _WorldStatusComponent(
+        label: 'Protected recovery',
+        weight: .20,
+        score: recoveryDeficit,
+        evidence: input.protectedRecoveryMinutes == null
+            ? 'Protected recovery data is unavailable.'
+            : '${input.protectedRecoveryMinutes} of ${input.targetRecoveryMinutes} min protected.',
+        sources: input.protectedRecoverySources,
+      ),
     ], minimumKnownWeight: .5);
     final time = input.availableMinutes == null
         ? const DimensionResult.unknown('Add availability to calculate Time.')
         : _components([
-            MapEntry(.50, capacityPressure),
-            MapEntry(.25, deadlinePressure),
-            MapEntry(.10, countPressure),
-            MapEntry(.15, recoveryDeficit),
+            _WorldStatusComponent(
+              label: 'Capacity gap',
+              weight: .50,
+              score: capacityPressure,
+              evidence: input.plannedMinutes == null
+                  ? 'Planned minutes are missing; ${input.availableMinutes} min available.'
+                  : '${input.plannedMinutes} min planned; ${input.availableMinutes} min available.',
+              sources: tasks
+                  ?.where((task) => task.scheduledStart != null)
+                  .map((task) => task.title)
+                  .toList(growable: false),
+            ),
+            _WorldStatusComponent(
+              label: 'Deadlines within 48 hours',
+              weight: .25,
+              score: deadlinePressure,
+              evidence: dueSoon == null
+                  ? 'Task data is unavailable.'
+                  : '$dueSoon min due within 48 hours.',
+              sources: tasks
+                  ?.where((task) => _isDueSoon(task, input.windowStart))
+                  .map((task) => task.title)
+                  .toList(growable: false),
+            ),
+            _WorldStatusComponent(
+              label: 'Unfinished task count',
+              weight: .10,
+              score: countPressure,
+              evidence: taskCount == null
+                  ? 'Task data is unavailable.'
+                  : '$taskCount unfinished tasks (8-task reference scale).',
+              sources: tasks?.map((task) => task.title).toList(growable: false),
+            ),
+            _WorldStatusComponent(
+              label: 'Protected recovery',
+              weight: .15,
+              score: recoveryDeficit,
+              evidence: input.protectedRecoveryMinutes == null
+                  ? 'Protected recovery data is unavailable.'
+                  : '${input.protectedRecoveryMinutes} of ${input.targetRecoveryMinutes} min protected.',
+              sources: input.protectedRecoverySources,
+            ),
           ], minimumKnownWeight: .5);
 
     final physical =
@@ -80,9 +152,10 @@ class WorldStatusCalculator {
             'Enable movement tracking and record an exercise to calculate Physical.',
           )
         : _components([
-            MapEntry(
-              .70,
-              _cap(
+            _WorldStatusComponent(
+              label: 'Days since recorded exercise',
+              weight: .70,
+              score: _cap(
                 math.max(
                       0,
                       _localDay(input.localDate)
@@ -93,8 +166,19 @@ class WorldStatusCalculator {
                     4 *
                     100,
               ),
+              evidence: 'Target interval: every ${input.movementTargetDays} days.',
+              sources: [
+                'Latest confirmed exercise: ${_dateLabel(input.lastExerciseDate!)}',
+              ],
             ),
-            MapEntry(.30, _energyPressure(input.physicalEnergy)),
+            _WorldStatusComponent(
+              label: 'Daily Review physical energy',
+              weight: .30,
+              score: _energyPressure(input.physicalEnergy),
+              evidence: input.physicalEnergy == null
+                  ? 'No physical-energy rating was shared.'
+                  : 'Reported ${input.physicalEnergy!.name} energy.',
+            ),
           ], minimumKnownWeight: .7);
 
     final social =
@@ -132,19 +216,50 @@ class WorldStatusCalculator {
           )
           .fold<int>(0, (sum, task) => sum + task.remainingMinutes);
       if (errandMinutes == 0) {
-        errands = const DimensionResult.known(0);
+        errands = DimensionResult.known(
+          0,
+          contributions: const [
+            WorldStatusContribution(
+              label: 'Unfinished Errand work',
+              weight: 1,
+              score: 0,
+              points: 0,
+              evidence: 'All unfinished tasks are categorised; none are Errands.',
+            ),
+          ],
+        );
       } else {
         errands = _components([
-          MapEntry(
-            .60,
-            input.availableMinutes == null
+          _WorldStatusComponent(
+            label: 'Remaining Errand minutes',
+            weight: .60,
+            score: input.availableMinutes == null
                 ? null
                 : _cap(
                     errandMinutes / math.max(input.availableMinutes!, 1) * 100,
                   ),
+            evidence: input.availableMinutes == null
+                ? 'Availability is missing.'
+                : '$errandMinutes min of Errand work; ${input.availableMinutes} min available.',
+            sources: errandTasks.map((task) => task.title).toList(growable: false),
           ),
-          MapEntry(.25, _cap(errandDueSoon / errandMinutes * 100)),
-          MapEntry(.15, _cap(errandTasks.length / 8 * 100)),
+          _WorldStatusComponent(
+            label: 'Errands due within 48 hours',
+            weight: .25,
+            score: _cap(errandDueSoon / errandMinutes * 100),
+            evidence: '$errandDueSoon of $errandMinutes min due within 48 hours.',
+            sources: errandTasks
+                .where((task) => _isDueSoon(task, input.windowStart))
+                .map((task) => task.title)
+                .toList(growable: false),
+          ),
+          _WorldStatusComponent(
+            label: 'Unfinished Errand count',
+            weight: .15,
+            score: _cap(errandTasks.length / 8 * 100),
+            evidence: '${errandTasks.length} unfinished Errand tasks (8-task reference scale).',
+            sources: errandTasks.map((task) => task.title).toList(growable: false),
+          ),
         ], minimumKnownWeight: .6);
       }
     }
@@ -211,32 +326,78 @@ class WorldStatusCalculator {
       weightedMinutes / math.max(input.targetSocialMinutesWeek * 80, 1) * 100,
     );
     final conflict = _cap(conflictMinutes / math.max(totalMinutes, 1) * 100);
-    return DimensionResult.fromRaw(.7 * load + .3 * conflict);
+    final sources = events
+        .map((event) => event.sourceLabel)
+        .whereType<String>()
+        .toList(growable: false);
+    return DimensionResult.fromRaw(
+      .7 * load + .3 * conflict,
+      contributions: [
+        WorldStatusContribution(
+          label: 'User-reported event pressure',
+          weight: .70,
+          score: load,
+          points: load * .70,
+          evidence: '$totalMinutes min recorded; $weightedMinutes pressure-weighted minutes.',
+          sources: sources,
+        ),
+        WorldStatusContribution(
+          label: 'Schedule conflicts',
+          weight: .30,
+          score: conflict,
+          points: conflict * .30,
+          evidence: '$conflictMinutes of $totalMinutes event minutes overlap other commitments.',
+          sources: sources,
+        ),
+      ],
+    );
   }
 
   static DimensionResult _components(
-    List<MapEntry<double, double?>> components, {
+    List<_WorldStatusComponent> components, {
     required double minimumKnownWeight,
   }) {
     var knownWeight = 0.0;
     var weighted = 0.0;
     var totalWeight = 0.0;
     for (final entry in components) {
-      final weight = entry.key;
+      final weight = entry.weight;
       totalWeight += weight;
-      if (entry.value != null) {
+      if (entry.score != null) {
         knownWeight += weight;
-        weighted += weight * entry.value!;
+        weighted += weight * entry.score!;
       }
     }
     if (knownWeight + 1e-9 < minimumKnownWeight) {
       return const DimensionResult.unknown('More recorded data is needed.');
     }
+    final contributions = components
+        .map(
+          (component) => WorldStatusContribution(
+            label: component.label,
+            weight: component.weight,
+            score: component.score,
+            points: component.score == null
+                ? null
+                : component.score! * component.weight / knownWeight,
+            evidence: component.evidence,
+            sources: component.sources,
+          ),
+        )
+        .toList(growable: false);
     return DimensionResult.fromRaw(
       weighted / knownWeight,
       isPartial: knownWeight + 1e-9 < totalWeight,
+      contributions: contributions,
     );
   }
+
+  static bool _isDueSoon(WorldStatusTask task, DateTime windowStart) =>
+      !task.dueAt.isBefore(windowStart) &&
+      !task.dueAt.isAfter(windowStart.add(const Duration(hours: 48)));
+
+  static String _dateLabel(DateTime date) =>
+      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   static double? _energyPressure(EnergyLevel? value) => switch (value) {
     EnergyLevel.low => 80,
@@ -268,10 +429,16 @@ class WorldStatusTask {
     required this.remainingMinutes,
     required this.dueAt,
     required this.category,
+    this.id,
+    this.title = 'Untitled task',
+    this.scheduledStart,
   }) : assert(remainingMinutes >= 0);
+  final String? id;
+  final String title;
   final int remainingMinutes;
   final DateTime dueAt;
   final LoadCategory? category;
+  final DateTime? scheduledStart;
 }
 
 class WorldSocialEvent {
@@ -279,11 +446,13 @@ class WorldSocialEvent {
     required this.durationMinutes,
     required this.pressure,
     this.conflictMinutes = 0,
+    this.sourceLabel,
   }) : assert(durationMinutes > 0),
        assert(conflictMinutes >= 0 && conflictMinutes <= durationMinutes);
   final int durationMinutes;
   final SocialPressure pressure;
   final int conflictMinutes;
+  final String? sourceLabel;
 }
 
 class WorldStatusInput {
@@ -295,6 +464,7 @@ class WorldStatusInput {
     this.availableMinutes,
     this.unfinishedTasks,
     this.protectedRecoveryMinutes,
+    this.protectedRecoverySources = const [],
     this.targetRecoveryMinutes = 30,
     this.mentalEnergy,
     this.physicalEnergy,
@@ -319,6 +489,7 @@ class WorldStatusInput {
   final int? availableMinutes;
   final List<WorldStatusTask>? unfinishedTasks;
   final int? protectedRecoveryMinutes;
+  final List<String> protectedRecoverySources;
   final int targetRecoveryMinutes;
   final EnergyLevel? mentalEnergy;
   final EnergyLevel? physicalEnergy;
@@ -331,10 +502,15 @@ class WorldStatusInput {
 }
 
 class DimensionResult {
-  DimensionResult.fromRaw(double value, {this.isPartial = false, this.reason})
+  DimensionResult.fromRaw(
+    double value, {
+    this.isPartial = false,
+    this.reason,
+    this.contributions = const [],
+  })
     : score = value.round(),
       rawScore = value;
-  const DimensionResult.known(int value)
+  const DimensionResult.known(int value, {this.contributions = const []})
     : score = value,
       rawScore = value * 1.0,
       isPartial = false,
@@ -342,13 +518,49 @@ class DimensionResult {
   const DimensionResult.unknown(this.reason)
     : score = null,
       rawScore = null,
-      isPartial = false;
+      isPartial = false,
+      contributions = const [];
   final int? score;
 
   /// Kept unrounded so the total follows the versioned formula exactly.
   final double? rawScore;
   final bool isPartial;
   final String? reason;
+  final List<WorldStatusContribution> contributions;
+}
+
+class WorldStatusContribution {
+  const WorldStatusContribution({
+    required this.label,
+    required this.weight,
+    required this.score,
+    required this.points,
+    required this.evidence,
+    this.sources = const [],
+  });
+
+  final String label;
+  final double weight;
+  final double? score;
+  final double? points;
+  final String evidence;
+  final List<String> sources;
+}
+
+class _WorldStatusComponent {
+  const _WorldStatusComponent({
+    required this.label,
+    required this.weight,
+    required this.score,
+    required this.evidence,
+    this.sources = const [],
+  });
+
+  final String label;
+  final double weight;
+  final double? score;
+  final String evidence;
+  final List<String> sources;
 }
 
 class WorldStatusResult {

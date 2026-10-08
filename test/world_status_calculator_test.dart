@@ -71,6 +71,18 @@ void main() {
     expect(result.formulaVersion, 'world_status_v1');
     expect(result.label, 'High');
     expect(result.isPartial, false);
+    expect(
+      result.dimensions[WorldDimension.mental]!.contributions,
+      hasLength(4),
+    );
+    expect(
+      result.dimensions[WorldDimension.mental]!.contributions.first.points,
+      closeTo(15, 0.01),
+    );
+    expect(
+      result.dimensions[WorldDimension.social]!.contributions,
+      hasLength(2),
+    );
   });
 
   test('missing energy is partial rather than zero', () {
@@ -86,6 +98,14 @@ void main() {
     expect(result.dimensions[WorldDimension.errands]!.score, isNull);
     expect(result.totalScore, isNull);
     expect(result.label, 'Not enough data');
+  });
+
+  test('missing planned minutes are not presented as zero', () {
+    final result = calculator.calculate(fixture(planned: null));
+    final capacity = result.dimensions[WorldDimension.time]!.contributions.first;
+    expect(capacity.label, 'Capacity gap');
+    expect(capacity.evidence, contains('Planned minutes are missing'));
+    expect(capacity.evidence, isNot(contains('0 min planned')));
   });
 
   test('exercise history and opt in are both required', () {

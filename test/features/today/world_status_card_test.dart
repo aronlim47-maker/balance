@@ -37,6 +37,7 @@ void main() {
       ),
     );
 
+    expect(find.text('Workload Overview'), findsOneWidget);
     expect(find.text('World Status'), findsOneWidget);
     expect(find.text('Mental'), findsOneWidget);
     expect(find.text('Time'), findsOneWidget);
@@ -48,5 +49,9 @@ void main() {
     await tester.tap(find.text('How is this calculated?'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Enable movement tracking'), findsOneWidget);
+    await tester.tap(find.textContaining('Time ·'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Capacity gap'), findsOneWidget);
+    expect(find.textContaining('Unknown means missing information'), findsOneWidget);
   });
 }

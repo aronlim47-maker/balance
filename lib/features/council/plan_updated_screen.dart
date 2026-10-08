@@ -44,6 +44,17 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
     final movedMinutes =
         (change?.consequences['moved_minutes'] as num?)?.toInt() ??
         viewModel.confirmedOption?.movedMinutes;
+    final taskTitles =
+        (change?.consequences['task_titles'] as List?)
+            ?.whereType<String>()
+            .toList() ??
+        viewModel.confirmedOption?.allMoves
+            .map((move) => move.taskTitle)
+            .toList() ??
+        const <String>[];
+    final taskCount =
+        (change?.consequences['task_count'] as num?)?.toInt() ??
+        taskTitles.length;
     return Scaffold(
       appBar: AppBar(title: const Text('Plan updated')),
       body: SafeArea(
@@ -78,10 +89,10 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                         ? 'This plan record could not be found. Return to War Council and refresh.'
                         : 'Check the plan status before making another change.'
                   : isUndone
-                  ? 'The task placement was restored in Supabase.'
+                  ? '$taskCount task placement${taskCount == 1 ? '' : 's'} restored in Supabase.'
                   : isConfirmed
-                  ? 'The task move was saved in Supabase.'
-                  : 'No task move was applied.',
+                  ? '$taskCount task${taskCount == 1 ? '' : 's'} updated in Supabase.'
+                  : 'No task moves were applied.',
             ),
             const SizedBox(height: 22),
             if (hasKnownChange)
@@ -100,9 +111,16 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                               ? 'No move applied'
                               : movedMinutes == null
                               ? 'Task placement changed'
-                              : '$movedMinutes minutes moved',
+                              : '$movedMinutes minutes moved across $taskCount task${taskCount == 1 ? '' : 's'}',
                         ),
                       ),
+                      for (final title in taskTitles)
+                        if (taskTitles.length > 1)
+                          ListTile(
+                            dense: true,
+                            leading: const Icon(Icons.task_alt),
+                            title: Text(title),
+                          ),
                       const Divider(),
                       ListTile(
                         leading: const Icon(Icons.receipt_long_outlined),

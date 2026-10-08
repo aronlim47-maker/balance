@@ -60,6 +60,13 @@ begin
       raise exception 'FAIL: missing task version was accepted';
     exception when serialization_failure then null;
     end;
+    if exists(select 1 from public.planning_events where user_id=auth.uid()
+        and event_type in ('safe_trade_off','deadline_safety')
+        and source_record_id in (select pc.id from public.plan_changes pc
+          join public.plan_change_items pi on pi.plan_change_id=pc.id
+          where pc.user_id=auth.uid() and pi.task_id=mover)) then
+      raise exception 'FAIL: rejected preview/stale proposal created achievement evidence';
+    end if;
     if (select count(*) from public.plan_changes where user_id=auth.uid()) <> previous_changes
        or (select remaining_minutes from public.tasks where id=mover) <> 180 then
       raise exception 'FAIL: rejected proposal changed persistent planning state';
@@ -69,6 +76,16 @@ begin
       'task_id',mover,'proposed_start',base+interval '1 day 9 hours',
       'proposed_end',base+interval '1 day 11 hours','moved_minutes',120,
       'expected_task_version',reviewed_version)));
+    if not exists(select 1 from public.planning_events where user_id=auth.uid()
+        and event_type='safe_trade_off' and source_record_id=change_id)
+       or not exists(select 1 from public.planning_events where user_id=auth.uid()
+        and event_type='deadline_safety' and source_record_id=change_id)
+       or not exists(select 1 from public.user_achievements where user_id=auth.uid()
+        and achievement_key='safe_trade_off')
+       or not exists(select 1 from public.user_achievements where user_id=auth.uid()
+        and achievement_key='deadline_safety') then
+      raise exception 'FAIL: valid confirmation did not produce expected achievement evidence';
+    end if;
     if public.calculate_day_overload(auth.uid(),base::date) <> 0 then
       raise exception 'FAIL: confirm did not clear source overload';
     end if;
@@ -117,6 +134,48 @@ begin
     end if;
     base := base+interval '4 days';
   end loop;
+end $$;
+
+do $$
+declare
+  base timestamptz := '2099-03-01T00:00:00Z';
+  first_task uuid;
+  second_task uuid;
+  change_id uuid;
+  before_overload integer;
+begin
+  insert into public.availability_blocks(user_id,start_at,end_at,block_type)
+    values(auth.uid(),base+interval '1 day 9 hours',base+interval '1 day 11 hours','available');
+  insert into public.tasks(user_id,title,estimated_minutes,remaining_minutes,due_at,
+      scheduled_start,scheduled_end,load_category)
+    values(auth.uid(),'SQL combined move A',60,60,base+interval '3 days',
+      base+interval '9 hours',base+interval '10 hours','study') returning id into first_task;
+  insert into public.tasks(user_id,title,estimated_minutes,remaining_minutes,due_at,
+      scheduled_start,scheduled_end,load_category)
+    values(auth.uid(),'SQL combined move B',60,60,base+interval '3 days',
+      base+interval '10 hours',base+interval '11 hours','errand') returning id into second_task;
+  before_overload := public.calculate_day_overload(auth.uid(),base::date);
+  if before_overload <> 120 then
+    raise exception 'FAIL: combined-move fixture expected 120 minutes of source overload';
+  end if;
+  change_id := public.confirm_plan_change(jsonb_build_array(
+    jsonb_build_object('task_id',first_task,'proposed_start',base+interval '1 day 9 hours',
+      'proposed_end',base+interval '1 day 10 hours','moved_minutes',60,
+      'expected_task_version',1),
+    jsonb_build_object('task_id',second_task,'proposed_start',base+interval '1 day 10 hours',
+      'proposed_end',base+interval '1 day 11 hours','moved_minutes',60,
+      'expected_task_version',1)));
+  if (select count(*) from public.plan_change_items where plan_change_id=change_id) <> 2
+     or public.calculate_day_overload(auth.uid(),base::date) <> 0
+     or public.calculate_day_overload(auth.uid(),(base+interval '1 day')::date) <> 0 then
+    raise exception 'FAIL: atomic combined confirmation did not clear both affected days';
+  end if;
+  perform public.undo_plan_change(change_id);
+  if public.calculate_day_overload(auth.uid(),base::date) <> before_overload
+     or (select remaining_minutes from public.tasks where id=first_task) <> 60
+     or (select remaining_minutes from public.tasks where id=second_task) <> 60 then
+    raise exception 'FAIL: combined undo did not restore both original task records';
+  end if;
 end $$;
 
 do $$

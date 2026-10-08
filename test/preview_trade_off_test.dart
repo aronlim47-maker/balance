@@ -90,6 +90,97 @@ void main() {
     expect(agreement.issue, contains('Agreement'));
   });
 
+  test('combined plan previews all task moves and affected capacity', () {
+    final sourceTask = TaskItem(
+      id: 'source-a',
+      title: 'Assignment A',
+      estimatedMinutes: 60,
+      remainingMinutes: 60,
+      dueAt: DateTime(2026, 10, 7),
+      scheduledStart: DateTime(2026, 10, 5, 9),
+      scheduledEnd: DateTime(2026, 10, 5, 10),
+    );
+    final secondTask = TaskItem(
+      id: 'source-b',
+      title: 'Assignment B',
+      estimatedMinutes: 60,
+      remainingMinutes: 60,
+      dueAt: DateTime(2026, 10, 7),
+      scheduledStart: DateTime(2026, 10, 5, 10),
+      scheduledEnd: DateTime(2026, 10, 5, 11),
+    );
+    final blocks = [
+      AvailabilityBlock(
+        id: 'destination',
+        startAt: DateTime(2026, 10, 6, 9),
+        endAt: DateTime(2026, 10, 6, 11),
+        isAvailable: true,
+      ),
+    ];
+    final option = generateTradeOffs(
+      day: source,
+      tasks: [sourceTask, secondTask],
+      availability: blocks,
+      now: DateTime(2026, 10, 4),
+    ).single;
+
+    final result = previewTradeOff(
+      option: option,
+      sourceDay: source,
+      tasks: [sourceTask, secondTask],
+      availability: blocks,
+      reservations: const [],
+      recoverySlots: const [],
+    );
+
+    expect(result.canApply, isTrue);
+    expect(result.option.allMoves, hasLength(2));
+    expect(
+      result.days.singleWhere((day) => day.day == source).after.overloadMinutes,
+      0,
+    );
+    expect(
+      result.days
+          .singleWhere((day) => day.day == destination)
+          .after
+          .plannedMinutes,
+      120,
+    );
+
+    final firstMove = option.allMoves.first;
+    final secondMove = option.allMoves.last;
+    final overlappingPlan = TradeOffPlan(
+      id: 'invalid-overlap',
+      title: 'Overlapping combined plan',
+      description: 'Invalid test fixture',
+      taskId: firstMove.taskId,
+      taskTitle: '2 tasks',
+      proposedStart: firstMove.proposedStart,
+      proposedEnd: firstMove.proposedEnd,
+      movedMinutes: 120,
+      moves: [
+        firstMove,
+        TradeOffMove(
+          taskId: secondMove.taskId,
+          taskTitle: secondMove.taskTitle,
+          proposedStart: firstMove.proposedStart,
+          proposedEnd: firstMove.proposedEnd,
+          movedMinutes: 60,
+        ),
+      ],
+    );
+    final rejected = previewTradeOff(
+      option: overlappingPlan,
+      sourceDay: source,
+      tasks: [sourceTask, secondTask],
+      availability: blocks,
+      reservations: const [],
+      recoverySlots: const [],
+    );
+    expect(rejected.canApply, isFalse);
+    expect(rejected.issue, contains('proposed time'));
+  });
+
   test(
     'Invalid duration or unresolved destination overload blocks preview',
     () {
@@ -97,7 +188,7 @@ void main() {
       expect(preview(blocks: [availability.first]).canApply, isFalse);
       expect(
         preview(blocks: [availability.first]).issue,
-        contains('does not clear'),
+        contains('proposed time'),
       );
     },
   );

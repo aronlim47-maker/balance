@@ -326,19 +326,24 @@ class WarCouncilViewModel extends LifecycleNotifier {
     try {
       final change = await _planRepository!.confirm(
         moves: [
-          PlanMove(
-            taskId: option.taskId,
-            expectedTaskVersion: _tasks
-                .singleWhere((task) => task.id == option.taskId)
-                .version,
-            proposedStart: option.proposedStart,
-            proposedEnd: option.proposedEnd,
-            movedMinutes: option.movedMinutes,
-          ),
+          for (final move in option.allMoves)
+            PlanMove(
+              taskId: move.taskId,
+              expectedTaskVersion: _tasks
+                  .singleWhere((task) => task.id == move.taskId)
+                  .version,
+              proposedStart: move.proposedStart,
+              proposedEnd: move.proposedEnd,
+              movedMinutes: move.movedMinutes,
+            ),
         ],
         consequences: {
           'selected_day': selectedDay.toIso8601String(),
-          'task_title': option.taskTitle,
+          'task_title': option.allMoves.length == 1
+              ? option.allMoves.single.taskTitle
+              : '${option.allMoves.length} tasks',
+          'task_titles': option.allMoves.map((move) => move.taskTitle).toList(),
+          'task_count': option.allMoves.length,
           'moved_minutes': option.movedMinutes,
         },
       );

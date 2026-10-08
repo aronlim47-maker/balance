@@ -7,3 +7,9 @@ String requireAuthenticatedUserId(SupabaseClient client) {
   }
   return userId;
 }
+
+void ensureAuthenticatedUserUnchanged(SupabaseClient client, String expected) {
+  if (client.auth.currentUser?.id != expected) {
+    throw StateError('Account changed. Reload this view.');
+  }
+}

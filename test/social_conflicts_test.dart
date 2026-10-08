@@ -22,6 +22,7 @@ void main() {
     final result = socialLoadForWeek(monday, [event, another], [task], [], []);
     expect(result.first.durationMinutes, 120);
     expect(result.first.conflictMinutes, 90);
+    expect(result.first.sourceLabel, contains('Social event'));
   });
 
   test('does not count an event against its own linked task', () {

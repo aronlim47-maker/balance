@@ -57,22 +57,26 @@ class PlanService implements PlanRepository {
   @override
   Future<int> calculateDayOverload(DateTime day) async {
     final userId = requireAuthenticatedUserId(_client);
-    return _client.rpc<int>(
+    final result = await _client.rpc<int>(
       'calculate_day_overload',
       params: {
         'p_user_id': userId,
         'p_day': DateFormat('yyyy-MM-dd').format(day),
       },
     );
+    ensureAuthenticatedUserUnchanged(_client, userId);
+    return result;
   }
 
   @override
   Future<bool> hasWarCouncilMigration() async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     try {
       final version = await _client.rpc<int>('war_council_schema_version');
+      ensureAuthenticatedUserUnchanged(_client, userId);
       return version >= 3;
     } on PostgrestException catch (error) {
+      ensureAuthenticatedUserUnchanged(_client, userId);
       if (error.code == 'PGRST202' || error.code == '42883') return false;
       rethrow;
     }
@@ -85,7 +89,7 @@ class PlanService implements PlanRepository {
     DateTime? recoveryEnd,
     Map<String, dynamic> consequences = const <String, dynamic>{},
   }) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     if (moves.isEmpty) {
       throw ArgumentError.value(
         moves,
@@ -108,6 +112,7 @@ class PlanService implements PlanRepository {
         'p_consequences': consequences,
       },
     );
+    ensureAuthenticatedUserUnchanged(_client, userId);
     // The RPC returns an ID only after the transaction has committed.
     // Detail loading belongs to the result page and must not turn success
     // into a failed confirmation if a subsequent request loses connectivity.
@@ -121,10 +126,11 @@ class PlanService implements PlanRepository {
 
   @override
   Future<void> undo(String changeId) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     await _client.rpc<void>(
       'undo_plan_change',
       params: {'p_change_id': changeId},
     );
+    ensureAuthenticatedUserUnchanged(_client, userId);
   }
 }
