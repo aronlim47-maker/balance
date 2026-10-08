@@ -11,7 +11,10 @@ usable; later-version integrations must not bypass server authorization.
 - [x] Wide content constrained to 1100 logical pixels for readable layouts.
 - [x] Widget tests for desktop navigation and resizing back to mobile.
 - [x] 8 October regression fix: World Status title/load summary adapt to narrow
-  widths; full local Flutter suite passes 204 tests and static analysis is clean.
+  widths; the pre-merge validation passed 204 tests and static analysis.
+- [x] Refresh UX keeps existing Today/Quest/Journey data visible after a failed
+  refresh and offers an inline retry; Today, Quest and Journey have widget
+  regression tests. Loading errors are kept separate from mutation/save errors.
 
 This is part of MVP4 responsive app preparation, **not** an organization dashboard.
 Existing authentication and repository ownership rules are unchanged.
@@ -49,7 +52,7 @@ Existing authentication and repository ownership rules are unchanged.
 
 - [x] Configured Web compilation, English startup, same-site email callback policy,
   local login/account-help smoke test and candidate-build workflow prepared.
-  Flutter analysis passed; the suite now passes all 204 tests. See MVP4_WEB_RELEASE.md.
+  See MVP4_WEB_RELEASE.md for build and browser acceptance evidence.
 - [x] 8 October local configured Web release build succeeded at `build/web` with
   `.env`; this is a build artifact only, not browser/live-auth/hosting acceptance.
 - [ ] Browser acceptance for the existing personal-workload flows. The current
@@ -66,14 +69,14 @@ Existing authentication and repository ownership rules are unchanged.
 ### 8 October recheck
 
 - [x] `flutter analyze --no-pub`: no issues.
-- [x] `flutter test --no-pub`: all 204 tests pass, including the added explanation
-  assertion for a feasible Council comparison option.
+- [ ] Record the post-refresh/retry complete test count after final verification.
 - [x] `flutter build web --release --dart-define-from-file=.env`: completed to
   `build/web`; no deploy or authenticated browser test was performed.
 - [x] Android debug APK built, installed on Android 15 emulator and launched;
   process remained alive and the inspected log window contained no fatal exception.
-- [ ] SQL parser validation could not run: Python is unavailable as an executable
-  in this workspace. The database tests and live Supabase behaviors were not rerun.
+- [x] SQL parser validation passed for all 13 migrations and 5 Supabase test files
+  after master merge; this is syntax-only, not database execution.
+- [ ] Disposable-database runtime checks and live Supabase behaviors remain open.
 - [ ] iOS compile/device check unavailable on this Windows host; Android licenses
   also show as not accepted in `flutter doctor`.
 

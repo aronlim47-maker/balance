@@ -17,10 +17,10 @@
 - [x] Team Coordination remains locked pending genuine V2 collaboration evidence.
 
 These marks describe implementation, not final production sign-off. Native email
-delivery and database behavior still require the tests below. Durable offline
-sync, multi-task Council proposals and the fuller weekly visualization remain
-separate backlog items; existing Council can propose a feasible single-task move
-and otherwise explains why no feasible plan is available.
+delivery and database behavior still require the tests below. Council now supports
+bounded deterministic multi-task alternatives with an affected-day preview; it is
+not personalized prediction. Durable offline sync and fuller release evidence remain
+separate backlog items.
 
 ## Required remote and device evidence
 

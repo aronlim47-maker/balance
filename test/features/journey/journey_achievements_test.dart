@@ -2,7 +2,11 @@ import 'package:balance/data/repositories/achievement_repository.dart';
 import 'package:balance/data/repositories/local_achievement_repository.dart';
 import 'package:balance/domain/models/achievement_models.dart';
 import 'package:balance/features/journey/journey_view_model.dart';
+import 'package:balance/features/journey/journey_screen.dart';
+import 'package:balance/features/auth/auth_view_model.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   test('local preview shows seven locked achievements', () async {
@@ -36,13 +40,50 @@ void main() {
       expect(viewModel.errorMessage, isNotNull);
     },
   );
+
+  testWidgets('achievement load failure offers a working retry', (
+    tester,
+  ) async {
+    final repository = _FakeAchievementRepository()..fail = true;
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthViewModel()),
+          Provider<AchievementRepository>.value(value: repository),
+        ],
+        child: const MaterialApp(home: JourneyScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Could not load achievements. Pull to retry.'),
+      180,
+    );
+    expect(
+      find.text('Could not load achievements. Pull to retry.'),
+      findsOneWidget,
+    );
+    await tester.scrollUntilVisible(find.text('Try again'), 180);
+    expect(find.text('Try again'), findsOneWidget);
+
+    repository.fail = false;
+    await tester.tap(find.text('Try again'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Could not load achievements. Pull to retry.'),
+      findsNothing,
+    );
+    expect(repository.fetchCount, 2);
+  });
 }
 
 class _FakeAchievementRepository implements AchievementRepository {
   bool fail = false;
+  int fetchCount = 0;
 
   @override
   Future<AchievementSnapshot> fetchAchievements() async {
+    fetchCount++;
     if (fail) throw Exception('Database unavailable');
     return AchievementSnapshot(
       definitions: achievementV1Catalogue,

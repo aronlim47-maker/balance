@@ -1,5 +1,12 @@
 # 8 October Building audit (Tan Yi Ming, covering Matthew Thien)
 
+> Point-in-time audit of PR #10 before the later master integration. WS11's
+> category migration, the judge fixture, Council multi-task alternatives, and
+> inline refresh/retry UX have since been implemented. See `MVP1_ACCEPTANCE.md`,
+> `LZH_MVP2_4_DELIVERY.md`, and `20261008_CHONG_WS11_AND_JUDGE.md` for current code
+> status. Historical manual/device/database gaps remain open until newer evidence
+> records actual acceptance.
+
 Audited the `yiming/quest-sanctuary` source (PR #10 state) against the Rev7 guide
 (4 Oct) and the Building plan PDF. Rev7 wins where they differ. "Done" means code
 **and** test evidence exist; a file existing is not enough.
