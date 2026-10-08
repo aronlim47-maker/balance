@@ -121,3 +121,10 @@ Test fixture writes were rolled back. These tests do not prove two live app
 sessions, simultaneous requests, mobile email callbacks or notification delivery.
 See [acceptance checklist](docs/MVP1_ACCEPTANCE.md) and
 [repair evidence](docs/20261004_AUDIT_FIXES.md). No whole-MVP completion is implied.
+
+## Pending Chong database delivery (8 October)
+
+See [WS11 and judge fixture handoff](docs/20261008_CHONG_WS11_AND_JUDGE.md).
+Migration 202610080001 requires supported-client category rollout and disposable
+database verification before deployment. The judge fixture defaults to rollback.
+No deadline remains a design proposal, not a shipped feature.

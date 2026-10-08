@@ -18,6 +18,9 @@ for name in sys.argv[1:]:
     source = re.sub(r'^\\.*$', '', source, flags=re.M)
     source = source.replace(":'user_a'", "'00000000-0000-4000-8000-000000000001'")
     source = source.replace(":'user_b'", "'00000000-0000-4000-8000-000000000002'")
+    source = source.replace(":'judge_user'", "'00000000-0000-4000-8000-000000000003'")
+    source = source.replace(":'judge_email'", "'judge@example.invalid'")
+    source = source.replace(":'demo_date'", "'2099-01-01'")
     statements = parse_sql(source)
     # Parse statement nodes rather than regex-matching CREATE text inside
     # dynamic SQL dollar strings in a DO block.

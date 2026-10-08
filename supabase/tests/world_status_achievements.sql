@@ -38,11 +38,11 @@ begin
   perform pg_temp.assert_true((select count(*)=7 from public.achievement_definitions), 'seven definitions');
 end $$;
 
-insert into public.tasks(id,user_id,title,estimated_minutes,remaining_minutes,due_at)
-values ('00000000-0000-4000-8000-0000000000a1',current_setting('balance.test_user_a')::uuid,'Legacy A',30,30,'2099-01-01T00:00:00Z'),
-       ('00000000-0000-4000-8000-0000000000b1',current_setting('balance.test_user_b')::uuid,'Task B',30,30,'2099-01-01T00:00:00Z');
-select pg_temp.assert_true((select load_category is null from public.tasks
-  where id='00000000-0000-4000-8000-0000000000a1'), 'legacy category preserved');
+insert into public.tasks(id,user_id,title,estimated_minutes,remaining_minutes,due_at,load_category)
+values ('00000000-0000-4000-8000-0000000000a1',current_setting('balance.test_user_a')::uuid,'Task A',30,30,'2099-01-01T00:00:00Z','study'),
+       ('00000000-0000-4000-8000-0000000000b1',current_setting('balance.test_user_b')::uuid,'Task B',30,30,'2099-01-01T00:00:00Z','study');
+select pg_temp.assert_true((select load_category='study' from public.tasks
+  where id='00000000-0000-4000-8000-0000000000a1'), 'fixture category persisted; legacy upgrade covered in task_category_required.sql');
 
 insert into public.planning_events(id,user_id,source_key,event_type,occurred_at,evidence)
 values ('00000000-0000-4000-8000-0000000000e1',current_setting('balance.test_user_a')::uuid,
