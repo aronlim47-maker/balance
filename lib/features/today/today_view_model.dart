@@ -69,11 +69,14 @@ class TodayViewModel extends LifecycleNotifier {
   bool _isSavingAvailability = false;
   bool _isSavingMovement = false;
   String? _errorMessage;
+  String? _loadErrorMessage;
   String? _refreshWarning;
 
   DateTime get selectedDay => _selectedDay;
   bool get isLoading => _isLoading;
+  bool get hasLoaded => _hasLoaded;
   String? get errorMessage => _errorMessage;
+  String? get loadErrorMessage => _loadErrorMessage;
   String? get refreshWarning => _refreshWarning;
   List<TaskItem> get allTasks => List.unmodifiable(_tasks);
   List<AvailabilityBlock> get allAvailability =>
@@ -232,6 +235,7 @@ class TodayViewModel extends LifecycleNotifier {
     final loadVersion = ++_loadVersion;
     _isLoading = true;
     _errorMessage = null;
+    _loadErrorMessage = null;
     _refreshWarning = null;
     notifyListeners();
     try {
@@ -349,6 +353,7 @@ class TodayViewModel extends LifecycleNotifier {
         error,
         fallback: 'Could not load today’s plan. Please try again.',
       );
+      _loadErrorMessage = _errorMessage;
     } finally {
       if (loadVersion == _loadVersion) {
         _isLoading = false;

@@ -1,6 +1,6 @@
 # Chong 本地验收结果 — 2026-10-08
 
-> 后续实现进度见 20261008_CHONG_WS11_AND_JUDGE.md：WS11 和 judge seed 已在本地实现、待数据库实测；No deadline 仅完成设计提案。下文保留本轮实现之前的 e550f16 基线记录。
+> 后续实现已合并到 master：WS11 migration 与 judge seed 位于当前代码，但仍待独立数据库运行验收；No deadline 仅有设计提案。下文 e550f16 结果及待办为合并前基线，不代表当前代码状态。Today、Quest Board、Journey 的刷新错误现在也保留旧数据并提供重试；widget 测试已覆盖。
 
 验证版本：`e550f167039a7fdb71bcac12e4c0a01e0a6368ab`（PR #11）。
 范围：仅本地检查；未登录测试账号，未连接/修改 Supabase 数据库。
@@ -36,7 +36,7 @@ e550f16-sql-syntax.txt、e550f16-coverage.csv；仓库 coverage/lcov.info 为原
 - 真实并发和不确定网络结果：Confirm/Undo、社交请求和成就不能重复或丢失一致性。
 - 全新数据库及旧数据升级演练，与现有线上修复记录分开记录。
 - 准备仅面向评审测试账号的确定性示例数据：300 分钟计划 / 180 分钟可用、两日 Council 情景；脚本需审查，不能写入普通成员账号。
-- WS11：新增任务禁止 NULL 分类、保留旧 NULL 记录的服务端约束迁移仍是待实现项。
+- WS11：服务端迁移和回滚测试文件已实现并合并；独立数据库运行测试、受支持客户端兼容性确认和部署仍待完成。
 - No deadline：仍是跨数据库、RPC、模型、计算器和 UI 的设计决定；不能只放开 due_at 非空约束。与 Tan/Lim 确认是否延后，并披露限制。
 - 真机完整流程、日期边界、Today/Profile 分数一致性和 Journey 缺失天数行为。
 

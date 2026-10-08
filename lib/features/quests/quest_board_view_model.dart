@@ -144,12 +144,15 @@ class QuestBoardViewModel extends LifecycleNotifier {
   bool get isLoading => _isLoading;
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
+  String? _loadErrorMessage;
+  String? get loadErrorMessage => _loadErrorMessage;
 
   Future<void> loadTasks() async {
     if (isDisposed || _isSaving) return;
     final version = ++_loadVersion;
     _isLoading = true;
     _errorMessage = null;
+    _loadErrorMessage = null;
     notifyListeners();
     try {
       final tasks = await _repository.fetchTasks();
@@ -163,6 +166,7 @@ class QuestBoardViewModel extends LifecycleNotifier {
         error,
         fallback: 'Could not load tasks. Please try again.',
       );
+      _loadErrorMessage = _errorMessage;
     } finally {
       if (!isDisposed && version == _loadVersion) {
         _isLoading = false;

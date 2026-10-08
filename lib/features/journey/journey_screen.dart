@@ -72,7 +72,16 @@ class _JourneyContent extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: RpgPanel(
                   tone: RpgTone.danger,
-                  child: Text(viewModel.weekError!),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(viewModel.weekError!),
+                      TextButton(
+                        onPressed: viewModel.isLoading ? null : viewModel.load,
+                        child: const Text('Try again'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             if (viewModel.week != null) ...[
@@ -174,7 +183,16 @@ class _JourneyContent extends StatelessWidget {
               const SizedBox(height: 12),
               RpgPanel(
                 tone: RpgTone.danger,
-                child: Text(viewModel.errorMessage!),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(viewModel.errorMessage!),
+                    TextButton(
+                      onPressed: viewModel.isLoading ? null : viewModel.load,
+                      child: const Text('Try again'),
+                    ),
+                  ],
+                ),
               ),
             ],
             const SizedBox(height: 12),
@@ -410,7 +428,9 @@ class _AchievementCard extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                     fontSize: 18,
                     letterSpacing: 0.8,
-                    color: unlocked ? BalanceColors.text : BalanceColors.textMuted,
+                    color: unlocked
+                        ? BalanceColors.text
+                        : BalanceColors.textMuted,
                   ),
                 ),
                 const SizedBox(height: 2),

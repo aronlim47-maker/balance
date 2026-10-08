@@ -45,6 +45,7 @@ void main() {
       await viewModel.loadTasks();
 
       expect(viewModel.errorMessage, 'Could not load tasks. Please try again.');
+      expect(viewModel.loadErrorMessage, viewModel.errorMessage);
       expect(viewModel.isLoading, isFalse);
     });
 
@@ -164,6 +165,38 @@ void main() {
     expect(find.text('Database lab'), findsOneWidget);
   });
 
+  testWidgets('refresh failure keeps tasks visible and offers retry', (
+    tester,
+  ) async {
+    final repository = _FakeTaskRepository([_task('math', 'Math assignment')]);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthViewModel()),
+          Provider<TaskRepository>.value(value: repository),
+        ],
+        child: const MaterialApp(home: QuestBoardScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    repository.fail = true;
+    await tester.drag(find.byType(ListView).last, const Offset(0, 400));
+    await tester.pumpAndSettle();
+    expect(find.text('Math assignment'), findsOneWidget);
+    expect(
+      find.text('Could not load tasks. Please try again.'),
+      findsOneWidget,
+    );
+    expect(find.text('Try again'), findsOneWidget);
+
+    repository.fail = false;
+    await tester.tap(find.text('Try again'));
+    await tester.pumpAndSettle();
+    expect(find.text('Math assignment'), findsOneWidget);
+    expect(find.text('Could not load tasks. Please try again.'), findsNothing);
+  });
+
   testWidgets('category menu filters Quest Board cards', (tester) async {
     final repository = _FakeTaskRepository([
       TaskItem(
@@ -213,7 +246,7 @@ class _FakeTaskRepository implements TaskRepository {
     : _tasks = List.of(seed);
 
   final List<TaskItem> _tasks;
-  final bool fail;
+  bool fail;
   int _nextId = 2;
 
   @override

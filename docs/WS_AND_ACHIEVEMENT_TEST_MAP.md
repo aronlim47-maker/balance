@@ -20,9 +20,9 @@ Run one case: `flutter test --plain-name WS05`. Run all calculator cases:
 | WS06 | Errands classification | *WS06 unclassified …*, *WS06 fully classified …*, *WS06 only the chosen category …* | — |
 | WS07 | Recovery | *WS07 protecting recovery lowers …*, *WS07 marking a recovery activity done …*; `sanctuary_view_model_test.dart` (done only sets completedAt) | — |
 | WS08 | Trend, boundaries, invalid input | *WS08 trend requires three …*, *WS08 missing days are not zeros …*, *WS08 the calculator reports the trend …*, *WS08 trend input must be exactly seven …*, *WS08 exercise gap uses calendar dates …*, *WS08 the 48-hour due window …*; `calendar_week_test.dart`, `world_history_service_test.dart` (year boundary) | Multi-day trend screenshot (needs 3+ captured days) |
-| WS09 | Failure and retry | `world_status_ws_view_model_test.dart`: *WS09 a failed refresh …*; `today_view_model_test.dart` (capture failure is not save failure); `journey_achievements_test.dart` (failed refresh keeps awards) | Airplane-mode test on device; Today must show an error **with Retry** while keeping data (UI gap, see audit) |
+| WS09 | Failure and retry | `world_status_ws_view_model_test.dart`; `today_view_model_test.dart`; `today_refresh_error_test.dart`; `quest_board_test.dart`; `journey_achievements_test.dart` | Airplane-mode test on device; widget tests verify stale data plus inline retry on Today, Quest Board and Journey |
 | WS10 | RLS | `supabase/tests/world_status_achievements.sql`; `supabase/tests/achievement_eligibility.sql` (AC-ISO) | Two real signed-in accounts on two devices (Lim/Chong) |
-| WS11 | Required category | `task_category_form_test.dart` (*new task requires an explicit category*) | **Server half missing**: no migration rejects NULL category on new inserts (Chong) |
+| WS11 | Required category | `task_category_form_test.dart`; `supabase/tests/task_category_required.sql` covers omitted/NULL rejection, all categories and legacy rows | Migration `202610080001_require_task_category.sql` exists and SQL syntax passes. Runtime test on a disposable Supabase database and coordinated rollout to all supported clients remain pending. |
 | WS12 | Exercise confirmation | *WS12 completing an Exercise task alone …*; `world_status_achievements.sql` (duplicate request rejected) | Device: complete an Exercise task, cancel the prompt, Physical unchanged |
 | WS13 | Social linkage | *WS13 an unlinked Social task …*; `social_conflicts_test.dart` (*does not count an event against its own linked task*); `active_planning_and_retry.sql` (social retry) | — |
 | WS14 | Reclassification / legacy | *WS14 changing Study to Errand …*, *WS14 coverage under 60% …*, *WS06 unclassified …* | Device: reclassify a task, refresh, snapshot changes |
@@ -60,6 +60,7 @@ The user accounts must be new (the script refuses accounts that already hold awa
 
 | Date | Where | Result |
 | --- | --- | --- |
-| 8 Oct 2026 | Local PostgreSQL 16 with a minimal Supabase auth stub; all 12 migrations applied to an empty database | All 4 SQL scripts passed (`achievement_eligibility`, `active_planning_and_retry`, `verified_progress_runtime`, `world_status_achievements`). Two deliberately broken copies (wrong expected count; server early-review rule changed to allow same-day) both failed as expected. This is **not** a Supabase run and does not prove real Auth sessions. |
-| | Tan's Windows PC: `flutter test` | _fill in: total passed / failed_ |
+| 8 Oct 2026 | Local PostgreSQL 16 with a minimal Supabase auth stub; all 12 migrations applied to an empty database | All 4 SQL scripts passed (`achievement_eligibility`, `active_planning_and_retry`, `verified_progress_runtime`, `world_status_achievements`). Two deliberately broken copies failed as expected. This is **not** a Supabase run and does not prove real Auth sessions. |
+| 8 Oct 2026 | Merged `origin/master` `e89f55a`; local SQL parser | Syntax passed for all 13 migrations and 5 Supabase test scripts. Syntax is not runtime/database acceptance. |
+| 8 Oct 2026 | Tan's Windows PC: `flutter analyze --no-pub` / `flutter test --no-pub` | Analysis clean; 225 tests passed after master merge. Later inline-retry changes have focused widget-test evidence; full-suite result is recorded in the current delivery note. |
 | | Disposable Supabase (Chong) | _fill in_ |

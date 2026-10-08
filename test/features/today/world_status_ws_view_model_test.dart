@@ -14,7 +14,7 @@ void main() {
 
   test(
     'WS09 a failed refresh shows a safe error and keeps the last values',
-        () async {
+    () async {
       final tasks = _ReadFailingTasks();
       final availability = LocalAvailabilityRepository();
       await tasks.createTask(
@@ -38,6 +38,7 @@ void main() {
       await viewModel.load();
       final before = viewModel.worldStatus;
       final timeBefore = before.dimensions[WorldDimension.time]!.score;
+      expect(viewModel.hasLoaded, isTrue);
       expect(timeBefore, isNotNull);
       expect(viewModel.errorMessage, isNull);
 
@@ -45,6 +46,7 @@ void main() {
       await viewModel.load();
 
       expect(viewModel.errorMessage, isNotNull);
+      expect(viewModel.hasLoaded, isTrue);
       expect(viewModel.errorMessage, isNot(contains('Simulated')));
       expect(viewModel.tasksForDay, hasLength(1));
       expect(viewModel.plannedMinutes, 300);
@@ -61,7 +63,7 @@ void main() {
 
   test(
     'WS12 completing an Exercise task alone leaves Physical unchanged',
-        () async {
+    () async {
       final tasks = LocalTaskRepository();
       final movement = LocalMovementRepository();
       final exercise = await tasks.createTask(

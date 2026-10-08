@@ -24,7 +24,7 @@ class QuestBoardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
     create: (_) =>
-    QuestBoardViewModel(context.read<TaskRepository>())..loadTasks(),
+        QuestBoardViewModel(context.read<TaskRepository>())..loadTasks(),
     child: const _QuestBoardContent(),
   );
 }
@@ -87,9 +87,9 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
     if (viewModel.isLoading && viewModel.tasks.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (viewModel.errorMessage != null && viewModel.tasks.isEmpty) {
+    if (viewModel.loadErrorMessage != null && viewModel.tasks.isEmpty) {
       return _ErrorState(
-        message: viewModel.errorMessage!,
+        message: viewModel.loadErrorMessage!,
         onRetry: viewModel.loadTasks,
       );
     }
@@ -100,32 +100,60 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
     final visibleTasks = viewModel.visibleTasks;
     return Column(
       children: [
+        if (viewModel.loadErrorMessage != null && viewModel.tasks.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Card(
+              color: Theme.of(context).colorScheme.errorContainer,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(child: Text(viewModel.loadErrorMessage!)),
+                    TextButton(
+                      onPressed: viewModel.isLoading
+                          ? null
+                          : viewModel.loadTasks,
+                      child: const Text('Try again'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         _filters(context, viewModel),
         Expanded(
           child: RefreshIndicator(
             onRefresh: viewModel.loadTasks,
             child: visibleTasks.isEmpty
                 ? ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              children: [
-                const SizedBox(height: 80),
-                const Icon(Icons.search_off_outlined, size: 48),
-                const SizedBox(height: 12),
-                const Center(child: Text('No matching tasks')),
-                const SizedBox(height: 8),
-                Center(
-                  child: TextButton(
-                    onPressed: () => _clearFilters(viewModel),
-                    child: const Text('Clear filters'),
-                  ),
-                ),
-              ],
-            )
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      const SizedBox(height: 80),
+                      const Icon(Icons.search_off_outlined, size: 48),
+                      const SizedBox(height: 12),
+                      const Center(child: Text('No matching tasks')),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: TextButton(
+                          onPressed: () => _clearFilters(viewModel),
+                          child: const Text('Clear filters'),
+                        ),
+                      ),
+                    ],
+                  )
                 : ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-              children: _groupedTaskList(context, viewModel, visibleTasks),
-            ),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                    children: _groupedTaskList(
+                      context,
+                      viewModel,
+                      visibleTasks,
+                    ),
+                  ),
           ),
         ),
       ],
@@ -187,13 +215,13 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
               suffixIcon: viewModel.searchQuery.isEmpty
                   ? null
                   : IconButton(
-                tooltip: 'Clear search',
-                onPressed: () {
-                  _searchController.clear();
-                  viewModel.setSearchQuery('');
-                },
-                icon: const Icon(Icons.close),
-              ),
+                      tooltip: 'Clear search',
+                      onPressed: () {
+                        _searchController.clear();
+                        viewModel.setSearchQuery('');
+                      },
+                      icon: const Icon(Icons.close),
+                    ),
               isDense: true,
             ),
           ),
@@ -345,9 +373,9 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   }
 
   Future<void> _pickDateRange(
-      BuildContext context,
-      QuestBoardViewModel viewModel,
-      ) async {
+    BuildContext context,
+    QuestBoardViewModel viewModel,
+  ) async {
     final range = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2000),
@@ -384,10 +412,10 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   };
 
   Future<void> _openTaskForm(
-      BuildContext context,
-      QuestBoardViewModel viewModel, {
-        TaskItem? task,
-      }) async {
+    BuildContext context,
+    QuestBoardViewModel viewModel, {
+    TaskItem? task,
+  }) async {
     final result = await showModalBottomSheet<TaskItem>(
       context: context,
       isScrollControlled: true,
@@ -410,10 +438,10 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
     );
     final justCompletedExercise =
         saved &&
-            task != null &&
-            task.status != TaskStatus.completed &&
-            result.status == TaskStatus.completed &&
-            result.loadCategory == LoadCategory.exercise;
+        task != null &&
+        task.status != TaskStatus.completed &&
+        result.status == TaskStatus.completed &&
+        result.loadCategory == LoadCategory.exercise;
     if (justCompletedExercise && context.mounted) {
       await _offerExerciseLog(context, result);
     }
@@ -439,7 +467,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
         title: const Text('Record this exercise?'),
         content: Text(
           'You completed "${task.title}". Record when it happened and how '
-              'long it actually took? Skipping changes nothing.',
+          'long it actually took? Skipping changes nothing.',
         ),
         actions: [
           TextButton(
@@ -490,10 +518,10 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   }
 
   Future<void> _confirmDelete(
-      BuildContext context,
-      QuestBoardViewModel viewModel,
-      TaskItem task,
-      ) async {
+    BuildContext context,
+    QuestBoardViewModel viewModel,
+    TaskItem task,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
