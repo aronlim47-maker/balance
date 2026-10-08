@@ -22,6 +22,7 @@ class MovementService implements MovementRepository {
         )
         .eq('user_id', userId)
         .maybeSingle();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     if (row == null) return const MovementSettings();
     return _settings(row);
   }
@@ -42,12 +43,13 @@ class MovementService implements MovementRepository {
           'movement_tracking_enabled,movement_target_days,target_recovery_minutes,target_social_minutes_week',
         )
         .single();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return _settings(row);
   }
 
   @override
   Future<ExerciseLog?> fetchLatestExerciseBefore(DateTime endExclusive) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     final row = await _client
         .from('exercise_logs')
         .select('id,task_id,occurred_at,duration_minutes,intensity')
@@ -55,12 +57,13 @@ class MovementService implements MovementRepository {
         .order('occurred_at', ascending: false)
         .limit(1)
         .maybeSingle();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return row == null ? null : _log(row);
   }
 
   @override
   Future<List<ExerciseLog>> fetchExerciseLogsForDay(DateTime day) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     final start = DateTime(day.year, day.month, day.day);
     final end = DateTime(day.year, day.month, day.day + 1);
     final rows = await readOwnedRows(
@@ -74,6 +77,7 @@ class MovementService implements MovementRepository {
           .order('occurred_at', ascending: false)
           .order('id'),
     );
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return rows.map(_log).toList(growable: false);
   }
 
@@ -91,13 +95,14 @@ class MovementService implements MovementRepository {
 
   @override
   Future<void> deleteExerciseLog(String id) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     final deleted = await _client
         .from('exercise_logs')
         .delete()
         .eq('id', id)
         .select('id')
         .maybeSingle();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     if (deleted == null) throw StateError('Deletion not confirmed');
   }
 

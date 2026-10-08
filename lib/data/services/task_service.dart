@@ -33,12 +33,13 @@ class TaskService implements TaskRepository {
         .insert(TaskMapper.toInsert(task, userId))
         .select()
         .single();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return TaskMapper.fromJson(row);
   }
 
   @override
   Future<TaskItem> updateTask(TaskItem task) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     var clearSchedule = false;
     if (task.scheduledStart == null && task.scheduledEnd == null) {
       final current = await _client
@@ -49,6 +50,7 @@ class TaskService implements TaskRepository {
       clearSchedule =
           current['scheduled_start'] != null ||
           current['scheduled_end'] != null;
+      ensureAuthenticatedUserUnchanged(_client, userId);
     }
     final row = await _client
         .from('tasks')
@@ -57,6 +59,7 @@ class TaskService implements TaskRepository {
         .eq('version', task.version)
         .select()
         .maybeSingle();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     if (row == null) {
       throw StateError('Task edit conflict: refresh before editing again.');
     }
@@ -65,13 +68,14 @@ class TaskService implements TaskRepository {
 
   @override
   Future<void> deleteTask(String taskId) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     final deleted = await _client
         .from('tasks')
         .delete()
         .eq('id', taskId)
         .select('id')
         .maybeSingle();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     if (deleted == null) throw StateError('Deletion not confirmed');
   }
 }

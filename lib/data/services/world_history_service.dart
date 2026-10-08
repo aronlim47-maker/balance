@@ -5,9 +5,12 @@ import '../repositories/world_history_repository.dart';
 import 'authenticated_user.dart';
 import '../../domain/usecases/world_status_calculator.dart';
 
-class WorldHistoryService implements WorldHistoryRepository {
+class WorldHistoryService
+    implements WorldHistoryRepository, SnapshotCaptureStatus {
   WorldHistoryService(this.client);
   final SupabaseClient client;
+  @override
+  String? captureNotice;
 
   void _checkOwner(String user) {
     if (client.auth.currentUser?.id != user) {
@@ -32,7 +35,15 @@ class WorldHistoryService implements WorldHistoryRepository {
   @override
   Future<List<int?>> loadPreviousWeek(DateTime selectedDay) async {
     final user = requireAuthenticatedUserId(client);
-    await client.rpc('capture_world_status');
+    captureNotice = null;
+    try {
+      await client.rpc('capture_world_status');
+    } catch (_) {
+      // A failed new capture must not hide already recorded history.
+      // Never continue under a different account after an uncertain response.
+      _checkOwner(user);
+      captureNotice = 'Today’s snapshot could not update. Existing history is shown. Pull to retry.';
+    }
     _checkOwner(user);
     final dates = List.generate(
       7,

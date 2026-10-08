@@ -173,9 +173,12 @@ class TodayViewModel extends LifecycleNotifier {
                   .where((task) => task.status == TaskStatus.planned)
                   .map(
                     (task) => WorldStatusTask(
+                      id: task.id,
+                      title: task.title,
                       remainingMinutes: task.effectiveRemainingMinutes,
                       dueAt: task.dueAt.toLocal(),
                       category: task.loadCategory,
+                      scheduledStart: task.scheduledStart?.toLocal(),
                     ),
                   )
                   .toList()
@@ -183,6 +186,25 @@ class TodayViewModel extends LifecycleNotifier {
         protectedRecoveryMinutes: _recoveryRepository == null || !_hasLoaded
             ? null
             : capacity.recoveryMinutes,
+        protectedRecoverySources: _recoverySlots
+            .where((slot) {
+              final start = DateTime(day.year, day.month, day.day);
+              final end = DateTime(day.year, day.month, day.day + 1);
+              return slot.isProtected &&
+                  slot.startAt.isBefore(end) &&
+                  slot.endAt.isAfter(start);
+            })
+            .map((slot) {
+              final activity = slot.selectedActivity?.trim();
+              final date = slot.startAt.toLocal();
+              final dateLabel =
+                  '${date.year}-${date.month.toString().padLeft(2, '0')}-'
+                  '${date.day.toString().padLeft(2, '0')}';
+              return activity == null || activity.isEmpty
+                  ? 'Protected recovery · $dateLabel'
+                  : '$activity · $dateLabel';
+            })
+            .toList(growable: false),
         mentalEnergy: _checkIn?.mentalEnergyLevel,
         physicalEnergy: _checkIn?.physicalEnergyLevel,
         movementTrackingEnabled: _movementSettings.trackingEnabled,
@@ -306,7 +328,14 @@ class TodayViewModel extends LifecycleNotifier {
       if (_historyRepository != null) {
         try {
           final totals = await _historyRepository.loadPreviousWeek(loadingDay);
-          if (loadVersion == _loadVersion) _previousTotals = totals;
+          if (loadVersion == _loadVersion) {
+            _previousTotals = totals;
+            final history = _historyRepository;
+            if (history is SnapshotCaptureStatus) {
+              historyNotice ??=
+                  (history as SnapshotCaptureStatus).captureNotice;
+            }
+          }
         } catch (_) {
           if (loadVersion == _loadVersion) {
             _previousTotals = List.filled(7, null);
@@ -646,7 +675,12 @@ class TodayViewModel extends LifecycleNotifier {
     final version = _loadVersion;
     try {
       final totals = await history.loadPreviousWeek(day);
-      if (!isDisposed && version == _loadVersion) _previousTotals = totals;
+      if (!isDisposed && version == _loadVersion) {
+        _previousTotals = totals;
+        if (history is SnapshotCaptureStatus) {
+          _refreshWarning ??= (history as SnapshotCaptureStatus).captureNotice;
+        }
+      }
     } catch (_) {
       if (!isDisposed && version == _loadVersion) {
         _refreshWarning =

@@ -75,6 +75,24 @@ void main() {
     expect(fixture.plans.confirmCalls, 1);
     expect(fixture.plans.lastMoves.single.expectedTaskVersion, 1);
   });
+  test(
+    'combined plan sends every reviewed task move to the repository',
+    () async {
+      final fixture = await _Fixture.create(
+        serverOverload: 120,
+        combinedMoves: true,
+      );
+      addTearDown(fixture.dispose);
+      await fixture.viewModel.load();
+
+      expect(fixture.viewModel.options, hasLength(1));
+      expect(fixture.viewModel.selectedOption!.allMoves, hasLength(2));
+      expect(fixture.viewModel.canConfirm, isTrue);
+      expect(await fixture.viewModel.confirmSelectedPlan(), 'change-1');
+      expect(fixture.plans.lastMoves, hasLength(2));
+      expect(fixture.plans.lastConsequences['task_count'], 2);
+    },
+  );
   test('marks a matching, flexible plan feasible and confirms it', () async {
     final fixture = await _Fixture.create(serverOverload: 120);
     await fixture.viewModel.load();
@@ -242,40 +260,59 @@ class _Fixture {
     required int serverOverload,
     TaskFlexibility flexibility = TaskFlexibility.flexible,
     bool protectDueToday = false,
+    bool combinedMoves = false,
   }) async {
     final now = DateTime.now();
     final day = DateTime(now.year, now.month, now.day + 4);
     final nextDay = DateTime(day.year, day.month, day.day + 1);
     final tasks = LocalTaskRepository();
-    await tasks.createTask(
-      TaskItem(
-        id: '',
-        title: 'Flexible work',
-        estimatedMinutes: 180,
-        dueAt: DateTime(day.year, day.month, day.day + 2, 18),
-        flexibility: flexibility,
-        scheduledStart: DateTime(day.year, day.month, day.day, 9),
-        scheduledEnd: DateTime(day.year, day.month, day.day, 12),
-      ),
-    );
-    await tasks.createTask(
-      TaskItem(
-        id: '',
-        title: 'Due today',
-        estimatedMinutes: 120,
-        dueAt: DateTime(day.year, day.month, day.day, 18),
-        isProtected: protectDueToday,
-      ),
-    );
+    if (combinedMoves) {
+      for (var index = 0; index < 2; index++) {
+        final start = DateTime(day.year, day.month, day.day, 9 + index);
+        await tasks.createTask(
+          TaskItem(
+            id: '',
+            title: 'Flexible work ${index + 1}',
+            estimatedMinutes: 60,
+            dueAt: DateTime(day.year, day.month, day.day + 2, 18),
+            scheduledStart: start,
+            scheduledEnd: start.add(const Duration(hours: 1)),
+          ),
+        );
+      }
+    } else {
+      await tasks.createTask(
+        TaskItem(
+          id: '',
+          title: 'Flexible work',
+          estimatedMinutes: 180,
+          dueAt: DateTime(day.year, day.month, day.day + 2, 18),
+          flexibility: flexibility,
+          scheduledStart: DateTime(day.year, day.month, day.day, 9),
+          scheduledEnd: DateTime(day.year, day.month, day.day, 12),
+        ),
+      );
+      await tasks.createTask(
+        TaskItem(
+          id: '',
+          title: 'Due today',
+          estimatedMinutes: 120,
+          dueAt: DateTime(day.year, day.month, day.day, 18),
+          isProtected: protectDueToday,
+        ),
+      );
+    }
     final availability = LocalAvailabilityRepository();
-    await availability.createAvailability(
-      AvailabilityBlock(
-        id: '',
-        startAt: DateTime(day.year, day.month, day.day, 9),
-        endAt: DateTime(day.year, day.month, day.day, 12),
-        isAvailable: true,
-      ),
-    );
+    if (!combinedMoves) {
+      await availability.createAvailability(
+        AvailabilityBlock(
+          id: '',
+          startAt: DateTime(day.year, day.month, day.day, 9),
+          endAt: DateTime(day.year, day.month, day.day, 12),
+          isAvailable: true,
+        ),
+      );
+    }
     await availability.createAvailability(
       AvailabilityBlock(
         id: '',
@@ -307,6 +344,7 @@ class _FakePlanRepository implements PlanRepository {
   final int serverOverload;
   int confirmCalls = 0;
   List<PlanMove> lastMoves = const [];
+  Map<String, dynamic> lastConsequences = const {};
   int undoCalls = 0;
   bool failReservationReads = false;
   List<PlanChange> changeRows = const [];
@@ -335,6 +373,7 @@ class _FakePlanRepository implements PlanRepository {
   }) async {
     confirmCalls++;
     lastMoves = moves;
+    lastConsequences = consequences;
     return const PlanChange(id: 'change-1', status: PlanStatus.confirmed);
   }
 

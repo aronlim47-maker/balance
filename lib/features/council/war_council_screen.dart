@@ -164,7 +164,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     protectedSummary:
                         'Existing protected tasks and recovery stay unchanged.',
                     costSummary:
-                        '${option.movedMinutes} min added on ${DateFormat.MMMd().format(option.proposedStart.toLocal())}.',
+                        '${option.allMoves.length} task moves to new times before their deadlines.',
                     roomSummary:
                         '${option.movedMinutes} min moved from this day. Recovery time is not reserved by this suggestion.',
                     reviewSummary: option.needsAgreement

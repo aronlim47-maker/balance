@@ -25,7 +25,9 @@ and otherwise explains why no feasible plan is available.
 ## Required remote and device evidence
 
 - [ ] Apply only unapplied migrations in README order; rehearse clean install and upgrade.
-- [ ] Verify create_social_event_once and active planning occupancy against real tables.
+- [ ] Rerun the expanded active-planning, retry, achievement and isolation behavior
+  scripts on a disposable Supabase project with a test Auth account and confirm
+  they roll back.
 - [x] 4 Oct SQL-role/claims rollback test: stale/missing task versions rejected;
   Confirm/Undo, completed/cancelled occupancy release and social retry passed.
 - [x] 4 Oct two-account SQL-role/claims test: activity/award isolation, linked-task
@@ -89,6 +91,55 @@ The configured Android test APK built successfully at
 This build still uses the existing debug signing configuration and is for internal
 device testing. No iOS build or actual email delivery test was performed.
 
+7 October Matthew-ownership follow-up: expanded the rollback-only achievement
+fixtures to check positive evidence for Protected Rest, Protected Limit, Early
+Review, Reflection, Safe Trade-off and Deadline Safety; negative evidence checks
+cover an ordinary protected task without a commitment type and personal evidence
+not unlocking Team Coordination. Stale/rejected plan proposals must not create
+achievement evidence. The edited SQL scripts pass local PostgreSQL syntax and
+PL/pgSQL parsing. **The expanded database fixtures have not yet been rerun remotely**;
+keep runtime acceptance unchecked until they pass in the disposable Supabase test
+account and roll back cleanly. The test task should have no overlapping current-day
+availability or tasks because the Early Review fixture uses today's actual date.
+
+7 October build verification: Flutter analysis passed with no issues; all 204
+Flutter tests passed; the configured Android release APK built successfully at
+`build/app/outputs/flutter-apk/app-release.apk` (56.2 MB), including multi-task
+Council suggestions. Gradle emitted an SDK XML version compatibility warning on
+the earlier build but completed successfully. The APK uses the debug signing key
+and is for internal testing only; select a permanent application ID and configure
+release signing before distribution. The newly expanded remote database fixtures
+still need a clean, disposable-account rollback run.
+
+7 October emulator smoke test: `Medium_Phone` booted, the newly built APK installed
+successfully, and `com.example.balance/.MainActivity` remained foreground with a
+live process after launch; no Android fatal-exception/crash signature was found in
+the checked log window. Profile showed “Supabase mode”, loaded 21 active and 3
+completed tasks, and showed the same 58/100 Partial World Status as Today. This is
+an authenticated read/session smoke test, not a write/Confirm/Undo acceptance.
+Physical-device behavior remains unchecked. No `supabase`, `psql`, or test-database
+connection configuration is installed in this workspace, so the SQL scripts have
+not been executed remotely.
+
+7 October Supabase dashboard read-only verification: the target project returned
+Council schema version 3; the live catalog contains the current four-argument
+`confirm_plan_change`, `undo_plan_change`, retry-safe `create_social_event_once`,
+and `calculate_day_overload` functions. The live `confirm_plan_change` definition
+contains reviewed-task-version and overlapping-move checks, and the social RPC
+rejects a reused request ID with changed input. The five-dimension helper functions,
+verified-achievement evaluator, overload acknowledgement RPC, and all four
+achievement triggers are present. RLS is enabled on the ten inspected personal,
+planning, and achievement tables; inspected policies scope authenticated access to
+`auth.uid()` and keep planning events and awards read-only to the client. These are
+catalog/configuration checks only, not proof that each RPC behavior passes its test.
+The project does not expose `supabase_migrations.schema_migrations`, so the exact
+historical migration list cannot be verified from the dashboard SQL editor. The
+expanded transaction fixtures were deliberately not run against the live personal
+project: `active_planning_and_retry.sql` is documented for a disposable project,
+and `verified_progress_runtime.sql` uses today's overload state. Use a separate
+disposable Supabase project and test Auth user before marking behavioral regression
+acceptance complete.
+
 Dashboard verification on 4 October: the target project reported Healthy.
 After Lim's approval, the agent added `com.balance.app://auth-callback/` to
 Authentication Redirect URLs and verified the saved list displayed that exact
@@ -96,6 +147,30 @@ address with Total URLs 1. Site URL remains `http://localhost:3000`; mobile
 requests explicitly supply the approved callback. Real email delivery and device
 link tests remain pending. Dashboard health does not establish migration or RLS
 test success.
+
+8 October Matthew World Status explainability work: the Today card now labels the
+practical feature as **Workload Overview** and retains **World Status** as its RPG
+name. Expanding “How is this calculated?” and a dimension now shows its component
+scores, weighted contribution points, evidence summary and available source task,
+recovery or social-event records. Unknown components remain explicitly unknown;
+missing planned minutes are not described as zero. Past snapshots only store daily
+dimension totals today, so they cannot reconstruct component-level explanations.
+Focused regression assertions were added for weighted contributions, unknown values,
+source labels and the Today explanation UI. These changes were verified on 8 October:
+`flutter analyze --no-pub` reports no issues and the complete `flutter test --no-pub`
+suite passes all 204 tests. The 390-pixel responsive-navigation regression also
+passes after stacking the World Status title tag and load summary on narrow layouts.
+This is local automated evidence only; it does not replace phone/emulator or live
+Supabase acceptance.
+
+Matthew MVP2/MVP3 boundary: the app keeps Needs Agreement work out of automatic
+confirmation and requires real agreement evidence before moving another person's
+commitment. The collaboration backend and genuine multi-user/device evidence are
+not present, so that capability must remain unavailable rather than simulated.
+MVP3 currently has bounded, explainable rules-based Council alternatives; this is
+not personalized forecasting or health prediction. Evaluate recommendation quality
+on realistic calendars and close real-device and remote Confirm/Undo acceptance
+before marking those gates complete.
 
 Record the commit hash, migration list actually applied, device/OS, build command,
 test date and result. Capture failure messages without passwords, tokens or keys.

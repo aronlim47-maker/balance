@@ -13,6 +13,7 @@ class AchievementService implements AchievementRepository {
   Future<AchievementSnapshot> fetchAchievements() async {
     final userId = requireAuthenticatedUserId(_client);
     await _client.rpc('evaluate_my_achievements');
+    _checkOwner(userId);
     final definitionsFuture = _client
         .from('achievement_definitions')
         .select(
@@ -26,7 +27,9 @@ class AchievementService implements AchievementRepository {
         .eq('user_id', userId)
         .eq('rule_version', 'achievement_v1');
     final definitions = await definitionsFuture;
+    _checkOwner(userId);
     final awards = await awardsFuture;
+    _checkOwner(userId);
     return AchievementSnapshot(
       definitions: definitions
           .map(
@@ -48,5 +51,11 @@ class AchievementService implements AchievementRepository {
           )
           .toList(growable: false),
     );
+  }
+
+  void _checkOwner(String owner) {
+    if (_client.auth.currentUser?.id != owner) {
+      throw StateError('Account changed. Reload this view.');
+    }
   }
 }

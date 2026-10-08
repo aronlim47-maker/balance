@@ -72,8 +72,6 @@ class _OptionPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final option = preview.option;
-    final start = option.proposedStart.toLocal();
-    final end = option.proposedEnd.toLocal();
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -86,8 +84,24 @@ class _OptionPreview extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Move ${option.movedMinutes} min to ${DateFormat.MMMd().add_jm().format(start)}–${DateFormat.jm().format(end)}',
+              'Move ${option.movedMinutes} min across ${option.allMoves.length} task${option.allMoves.length == 1 ? '' : 's'}',
             ),
+            const SizedBox(height: 8),
+            Text(
+              preview.canApply
+                  ? 'Why this option: it fits the checked availability and clears the reviewed capacity gap.'
+                  : 'Why it cannot be confirmed: ${preview.issue ?? (option.needsAgreement ? 'This task needs agreement first.' : 'Review the affected-day capacity before confirming.')}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            for (final move in option.allMoves)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  '• ${move.taskTitle}: ${move.movedMinutes} min · '
+                  '${DateFormat.MMMd().add_jm().format(move.proposedStart.toLocal())}–'
+                  '${DateFormat.jm().format(move.proposedEnd.toLocal())}',
+                ),
+              ),
             const SizedBox(height: 12),
             for (final day in preview.days)
               Padding(
@@ -109,7 +123,7 @@ class _OptionPreview extends StatelessWidget {
                 ),
               ),
             const Text(
-              'Trade-off: the destination takes this work; your total workload and deadline do not decrease.',
+              'Trade-off: destination times take this work; total workload and deadlines do not decrease.',
             ),
             const SizedBox(height: 8),
             const Text(
@@ -136,7 +150,11 @@ class _OptionPreview extends StatelessWidget {
                   ? null
                   : () => Navigator.pop(context, option.id),
               child: Text(
-                confirmation ? 'Confirm this move' : 'Select this option',
+                confirmation
+                    ? (option.allMoves.length == 1
+                          ? 'Confirm this move'
+                          : 'Confirm these moves')
+                    : 'Select this option',
               ),
             ),
           ],

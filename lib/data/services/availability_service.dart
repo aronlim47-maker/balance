@@ -33,30 +33,33 @@ class AvailabilityService implements AvailabilityRepository {
         .insert(AvailabilityMapper.toInsert(block, userId))
         .select()
         .single();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return AvailabilityMapper.fromJson(row);
   }
 
   @override
   Future<AvailabilityBlock> updateAvailability(AvailabilityBlock block) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     final row = await _client
         .from('availability_blocks')
         .update(AvailabilityMapper.toUpdate(block))
         .eq('id', block.id)
         .select()
         .single();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return AvailabilityMapper.fromJson(row);
   }
 
   @override
   Future<void> deleteAvailability(String blockId) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     final deleted = await _client
         .from('availability_blocks')
         .delete()
         .eq('id', blockId)
         .select('id')
         .maybeSingle();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     if (deleted == null) throw StateError('Deletion not confirmed');
   }
 }

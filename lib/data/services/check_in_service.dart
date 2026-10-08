@@ -12,22 +12,24 @@ class CheckInService implements CheckInRepository {
 
   @override
   Future<List<CheckIn>> fetchCheckIns() async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     final rows = await _client
         .from('check_ins')
         .select()
         .order('check_in_date', ascending: false);
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return rows.map(CheckInMapper.fromJson).toList(growable: false);
   }
 
   @override
   Future<CheckIn?> fetchCheckIn(DateTime date) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     final row = await _client
         .from('check_ins')
         .select()
         .eq('check_in_date', CheckInMapper.dateValue(date))
         .maybeSingle();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return row == null ? null : CheckInMapper.fromJson(row);
   }
 
@@ -42,15 +44,17 @@ class CheckInService implements CheckInRepository {
         )
         .select()
         .single();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return CheckInMapper.fromJson(row);
   }
 
   @override
   Future<void> deleteCheckIn(DateTime date) async {
-    requireAuthenticatedUserId(_client);
+    final userId = requireAuthenticatedUserId(_client);
     await _client
         .from('check_ins')
         .delete()
         .eq('check_in_date', CheckInMapper.dateValue(date));
+    ensureAuthenticatedUserUnchanged(_client, userId);
   }
 }

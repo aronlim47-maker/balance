@@ -95,6 +95,18 @@ void main() {
     expect(result.formulaVersion, 'world_status_v1');
     expect(result.label, 'High');
     expect(result.isPartial, false);
+    expect(
+      result.dimensions[WorldDimension.mental]!.contributions,
+      hasLength(4),
+    );
+    expect(
+      result.dimensions[WorldDimension.mental]!.contributions.first.points,
+      closeTo(15, 0.01),
+    );
+    expect(
+      result.dimensions[WorldDimension.social]!.contributions,
+      hasLength(2),
+    );
   });
 
   test('WS01 weights total 100% and bars keep the fixed order', () {

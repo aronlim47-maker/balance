@@ -17,6 +17,7 @@ class ProfileService implements ProfileRepository {
         .select('display_name,time_zone')
         .eq('id', userId)
         .single();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return _fromJson(row);
   }
 
@@ -29,6 +30,7 @@ class ProfileService implements ProfileRepository {
         .eq('id', userId)
         .select('display_name,time_zone')
         .single();
+    ensureAuthenticatedUserUnchanged(_client, userId);
     return _fromJson(row);
   }
 

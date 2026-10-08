@@ -69,8 +69,18 @@ List<WorldSocialEvent> socialLoadForWeek(
         durationMinutes: b.difference(a).inMinutes,
         pressure: event.pressure,
         conflictMinutes: seconds ~/ 60,
+        sourceLabel: _sourceLabel(event),
       ),
     );
   }
   return result;
+}
+
+String _sourceLabel(SocialEventRecord event) {
+  final date = event.startAt.toLocal();
+  return 'Social event · ${date.year}-'
+      '${date.month.toString().padLeft(2, '0')}-'
+      '${date.day.toString().padLeft(2, '0')} '
+      '${date.hour.toString().padLeft(2, '0')}:'
+      '${date.minute.toString().padLeft(2, '0')}';
 }

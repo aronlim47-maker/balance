@@ -10,6 +10,8 @@ usable; later-version integrations must not bypass server authorization.
 - [x] Mobile bottom navigation retained below 840 logical pixels.
 - [x] Wide content constrained to 1100 logical pixels for readable layouts.
 - [x] Widget tests for desktop navigation and resizing back to mobile.
+- [x] 8 October regression fix: World Status title/load summary adapt to narrow
+  widths; full local Flutter suite passes 204 tests and static analysis is clean.
 
 This is part of MVP4 responsive app preparation, **not** an organization dashboard.
 Existing authentication and repository ownership rules are unchanged.
@@ -32,7 +34,11 @@ Existing authentication and repository ownership rules are unchanged.
 - [x] Compare existing single-task alternatives with calculated affected-day
   capacity, explicit trade-offs and a final confirmation preview. Stale-review
   and date-bound server-capacity guards implemented. See MVP3_COUNCIL_COMPARISON.md.
-- [ ] Integrate Matthew's multi-alternative recommendation contract into Council.
+- [x] Integrate Matthew's deterministic multi-task alternatives into Council;
+  candidate cards and final comparison show every move, affected-day capacity,
+  unchanged protected items, costs, and why a preview is or is not confirmable.
+- [ ] Broader quality review across realistic calendars; this is bounded rules-based
+  planning, not personalized or predictive recommendations.
 - [ ] Verify every option displays moves, unchanged protected commitments, costs and
   resulting capacity before confirmation.
 - [ ] Exercise confirmation and undo against the deployed backend; do not treat a
@@ -43,8 +49,11 @@ Existing authentication and repository ownership rules are unchanged.
 
 - [x] Configured Web compilation, English startup, same-site email callback policy,
   local login/account-help smoke test and candidate-build workflow prepared.
-  Flutter analysis passed; all 188 tests passed. See MVP4_WEB_RELEASE.md.
-- [ ] Web build and browser acceptance for the existing personal-workload flows.
+  Flutter analysis passed; the suite now passes all 204 tests. See MVP4_WEB_RELEASE.md.
+- [x] 8 October local configured Web release build succeeded at `build/web` with
+  `.env`; this is a build artifact only, not browser/live-auth/hosting acceptance.
+- [ ] Browser acceptance for the existing personal-workload flows. The current
+  workspace could not start a local static preview server or attach Chrome automation.
 - [ ] Authorized organization dashboard after Chong provides membership/role RLS.
 - [ ] Approved education/project-management integration with revocation and audit.
 - [ ] Durable owner-isolated offline synchronization with Chong's version/conflict
@@ -53,6 +62,20 @@ Existing authentication and repository ownership rules are unchanged.
 - [ ] Operations, rollback and backup/recovery exercises with Matthew and Chong.
 
 ## Completion evidence
+
+### 8 October recheck
+
+- [x] `flutter analyze --no-pub`: no issues.
+- [x] `flutter test --no-pub`: all 204 tests pass, including the added explanation
+  assertion for a feasible Council comparison option.
+- [x] `flutter build web --release --dart-define-from-file=.env`: completed to
+  `build/web`; no deploy or authenticated browser test was performed.
+- [x] Android debug APK built, installed on Android 15 emulator and launched;
+  process remained alive and the inspected log window contained no fatal exception.
+- [ ] SQL parser validation could not run: Python is unavailable as an executable
+  in this workspace. The database tests and live Supabase behaviors were not rerun.
+- [ ] iOS compile/device check unavailable on this Windows host; Android licenses
+  also show as not accepted in `flutter doctor`.
 
 ### 4 October database acceptance update
 

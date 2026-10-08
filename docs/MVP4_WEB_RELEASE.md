@@ -30,6 +30,18 @@ implemented by this increment. Browser caching is not offline synchronization.
   established by this smoke test. Responsive primary-navigation checks are widget
   tests, not an authenticated production browser acceptance result.
 
+## 8 October recheck
+
+- `flutter build web --release --dart-define-from-file=.env` completed successfully
+  to `build/web` after the current integration.
+- `flutter analyze --no-pub` reports no issues and `flutter test --no-pub` passes
+  all 204 tests.
+- Android debug APK also built and launched on the Android 15 emulator, but these
+  checks do not replace Web browser acceptance.
+- Browser smoke testing remains open: the workspace could not start a static local
+  preview server and Chrome automation was unavailable in this session. No hosting,
+  public domain, signed-in browser write or email callback was verified.
+
 ## Local browser test
 
 From the project directory, build with:
