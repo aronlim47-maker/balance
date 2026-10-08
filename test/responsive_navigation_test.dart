@@ -16,7 +16,7 @@ void main() {
     expect(find.byType(NavigationBar), findsNothing);
     await tester.tap(find.text('Quests'));
     await tester.pumpAndSettle();
-    expect(find.text('Quest Board'), findsOneWidget);
+    expect(find.text('QUEST BOARD'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

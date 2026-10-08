@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/shared_widgets/rpg_widgets.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/theme/balance_colors.dart';
+import '../../domain/enums/task_status.dart';
 import '../../domain/models/task_item.dart';
 
 class TaskCard extends StatelessWidget {
@@ -16,35 +20,82 @@ class TaskCard extends StatelessWidget {
   final VoidCallback onDelete;
 
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
+  Widget build(BuildContext context) {
+    final protectedTask = task.isProtected;
+    final done = task.status != TaskStatus.planned;
+    final minutes = task.effectiveRemainingMinutes;
+    return RpgPanel(
+      tone: protectedTask ? RpgTone.calm : RpgTone.muted,
+      padding: const EdgeInsets.fromLTRB(16, 14, 4, 14),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 3, right: 12),
+            child: protectedTask
+                ? const Icon(
+                    Icons.shield_outlined,
+                    size: 20,
+                    color: BalanceColors.calm,
+                    semanticLabel: 'Protected',
+                  )
+                : DiamondIcon(
+                    size: 16,
+                    filled: done,
+                    color: done
+                        ? BalanceColors.textFaint
+                        : BalanceColors.accentBright,
+                  ),
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   task.title,
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: TextStyle(
+                    fontFamily: AppTheme.displayFont,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18,
+                    letterSpacing: 0.8,
+                    height: 1.15,
+                    color: done ? BalanceColors.textMuted : BalanceColors.text,
+                    decoration: task.status == TaskStatus.cancelled
+                        ? TextDecoration.lineThrough
+                        : null,
+                  ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
-                  '${task.effectiveRemainingMinutes} min · '
-                      'Due ${DateFormat.yMMMd().add_jm().format(task.dueAt.toLocal())}',
+                  '$minutes min · '
+                  'Due ${DateFormat.yMMMd().add_jm().format(task.dueAt.toLocal())}',
+                  style: const TextStyle(
+                    color: BalanceColors.textMuted,
+                    fontSize: 13,
+                  ),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  [
-                    task.loadCategory?.label ?? 'Uncategorized · Needs Review',
-                    _label(task.flexibility.name),
-                    _label(task.status.name),
-                    if (task.isProtected) 'Protected',
-                    if (task.isOptional) 'Optional',
-                  ].join(' · '),
-                  style: Theme.of(context).textTheme.bodySmall,
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    if (task.isProtected)
+                      const RpgTag(
+                        'Protected',
+                        tone: RpgTone.calm,
+                        icon: Icons.shield_outlined,
+                      ),
+                    RpgTag(
+                      task.loadCategory?.label ?? 'Uncategorized · Needs Review',
+                      tone: task.loadCategory == null
+                          ? RpgTone.warning
+                          : RpgTone.accent,
+                    ),
+                    RpgTag(_label(task.flexibility.name)),
+                    if (task.status != TaskStatus.planned)
+                      RpgTag(_label(task.status.name), tone: RpgTone.muted),
+                    if (task.isOptional) const RpgTag('Optional'),
+                  ],
                 ),
               ],
             ),
@@ -62,8 +113,8 @@ class TaskCard extends StatelessWidget {
           ),
         ],
       ),
-    ),
-  );
+    );
+  }
 
   String _label(String value) => value
       .replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}')
