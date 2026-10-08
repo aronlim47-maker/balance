@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
-
-import '../../core/router/app_router.dart';
 
 import '../../core/shared_widgets/balance_scaffold.dart';
+import '../../core/shared_widgets/rpg_widgets.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/theme/balance_colors.dart';
 import '../../data/repositories/achievement_repository.dart';
 import '../../domain/models/achievement_models.dart';
 import 'journey_view_model.dart';
@@ -33,82 +33,91 @@ class _JourneyContent extends StatelessWidget {
   Widget build(BuildContext context) => Consumer<JourneyViewModel>(
     builder: (context, viewModel, _) => BalanceScaffold(
       title: 'Journey',
+      headline: 'Weekly reflection',
+      subtitle: 'A private look at the week\'s patterns.',
       currentIndex: 4,
       body: RefreshIndicator(
         onRefresh: viewModel.load,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
           children: [
-            Text(
-              'Weekly pattern',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
             Row(
               children: [
-                IconButton(
+                RpgSquareButton(
                   tooltip: 'Previous week',
                   onPressed: () => viewModel.shiftWeek(-1),
-                  icon: const Icon(Icons.chevron_left),
+                  icon: Icons.arrow_back,
                 ),
                 Expanded(
-                  child: Text(
-                    '${DateFormat.MMMd().format(viewModel.weekStart)} – '
-                    '${DateFormat.MMMd().format(viewModel.weekStart.add(const Duration(days: 6)))}',
-                    textAlign: TextAlign.center,
+                  child: Center(
+                    child: RpgLabel(
+                      '${DateFormat('EEE d MMM').format(viewModel.weekStart)} – '
+                      '${DateFormat('EEE d MMM').format(viewModel.weekStart.add(const Duration(days: 6)))}',
+                      tone: RpgTone.neutral,
+                      size: 15,
+                    ),
                   ),
                 ),
-                IconButton(
+                RpgSquareButton(
                   tooltip: 'Next week',
                   onPressed: () => viewModel.shiftWeek(1),
-                  icon: const Icon(Icons.chevron_right),
+                  icon: Icons.arrow_forward,
                 ),
               ],
             ),
-            if (viewModel.weekError != null) Text(viewModel.weekError!),
-            if (viewModel.week != null)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        viewModel.week!.recoveryRecordedDays == 0
-                            ? 'No recorded recovery history for this week.'
-                            : 'Protected recovery on ${viewModel.week!.protectedRecoveryDays} of ${viewModel.week!.recoveryRecordedDays} recorded days',
-                      ),
-                      const SizedBox(height: 8),
-                      for (var i = 0; i < 7; i++)
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                DateFormat.E().format(
-                                  viewModel.weekStart.add(Duration(days: i)),
-                                ),
-                              ),
-                            ),
-                            Text(
-                              viewModel.week!.dailyScores[i] == null
-                                  ? 'No record'
-                                  : '${viewModel.week!.dailyScores[i]}/100',
-                            ),
-                          ],
-                        ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Only days captured at the time have a score.',
-                      ),
-                    ],
-                  ),
+            const SizedBox(height: 12),
+            if (viewModel.weekError != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: RpgPanel(
+                  tone: RpgTone.danger,
+                  child: Text(viewModel.weekError!),
                 ),
               ),
-            if (viewModel.week == null && viewModel.weekError == null)
-              const Text(
-                'Connect your account to see recorded weekly patterns.',
+            if (viewModel.week != null) ...[
+              RpgPanel(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const PanelHeader('Weekly pattern'),
+                    const SizedBox(height: 2),
+                    const Text(
+                      'World Status score per day',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: BalanceColors.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    _WeekBars(
+                      weekStart: viewModel.weekStart,
+                      scores: viewModel.week!.dailyScores,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Only days captured at the time have a score.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: BalanceColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 12),
+              _RecoveryKept(week: viewModel.week!),
+            ],
+            if (viewModel.week == null && viewModel.weekError == null)
+              const RpgPanel(
+                tone: RpgTone.muted,
+                dashed: true,
+                child: Text(
+                  'Connect your account to see recorded weekly patterns.',
+                  style: TextStyle(color: BalanceColors.textMuted),
+                ),
+              ),
+            const SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: context.read<VerifiedProgressService?>() == null
                   ? null
@@ -116,30 +125,56 @@ class _JourneyContent extends StatelessWidget {
               icon: const Icon(Icons.edit_note),
               label: const Text('Add optional reflection'),
             ),
-            TextButton.icon(
-              onPressed: context.read<VerifiedProgressService?>() == null
-                  ? null
-                  : () => context.push(AppRoutes.reflectionHistory),
-              icon: const Icon(Icons.history),
-              label: const Text('View my reflections'),
+            const SizedBox(height: 28),
+            const Eyebrow('Journey milestones'),
+            const SizedBox(height: 8),
+            const RpgHeadline('Achievements', size: 26),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${viewModel.unlockedCount} of 7 unlocked',
+                    style: const TextStyle(color: BalanceColors.textMuted),
+                  ),
+                ),
+                SizedBox(
+                  width: 120,
+                  child: SegmentMeter(
+                    total: 7,
+                    filled: viewModel.unlockedCount > 7
+                        ? 7
+                        : viewModel.unlockedCount,
+                    color: BalanceColors.calmFill,
+                    height: 6,
+                    gap: 3,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              'Achievements',
-              style: Theme.of(context).textTheme.headlineSmall,
+            const SizedBox(height: 12),
+            const RpgPanel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PanelHeader('How progress works', divider: true),
+                  SizedBox(height: 10),
+                  Text(
+                    'Only verified actions unlock achievements. Rest never removes progress.',
+                    style: TextStyle(height: 1.35),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 4),
-            Text('${viewModel.unlockedCount} of 7 unlocked'),
             if (viewModel.isLoading) ...[
               const SizedBox(height: 12),
               const LinearProgressIndicator(),
             ],
             if (viewModel.errorMessage != null) ...[
               const SizedBox(height: 12),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Text(viewModel.errorMessage!),
-                ),
+              RpgPanel(
+                tone: RpgTone.danger,
+                child: Text(viewModel.errorMessage!),
               ),
             ],
             const SizedBox(height: 12),
@@ -148,13 +183,8 @@ class _JourneyContent extends StatelessWidget {
                 definition: definition,
                 award: viewModel.awardFor(definition.key),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
             ],
-            const SizedBox(height: 8),
-            Text(
-              'Only verified actions unlock achievements. Rest never removes progress.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
           ],
         ),
       ),
@@ -226,6 +256,126 @@ class _JourneyContent extends StatelessWidget {
   }
 }
 
+class _WeekBars extends StatelessWidget {
+  const _WeekBars({required this.weekStart, required this.scores});
+  final DateTime weekStart;
+  final List<int?> scores;
+
+  @override
+  Widget build(BuildContext context) {
+    const maxHeight = 96.0;
+    return SizedBox(
+      height: maxHeight + 40,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          for (var i = 0; i < 7; i++)
+            Expanded(
+              child: Builder(
+                builder: (context) {
+                  final score = i < scores.length ? scores[i] : null;
+                  final day = weekStart.add(Duration(days: i));
+                  final over = score != null && score >= 75;
+                  return Semantics(
+                    label:
+                        '${DateFormat.EEEE().format(day)}: ${score == null ? 'No record' : '$score out of 100'}',
+                    excludeSemantics: true,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          score == null ? '–' : '$score',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: BalanceColors.textMuted,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          height: score == null
+                              ? 4
+                              : ((score < 4 ? 4 : (score > 100 ? 100 : score)) /
+                                        100) *
+                                    maxHeight,
+                          color: score == null
+                              ? BalanceColors.surfaceRaised
+                              : over
+                              ? BalanceColors.dangerFill
+                              : BalanceColors.accent,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          DateFormat.E().format(day).substring(0, 1),
+                          style: TextStyle(
+                            fontFamily: AppTheme.displayFont,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                            color: over
+                                ? BalanceColors.danger
+                                : BalanceColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecoveryKept extends StatelessWidget {
+  const _RecoveryKept({required this.week});
+  final WeeklyJourney week;
+
+  @override
+  Widget build(BuildContext context) => RpgPanel(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        PanelHeader(
+          'Recovery kept',
+          tone: RpgTone.calm,
+          trailing: week.recoveryRecordedDays == 0
+              ? null
+              : RpgLabel(
+                  '${week.protectedRecoveryDays} / ${week.recoveryRecordedDays}',
+                  tone: RpgTone.neutral,
+                  size: 15,
+                ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          week.recoveryRecordedDays == 0
+              ? 'No recorded recovery history for this week.'
+              : 'Protected recovery on ${week.protectedRecoveryDays} of ${week.recoveryRecordedDays} recorded days',
+          style: const TextStyle(color: BalanceColors.textMuted),
+        ),
+        if (week.recoveryRecordedDays > 0) ...[
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 6,
+            children: [
+              for (var i = 0; i < week.recoveryRecordedDays; i++)
+                DiamondIcon(
+                  size: 14,
+                  filled: i < week.protectedRecoveryDays,
+                  color: i < week.protectedRecoveryDays
+                      ? BalanceColors.calm
+                      : BalanceColors.textFaint,
+                ),
+            ],
+          ),
+        ],
+      ],
+    ),
+  );
+}
+
 class _AchievementCard extends StatelessWidget {
   const _AchievementCard({required this.definition, required this.award});
 
@@ -233,32 +383,72 @@ class _AchievementCard extends StatelessWidget {
   final AchievementAward? award;
 
   @override
-  Widget build(BuildContext context) => Card(
-    child: ExpansionTile(
-      leading: Icon(
-        award == null ? Icons.lock_outline : Icons.verified_outlined,
-      ),
-      title: Text(definition.practicalName),
-      subtitle: Text(
-        award == null
-            ? 'Locked'
-            : 'Unlocked ${DateFormat.yMMMd().format(award!.awardedAt.toLocal())}',
-      ),
-      childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-      children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(definition.condition),
-        ),
-        const SizedBox(height: 4),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            definition.rpgName,
-            style: Theme.of(context).textTheme.bodySmall,
+  Widget build(BuildContext context) {
+    final unlocked = award != null;
+    return RpgPanel(
+      tone: RpgTone.muted,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2, right: 12),
+            child: Icon(
+              unlocked ? Icons.verified_outlined : Icons.shield_outlined,
+              size: 22,
+              color: unlocked ? BalanceColors.calm : BalanceColors.textFaint,
+              semanticLabel: unlocked ? 'Unlocked' : 'Locked',
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  definition.practicalName,
+                  style: TextStyle(
+                    fontFamily: AppTheme.displayFont,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18,
+                    letterSpacing: 0.8,
+                    color: unlocked ? BalanceColors.text : BalanceColors.textMuted,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  definition.condition,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: BalanceColors.textMuted,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SegmentMeter(
+                  total: 1,
+                  filled: unlocked ? 1 : 0,
+                  color: BalanceColors.calmFill,
+                  height: 5,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  definition.rpgName,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: BalanceColors.textFaint,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          RpgTag(
+            unlocked
+                ? 'Unlocked ${DateFormat.MMMd().format(award!.awardedAt.toLocal())}'
+                : 'Locked',
+            tone: unlocked ? RpgTone.calm : RpgTone.muted,
+          ),
+        ],
+      ),
+    );
+  }
 }

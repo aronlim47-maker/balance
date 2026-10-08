@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 
+import '../../core/shared_widgets/rpg_widgets.dart';
+import '../../core/theme/app_theme.dart';
+
 class CapacityGapCard extends StatelessWidget {
   const CapacityGapCard({super.key, required this.overloadMinutes});
   final int overloadMinutes;
+
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(20),
+  Widget build(BuildContext context) {
+    final over = overloadMinutes > 0;
+    final tone = over ? RpgTone.danger : RpgTone.calm;
+    return RpgPanel(
+      tone: tone,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            overloadMinutes > 0
-                ? Icons.warning_amber_rounded
-                : Icons.check_circle_outline,
-            color: overloadMinutes > 0
-                ? Theme.of(context).colorScheme.error
-                : Theme.of(context).colorScheme.primary,
+          Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: DiamondIcon(size: 16, color: tone.foreground),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -23,12 +26,18 @@ class CapacityGapCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  overloadMinutes > 0 ? 'Capacity gap' : 'Plan is balanced',
-                  style: Theme.of(context).textTheme.titleMedium,
+                  over ? 'Capacity gap' : 'Plan is balanced',
+                  style: TextStyle(
+                    fontFamily: AppTheme.displayFont,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    letterSpacing: 1.6,
+                    color: tone.foreground,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  overloadMinutes > 0
+                  over
                       ? '$overloadMinutes minutes must be moved, reduced or recovered.'
                       : 'Planned work fits within your available time.',
                 ),
@@ -37,6 +46,6 @@ class CapacityGapCard extends StatelessWidget {
           ),
         ],
       ),
-    ),
-  );
+    );
+  }
 }

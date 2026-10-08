@@ -4,13 +4,14 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/shared_widgets/balance_scaffold.dart';
+import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/shared_widgets/section_header.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/theme/balance_colors.dart';
 import '../../core/router/app_router.dart';
-import '../../core/state/planning_day_controller.dart';
 import '../../domain/enums/validation_status.dart';
 import 'trade_off_option_card.dart';
 import 'war_council_view_model.dart';
-import 'plan_comparison_sheet.dart';
 
 class WarCouncilScreen extends StatefulWidget {
   const WarCouncilScreen({super.key});
@@ -33,14 +34,9 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
     final viewModel = context.watch<WarCouncilViewModel>();
     return BalanceScaffold(
       title: 'War Council',
+      headline: 'Compare plans',
+      subtitle: 'Feasible options for today. Nothing changes until you confirm.',
       currentIndex: 2,
-      actions: [
-        IconButton(
-          tooltip: 'Plan history',
-          onPressed: () => context.push(AppRoutes.planHistory),
-          icon: const Icon(Icons.history),
-        ),
-      ],
       body: RefreshIndicator(
         onRefresh: viewModel.load,
         child: ListView(
@@ -61,13 +57,20 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerLeft,
-              child: Chip(
-                label: Text(switch (viewModel.validationStatus) {
+              child: RpgTag(
+                switch (viewModel.validationStatus) {
                   ValidationStatus.feasible => 'Feasible',
                   ValidationStatus.needsReview => 'Needs Review',
                   ValidationStatus.needsAgreement => 'Needs Agreement',
                   ValidationStatus.noFeasiblePlan => 'No Feasible Plan',
-                }),
+                },
+                tone: switch (viewModel.validationStatus) {
+                  ValidationStatus.feasible => RpgTone.calm,
+                  ValidationStatus.needsReview => RpgTone.warning,
+                  ValidationStatus.needsAgreement => RpgTone.warning,
+                  ValidationStatus.noFeasiblePlan => RpgTone.danger,
+                },
+                filled: true,
               ),
             ),
             if (viewModel.isLoading) ...[
@@ -76,9 +79,10 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
             ] else ...[
               if (!viewModel.isConfigured || !viewModel.migrationReady) ...[
                 const SizedBox(height: 18),
-                Card(
+                RpgPanel(
+                  tone: RpgTone.warning,
                   child: Padding(
-                    padding: const EdgeInsets.all(18),
+                    padding: const EdgeInsets.all(2),
                     child: Text(
                       viewModel.isConfigured
                           ? 'Database update needed to confirm plans.'
@@ -89,9 +93,10 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
               ],
               if (viewModel.errorMessage != null) ...[
                 const SizedBox(height: 18),
-                Card(
+                RpgPanel(
+                  tone: RpgTone.danger,
                   child: Padding(
-                    padding: const EdgeInsets.all(18),
+                    padding: const EdgeInsets.all(2),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -110,9 +115,10 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                   viewModel.validationStatus == ValidationStatus.needsReview &&
                   viewModel.errorMessage == null) ...[
                 const SizedBox(height: 12),
-                Card(
+                RpgPanel(
+                  tone: RpgTone.warning,
                   child: Padding(
-                    padding: const EdgeInsets.all(18),
+                    padding: const EdgeInsets.all(2),
                     child: Text(
                       viewModel.isCheckingCapacity
                           ? 'Checking capacity with Supabase…'
@@ -124,9 +130,10 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
               if (viewModel.validationStatus ==
                   ValidationStatus.needsAgreement) ...[
                 const SizedBox(height: 12),
-                const Card(
+                const RpgPanel(
+                  tone: RpgTone.warning,
                   child: Padding(
-                    padding: EdgeInsets.all(18),
+                    padding: EdgeInsets.all(2),
                     child: Text(
                       'Get agreement and update the task before confirming.',
                     ),
@@ -140,42 +147,14 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
-                onPressed: () {
-                  context.read<PlanningDayController>().selectDay(
-                    DateTime.now(),
-                  );
-                  context.go(AppRoutes.today);
-                },
+                onPressed: () => context.go(AppRoutes.today),
                 icon: const Icon(Icons.today_outlined),
                 label: const Text('Back to Today'),
               ),
               const SizedBox(height: 12),
               if (viewModel.options.isEmpty)
                 _NoPlanGuidance(viewModel: viewModel)
-              else ...[
-                if (viewModel.options.length > 1)
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.compare_arrows),
-                    label: const Text('Compare plans'),
-                    onPressed: viewModel.isSaving
-                        ? null
-                        : () async {
-                            final selected = await showModalBottomSheet<String>(
-                              context: context,
-                              isScrollControlled: true,
-                              useSafeArea: true,
-                              builder: (_) => PlanComparisonSheet(
-                                previews: [
-                                  for (final option in viewModel.options)
-                                    viewModel.previewFor(option),
-                                ],
-                              ),
-                            );
-                            if (selected != null && context.mounted) {
-                              viewModel.selectOption(selected);
-                            }
-                          },
-                  ),
+              else
                 for (final option in viewModel.options) ...[
                   TradeOffOptionCard(
                     title: option.title,
@@ -192,15 +171,11 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                         ? 'Get agreement before this change can be confirmed.'
                         : 'Check the proposed time and deadline before confirming.',
                     needsAgreement: option.needsAgreement,
-                    capacitySummary:
-                        viewModel.previewFor(option).issue ??
-                        'Affected-day gaps after move: 0 min',
                     isSelected: viewModel.selectedOptionId == option.id,
                     onTap: () => viewModel.selectOption(option.id),
                   ),
                   const SizedBox(height: 12),
                 ],
-              ],
               const SizedBox(height: 8),
               FilledButton.icon(
                 onPressed: viewModel.canConfirm
@@ -211,7 +186,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                         dimension: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.check_circle_outline),
+                    : const Icon(Icons.play_arrow_rounded),
                 label: Text(
                   viewModel.isSaving ? 'Saving plan…' : 'Confirm selected plan',
                 ),
@@ -227,25 +202,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
     BuildContext context,
     WarCouncilViewModel viewModel,
   ) async {
-    final option = viewModel.selectedOption;
-    if (option == null || !viewModel.canConfirm) return;
-    final revision = viewModel.reviewRevision;
-    final sourceDay = viewModel.selectedDay;
-    final accepted = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (_) => PlanComparisonSheet(
-        previews: [viewModel.previewFor(option)],
-        confirmation: true,
-      ),
-    );
-    if (accepted == null || !context.mounted) return;
-    final changeId = await viewModel.confirmSelectedPlan(
-      expectedOptionId: option.id,
-      expectedRevision: revision,
-      expectedSourceDay: sourceDay,
-    );
+    final changeId = await viewModel.confirmSelectedPlan();
     if (!context.mounted) return;
     if (changeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -269,11 +226,9 @@ class _NoPlanGuidance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (viewModel.capacity.overloadMinutes == 0) {
-      return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(18),
-          child: Text('No capacity gap today.'),
-        ),
+      return const RpgPanel(
+        tone: RpgTone.calm,
+        child: Text('No capacity gap today.'),
       );
     }
 
@@ -282,15 +237,18 @@ class _NoPlanGuidance extends StatelessWidget {
         : viewModel.hasUnscheduledFlexibleWork
         ? 'Schedule flexible work before its deadline to compare moves.'
         : 'No safe move fits before the deadlines.';
-    return Card(
+    return RpgPanel(
+      tone: RpgTone.danger,
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'No feasible plan yet',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: BalanceColors.danger,
+              ),
             ),
             const SizedBox(height: 8),
             Text(reason),
@@ -323,7 +281,7 @@ class _DaySelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      IconButton(
+      RpgSquareButton(
         tooltip: 'Previous day',
         onPressed: () => viewModel.selectDay(
           DateTime(
@@ -332,16 +290,18 @@ class _DaySelector extends StatelessWidget {
             viewModel.selectedDay.day - 1,
           ),
         ),
-        icon: const Icon(Icons.chevron_left),
+        icon: Icons.arrow_back,
       ),
       Expanded(
-        child: Text(
-          DateFormat.yMMMMEEEEd().format(viewModel.selectedDay),
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleMedium,
+        child: Center(
+          child: RpgLabel(
+            DateFormat('EEE d MMM').format(viewModel.selectedDay),
+            tone: RpgTone.neutral,
+            size: 15,
+          ),
         ),
       ),
-      IconButton(
+      RpgSquareButton(
         tooltip: 'Next day',
         onPressed: () => viewModel.selectDay(
           DateTime(
@@ -350,7 +310,7 @@ class _DaySelector extends StatelessWidget {
             viewModel.selectedDay.day + 1,
           ),
         ),
-        icon: const Icon(Icons.chevron_right),
+        icon: Icons.arrow_forward,
       ),
     ],
   );
@@ -362,50 +322,66 @@ class _CapacitySummary extends StatelessWidget {
   final WarCouncilViewModel viewModel;
 
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(20),
+  Widget build(BuildContext context) {
+    final capacity = viewModel.capacity;
+    final over = capacity.overloadMinutes > 0;
+    return RpgPanel(
+      tone: over ? RpgTone.danger : RpgTone.neutral,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          PanelHeader(
+            'Time capacity',
+            trailing: over
+                ? RpgTag(
+                    '${formatShortDuration(capacity.overloadMinutes)} over',
+                    tone: RpgTone.danger,
+                  )
+                : const RpgTag('Fits', tone: RpgTone.calm),
+          ),
+          const SizedBox(height: 14),
           Row(
             children: [
               Expanded(
                 child: _Metric(
                   label: 'Planned',
-                  value: '${viewModel.capacity.plannedMinutes} min',
-                  color: Theme.of(context).colorScheme.error,
+                  value: '${capacity.plannedMinutes} min',
+                  color: over ? BalanceColors.danger : BalanceColors.text,
                 ),
               ),
-              const Icon(Icons.arrow_forward),
+              const Icon(Icons.arrow_forward, color: BalanceColors.textFaint),
+              const SizedBox(width: 12),
               Expanded(
                 child: _Metric(
                   label: 'Available',
-                  value: '${viewModel.capacity.availableMinutes} min',
-                  color: Theme.of(context).colorScheme.primary,
+                  value: '${capacity.availableMinutes} min',
+                  color: BalanceColors.accentBright,
                 ),
               ),
             ],
           ),
-          const Divider(height: 30),
+          const SizedBox(height: 14),
+          const Divider(height: 1),
+          const SizedBox(height: 12),
           Row(
             children: [
-              Icon(
-                viewModel.capacity.overloadMinutes > 0
-                    ? Icons.warning_amber_rounded
-                    : Icons.check_circle_outline,
+              DiamondIcon(
+                size: 14,
+                filled: over,
+                color: over ? BalanceColors.danger : BalanceColors.calm,
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  '${viewModel.capacity.plannedMinutes <= viewModel.capacity.availableMinutes && viewModel.capacity.overloadMinutes > 0 ? 'Deadline gap' : 'Capacity gap'}: ${viewModel.capacity.overloadMinutes} minutes',
+                  '${capacity.plannedMinutes <= capacity.availableMinutes && capacity.overloadMinutes > 0 ? 'Deadline gap' : 'Capacity gap'}: ${capacity.overloadMinutes} minutes',
                 ),
               ),
             ],
           ),
         ],
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _ProtectedItems extends StatelessWidget {
@@ -417,39 +393,45 @@ class _ProtectedItems extends StatelessWidget {
   Widget build(BuildContext context) {
     final tasks = viewModel.protectedTasks;
     final recovery = viewModel.protectedRecoverySlots;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Protected items',
-              style: Theme.of(context).textTheme.titleMedium,
+    return RpgPanel(
+      tone: RpgTone.calm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const RpgLabel('What stays protected', tone: RpgTone.calm, size: 13),
+          const SizedBox(height: 4),
+          Text(
+            'Protected items',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          if (tasks.isEmpty && recovery.isEmpty)
+            const Text(
+              'No fixed tasks or protected recovery on this day.',
+              style: TextStyle(color: BalanceColors.textMuted),
             ),
-            const SizedBox(height: 8),
-            if (tasks.isEmpty && recovery.isEmpty)
-              const Text('No fixed tasks or protected recovery on this day.'),
-            for (final task in tasks)
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.lock_outline),
-                title: Text(task.title),
-                subtitle: Text(
-                  task.isProtected ? 'Protected task' : 'Fixed task',
-                ),
+          for (final task in tasks)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(
+                Icons.shield_outlined,
+                color: BalanceColors.calm,
               ),
-            for (final slot in recovery)
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.spa_outlined),
-                title: const Text('Protected recovery'),
-                subtitle: Text(
-                  '${DateFormat.jm().format(slot.startAt.toLocal())}–${DateFormat.jm().format(slot.endAt.toLocal())}',
-                ),
+              title: Text(task.title),
+              subtitle: Text(
+                task.isProtected ? 'Protected task' : 'Fixed task',
               ),
-          ],
-        ),
+            ),
+          for (final slot in recovery)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.eco_outlined, color: BalanceColors.calm),
+              title: const Text('Protected recovery'),
+              subtitle: Text(
+                '${DateFormat.jm().format(slot.startAt.toLocal())}–${DateFormat.jm().format(slot.endAt.toLocal())}',
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -469,12 +451,17 @@ class _Metric extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: Theme.of(context).textTheme.bodySmall),
+      RpgLabel(label, size: 12),
       const SizedBox(height: 4),
       Text(
-        value,
-        style: Theme.of(context).textTheme.headlineSmall
-            ?.copyWith(color: color, fontWeight: FontWeight.w800),
+        value.toUpperCase(),
+        style: TextStyle(
+          fontFamily: AppTheme.displayFont,
+          fontWeight: FontWeight.w700,
+          fontSize: 24,
+          letterSpacing: 0.6,
+          color: color,
+        ),
       ),
     ],
   );

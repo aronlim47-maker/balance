@@ -37,8 +37,8 @@ void main() {
       ),
     );
 
-    expect(find.text('Workload Overview'), findsOneWidget);
-    expect(find.text('World Status'), findsOneWidget);
+    expect(find.text('WORKLOAD OVERVIEW'), findsOneWidget);
+    expect(find.text('WORLD STATUS'), findsOneWidget);
     expect(find.text('Mental'), findsOneWidget);
     expect(find.text('Time'), findsOneWidget);
     expect(find.text('Physical'), findsOneWidget);

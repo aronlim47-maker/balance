@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/shared_widgets/balance_scaffold.dart';
+import '../../core/shared_widgets/rpg_widgets.dart';
+import '../../core/theme/balance_colors.dart';
 import '../../core/utils/app_error_message.dart';
 import '../../data/repositories/movement_repository.dart';
 import '../../data/repositories/task_repository.dart';
@@ -22,7 +24,7 @@ class QuestBoardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
     create: (_) =>
-        QuestBoardViewModel(context.read<TaskRepository>())..loadTasks(),
+    QuestBoardViewModel(context.read<TaskRepository>())..loadTasks(),
     child: const _QuestBoardContent(),
   );
 }
@@ -47,6 +49,11 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   Widget build(BuildContext context) => Consumer<QuestBoardViewModel>(
     builder: (context, viewModel, _) => BalanceScaffold(
       title: 'Quest Board',
+      headline: 'Quest Log',
+      subtitle: viewModel.tasks.isEmpty
+          ? 'Every commitment in one place.'
+          : '${viewModel.tasks.length} ${viewModel.tasks.length == 1 ? 'entry' : 'entries'} · '
+                '${viewModel.tasks.where((task) => task.isProtected).length} protected',
       currentIndex: 1,
       actions: [
         PopupMenuButton<QuestSort>(
@@ -62,10 +69,14 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
               ),
           ],
         ),
-        IconButton(
-          tooltip: 'Add task',
-          onPressed: () => _openTaskForm(context, viewModel),
-          icon: const Icon(Icons.add),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: RpgSquareButton(
+            tooltip: 'Add task',
+            filled: true,
+            onPressed: () => _openTaskForm(context, viewModel),
+            icon: Icons.add,
+          ),
         ),
       ],
       body: _body(context, viewModel),
@@ -90,55 +101,72 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
     return Column(
       children: [
         _filters(context, viewModel),
-        if (viewModel.errorMessage != null)
-          ListTile(
-            leading: const Icon(Icons.cloud_off_outlined),
-            title: Text(viewModel.errorMessage!),
-            trailing: TextButton(
-              onPressed: viewModel.loadTasks,
-              child: const Text('Retry'),
-            ),
-          ),
         Expanded(
           child: RefreshIndicator(
             onRefresh: viewModel.loadTasks,
             child: visibleTasks.isEmpty
                 ? ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      const SizedBox(height: 80),
-                      const Icon(Icons.search_off_outlined, size: 48),
-                      const SizedBox(height: 12),
-                      const Center(child: Text('No matching tasks')),
-                      const SizedBox(height: 8),
-                      Center(
-                        child: TextButton(
-                          onPressed: () => _clearFilters(viewModel),
-                          child: const Text('Clear filters'),
-                        ),
-                      ),
-                    ],
-                  )
-                : ListView.separated(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    itemCount: visibleTasks.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final task = visibleTasks[index];
-                      return TaskCard(
-                        task: task,
-                        onEdit: () =>
-                            _openTaskForm(context, viewModel, task: task),
-                        onDelete: () =>
-                            _confirmDelete(context, viewModel, task),
-                      );
-                    },
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                const SizedBox(height: 80),
+                const Icon(Icons.search_off_outlined, size: 48),
+                const SizedBox(height: 12),
+                const Center(child: Text('No matching tasks')),
+                const SizedBox(height: 8),
+                Center(
+                  child: TextButton(
+                    onPressed: () => _clearFilters(viewModel),
+                    child: const Text('Clear filters'),
                   ),
+                ),
+              ],
+            )
+                : ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              children: _groupedTaskList(context, viewModel, visibleTasks),
+            ),
           ),
         ),
       ],
     );
+  }
+
+  /// Shows protected tasks first as "Sacred contracts", then the rest as
+  /// "Quests". Display only: the chosen sort order is kept inside each group
+  /// and no task data changes.
+  List<Widget> _groupedTaskList(
+    BuildContext context,
+    QuestBoardViewModel viewModel,
+    List<TaskItem> tasks,
+  ) {
+    final protectedTasks = tasks.where((task) => task.isProtected).toList();
+    final otherTasks = tasks.where((task) => !task.isProtected).toList();
+    Widget card(TaskItem task) => Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TaskCard(
+        task: task,
+        onEdit: () => _openTaskForm(context, viewModel, task: task),
+        onDelete: () => _confirmDelete(context, viewModel, task),
+      ),
+    );
+    return [
+      if (protectedTasks.isNotEmpty) ...[
+        const SectionRule(
+          'Sacred contracts',
+          subtitle: 'Protected',
+          tone: RpgTone.calm,
+        ),
+        const SizedBox(height: 10),
+        ...protectedTasks.map(card),
+        const SizedBox(height: 8),
+      ],
+      if (otherTasks.isNotEmpty) ...[
+        const SectionRule('Quests'),
+        const SizedBox(height: 10),
+        ...otherTasks.map(card),
+      ],
+    ];
   }
 
   Widget _filters(BuildContext context, QuestBoardViewModel viewModel) {
@@ -159,14 +187,13 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
               suffixIcon: viewModel.searchQuery.isEmpty
                   ? null
                   : IconButton(
-                      tooltip: 'Clear search',
-                      onPressed: () {
-                        _searchController.clear();
-                        viewModel.setSearchQuery('');
-                      },
-                      icon: const Icon(Icons.close),
-                    ),
-              border: const OutlineInputBorder(),
+                tooltip: 'Clear search',
+                onPressed: () {
+                  _searchController.clear();
+                  viewModel.setSearchQuery('');
+                },
+                icon: const Icon(Icons.close),
+              ),
               isDense: true,
             ),
           ),
@@ -318,9 +345,9 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   }
 
   Future<void> _pickDateRange(
-    BuildContext context,
-    QuestBoardViewModel viewModel,
-  ) async {
+      BuildContext context,
+      QuestBoardViewModel viewModel,
+      ) async {
     final range = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2000),
@@ -357,10 +384,10 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   };
 
   Future<void> _openTaskForm(
-    BuildContext context,
-    QuestBoardViewModel viewModel, {
-    TaskItem? task,
-  }) async {
+      BuildContext context,
+      QuestBoardViewModel viewModel, {
+        TaskItem? task,
+      }) async {
     final result = await showModalBottomSheet<TaskItem>(
       context: context,
       isScrollControlled: true,
@@ -383,10 +410,10 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
     );
     final justCompletedExercise =
         saved &&
-        task != null &&
-        task.status != TaskStatus.completed &&
-        result.status == TaskStatus.completed &&
-        result.loadCategory == LoadCategory.exercise;
+            task != null &&
+            task.status != TaskStatus.completed &&
+            result.status == TaskStatus.completed &&
+            result.loadCategory == LoadCategory.exercise;
     if (justCompletedExercise && context.mounted) {
       await _offerExerciseLog(context, result);
     }
@@ -412,7 +439,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
         title: const Text('Record this exercise?'),
         content: Text(
           'You completed "${task.title}". Record when it happened and how '
-          'long it actually took? Skipping changes nothing.',
+              'long it actually took? Skipping changes nothing.',
         ),
         actions: [
           TextButton(
@@ -463,10 +490,10 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   }
 
   Future<void> _confirmDelete(
-    BuildContext context,
-    QuestBoardViewModel viewModel,
-    TaskItem task,
-  ) async {
+      BuildContext context,
+      QuestBoardViewModel viewModel,
+      TaskItem task,
+      ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -500,9 +527,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: success
-            ? Theme.of(context).colorScheme.inverseSurface
-            : Theme.of(context).colorScheme.error,
+        backgroundColor: success ? null : BalanceColors.dangerBg,
       ),
     );
   }
@@ -520,11 +545,7 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.task_alt,
-            size: 64,
-            color: Theme.of(context).colorScheme.primary,
-          ),
+          const DiamondIcon(size: 48, color: BalanceColors.accentBright),
           const SizedBox(height: 16),
           Text(
             'No tasks yet',
@@ -534,6 +555,7 @@ class _EmptyState extends StatelessWidget {
           const Text(
             'Add your first task to start comparing planned work with available time.',
             textAlign: TextAlign.center,
+            style: TextStyle(color: BalanceColors.textMuted),
           ),
           const SizedBox(height: 20),
           FilledButton.icon(

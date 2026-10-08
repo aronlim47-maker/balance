@@ -134,7 +134,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Quest Board'), findsOneWidget);
+    // The page eyebrow is shown in capitals in the RPG header.
+    expect(find.text('QUEST BOARD'), findsOneWidget);
     expect(find.text('No tasks yet'), findsOneWidget);
     expect(find.text('Create task'), findsOneWidget);
   });
