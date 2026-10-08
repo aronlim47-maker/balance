@@ -76,6 +76,9 @@ abstract final class AppErrorMessage {
       return 'This plan changed. Refresh and review it before confirming again.';
     }
     final detail = message.toLowerCase();
+    if (code == '23514' && detail == 'task category required') {
+      return 'Choose a task category before saving.';
+    }
     if (_looksLikeNetworkFailure(detail)) {
       return 'Could not connect. Check your internet connection and try again.';
     }

@@ -5,6 +5,29 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() {
   const fallback = 'Please try again.';
 
+  test('required category gives safe guidance only for its database error', () {
+    expect(
+      AppErrorMessage.from(
+        const PostgrestException(
+          message: 'Task category required',
+          code: '23514',
+        ),
+        fallback: fallback,
+      ),
+      'Choose a task category before saving.',
+    );
+    expect(
+      AppErrorMessage.from(
+        const PostgrestException(
+          message: 'private constraint details',
+          code: '23514',
+        ),
+        fallback: fallback,
+      ),
+      'Check the information you entered and try again.',
+    );
+  });
+
   test('stale plan version gives a safe refresh instruction', () {
     final message = AppErrorMessage.from(
       const PostgrestException(
