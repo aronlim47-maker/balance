@@ -217,6 +217,12 @@ void main() {
       );
       await tester.tap(find.text('Open comparison'));
       await tester.pumpAndSettle();
+      expect(
+        find.text(
+          'Why this option: it fits the checked availability and clears the reviewed capacity gap.',
+        ),
+        findsOneWidget,
+      );
       expect(find.textContaining('Planned: 120 → 60'), findsOneWidget);
       expect(find.textContaining('Nothing is saved here'), findsOneWidget);
       await tester.scrollUntilVisible(

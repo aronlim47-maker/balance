@@ -156,10 +156,12 @@ recovery or social-event records. Unknown components remain explicitly unknown;
 missing planned minutes are not described as zero. Past snapshots only store daily
 dimension totals today, so they cannot reconstruct component-level explanations.
 Focused regression assertions were added for weighted contributions, unknown values,
-source labels and the Today explanation UI. These newest changes are **not yet
-verified**: the Dart/Flutter CLI currently stalls at startup in this workspace, so
-rerun formatting, analysis and focused/full tests before treating them as passing.
-The existing 204-test result above predates these latest edits.
+source labels and the Today explanation UI. These changes were verified on 8 October:
+`flutter analyze --no-pub` reports no issues and the complete `flutter test --no-pub`
+suite passes all 204 tests. The 390-pixel responsive-navigation regression also
+passes after stacking the World Status title tag and load summary on narrow layouts.
+This is local automated evidence only; it does not replace phone/emulator or live
+Supabase acceptance.
 
 Matthew MVP2/MVP3 boundary: the app keeps Needs Agreement work out of automatic
 confirmation and requires real agreement evidence before moving another person's

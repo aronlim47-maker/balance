@@ -86,6 +86,13 @@ class _OptionPreview extends StatelessWidget {
             Text(
               'Move ${option.movedMinutes} min across ${option.allMoves.length} task${option.allMoves.length == 1 ? '' : 's'}',
             ),
+            const SizedBox(height: 8),
+            Text(
+              preview.canApply
+                  ? 'Why this option: it fits the checked availability and clears the reviewed capacity gap.'
+                  : 'Why it cannot be confirmed: ${preview.issue ?? (option.needsAgreement ? 'This task needs agreement first.' : 'Review the affected-day capacity before confirming.')}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             for (final move in option.allMoves)
               Padding(
                 padding: const EdgeInsets.only(top: 4),

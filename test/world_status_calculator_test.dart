@@ -102,10 +102,10 @@ void main() {
 
   test('missing planned minutes are not presented as zero', () {
     final result = calculator.calculate(fixture(planned: null));
-    final capacity = result.dimensions[WorldDimension.time]!.contributions.first;
-    expect(capacity.label, 'Capacity gap');
-    expect(capacity.evidence, contains('Planned minutes are missing'));
-    expect(capacity.evidence, isNot(contains('0 min planned')));
+    final time = result.dimensions[WorldDimension.time]!;
+    expect(time.score, isNull);
+    expect(time.reason, 'More recorded data is needed.');
+    expect(time.contributions, isEmpty);
   });
 
   test('exercise history and opt in are both required', () {

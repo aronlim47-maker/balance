@@ -72,8 +72,8 @@ class WorldStatusCalculator {
         evidence: taskCount == null || dueSoon == null
             ? 'Task data is unavailable.'
             : '$taskCount unfinished tasks; $dueSoon min due within 48 hours.',
-        sources: tasks
-            ?.where((task) => _isDueSoon(task, input.windowStart))
+        sources: (tasks ?? const <WorldStatusTask>[])
+            .where((task) => _isDueSoon(task, input.windowStart))
             .map((task) => task.title)
             .toList(growable: false),
       ),
@@ -84,8 +84,8 @@ class WorldStatusCalculator {
         evidence: input.plannedMinutes == null || input.availableMinutes == null
             ? 'Planned or available minutes are missing.'
             : '${input.plannedMinutes} min planned; ${input.availableMinutes} min available.',
-        sources: tasks
-            ?.where((task) => task.scheduledStart != null)
+        sources: (tasks ?? const <WorldStatusTask>[])
+            .where((task) => task.scheduledStart != null)
             .map((task) => task.title)
             .toList(growable: false),
       ),
@@ -109,8 +109,8 @@ class WorldStatusCalculator {
               evidence: input.plannedMinutes == null
                   ? 'Planned minutes are missing; ${input.availableMinutes} min available.'
                   : '${input.plannedMinutes} min planned; ${input.availableMinutes} min available.',
-              sources: tasks
-                  ?.where((task) => task.scheduledStart != null)
+              sources: (tasks ?? const <WorldStatusTask>[])
+                  .where((task) => task.scheduledStart != null)
                   .map((task) => task.title)
                   .toList(growable: false),
             ),
@@ -121,8 +121,8 @@ class WorldStatusCalculator {
               evidence: dueSoon == null
                   ? 'Task data is unavailable.'
                   : '$dueSoon min due within 48 hours.',
-              sources: tasks
-                  ?.where((task) => _isDueSoon(task, input.windowStart))
+              sources: (tasks ?? const <WorldStatusTask>[])
+                  .where((task) => _isDueSoon(task, input.windowStart))
                   .map((task) => task.title)
                   .toList(growable: false),
             ),
@@ -133,7 +133,9 @@ class WorldStatusCalculator {
               evidence: taskCount == null
                   ? 'Task data is unavailable.'
                   : '$taskCount unfinished tasks (8-task reference scale).',
-              sources: tasks?.map((task) => task.title).toList(growable: false),
+              sources: (tasks ?? const <WorldStatusTask>[])
+                  .map((task) => task.title)
+                  .toList(growable: false),
             ),
             _WorldStatusComponent(
               label: 'Protected recovery',
@@ -166,7 +168,8 @@ class WorldStatusCalculator {
                     4 *
                     100,
               ),
-              evidence: 'Target interval: every ${input.movementTargetDays} days.',
+              evidence:
+                  'Target interval: every ${input.movementTargetDays} days.',
               sources: [
                 'Latest confirmed exercise: ${_dateLabel(input.lastExerciseDate!)}',
               ],
@@ -224,7 +227,8 @@ class WorldStatusCalculator {
               weight: 1,
               score: 0,
               points: 0,
-              evidence: 'All unfinished tasks are categorised; none are Errands.',
+              evidence:
+                  'All unfinished tasks are categorised; none are Errands.',
             ),
           ],
         );
@@ -241,13 +245,16 @@ class WorldStatusCalculator {
             evidence: input.availableMinutes == null
                 ? 'Availability is missing.'
                 : '$errandMinutes min of Errand work; ${input.availableMinutes} min available.',
-            sources: errandTasks.map((task) => task.title).toList(growable: false),
+            sources: errandTasks
+                .map((task) => task.title)
+                .toList(growable: false),
           ),
           _WorldStatusComponent(
             label: 'Errands due within 48 hours',
             weight: .25,
             score: _cap(errandDueSoon / errandMinutes * 100),
-            evidence: '$errandDueSoon of $errandMinutes min due within 48 hours.',
+            evidence:
+                '$errandDueSoon of $errandMinutes min due within 48 hours.',
             sources: errandTasks
                 .where((task) => _isDueSoon(task, input.windowStart))
                 .map((task) => task.title)
@@ -257,8 +264,11 @@ class WorldStatusCalculator {
             label: 'Unfinished Errand count',
             weight: .15,
             score: _cap(errandTasks.length / 8 * 100),
-            evidence: '${errandTasks.length} unfinished Errand tasks (8-task reference scale).',
-            sources: errandTasks.map((task) => task.title).toList(growable: false),
+            evidence:
+                '${errandTasks.length} unfinished Errand tasks (8-task reference scale).',
+            sources: errandTasks
+                .map((task) => task.title)
+                .toList(growable: false),
           ),
         ], minimumKnownWeight: .6);
       }
@@ -338,7 +348,8 @@ class WorldStatusCalculator {
           weight: .70,
           score: load,
           points: load * .70,
-          evidence: '$totalMinutes min recorded; $weightedMinutes pressure-weighted minutes.',
+          evidence:
+              '$totalMinutes min recorded; $weightedMinutes pressure-weighted minutes.',
           sources: sources,
         ),
         WorldStatusContribution(
@@ -346,7 +357,8 @@ class WorldStatusCalculator {
           weight: .30,
           score: conflict,
           points: conflict * .30,
-          evidence: '$conflictMinutes of $totalMinutes event minutes overlap other commitments.',
+          evidence:
+              '$conflictMinutes of $totalMinutes event minutes overlap other commitments.',
           sources: sources,
         ),
       ],
@@ -507,9 +519,8 @@ class DimensionResult {
     this.isPartial = false,
     this.reason,
     this.contributions = const [],
-  })
-    : score = value.round(),
-      rawScore = value;
+  }) : score = value.round(),
+       rawScore = value;
   const DimensionResult.known(int value, {this.contributions = const []})
     : score = value,
       rawScore = value * 1.0,

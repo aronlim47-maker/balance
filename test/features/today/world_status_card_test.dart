@@ -49,9 +49,14 @@ void main() {
     await tester.tap(find.text('How is this calculated?'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Enable movement tracking'), findsOneWidget);
-    await tester.tap(find.textContaining('Time ·'));
+    final timeDimension = find.textContaining('Time ·');
+    await tester.ensureVisible(timeDimension);
+    await tester.tap(timeDimension);
     await tester.pumpAndSettle();
     expect(find.textContaining('Capacity gap'), findsOneWidget);
-    expect(find.textContaining('Unknown means missing information'), findsOneWidget);
+    expect(
+      find.textContaining('Unknown means missing information'),
+      findsOneWidget,
+    );
   });
 }

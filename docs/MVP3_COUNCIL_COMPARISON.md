@@ -75,6 +75,12 @@ This is a bounded heuristic—not a predictive/AI recommendation system. Its qua
 evaluation across broader calendars and priorities remains open. The new database
 achievement cases are syntax-checked but still need a rollback-only remote rerun.
 
+8 October follow-up: the comparison now states a concise reason when an option is
+feasible or cannot be confirmed, using the preview's capacity issue when present
+and explicitly naming the agreement requirement when applicable. Local analysis
+and focused comparison/Council tests pass. The broader quality-review checkbox
+below remains open until realistic-calendar review is documented.
+
 Local verification on 7 October 2026: Flutter analysis reported no issues; all
 204 tests passed, including combined generation, per-move preview, collision
 rejection and repository confirmation with two moves. The configured Android
