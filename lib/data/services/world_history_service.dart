@@ -1,0 +1,108 @@
+import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../repositories/world_history_repository.dart';
+import 'authenticated_user.dart';
+import '../../domain/usecases/world_status_calculator.dart';
+
+class WorldHistoryService
+    implements WorldHistoryRepository, SnapshotCaptureStatus {
+  WorldHistoryService(this.client);
+  final SupabaseClient client;
+  @override
+  String? captureNotice;
+
+  void _checkOwner(String user) {
+    if (client.auth.currentUser?.id != user) {
+      throw StateError('Account changed. Reload this view.');
+    }
+  }
+
+  @override
+  Future<WorldStatusResult?> loadDaySnapshot(DateTime day) async {
+    final user = requireAuthenticatedUserId(client);
+    final row = await client
+        .from('world_status_snapshots')
+        .select()
+        .eq('user_id', user)
+        .eq('formula_version', WorldStatusCalculator.formulaVersion)
+        .eq('local_date', DateFormat('yyyy-MM-dd').format(day))
+        .maybeSingle();
+    _checkOwner(user);
+    return row == null ? null : WorldStatusResult.fromSnapshot(row);
+  }
+
+  @override
+  Future<List<int?>> loadPreviousWeek(DateTime selectedDay) async {
+    final user = requireAuthenticatedUserId(client);
+    captureNotice = null;
+    try {
+      await client.rpc('capture_world_status');
+    } catch (_) {
+      // A failed new capture must not hide already recorded history.
+      // Never continue under a different account after an uncertain response.
+      _checkOwner(user);
+      captureNotice = 'Today’s snapshot could not update. Existing history is shown. Pull to retry.';
+    }
+    _checkOwner(user);
+    final dates = List.generate(
+      7,
+      (i) => DateFormat('yyyy-MM-dd').format(
+        DateTime(selectedDay.year, selectedDay.month, selectedDay.day - 7 + i),
+      ),
+    );
+    final rows = await client
+        .from('world_status_snapshots')
+        .select('local_date,total_score')
+        .eq('user_id', user)
+        .eq('formula_version', WorldStatusCalculator.formulaVersion)
+        .gte('local_date', dates.first)
+        .lte('local_date', dates.last);
+    _checkOwner(user);
+    final scores = {
+      for (final row in rows)
+        row['local_date'] as String: (row['total_score'] as num?)?.toInt(),
+    };
+    return dates.map((date) => scores[date]).toList();
+  }
+
+  @override
+  Future<WeeklyJourney> loadWeek(DateTime weekStart) async {
+    final user = requireAuthenticatedUserId(client);
+    final monday = DateTime(
+      weekStart.year,
+      weekStart.month,
+      weekStart.day - weekStart.weekday + 1,
+    );
+    final dates = List.generate(
+      7,
+      (i) =>
+          DateFormat('yyyy-MM-dd')
+              .format(DateTime(monday.year, monday.month, monday.day + i)),
+    );
+    final rows = await client
+        .from('world_status_snapshots')
+        .select('local_date,total_score,had_protected_recovery')
+        .eq('user_id', user)
+        .eq('formula_version', WorldStatusCalculator.formulaVersion)
+        .gte('local_date', dates.first)
+        .lte('local_date', dates.last);
+    _checkOwner(user);
+    final scores = {
+      for (final row in rows)
+        row['local_date'] as String: (row['total_score'] as num?)?.toInt(),
+    };
+    final protectedDays = rows
+        .where((row) => row['had_protected_recovery'] == true)
+        .length;
+    final recordedDays = rows
+        .where((row) => row['had_protected_recovery'] != null)
+        .length;
+    return WeeklyJourney(
+      weekStart: monday,
+      dailyScores: dates.map((date) => scores[date]).toList(),
+      protectedRecoveryDays: protectedDays,
+      recoveryRecordedDays: recordedDays,
+    );
+  }
+}

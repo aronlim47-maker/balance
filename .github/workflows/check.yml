@@ -1,0 +1,38 @@
+name: Balance checks
+on:
+  pull_request:
+  push:
+    branches: [master, LZH]
+permissions:
+  contents: read
+concurrency:
+  group: balance-checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.2'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test --coverage
+      - name: Line coverage of critical code (domain rules and view-models)
+        # Report-only until the first measured run on CI; then remove
+        # `continue-on-error` so a figure below 70% fails the build.
+
+        run: python3 tools/check_coverage.py --min 70
+      - name: Web compilation check (test configuration; not a deployed release)
+        run: >-
+          flutter build web --release
+          --dart-define=SUPABASE_URL=https://example.supabase.co
+          --dart-define=SUPABASE_PUBLISHABLE_KEY=sb_publishable_ci_compile_only
+      - name: SQL syntax only (not a database/RLS execution test)
+        run: |
+          python3 -m pip install --target .dart_tool/sql-audit pglast==8.4
+          python3 tools/validate_sql.py supabase/migrations/*.sql supabase/tests/*.sql
