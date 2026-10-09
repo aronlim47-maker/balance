@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/router/app_router.dart';
 import '../../core/shared_widgets/balance_scaffold.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
@@ -99,9 +101,20 @@ class _RecoveryContent extends StatelessWidget {
                         Expanded(child: Text(model.error!)),
                       ],
                     ),
-                    TextButton(
-                      onPressed: model.busy ? null : model.load,
-                      child: const Text('Try again'),
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        if (model.needsAvailability)
+                          FilledButton.icon(
+                            onPressed: () => context.go(AppRoutes.today),
+                            icon: const Icon(Icons.event_available_outlined),
+                            label: const Text('Go to Today'),
+                          ),
+                        TextButton(
+                          onPressed: model.busy ? null : model.load,
+                          child: const Text('Try again'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -486,7 +499,8 @@ class _RecoveryFormState extends State<_RecoveryForm> {
             const SizedBox(height: 6),
             const Text(
               'Must fit inside your available time without overlapping '
-              'planned work.',
+              'planned work. Add availability on Today first if this day '
+              'has none.',
               style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
             ),
             const SizedBox(height: 18),

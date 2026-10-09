@@ -14,6 +14,11 @@ class SanctuaryViewModel extends LifecycleNotifier {
   bool get busy => _loading || _mutating;
   String? error;
 
+  /// True when the last save failed because no availability covers the slot,
+  /// so the screen can offer a direct route to Today.
+  bool get needsAvailability =>
+      error == AppErrorMessage.recoveryNeedsAvailability;
+
   Future<void> load() async {
     if (isDisposed || _mutating) return;
     await _reload();
@@ -122,7 +127,8 @@ class SanctuaryViewModel extends LifecycleNotifier {
       error = AppErrorMessage.from(
         e,
         fallback:
-        'Could not save recovery time. Check availability and try again.',
+            'Could not save recovery time. Make sure it is inside your '
+            'available time on Today, then try again.',
       );
       _mutating = false;
       notifyListeners();
