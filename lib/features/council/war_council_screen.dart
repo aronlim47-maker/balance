@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -10,6 +12,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../core/router/app_router.dart';
 import '../../domain/enums/validation_status.dart';
+import 'no_plan_explanation_card.dart';
 import 'trade_off_option_card.dart';
 import 'war_council_view_model.dart';
 
@@ -162,11 +165,11 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     movedMinutes: option.movedMinutes,
                     recoveryMinutes: 0,
                     protectedSummary:
-                        'Existing protected tasks and recovery stay unchanged.',
+                    'Existing protected tasks and recovery stay unchanged.',
                     costSummary:
-                        '${option.allMoves.length} task moves to new times before their deadlines.',
+                    '${option.allMoves.length} task moves to new times before their deadlines.',
                     roomSummary:
-                        '${option.movedMinutes} min moved from this day. Recovery time is not reserved by this suggestion.',
+                    '${option.movedMinutes} min moved from this day. Recovery time is not reserved by this suggestion.',
                     reviewSummary: option.needsAgreement
                         ? 'Get agreement before this change can be confirmed.'
                         : 'Check the proposed time and deadline before confirming.',
@@ -183,9 +186,9 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     : null,
                 icon: viewModel.isSaving
                     ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
                     : const Icon(Icons.play_arrow_rounded),
                 label: Text(
                   viewModel.isSaving ? 'Saving plan…' : 'Confirm selected plan',
@@ -199,9 +202,9 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
   }
 
   Future<void> _confirm(
-    BuildContext context,
-    WarCouncilViewModel viewModel,
-  ) async {
+      BuildContext context,
+      WarCouncilViewModel viewModel,
+      ) async {
     final changeId = await viewModel.confirmSelectedPlan();
     if (!context.mounted) return;
     if (changeId == null) {
@@ -232,43 +235,10 @@ class _NoPlanGuidance extends StatelessWidget {
       );
     }
 
-    final reason = viewModel.allDayTasksProtected
-        ? 'All tasks are fixed or protected.'
-        : viewModel.hasUnscheduledFlexibleWork
-        ? 'Schedule flexible work before its deadline to compare moves.'
-        : 'No safe move fits before the deadlines.';
-    return RpgPanel(
-      tone: RpgTone.danger,
-      child: Padding(
-        padding: const EdgeInsets.all(2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'No feasible plan yet',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: BalanceColors.danger,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(reason),
-            const SizedBox(height: 12),
-            const Text(
-              'Check real availability, review flexible tasks, or ask for a deadline change.',
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              children: [
-                OutlinedButton(
-                  onPressed: () => context.go(AppRoutes.quests),
-                  child: const Text('Review tasks'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return NoPlanExplanationCard(
+      explanation: viewModel.noPlanExplanation,
+      onOpenTasks: () => context.go(AppRoutes.quests),
+      onOpenToday: () => context.go(AppRoutes.today),
     );
   }
 }
@@ -325,6 +295,16 @@ class _CapacitySummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final capacity = viewModel.capacity;
     final over = capacity.overloadMinutes > 0;
+    // Split the gap so the numbers add up for the student: work beyond all
+    // free time, plus work due before enough free time has started.
+    final extraWork = math.max(
+      0,
+      capacity.plannedMinutes - capacity.availableMinutes,
+    );
+    final dueBeforeFreeTime = math.max(
+      0,
+      capacity.overloadMinutes - extraWork,
+    );
     return RpgPanel(
       tone: over ? RpgTone.danger : RpgTone.neutral,
       child: Column(
@@ -334,9 +314,9 @@ class _CapacitySummary extends StatelessWidget {
             'Time capacity',
             trailing: over
                 ? RpgTag(
-                    '${formatShortDuration(capacity.overloadMinutes)} over',
-                    tone: RpgTone.danger,
-                  )
+              '${formatShortDuration(capacity.overloadMinutes)} over',
+              tone: RpgTone.danger,
+            )
                 : const RpgTag('Fits', tone: RpgTone.calm),
           ),
           const SizedBox(height: 14),
@@ -372,8 +352,27 @@ class _CapacitySummary extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  '${capacity.plannedMinutes <= capacity.availableMinutes && capacity.overloadMinutes > 0 ? 'Deadline gap' : 'Capacity gap'}: ${capacity.overloadMinutes} minutes',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${capacity.plannedMinutes <= capacity.availableMinutes && capacity.overloadMinutes > 0 ? 'Deadline gap' : 'Capacity gap'}: ${capacity.overloadMinutes} minutes',
+                    ),
+                    if (over && dueBeforeFreeTime > 0) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        [
+                          if (extraWork > 0)
+                            '$extraWork min more work than free time',
+                          '$dueBeforeFreeTime min due before free time starts',
+                        ].join(' · '),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: BalanceColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],
