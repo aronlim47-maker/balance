@@ -59,4 +59,59 @@ void main() {
       findsOneWidget,
     );
   });
+
+  Future<void> pumpCapacity(
+    WidgetTester tester, {
+    required int planned,
+    required int available,
+  }) async {
+    final status = const WorldStatusCalculator().calculate(
+      WorldStatusInput(
+        localDate: DateTime(2026, 10, 9),
+        windowStart: DateTime(2026, 10, 9),
+        previousSevenTotals: const [null, null, null, null, null, null, null],
+        plannedMinutes: planned,
+        availableMinutes: available,
+      ),
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: WorldStatusCard(
+              plannedMinutes: planned,
+              availableMinutes: available,
+              status: status,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  testWidgets('no time added is neutral, never a green Fits tag', (
+    tester,
+  ) async {
+    await pumpCapacity(tester, planned: 0, available: 0);
+    expect(find.text('NO TIME ADDED YET'), findsOneWidget);
+    expect(find.text('NO TIME ADDED'), findsOneWidget);
+    expect(find.text('FITS'), findsNothing);
+    expect(find.textContaining('Fits today'), findsNothing);
+  });
+
+  testWidgets('Fits appears only when time exists and nothing is over', (
+    tester,
+  ) async {
+    await pumpCapacity(tester, planned: 60, available: 180);
+    expect(find.text('FITS'), findsOneWidget);
+    expect(find.text('NO TIME ADDED'), findsNothing);
+  });
+
+  testWidgets('300 planned in 180 available shows a 2h over tag', (
+    tester,
+  ) async {
+    await pumpCapacity(tester, planned: 300, available: 180);
+    expect(find.text('FITS'), findsNothing);
+    expect(find.textContaining('Beyond capacity'), findsOneWidget);
+  });
 }

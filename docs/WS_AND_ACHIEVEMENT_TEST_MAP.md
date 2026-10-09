@@ -64,3 +64,28 @@ The user accounts must be new (the script refuses accounts that already hold awa
 | 8 Oct 2026 | Merged `origin/master` `e89f55a`; local SQL parser | Syntax passed for all 13 migrations and 5 Supabase test scripts. Syntax is not runtime/database acceptance. |
 | 8 Oct 2026 | Tan's Windows PC: `flutter analyze --no-pub` / `flutter test --no-pub` | Analysis clean; 225 tests passed after master merge. Later inline-retry changes have focused widget-test evidence; full-suite result is recorded in the current delivery note. |
 | | Disposable Supabase (Chong) | _fill in_ |
+
+## Domain contract and regression files (added 9 October)
+
+| File | Purpose | Status |
+| --- | --- | --- |
+| `lib/domain/usecases/achievement_evaluator.dart` + `test/domain/achievement_evaluator_test.dart` | Dart reference for the seven eligibility rules (positive and negative cases, once-per-type, retries). Never grants awards; the SQL stays the source of truth. | Written; **not yet run** |
+| `lib/domain/usecases/world_trend_calculator.dart`, `lib/domain/models/world_trend_models.dart` + `test/domain/world_trend_calculator_test.dart` | Rolling 7-day cumulative load, moving average and direction per dimension; Unknown days skipped and kept out of the denominator. | Written; **not yet run** |
+| `test/domain/full_scenario_test.dart` | Domain-level full journey for the 300/180 scenario: overload, compare plans, Confirm arithmetic (150 work + 30 free), recovery, achievements, Undo. | Written; **not yet run** |
+| `test/domain/validate_plan_test.dart` | The four plan statuses and their priority; overload formula. | Written; **not yet run** |
+| `test/features/today/world_status_card_test.dart` (3 new cases) | No time added shows a neutral tag, never green Fits. | Written; **not yet run** |
+| `tools/check_coverage.py` | Line coverage of critical code; checked on a synthetic lcov only. | Script tested; real figure **pending** |
+
+A row becomes Pass only after `flutter test` is run on a team PC and the result is recorded below.
+
+| Date | Where | Result |
+| --- | --- | --- |
+| | Team PC: `flutter analyze` / `flutter test --coverage` | _fill in_ |
+
+## Multi-day trend UI and formula sheet (added 9 October)
+
+| File | Covers | Status                            |
+|---|---|-----------------------------------|
+| `docs/WORLD_STATUS_FORMULA_SHEET.md` | WL02 formula sheet for the five dimensions and the trend | Written; team confirmation pending |
+| `lib/features/today/world_trend_panel.dart` | WL05 period, unit, cumulative load, data gaps on Today | Written; passed                   |
+| `test/features/today/world_trend_panel_test.dart` | 8 widget tests: no data, gaps, recorded zero, singular wording, card wiring | Written; passed                   |

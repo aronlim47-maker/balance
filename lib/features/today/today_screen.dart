@@ -131,6 +131,8 @@ class _TodayContent extends StatelessWidget {
             plannedMinutes: viewModel.plannedMinutes,
             availableMinutes: viewModel.availableMinutes,
             status: viewModel.worldStatus,
+            selectedDay: viewModel.selectedDay,
+            previousTotals: viewModel.previousTotals,
           ),
           if (viewModel.overloadMinutes > 0 &&
               viewModel.earlyReviewCandidate != null &&

@@ -128,3 +128,57 @@ See [WS11 and judge fixture handoff](docs/20261008_CHONG_WS11_AND_JUDGE.md).
 Migration 202610080001 requires supported-client category rollout and disposable
 database verification before deployment. The judge fixture defaults to rollback.
 No deadline remains a design proposal, not a shipped feature.
+
+## Architecture
+
+Balance is one Flutter/Dart codebase (Android first) with Supabase for sign-in and storage.
+Dependencies point one way:
+
+```text
+Flutter screens (lib/features/*)  ->  view-models (ChangeNotifier + Provider)
+        ->  domain rules (lib/domain: models, enums, usecases; no Flutter, no I/O)
+        ->  repository interfaces (lib/data/repositories)  ->  services/mappers  ->  Supabase
+```
+
+- `lib/domain/usecases` holds the pure rules: `DailyCapacity`, `generateTradeOffs`,
+  `validatePlan`, the five-dimension `WorldStatusCalculator` (formula `world_status_v1`),
+  `WorldTrendCalculator` (rolling 7-day load and moving average, Unknown ignored) and
+  `AchievementEvaluator` (reference eligibility rules for the seven achievements).
+- Unknown is never zero: missing data is `null` / `DataStatus.unknown`; only a recorded zero is `0`.
+- Awards and World Status snapshots are written only by trusted database functions
+  (`supabase/migrations`). `AchievementEvaluator` documents and tests the same rules in Dart
+  but never grants anything; the client cannot send an "isEligible" flag.
+
+## Testing and coverage
+
+```powershell
+flutter analyze
+flutter test                                  # all Dart tests
+flutter test test/domain                      # pure domain rules only
+flutter test --plain-name WS05                # one acceptance case
+flutter test --coverage                       # writes coverage/lcov.info
+python tools/check_coverage.py --min 70       # critical code: lib/domain + *_view_model.dart
+```
+
+`tools/check_coverage.py` prints per-file line coverage for the critical code and exits 1 when
+the combined figure is below `--min`. CI runs it report-only (`continue-on-error`) until the
+first measured figure is recorded in `docs/BUILDING_EVIDENCE_PACK.md`; then remove that flag.
+The WS01-WS14 and achievement test map is `docs/WS_AND_ACHIEVEMENT_TEST_MAP.md`.
+`test/domain/full_scenario_test.dart` is the domain-level full-journey regression
+(300 minutes proposed for a 180-minute evening). SQL scripts in `supabase/tests` need a
+disposable Supabase database and are not run by `flutter test`.
+
+## Judge guide
+
+1. Install the APK built with `flutter build apk --release --dart-define-from-file=.env`.
+2. Sign in with the dedicated judge account (alias only in Git; credentials are shared
+   out of band, never committed). Seed its sample day with
+   `supabase/manual/20261008_judge_demo.sql` after the rehearsal described in
+   `docs/20261008_CHONG_WS11_AND_JUDGE.md`.
+3. Today: 300 planned vs 180 available, a 120-minute overload, five World Status bars
+   (missing data says Unknown).
+4. Council: compare plans, Confirm a valid plan, then Undo.
+5. Sanctuary: a protected recovery slot. Journey: weekly summary and seven achievements
+   (Team Coordination stays Locked until verified shared tasks exist).
+
+Demo account: none is created by the repository. Create a fresh account, then run the seed.
