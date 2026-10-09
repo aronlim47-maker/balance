@@ -40,6 +40,15 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
       headline: 'Compare plans',
       subtitle: 'Feasible options for today. Nothing changes until you confirm.',
       currentIndex: 2,
+      actions: [
+        // Only entry to confirmed plans, so a plan can still be undone after
+        // the user leaves the plan-updated screen.
+        IconButton(
+          tooltip: 'Plan history',
+          icon: const Icon(Icons.history),
+          onPressed: () => context.push(AppRoutes.planHistory),
+        ),
+      ],
       body: RefreshIndicator(
         onRefresh: viewModel.load,
         child: ListView(

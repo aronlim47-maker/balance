@@ -1,4 +1,5 @@
 import 'package:balance/app.dart';
+import 'package:balance/features/council/plan_history_screen.dart';
 import 'package:balance/features/council/war_council_screen.dart';
 import 'package:balance/features/journey/journey_screen.dart';
 import 'package:balance/features/profile/profile_screen.dart';
@@ -71,6 +72,23 @@ void main() {
     await tester.tap(returnButton);
     await tester.pumpAndSettle();
     expect(find.byType(TodayScreen), findsOneWidget);
+  });
+
+  testWidgets('War Council opens plan history so a plan can be undone later', (
+      tester,
+      ) async {
+    await tester.pumpWidget(const BalanceApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('COUNCIL').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Plan history'));
+    await tester.pumpAndSettle();
+    expect(find.byType(PlanHistoryScreen), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(WarCouncilScreen), findsOneWidget);
   });
 }
 
