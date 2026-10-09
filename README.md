@@ -1,4 +1,69 @@
-# Balance
+# Balance — workload planning for overloaded students
+
+**Team Gate of Steiner:** Lim Ze Heng, Tan Yi Ming, Chong Zhi Xuan, Matthew Thien Yung En
+**Problem statement:** Stress & Workload Manager
+
+| | |
+| --- | --- |
+| 📱 **Download (Android APK)** | [Latest release](https://github.com/aronlim47-maker/balance/releases/latest) |
+| 📖 **User guide for judges** | [docs/USER_GUIDE.md](docs/USER_GUIDE.md) |
+| 🎬 Preliminary pitch video | [YouTube](https://www.youtube.com/watch?v=DV6PFbYdbk8) |
+| 🖼️ Preliminary slides | [Google Slides](https://docs.google.com/presentation/d/1_ctq2F96NrVD1dD9PSV1PLKwfyI83E4G-brSaejZjLE/edit?usp=sharing) |
+
+## What Balance does
+
+University students juggle assignments, exams, part-time shifts, family duties and
+group work in the same few hours. When the plan no longer fits, they need to know
+three things: **what must stay protected, what can move, and what each change will
+cost.** Balance answers those questions in one flow:
+
+**Detect → Decide → Recover → Reflect**
+
+| Practical feature | RPG label | What it does |
+| --- | --- | --- |
+| Workload Overview | World Status | Planned vs available minutes, five load dimensions (Mental, Time, Physical, Social, Errands) and a 7-day trend. Missing data shows **Unknown**, never zero. |
+| Tasks and Protected Commitments | Quest Board | Tasks with category, duration, deadline, flexibility and protection. Protected work is never moved to make a plan look feasible. |
+| Plan Comparison | War Council | Compares safe moves and shows what changes, what stays protected and the cost on other days. Nothing changes until you **Confirm**; every confirmed plan can be **Undone**. |
+| Recovery Time | Sanctuary | Protects genuinely freed time for optional rest. Skipping has no penalty. |
+| Weekly Reflection | Journey | Private weekly summary, optional reflection and seven sustainable-planning achievements. No streaks, rankings or rewards for overwork. |
+
+Balance is a planning aid. Its scores describe recorded planning data; they are not a
+medical, diagnostic or mental-health assessment.
+
+## Try it in five minutes
+
+1. Install the APK from the [latest release](https://github.com/aronlim47-maker/balance/releases/latest)
+   on an Android phone (allow installing from this source when asked).
+2. Sign in with the judge account supplied in our submission form. Credentials are
+   never stored in this repository.
+3. **Today:** the sample evening has 300 planned minutes but only 180 available — a
+   120-minute overload — and five World Status bars.
+4. **Council:** compare the options, **Confirm** one, check Today, then **Undo** it.
+5. **Sanctuary:** see the protected recovery slot. **Journey:** see the weekly summary and
+   the seven achievement cards.
+
+Step-by-step instructions with screenshots are in the [user guide](docs/USER_GUIDE.md).
+
+## Scope and known limitations
+
+- Android is the supported platform. A web build compiles but has not passed browser
+  acceptance; iOS has not been tested on a device.
+- **Team Coordination** stays Locked: shared tasks with real agreement workflows are a
+  future version.
+- Every task needs a deadline; a "No deadline" option is a design proposal only.
+- Email verification and password-reset links must be opened on the same phone that
+  requested them.
+
+## Built with
+
+Flutter and Dart (Android first) · Supabase Auth, PostgreSQL, Row Level Security and
+transactional RPCs · Provider + go_router. The [Architecture](#architecture) and
+[Testing and coverage](#testing-and-coverage) sections below give details: 341
+automated tests pass and critical code has 91.7% line coverage, enforced by CI.
+
+---
+
+# Developer documentation
 
 ## Latest Council upgrade (4 October)
 
@@ -37,7 +102,7 @@ For an Android APK, build it with the same compile-time configuration:
 flutter build apk --release --dart-define-from-file=.env
 ```
 
-This APK is currently for internal device testing only. The Android application ID is still `com.example.balance`, and the release build uses the debug signing key. Before distributing a final APK, choose the permanent application ID, configure a private release signing key, and verify a fresh install and upgrade on real devices. Keep the signing key and passwords out of Git.
+The permanent Android application ID is `com.gateofsteiner.balance`. Release signing reads `android/key.properties` (copy `android/key.properties.example`); the file and the `.jks` keystore are git-ignored and must stay out of Git. Without `key.properties` the release build falls back to the debug key and prints a warning: such an APK is for internal testing only and must not be distributed. Because the ID changed from `com.example.balance`, uninstall any earlier test build before installing; verify a fresh install on a real device before publishing.
 
 Install that newly built APK on the device. A debug app started without the `--dart-define-from-file=.env` argument runs in local preview mode even when `.env` exists on the computer. A release app without these values stops with a configuration notice instead of silently entering preview. The app now displays a persistent local-preview banner and the Profile page shows the connection mode. Tasks made in local preview are only in memory; they are not sent to Supabase and cannot be automatically recovered or synced after switching modes. Re-create those tasks after launching the configured build.
 
@@ -161,8 +226,8 @@ python tools/check_coverage.py --min 70       # critical code: lib/domain + *_vi
 ```
 
 `tools/check_coverage.py` prints per-file line coverage for the critical code and exits 1 when
-the combined figure is below `--min`. CI runs it report-only (`continue-on-error`) until the
-first measured figure is recorded in `docs/BUILDING_EVIDENCE_PACK.md`; then remove that flag.
+the combined figure is below `--min`. CI enforces the 70% minimum; the 9 October 2026 local
+run measured 91.7% (2210/2410 lines) with 341 tests passing.
 The WS01-WS14 and achievement test map is `docs/WS_AND_ACHIEVEMENT_TEST_MAP.md`.
 `test/domain/full_scenario_test.dart` is the domain-level full-journey regression
 (300 minutes proposed for a 180-minute evening). SQL scripts in `supabase/tests` need a

@@ -1,0 +1,7 @@
+# Copy to android/key.properties (git-ignored) and fill in locally.
+# Never commit key.properties or the .jks file, and never paste the passwords into chat.
+# storeFile is relative to android/app/.
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=balance
+storeFile=../balance-release.jks
