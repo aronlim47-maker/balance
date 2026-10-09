@@ -4,6 +4,7 @@ import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../domain/usecases/world_status_calculator.dart';
+import 'world_trend_panel.dart';
 
 class WorldStatusCard extends StatelessWidget {
   const WorldStatusCard({
@@ -11,11 +12,18 @@ class WorldStatusCard extends StatelessWidget {
     required this.plannedMinutes,
     required this.availableMinutes,
     required this.status,
+    this.selectedDay,
+    this.previousTotals,
   });
 
   final int plannedMinutes;
   final int availableMinutes;
   final WorldStatusResult status;
+
+  /// When both are given, the 7-day cumulative trend panel is shown below the
+  /// five dimensions (oldest-first totals for the seven dates before the day).
+  final DateTime? selectedDay;
+  final List<int?>? previousTotals;
 
   @override
   Widget build(BuildContext context) {
@@ -178,6 +186,15 @@ class WorldStatusCard extends StatelessWidget {
             ],
           ),
         ),
+        if (selectedDay != null && previousTotals != null) ...[
+          const SizedBox(height: 12),
+          WorldTrendPanel(
+            selectedDay: selectedDay!,
+            previousTotals: previousTotals!,
+            todayTotal: status.totalScore,
+            todayIsPartial: status.isPartial,
+          ),
+        ],
       ],
     );
   }
@@ -289,6 +306,8 @@ class _CapacityPanel extends StatelessWidget {
                     '${formatShortDuration(over)} over',
                     tone: RpgTone.danger,
                   )
+                : availableMinutes == 0
+                ? const RpgTag('No time added', tone: RpgTone.muted)
                 : const RpgTag('Fits', tone: RpgTone.calm),
           ),
           const SizedBox(height: 12),
@@ -345,10 +364,11 @@ class _CapacityPanel extends StatelessWidget {
             spacing: 16,
             runSpacing: 4,
             children: [
-              _Legend(
-                color: BalanceColors.accent,
-                text: 'Fits today · ${formatShortDuration(fits)}',
-              ),
+              if (availableMinutes > 0)
+                _Legend(
+                  color: BalanceColors.accent,
+                  text: 'Fits today · ${formatShortDuration(fits)}',
+                ),
               if (over > 0)
                 _Legend(
                   color: BalanceColors.dangerFill,

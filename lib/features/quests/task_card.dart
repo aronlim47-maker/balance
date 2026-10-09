@@ -13,19 +13,46 @@ class TaskCard extends StatelessWidget {
     required this.task,
     required this.onEdit,
     required this.onDelete,
+    this.onStatusChange,
+    this.isOverdue = false,
   });
 
   final TaskItem task;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
+  /// Called with completed (Mark as done) or planned (Mark as not done).
+  final ValueChanged<TaskStatus>? onStatusChange;
+
+  /// Display only. The label is text, not colour alone, for screen readers.
+  final bool isOverdue;
+
   @override
   Widget build(BuildContext context) {
     final protectedTask = task.isProtected;
     final done = task.status != TaskStatus.planned;
     final minutes = task.effectiveRemainingMinutes;
+    final dueText = DateFormat.yMMMd().add_jm().format(task.dueAt.toLocal());
+    final PopupMenuItem<String> statusAction = switch (task.status) {
+      TaskStatus.planned => const PopupMenuItem(
+        value: 'done',
+        child: Text('Mark as done'),
+      ),
+      TaskStatus.completed => const PopupMenuItem(
+        value: 'undone',
+        child: Text('Mark as not done'),
+      ),
+      TaskStatus.cancelled => const PopupMenuItem(
+        value: 'undone',
+        child: Text('Restore task'),
+      ),
+    };
     return RpgPanel(
-      tone: protectedTask ? RpgTone.calm : RpgTone.muted,
+      tone: protectedTask
+          ? RpgTone.calm
+          : isOverdue
+          ? RpgTone.warning
+          : RpgTone.muted,
       padding: const EdgeInsets.fromLTRB(16, 14, 4, 14),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,10 +94,13 @@ class TaskCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$minutes min · '
-                  'Due ${DateFormat.yMMMd().add_jm().format(task.dueAt.toLocal())}',
-                  style: const TextStyle(
-                    color: BalanceColors.textMuted,
+                  isOverdue
+                      ? '$minutes min · Was due $dueText'
+                      : '$minutes min · Due $dueText',
+                  style: TextStyle(
+                    color: isOverdue
+                        ? BalanceColors.warning
+                        : BalanceColors.textMuted,
                     fontSize: 13,
                   ),
                 ),
@@ -79,6 +109,12 @@ class TaskCard extends StatelessWidget {
                   spacing: 6,
                   runSpacing: 6,
                   children: [
+                    if (isOverdue)
+                      const RpgTag(
+                        'Overdue',
+                        tone: RpgTone.warning,
+                        icon: Icons.schedule,
+                      ),
                     if (task.isProtected)
                       const RpgTag(
                         'Protected',
@@ -103,12 +139,15 @@ class TaskCard extends StatelessWidget {
           PopupMenuButton<String>(
             tooltip: 'Task actions',
             onSelected: (value) {
+              if (value == 'done') onStatusChange?.call(TaskStatus.completed);
+              if (value == 'undone') onStatusChange?.call(TaskStatus.planned);
               if (value == 'edit') onEdit();
               if (value == 'delete') onDelete();
             },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'edit', child: Text('Edit')),
-              PopupMenuItem(value: 'delete', child: Text('Delete')),
+            itemBuilder: (_) => [
+              if (onStatusChange != null) statusAction,
+              const PopupMenuItem(value: 'edit', child: Text('Edit')),
+              const PopupMenuItem(value: 'delete', child: Text('Delete')),
             ],
           ),
         ],

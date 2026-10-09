@@ -73,6 +73,10 @@ class TodayViewModel extends LifecycleNotifier {
   String? _refreshWarning;
 
   DateTime get selectedDay => _selectedDay;
+
+  /// Recorded World Status totals for the seven dates before [selectedDay],
+  /// oldest first; `null` means no snapshot exists for that date.
+  List<int?> get previousTotals => List.unmodifiable(_previousTotals);
   bool get isLoading => _isLoading;
   bool get hasLoaded => _hasLoaded;
   String? get errorMessage => _errorMessage;

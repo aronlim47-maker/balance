@@ -10,12 +10,17 @@ import '../../domain/models/task_item.dart';
 enum QuestSort { dueSoonest, dueLatest, title, remainingMost }
 
 class QuestBoardViewModel extends LifecycleNotifier {
-  QuestBoardViewModel(this._repository);
+  QuestBoardViewModel(this._repository, {DateTime Function()? clock})
+    : _clock = clock ?? DateTime.now;
 
   final TaskRepository _repository;
+
+  /// Injectable for tests; the app always uses the device clock.
+  final DateTime Function() _clock;
   final List<TaskItem> _tasks = [];
   String _searchQuery = '';
   TaskStatus? _statusFilter;
+  bool _overdueOnly = false;
   LoadCategory? _categoryFilter;
   bool _uncategorizedOnly = false;
   TaskFlexibility? _flexibilityFilter;
@@ -27,6 +32,7 @@ class QuestBoardViewModel extends LifecycleNotifier {
   List<TaskItem> get tasks => List.unmodifiable(_tasks);
   String get searchQuery => _searchQuery;
   TaskStatus? get statusFilter => _statusFilter;
+  bool get overdueOnly => _overdueOnly;
   LoadCategory? get categoryFilter => _categoryFilter;
   bool get uncategorizedOnly => _uncategorizedOnly;
   TaskFlexibility? get flexibilityFilter => _flexibilityFilter;
@@ -37,19 +43,34 @@ class QuestBoardViewModel extends LifecycleNotifier {
   bool get hasActiveFilters =>
       _searchQuery.isNotEmpty ||
       _statusFilter != null ||
+      _overdueOnly ||
       _categoryFilter != null ||
       _uncategorizedOnly ||
       _flexibilityFilter != null ||
       _protectedFilter != null ||
       _startDate != null;
 
+  /// Display only: planned work whose due time has passed. This is never
+  /// saved, and an overdue task is never moved, cancelled or penalised.
+  bool isOverdue(TaskItem task) => _isOverdueAt(task, _clock());
+
+  int get overdueCount {
+    final now = _clock();
+    return _tasks.where((task) => _isOverdueAt(task, now)).length;
+  }
+
+  static bool _isOverdueAt(TaskItem task, DateTime now) =>
+      task.status == TaskStatus.planned && task.dueAt.isBefore(now);
+
   List<TaskItem> get visibleTasks {
     final query = _searchQuery.toLowerCase();
+    final now = _clock();
     final result = _tasks.where((task) {
       if (query.isNotEmpty && !task.title.toLowerCase().contains(query)) {
         return false;
       }
       if (_statusFilter != null && task.status != _statusFilter) return false;
+      if (_overdueOnly && !_isOverdueAt(task, now)) return false;
       if (_categoryFilter != null && task.loadCategory != _categoryFilter) {
         return false;
       }
@@ -87,8 +108,11 @@ class QuestBoardViewModel extends LifecycleNotifier {
     notifyListeners();
   }
 
-  void setStatusFilter(TaskStatus? value) {
-    _statusFilter = value;
+  /// [overdueOnly] shows planned tasks past their due time; it replaces any
+  /// status choice because overdue tasks are always planned.
+  void setStatusFilter(TaskStatus? value, {bool overdueOnly = false}) {
+    _statusFilter = overdueOnly ? null : value;
+    _overdueOnly = overdueOnly;
     notifyListeners();
   }
 
@@ -126,6 +150,7 @@ class QuestBoardViewModel extends LifecycleNotifier {
   void clearFilters() {
     _searchQuery = '';
     _statusFilter = null;
+    _overdueOnly = false;
     _categoryFilter = null;
     _uncategorizedOnly = false;
     _flexibilityFilter = null;
@@ -207,6 +232,31 @@ class QuestBoardViewModel extends LifecycleNotifier {
       _isSaving = false;
       notifyListeners();
     }
+  }
+
+  /// Marks a task done (completed) or not done (planned) in one tap.
+  /// Only the status changes: time, deadline, category, protection and
+  /// version checks stay exactly as in a normal edit.
+  Future<bool> setTaskStatus(TaskItem task, TaskStatus status) async {
+    if (task.status == status) return true;
+    return saveTask(
+      TaskItem(
+        id: task.id,
+        title: task.title,
+        estimatedMinutes: task.estimatedMinutes,
+        dueAt: task.dueAt,
+        flexibility: task.flexibility,
+        status: status,
+        isProtected: task.isProtected,
+        protectedCommitmentType: task.protectedCommitmentType,
+        isOptional: task.isOptional,
+        loadCategory: task.loadCategory,
+        remainingMinutes: task.remainingMinutes,
+        scheduledStart: task.scheduledStart,
+        scheduledEnd: task.scheduledEnd,
+        version: task.version,
+      ),
+    );
   }
 
   Future<bool> deleteTask(String taskId) async {
