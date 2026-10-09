@@ -5,6 +5,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// Converts service and database failures into safe, actionable UI copy.
 /// Never return an exception's raw message or details to a user-facing widget.
 abstract final class AppErrorMessage {
+  /// Shown when a recovery slot is outside every available block, which
+  /// almost always means no availability was added for that day yet.
+  static const recoveryNeedsAvailability =
+      'Recovery time must be inside your available time. '
+      'Add availability on Today first, then try again.';
+
   static String from(Object error, {required String fallback}) {
     if (error is AuthException) return _auth(error.message);
     if (error is PostgrestException) {
@@ -111,8 +117,14 @@ abstract final class AppErrorMessage {
     if (detail.contains('committed work') || detail.contains('stranded work')) {
       return 'This time block is used by planned work or recovery. Move those items first.';
     }
+    if (detail.contains('recovery slot overlaps')) {
+      return 'This recovery time overlaps planned work. Choose a different time.';
+    }
     if (detail.contains('overlap') || detail.contains('occupied')) {
       return 'This time overlaps another item. Choose a different time.';
+    }
+    if (detail.contains('recovery slot must fit inside available time')) {
+      return recoveryNeedsAvailability;
     }
     if (detail.contains('available time') ||
         detail.contains('available block')) {
