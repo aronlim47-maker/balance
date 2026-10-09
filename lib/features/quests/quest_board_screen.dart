@@ -48,12 +48,12 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   @override
   Widget build(BuildContext context) => Consumer<QuestBoardViewModel>(
     builder: (context, viewModel, _) => BalanceScaffold(
+      // Practical name as the headline, RPG name as the eyebrow (Rev7 14.13).
       title: 'Quest Board',
-      headline: 'Quest Log',
+      headline: 'Tasks',
       subtitle: viewModel.tasks.isEmpty
           ? 'Every commitment in one place.'
-          : '${viewModel.tasks.length} ${viewModel.tasks.length == 1 ? 'entry' : 'entries'} · '
-                '${viewModel.tasks.where((task) => task.isProtected).length} protected',
+          : _summary(viewModel),
       currentIndex: 1,
       actions: [
         PopupMenuButton<QuestSort>(
@@ -160,20 +160,39 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
     );
   }
 
-  /// Shows protected tasks first as "Sacred contracts", then the rest as
-  /// "Quests". Display only: the chosen sort order is kept inside each group
-  /// and no task data changes.
+  String _summary(QuestBoardViewModel viewModel) {
+    final total = viewModel.tasks.length;
+    final protectedCount = viewModel.tasks
+        .where((task) => task.isProtected)
+        .length;
+    final overdue = viewModel.overdueCount;
+    return '$total ${total == 1 ? 'entry' : 'entries'} · '
+        '$protectedCount protected'
+        '${overdue == 0 ? '' : ' · $overdue overdue'}';
+  }
+
+  /// Shows planned protected tasks first as "Sacred contracts", then other
+  /// planned tasks as "Quests", then completed or cancelled tasks under
+  /// "Finished". Display only: the chosen sort order is kept inside each
+  /// group and no task data changes.
   List<Widget> _groupedTaskList(
     BuildContext context,
     QuestBoardViewModel viewModel,
     List<TaskItem> tasks,
   ) {
-    final protectedTasks = tasks.where((task) => task.isProtected).toList();
-    final otherTasks = tasks.where((task) => !task.isProtected).toList();
+    final active = tasks.where((task) => task.status == TaskStatus.planned);
+    final protectedTasks = active.where((task) => task.isProtected).toList();
+    final otherTasks = active.where((task) => !task.isProtected).toList();
+    final finishedTasks = tasks
+        .where((task) => task.status != TaskStatus.planned)
+        .toList();
     Widget card(TaskItem task) => Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TaskCard(
         task: task,
+        isOverdue: viewModel.isOverdue(task),
+        onStatusChange: (status) =>
+            _setStatus(context, viewModel, task, status),
         onEdit: () => _openTaskForm(context, viewModel, task: task),
         onDelete: () => _confirmDelete(context, viewModel, task),
       ),
@@ -193,6 +212,16 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
         const SectionRule('Quests'),
         const SizedBox(height: 10),
         ...otherTasks.map(card),
+        const SizedBox(height: 8),
+      ],
+      if (finishedTasks.isNotEmpty) ...[
+        const SectionRule(
+          'Finished',
+          subtitle: 'Completed or cancelled',
+          tone: RpgTone.muted,
+        ),
+        const SizedBox(height: 10),
+        ...finishedTasks.map(card),
       ],
     ];
   }
@@ -268,22 +297,25 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
                 const SizedBox(width: 8),
                 PopupMenuButton<String>(
                   tooltip: 'Filter by status',
-                  onSelected: (value) =>
-                      viewModel.setStatusFilter(switch (value) {
-                        'planned' => TaskStatus.planned,
-                        'completed' => TaskStatus.completed,
-                        'cancelled' => TaskStatus.cancelled,
-                        _ => null,
-                      }),
+                  onSelected: (value) => viewModel.setStatusFilter(
+                    switch (value) {
+                      'planned' => TaskStatus.planned,
+                      'completed' => TaskStatus.completed,
+                      'cancelled' => TaskStatus.cancelled,
+                      _ => null,
+                    },
+                    overdueOnly: value == 'overdue',
+                  ),
                   itemBuilder: (_) => const [
                     PopupMenuItem(value: 'all', child: Text('All statuses')),
                     PopupMenuItem(value: 'planned', child: Text('Planned')),
+                    PopupMenuItem(value: 'overdue', child: Text('Overdue')),
                     PopupMenuItem(value: 'completed', child: Text('Completed')),
                     PopupMenuItem(value: 'cancelled', child: Text('Cancelled')),
                   ],
                   child: Chip(
                     label: Text(
-                      'Status: ${_statusLabel(viewModel.statusFilter)}',
+                      'Status: ${viewModel.overdueOnly ? 'Overdue' : _statusLabel(viewModel.statusFilter)}',
                     ),
                   ),
                 ),
@@ -444,6 +476,36 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
         result.loadCategory == LoadCategory.exercise;
     if (justCompletedExercise && context.mounted) {
       await _offerExerciseLog(context, result);
+    }
+  }
+
+  /// One-tap Mark as done / Mark as not done from the task menu. Completing
+  /// an Exercise task offers the same optional exercise confirmation as the
+  /// edit form, so Physical changes only after the user confirms (WS12).
+  Future<void> _setStatus(
+    BuildContext context,
+    QuestBoardViewModel viewModel,
+    TaskItem task,
+    TaskStatus status,
+  ) async {
+    final saved = await viewModel.setTaskStatus(task, status);
+    if (!context.mounted) return;
+    _showResult(
+      context,
+      saved,
+      saved
+          ? (status == TaskStatus.completed
+                ? 'Marked as done.'
+                : task.status == TaskStatus.cancelled
+                ? 'Task restored.'
+                : 'Marked as not done.')
+          : viewModel.errorMessage ?? 'The task could not be updated.',
+    );
+    if (saved &&
+        status == TaskStatus.completed &&
+        task.loadCategory == LoadCategory.exercise &&
+        context.mounted) {
+      await _offerExerciseLog(context, task);
     }
   }
 
