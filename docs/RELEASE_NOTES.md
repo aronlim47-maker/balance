@@ -53,7 +53,7 @@ every confirmed change. Android 8.0 or later. Judges: start with the
 
 ### Quality and monitoring
 
-- 376 automated tests; critical code 92.4% line coverage, enforced by CI on every push.
+- 377 automated tests; critical code 92.4% line coverage, enforced by CI on every push.
 - Accessibility tests on every main page: tap targets, labels, contrast, 200% text.
 - Hourly health check of the backend and the APK download link; crash reporting with
   Sentry (errors only; no screenshots, IP address or user email).
