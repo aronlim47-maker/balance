@@ -41,106 +41,118 @@ class _AccountHelpScreenState extends State<AccountHelpScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthViewModel>();
     final reset = widget.resetPassword;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(reset ? 'Choose a new password' : 'Account help'),
-        leading: reset
-            ? null
-            : BackButton(onPressed: () => context.go('/login')),
-        automaticallyImplyLeading: !reset,
-      ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: Form(
-                key: _form,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (!reset) ...[
-                      const Text('Enter your account email to receive a link.'),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _email,
-                        keyboardType: TextInputType.emailAddress,
-                        autofillHints: const [AutofillHints.email],
-                        decoration: const InputDecoration(labelText: 'Email'),
-                        validator: (value) =>
-                            RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
-                                .hasMatch((value ?? '').trim())
-                            ? null
-                            : 'Enter a valid email address.',
-                      ),
-                    ] else ...[
-                      TextFormField(
-                        controller: _password,
-                        obscureText: true,
-                        autofillHints: const [AutofillHints.newPassword],
-                        decoration: const InputDecoration(
-                          labelText: 'New password',
+    // Reached with context.go, so there is no route below: without this the
+    // Android back gesture would close the app instead of returning to sign-in.
+    return PopScope(
+      canPop: reset,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) context.go('/login');
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(reset ? 'Choose a new password' : 'Account help'),
+          leading: reset
+              ? null
+              : BackButton(onPressed: () => context.go('/login')),
+          automaticallyImplyLeading: !reset,
+        ),
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: Form(
+                  key: _form,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (!reset) ...[
+                        const Text(
+                          'Enter your account email to receive a link.',
                         ),
-                        validator: (value) => (value ?? '').length >= 8
-                            ? null
-                            : 'Use at least 8 characters.',
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _confirmation,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Confirm password',
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _email,
+                          keyboardType: TextInputType.emailAddress,
+                          autofillHints: const [AutofillHints.email],
+                          decoration: const InputDecoration(labelText: 'Email'),
+                          validator: (value) =>
+                              RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
+                                  .hasMatch((value ?? '').trim())
+                              ? null
+                              : 'Enter a valid email address.',
                         ),
-                        validator: (value) => value == _password.text
-                            ? null
-                            : 'Passwords do not match.',
-                      ),
-                    ],
-                    if (auth.errorMessage != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: Text(
-                          auth.errorMessage!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
+                      ] else ...[
+                        TextFormField(
+                          controller: _password,
+                          obscureText: true,
+                          autofillHints: const [AutofillHints.newPassword],
+                          decoration: const InputDecoration(
+                            labelText: 'New password',
+                          ),
+                          validator: (value) => (value ?? '').length >= 8
+                              ? null
+                              : 'Use at least 8 characters.',
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _confirmation,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Confirm password',
+                          ),
+                          validator: (value) => value == _password.text
+                              ? null
+                              : 'Passwords do not match.',
+                        ),
+                      ],
+                      if (auth.errorMessage != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Text(
+                            auth.errorMessage!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
                           ),
                         ),
-                      ),
-                    if (auth.noticeMessage != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: Text(auth.noticeMessage!),
-                      ),
-                    const SizedBox(height: 24),
-                    if (!reset) ...[
-                      FilledButton(
-                        onPressed: auth.isLoading ? null : () => _send(false),
-                        child: const Text('Send password reset link'),
-                      ),
-                      TextButton(
-                        onPressed: auth.isLoading ? null : () => _send(true),
-                        child: const Text('Resend verification email'),
-                      ),
-                    ] else ...[
-                      FilledButton(
-                        onPressed: auth.isLoading
-                            ? null
-                            : () async {
-                                if (!_form.currentState!.validate()) return;
-                                await auth.updatePassword(_password.text);
-                              },
-                        child: const Text('Update password'),
-                      ),
-                      TextButton(
-                        onPressed: auth.isLoading ? null : () => auth.signOut(),
-                        child: const Text('Cancel and sign out'),
-                      ),
+                      if (auth.noticeMessage != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Text(auth.noticeMessage!),
+                        ),
+                      const SizedBox(height: 24),
+                      if (!reset) ...[
+                        FilledButton(
+                          onPressed: auth.isLoading ? null : () => _send(false),
+                          child: const Text('Send password reset link'),
+                        ),
+                        TextButton(
+                          onPressed: auth.isLoading ? null : () => _send(true),
+                          child: const Text('Resend verification email'),
+                        ),
+                      ] else ...[
+                        FilledButton(
+                          onPressed: auth.isLoading
+                              ? null
+                              : () async {
+                                  if (!_form.currentState!.validate()) return;
+                                  await auth.updatePassword(_password.text);
+                                },
+                          child: const Text('Update password'),
+                        ),
+                        TextButton(
+                          onPressed: auth.isLoading
+                              ? null
+                              : () => auth.signOut(),
+                          child: const Text('Cancel and sign out'),
+                        ),
+                      ],
+                      if (auth.isLoading)
+                        const Center(child: CircularProgressIndicator()),
                     ],
-                    if (auth.isLoading)
-                      const Center(child: CircularProgressIndicator()),
-                  ],
+                  ),
                 ),
               ),
             ),

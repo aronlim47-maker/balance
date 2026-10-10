@@ -326,6 +326,8 @@ class _CapacitySummary extends StatelessWidget {
               '${formatShortDuration(capacity.overloadMinutes)} over',
               tone: RpgTone.danger,
             )
+                : capacity.availableMinutes == 0
+                ? const RpgTag('No time added', tone: RpgTone.muted)
                 : const RpgTag('Fits', tone: RpgTone.calm),
           ),
           const SizedBox(height: 14),

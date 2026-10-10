@@ -1,121 +1,142 @@
-# Balance user guide for judges
+# Balance — User Guide for Judges
 
-This guide takes about 10 minutes. It assumes no help from the team.
+Balance helps a student whose plan no longer fits the day. It shows the overload,
+compares safe ways to fix it, changes nothing until the student confirms, and can undo
+every confirmed change.
 
-> **Screenshots:** each step has a placeholder `![...](images/guide/...)`. Replace them
-> with phone screenshots taken on the judge account (default font size, no personal data).
+**Time needed:** about 10 minutes. **Help needed:** none.
+
+## Quick path
+
+| Step | Page | What you will do | Time |
+| --- | --- | --- | --- |
+| 1 | — | Install the app and sign in | 2 min |
+| 2 | TODAY | See a 2-hour overload and five workload bars | 1 min |
+| 3 | QUESTS | Look at the two tasks behind the overload | 1 min |
+| 4 | COUNCIL | Compare options and confirm a plan | 2 min |
+| 5 | COUNCIL | Undo the plan from Plan history | 1 min |
+| 6 | SANCTUARY | Protect 30 minutes of rest, then remove it | 2 min |
+| 7 | JOURNEY | Read the weekly summary and achievements | 1 min |
 
 ## Before you start
 
 | You need | Where to get it |
 | --- | --- |
 | An Android phone (Android 7.0 or later) with internet | — |
-| The Balance APK | [Latest release](https://github.com/aronlim47-maker/balance/releases/latest) → `app-release.apk` |
-| The judge account email and password | Supplied in our submission form. They are never stored in this repository. |
+| The Balance app | [Latest release](https://github.com/aronlim47-maker/balance/releases/latest) → download `app-release.apk` |
+| The judge account email and password | In our submission form. They are never stored in this repository. |
+| The **sample date** | In our submission form, next to the account details. |
 
-The bottom bar has five pages: **TODAY**, **QUESTS**, **COUNCIL**, **SANCTUARY** and
-**JOURNEY**. Each page shows a practical name together with its RPG label, for example
+The bottom bar has five pages: **TODAY, QUESTS, COUNCIL, SANCTUARY, JOURNEY**. Each page
+shows a practical name with a game-style label beside it, for example
 *Workload Overview · World Status*.
 
 ## 1. Install and sign in
 
 1. On the phone, open the release link and download `app-release.apk`.
-2. Open the file. If Android asks, allow installing apps from this source, then tap
-   **Install**.
+2. Open the downloaded file. If Android asks, allow installing apps from this source,
+   then tap **Install**.
 3. Open **Balance**, enter the judge email and password, and tap **Sign in**.
 
-![Sign in](images/guide/01_sign_in.png)
+You should see the **TODAY** page. If a "Local preview" banner appears at the top, this
+is not the release build; reinstall from the release link.
 
-If you see a "Local preview" banner, you installed a development build; use the APK
-from the release page instead.
+## 2. See the overload (TODAY)
 
-## 2. Detect: see the overload (TODAY)
-
-The judge account has a prepared sample evening.
-
-1. **Time capacity** shows **300 minutes planned** against **180 minutes available**:
-   a **120-minute overload**.
-2. **World Status** shows five bars in this order: **Mental, Time, Physical, Social,
-   Errands**. A bar with no data says **Unknown**; Balance never treats missing data as
-   zero.
-3. Optional: the daily review asks for energy and hours of rest. **Save review** or
-   **Skip for now**; skipping has no penalty.
-
-![Today](images/guide/02_today.png)
-![World Status bars](images/guide/03_world_status.png)
+1. Use the **Previous day / Next day** arrows to open the **sample date**.
+2. The **Time capacity** card shows **5h planned** against **3h available** (09:00–12:00)
+   and a red **2h over** tag. The planned work does not fit.
+3. The **World Status** card shows five bars in a fixed order: **Mental, Time, Physical,
+   Social, Errands**. Bars without enough data say **Unknown**. Balance never treats
+   missing data as zero or guesses it.
+4. Optional: the daily review asks for energy and hours of rest. Tap **Save review** or
+   **Skip for now**. Skipping has no penalty.
 
 ## 3. Look at the tasks (QUESTS)
 
-1. Each task shows its category (Study, Errand, Social, Exercise or Other), its
-   flexibility (Fixed, Flexible or Needs agreement) and whether it is **Protected**.
-2. Protected commitments, such as a work shift, family duty or sleep minimum, are never
-   moved to make a plan fit.
-3. Optional: tap **Add task** to see that a category is required before saving.
+The sample day has two study tasks:
 
-![Quest Board](images/guide/04_quests.png)
+| Task | Length | When | Deadline |
+| --- | --- | --- | --- |
+| Judge demo: flexible report | 3h | Scheduled 09:00–12:00 on the sample date | The next day, 17:00 |
+| Judge demo: deadline work | 2h | Not scheduled | The sample date, 17:00 |
 
-## 4. Decide: compare and confirm a plan (COUNCIL)
+Together they need 5 hours, but only 3 hours are available.
 
-1. Open **COUNCIL**. The page states: *Suggestions only. Nothing moves until confirmed.*
-2. Each option shows what moves, what stays **Protected**, the **Cost** on another day,
-   the **Room created** and anything to **Check before confirming**.
-3. Tap **Compare plans** to see options side by side.
-4. Choose a plan and tap **Confirm selected plan**, then confirm the move in the final
-   preview.
-5. The plan-updated screen lists every task that moved and what stayed protected. Tap
-   **Return to Today** and use the date arrows to see the moved work on its new day.
+- Each task card shows its category (Study, Errand, Social, Exercise or Other), its
+  flexibility, and whether it is **Protected**. Protected commitments such as a work shift,
+  family duty or sleep minimum are never moved to make a plan fit.
+- Optional: tap **Add task**, then **Cancel**. A new task cannot be saved without a
+  category.
 
-![Council options](images/guide/05_council.png)
-![Plan updated](images/guide/06_plan_updated.png)
+## 4. Compare and confirm a plan (COUNCIL)
 
-## 5. Undo the plan
+1. Open **COUNCIL** and go to the sample date. The page says
+   *Suggestions only. Nothing moves until confirmed.*
+2. Read the suggested option. It moves **2 hours of the flexible report to the next
+   day**, where 2 hours are free (09:00–11:00) and the report's deadline is still met. Each
+   option lists the **Cost**, what stays **Protected**, the **Room created**, and anything
+   to **Check before confirming**.
+3. Tap **Compare plans** to see the options and the capacity of every affected day.
+4. Select the option and tap **Confirm selected plan**, then confirm in the final preview.
+5. The plan-updated screen lists the moved work. Tap **Return to Today**: the sample date
+   now fits, and the next day shows the moved 2 hours.
 
-1. Open **COUNCIL** and tap the **Plan history** icon (clock) at the top.
-2. Open the plan marked **Confirmed** and tap **Undo this plan**. The history now marks
-   it **Undone**.
-3. On **TODAY**, the original 120-minute overload is back.
+## 5. Undo the plan (COUNCIL)
 
-Please undo every plan you confirm, so the sample day stays ready for the next judge.
+1. Open **COUNCIL** and tap the **Plan history** icon (clock) at the top right.
+2. Open the plan marked **Confirmed** and tap **Undo this plan**.
+3. Plan history now marks it **Undone**. On **TODAY**, the sample date is **2h over**
+   again and the next day is free.
 
-Undo is refused, with an explanation, if the tasks were changed after the plan was
-confirmed; it never overwrites later edits.
+If the tasks were edited after confirming, Undo is refused with an explanation instead
+of overwriting the newer changes.
 
-![Undo](images/guide/07_undo.png)
+**Please always undo your plan**, so the sample day stays ready for the next judge.
 
-## 6. Recover: protected rest (SANCTUARY)
+## 6. Protect rest time (SANCTUARY)
 
-1. **SANCTUARY** shows the protected recovery slot from the sample evening.
-2. To add one yourself, tap **Add recovery time**, choose a time inside the day's
-   available time, and tap **Save**. An activity is optional; the slot holds either way.
-3. If no available time exists that day, the app explains this and offers **Go to Today**.
+Recovery time is optional. Balance only lets you protect time that is genuinely free.
 
-Marking an activity done does not change the workload scores: resting is not graded.
+1. Open **SANCTUARY** and tap **Add recovery time**.
+2. Choose the **day after the sample date**, from 09:00 to 09:30, and tap **Save**.
+   The slot appears as **Protected time**. Choosing an activity is optional.
+3. Try the same on a day with no available time: the app explains that recovery time must
+   fit inside available time and offers **Go to Today**.
+4. Marking an activity done does not change any workload score. Rest is not graded.
+5. **Please remove the slot afterwards**: open its menu (⋮) → **Remove**. It occupies the
+   free time that the Council plan in step 4 needs.
 
-![Sanctuary](images/guide/08_sanctuary.png)
+## 7. Weekly summary and achievements (JOURNEY)
 
-## 7. Reflect: weekly summary (JOURNEY)
+1. Open **JOURNEY**. It shows a private weekly summary for the selected week. Days without
+   a record say **No record**; past scores are never invented.
+2. Optional: tap **Add optional reflection**, write one sentence and tap **Save**.
+3. Scroll to **Achievements**: seven cards, each with its unlock condition. Your steps
+   above can unlock **Safe Trade-off**, **Deadline Safety**, **Protected Rest** and
+   **Reflection**. Each badge is awarded once per account, so cards may already be
+   unlocked if another judge used this account first.
+4. **Team Coordination** stays **Locked**. It needs shared tasks, which are planned for a
+   later version.
 
-1. **JOURNEY** shows a private weekly summary. Days without records say "No record"; past
-   scores are never invented.
-2. Tap **Add optional reflection**, write a sentence and **Save**.
-3. The **Achievements** section lists seven cards with their unlock conditions. Earned
-   ones show the award date. **Team Coordination** stays **Locked**: it needs shared
-   tasks, which are a future version.
-
-![Journey](images/guide/09_journey.png)
-![Achievements](images/guide/10_achievements.png)
+There are no streaks, rankings or penalties for skipping.
 
 ## If something goes wrong
 
 | What you see | What to do |
 | --- | --- |
-| "Could not connect" with **Try again** | Check the internet connection, then tap **Try again**. Data already shown stays on screen. |
-| Today shows no overload | Another judge may have changed the sample day. Use the date arrows to find the sample date, or contact the team. |
+| "Could not connect" with **Try again** | Check the internet connection, then tap **Try again**. Data already on screen stays visible. |
+| The sample date is not 2h over | Check that you are on the sample date. If a plan is still confirmed, undo it in **COUNCIL → Plan history**. |
+| Council shows **No Feasible Plan** | A recovery slot may be occupying the next day. Remove it in **SANCTUARY** (step 6.5). |
 | Sign-in fails | Check the email and password from the submission form for typing errors. |
+| "Can't install app" | Uninstall any earlier Balance test build first, then install again. |
 
-## Known limitations
+## What Balance does not claim
 
-- Android only. The web build is not part of this submission; iOS was not device-tested.
-- Every task needs a deadline; there is no "No deadline" option yet.
-- Team Coordination achievement and shared tasks are not available yet.
-- Balance is a planning aid, not a medical or mental-health tool.
+- Scores describe recorded planning data. Balance is not a medical, diagnostic or
+  mental-health tool.
+- Android is the supported platform. iOS has not been tested on a device, and the web
+  build is not part of this submission.
+- Every task needs a deadline; a "No deadline" option is not available yet.
+- The app is currently English-only. Bahasa Melayu and Chinese are planned.
+- Shared tasks and the Team Coordination achievement are planned for a later version.

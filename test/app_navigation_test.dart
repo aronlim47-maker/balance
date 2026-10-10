@@ -74,6 +74,22 @@ void main() {
     expect(find.byType(TodayScreen), findsOneWidget);
   });
 
+  testWidgets('Android back on a tab returns to Today instead of closing', (
+      tester,
+      ) async {
+    await tester.pumpWidget(const BalanceApp());
+    await tester.pumpAndSettle();
+
+    for (final tab in ['QUESTS', 'COUNCIL', 'SANCTUARY', 'JOURNEY']) {
+      await tester.tap(find.text(tab).last);
+      await tester.pumpAndSettle();
+      // true = the app handled back; false would close the app.
+      expect(await tester.binding.handlePopRoute(), isTrue);
+      await tester.pumpAndSettle();
+      expect(find.byType(TodayScreen), findsOneWidget);
+    }
+  });
+
   testWidgets('War Council opens plan history so a plan can be undone later', (
       tester,
       ) async {
