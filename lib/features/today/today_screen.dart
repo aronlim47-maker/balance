@@ -149,11 +149,24 @@ class _TodayContent extends StatelessWidget {
             onAction: () => _openAvailabilityForm(context, viewModel),
           ),
           const SizedBox(height: 10),
-          if (viewModel.availabilityForDay.isEmpty)
+          if (viewModel.availabilityForDay.isEmpty) ...[
             const _EmptyCard(
               message: 'No availability has been added for this day.',
-            )
-          else
+            ),
+            if (viewModel.previousDayAvailability.isNotEmpty)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: viewModel.isSavingAvailability
+                      ? null
+                      : () => _copyFromPreviousDay(context, viewModel),
+                  icon: const Icon(Icons.content_copy_outlined),
+                  label: Text(
+                    'Copy from ${DateFormat('EEE d MMM').format(viewModel.selectedDay.subtract(const Duration(days: 1)))}',
+                  ),
+                ),
+              ),
+          ] else ...[
             ...viewModel.availabilityForDay.map(
               (block) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -166,6 +179,17 @@ class _TodayContent extends StatelessWidget {
                 ),
               ),
             ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: viewModel.isSavingAvailability
+                    ? null
+                    : () => _repeatForWeek(context, viewModel),
+                icon: const Icon(Icons.repeat),
+                label: const Text('Repeat for the next 6 days'),
+              ),
+            ),
+          ],
           const SizedBox(height: 14),
           const _SectionTitle(title: 'Planned tasks'),
           const SizedBox(height: 10),
@@ -281,6 +305,73 @@ class _TodayContent extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _copyFromPreviousDay(
+    BuildContext context,
+    TodayViewModel viewModel,
+  ) async {
+    final day = viewModel.selectedDay;
+    final filled = await viewModel.copyAvailability(
+      DateTime(day.year, day.month, day.day - 1),
+      [day],
+    );
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          filled == null
+              ? viewModel.errorMessage ?? 'Could not copy time blocks.'
+              : 'Copied the previous day’s time.',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _repeatForWeek(
+    BuildContext context,
+    TodayViewModel viewModel,
+  ) async {
+    final day = viewModel.selectedDay;
+    final targets = [
+      for (var i = 1; i <= 6; i++) DateTime(day.year, day.month, day.day + i),
+    ];
+    final range =
+        '${DateFormat('EEE d MMM').format(targets.first)} – ${DateFormat('EEE d MMM').format(targets.last)}';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Repeat this day’s time?'),
+        content: Text(
+          'Copy ${viewModel.availabilityForDay.length} time block(s) to $range. '
+          'Days that already have time are skipped.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Repeat'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final filled = await viewModel.copyAvailability(day, targets);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          filled == null
+              ? viewModel.errorMessage ?? 'Could not copy time blocks.'
+              : filled == 0
+              ? 'Every day already has time. Nothing was copied.'
+              : 'Copied to $filled day${filled == 1 ? '' : 's'}.',
+        ),
       ),
     );
   }

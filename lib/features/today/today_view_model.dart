@@ -68,6 +68,7 @@ class TodayViewModel extends LifecycleNotifier {
   bool _isSavingSocial = false;
   bool _isSavingReview = false;
   bool _isSavingAvailability = false;
+  bool get isSavingAvailability => _isSavingAvailability;
   bool _isSavingMovement = false;
   String? _errorMessage;
   String? _loadErrorMessage;
@@ -642,6 +643,77 @@ class TodayViewModel extends LifecycleNotifier {
       );
       notifyListeners();
       return false;
+    } finally {
+      _isSavingAvailability = false;
+      notifyListeners();
+    }
+  }
+
+  /// Blocks that start on [day] (local date).
+  List<AvailabilityBlock> blocksStartingOn(DateTime day) {
+    final d = _dateOnly(day);
+    return [
+      for (final b in _availability)
+        if (_dateOnly(b.startAt.toLocal()) == d) b,
+    ];
+  }
+
+  /// The previous day's blocks, offered for copying when the day is empty.
+  List<AvailabilityBlock> get previousDayAvailability => blocksStartingOn(
+    DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day - 1),
+  );
+
+  /// Copies the blocks that start on [from] to each day in [to], keeping
+  /// their times. Days that already have availability are skipped so nothing
+  /// is duplicated or overlapped. Returns how many days were filled, or null
+  /// when saving failed (already saved days stay saved).
+  Future<int?> copyAvailability(DateTime from, List<DateTime> to) async {
+    if (isDisposed || _isSavingAvailability) return null;
+    final source = blocksStartingOn(from);
+    if (source.isEmpty) return 0;
+    _isSavingAvailability = true;
+    _invalidateLoads();
+    _errorMessage = null;
+    _refreshWarning = null;
+    notifyListeners();
+    var filled = 0;
+    try {
+      for (final day in to) {
+        if (blocksStartingOn(day).isNotEmpty) continue;
+        for (final block in source) {
+          final start = block.startAt.toLocal();
+          final newStart = DateTime(
+            day.year,
+            day.month,
+            day.day,
+            start.hour,
+            start.minute,
+          );
+          final saved = await _availabilityRepository.createAvailability(
+            AvailabilityBlock(
+              id: '',
+              startAt: newStart,
+              endAt: newStart.add(block.endAt.difference(block.startAt)),
+              isAvailable: block.isAvailable,
+              label: block.label,
+            ),
+          );
+          if (isDisposed) return filled;
+          _availability.add(saved);
+        }
+        filled++;
+      }
+      _availability.sort((a, b) => a.startAt.compareTo(b.startAt));
+      notifyListeners();
+      await _refreshHistoryAfterSave();
+      return filled;
+    } catch (error) {
+      _availability.sort((a, b) => a.startAt.compareTo(b.startAt));
+      _errorMessage = AppErrorMessage.from(
+        error,
+        fallback: 'Could not copy all time blocks. Please try again.',
+      );
+      return null;
     } finally {
       _isSavingAvailability = false;
       notifyListeners();
