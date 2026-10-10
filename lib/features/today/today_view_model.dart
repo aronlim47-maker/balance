@@ -48,6 +48,7 @@ class TodayViewModel extends LifecycleNotifier {
   final SocialRepository? _socialRepository;
   final WorldHistoryRepository? _historyRepository;
   List<int?> _previousTotals = List.filled(7, null);
+  WorldStatusResult? _previousDayStatus;
   String? historyNotice;
   WorldStatusResult? _historicalStatus;
   final List<TaskItem> _tasks = [];
@@ -77,6 +78,24 @@ class TodayViewModel extends LifecycleNotifier {
   /// Recorded World Status totals for the seven dates before [selectedDay],
   /// oldest first; `null` means no snapshot exists for that date.
   List<int?> get previousTotals => List.unmodifiable(_previousTotals);
+
+  /// Change of each dimension against the previous day's recorded snapshot.
+  /// Null when either day has no score: a missing day is never read as zero.
+  Map<WorldDimension, int?> get dimensionChanges {
+    final previous = _previousDayStatus;
+    final current = worldStatus;
+    return {
+      for (final dimension in WorldDimension.values)
+        dimension: switch ((
+          current.dimensions[dimension]?.score,
+          previous?.dimensions[dimension]?.score,
+        )) {
+          (final int now, final int before) => now - before,
+          _ => null,
+        },
+    };
+  }
+
   bool get isLoading => _isLoading;
   bool get hasLoaded => _hasLoaded;
   String? get errorMessage => _errorMessage;
@@ -338,6 +357,14 @@ class TodayViewModel extends LifecycleNotifier {
           final totals = await _historyRepository.loadPreviousWeek(loadingDay);
           if (loadVersion == _loadVersion) {
             _previousTotals = totals;
+            try {
+              final previous = await _historyRepository.loadDaySnapshot(
+                DateTime(loadingDay.year, loadingDay.month, loadingDay.day - 1),
+              );
+              if (loadVersion == _loadVersion) _previousDayStatus = previous;
+            } catch (_) {
+              if (loadVersion == _loadVersion) _previousDayStatus = null;
+            }
             final history = _historyRepository;
             if (history is SnapshotCaptureStatus) {
               historyNotice ??=
@@ -371,6 +398,7 @@ class TodayViewModel extends LifecycleNotifier {
     _selectedDay = _dateOnly(day);
     _hasLoaded = false;
     _previousTotals = List.filled(7, null);
+    _previousDayStatus = null;
     _historicalStatus = null;
     _checkIn = null;
     _latestExercise = null;

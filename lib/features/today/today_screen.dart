@@ -209,6 +209,7 @@ class _TodayContent extends StatelessWidget {
             selectedDay: viewModel.selectedDay,
             previousTotals: viewModel.previousTotals,
             showCapacity: false,
+            changes: viewModel.dimensionChanges,
           ),
           const SizedBox(height: 24),
           // Optional inputs that only refine World Status.

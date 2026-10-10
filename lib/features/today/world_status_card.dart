@@ -15,7 +15,11 @@ class WorldStatusCard extends StatelessWidget {
     this.selectedDay,
     this.previousTotals,
     this.showCapacity = true,
+    this.changes,
   });
+
+  /// Per-dimension change since the previous recorded day (null = unknown).
+  final Map<WorldDimension, int?>? changes;
 
   /// Today shows [TimeCapacityPanel] on its own at the top of the page.
   final bool showCapacity;
@@ -115,9 +119,23 @@ class WorldStatusCard extends StatelessWidget {
                 _DimensionRow(
                   name: _name(dimension),
                   result: status.dimensions[dimension]!,
+                  change: changes?[dimension],
                 ),
                 if (dimension != WorldDimension.errands)
                   const SizedBox(height: 9),
+              ],
+              if (changes?.values.any((c) => c != null) ?? false) ...[
+                const SizedBox(height: 6),
+                const Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '▲ ▼ change since yesterday',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: BalanceColors.textMuted,
+                    ),
+                  ),
+                ),
               ],
               const SizedBox(height: 8),
               Row(
@@ -428,10 +446,13 @@ class _Legend extends StatelessWidget {
 }
 
 class _DimensionRow extends StatelessWidget {
-  const _DimensionRow({required this.name, required this.result});
+  const _DimensionRow({required this.name, required this.result, this.change});
 
   final String name;
   final DimensionResult result;
+
+  /// Points since yesterday; higher means more planning pressure.
+  final int? change;
 
   @override
   Widget build(BuildContext context) {
@@ -476,7 +497,40 @@ class _DimensionRow extends StatelessWidget {
             ),
           ),
         ),
+        SizedBox(width: 44, child: _Change(change: change)),
       ],
+    );
+  }
+}
+
+/// "▲ 6" / "▼ 4" since yesterday. Up means more pressure (warning colour),
+/// down means less (calm). Nothing is shown when either day is unknown.
+class _Change extends StatelessWidget {
+  const _Change({required this.change});
+  final int? change;
+
+  @override
+  Widget build(BuildContext context) {
+    final value = change;
+    if (value == null) return const SizedBox.shrink();
+    final (symbol, color, words) = value > 0
+        ? ('▲', BalanceColors.warning, 'up $value')
+        : value < 0
+        ? ('▼', BalanceColors.calm, 'down ${-value}')
+        : ('–', BalanceColors.textMuted, 'no change');
+    return Semantics(
+      label: '$words since yesterday',
+      excludeSemantics: true,
+      child: Text(
+        value == 0 ? symbol : '$symbol ${value.abs()}',
+        textAlign: TextAlign.end,
+        style: TextStyle(
+          fontFamily: AppTheme.displayFont,
+          fontWeight: FontWeight.w700,
+          fontSize: 12,
+          color: color,
+        ),
+      ),
     );
   }
 }
