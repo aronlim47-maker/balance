@@ -111,7 +111,8 @@ Recovery time is optional. Balance only lets you protect time that is genuinely 
 
 1. Open **JOURNEY**. It shows a private weekly summary for the selected week. Days without
    a record say **No record**; past scores are never invented.
-2. Optional: tap **Add optional reflection**, write one sentence and tap **Save**.
+2. Optional: tap **Add optional reflection**, write one sentence and tap **Save**. The
+   **My reflections** icon (clock) at the top lists reflections from earlier weeks.
 3. Scroll to **Achievements**: seven cards, each with its unlock condition. Your steps
    above can unlock **Safe Trade-off**, **Deadline Safety**, **Protected Rest** and
    **Reflection**. Each badge is awarded once per account, so cards may already be

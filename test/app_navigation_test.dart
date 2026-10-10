@@ -2,6 +2,7 @@ import 'package:balance/app.dart';
 import 'package:balance/features/council/plan_history_screen.dart';
 import 'package:balance/features/council/war_council_screen.dart';
 import 'package:balance/features/journey/journey_screen.dart';
+import 'package:balance/features/journey/reflection_history_screen.dart';
 import 'package:balance/features/profile/profile_screen.dart';
 import 'package:balance/features/quests/quest_board_screen.dart';
 import 'package:balance/features/sanctuary/sanctuary_screen.dart';
@@ -88,6 +89,35 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(TodayScreen), findsOneWidget);
     }
+  });
+
+  testWidgets('Journey opens saved reflections from earlier weeks', (
+      tester,
+      ) async {
+    await tester.pumpWidget(const BalanceApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('JOURNEY').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('My reflections'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ReflectionHistoryScreen), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(JourneyScreen), findsOneWidget);
+  });
+
+  testWidgets('War Council without availability does not claim On track', (
+      tester,
+      ) async {
+    await tester.pumpWidget(const BalanceApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('COUNCIL').last);
+    await tester.pumpAndSettle();
+    expect(find.text('On track'), findsNothing);
+    expect(find.text('No time added'), findsOneWidget);
   });
 
   testWidgets('War Council opens plan history so a plan can be undone later', (
