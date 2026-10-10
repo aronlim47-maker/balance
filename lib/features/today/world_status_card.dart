@@ -66,11 +66,13 @@ class WorldStatusCard extends StatelessWidget {
                     children: [
                       const RpgLabel('Load', tone: RpgTone.neutral, size: 13),
                       const SizedBox(width: 8),
-                      const Text(
-                        'five dimensions',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: BalanceColors.textMuted,
+                      const Flexible(
+                        child: Text(
+                          'five dimensions',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: BalanceColors.textMuted,
+                          ),
                         ),
                       ),
                     ],
@@ -93,7 +95,13 @@ class WorldStatusCard extends StatelessWidget {
                       children: [details, const SizedBox(height: 4), score],
                     );
                   }
-                  return Row(children: [details, const Spacer(), score]);
+                  return Row(
+                    children: [
+                      Expanded(child: details),
+                      const SizedBox(width: 8),
+                      score,
+                    ],
+                  );
                 },
               ),
               const SizedBox(height: 8),

@@ -297,15 +297,13 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
                 const SizedBox(width: 8),
                 PopupMenuButton<String>(
                   tooltip: 'Filter by status',
-                  onSelected: (value) => viewModel.setStatusFilter(
-                    switch (value) {
-                      'planned' => TaskStatus.planned,
-                      'completed' => TaskStatus.completed,
-                      'cancelled' => TaskStatus.cancelled,
-                      _ => null,
-                    },
-                    overdueOnly: value == 'overdue',
-                  ),
+                  onSelected: (value) =>
+                      viewModel.setStatusFilter(switch (value) {
+                        'planned' => TaskStatus.planned,
+                        'completed' => TaskStatus.completed,
+                        'cancelled' => TaskStatus.cancelled,
+                        _ => null,
+                      }, overdueOnly: value == 'overdue'),
                   itemBuilder: (_) => const [
                     PopupMenuItem(value: 'all', child: Text('All statuses')),
                     PopupMenuItem(value: 'planned', child: Text('Planned')),
@@ -629,8 +627,9 @@ class _EmptyState extends StatelessWidget {
   final VoidCallback onAdd;
 
   @override
+  // Scrollable so the message still fits at large text sizes.
   Widget build(BuildContext context) => Center(
-    child: Padding(
+    child: SingleChildScrollView(
       padding: const EdgeInsets.all(32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -666,8 +665,9 @@ class _ErrorState extends StatelessWidget {
   final Future<void> Function() onRetry;
 
   @override
+  // Scrollable so the message still fits at large text sizes.
   Widget build(BuildContext context) => Center(
-    child: Padding(
+    child: SingleChildScrollView(
       padding: const EdgeInsets.all(32),
       child: Column(
         mainAxisSize: MainAxisSize.min,

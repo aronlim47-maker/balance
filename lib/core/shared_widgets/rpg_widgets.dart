@@ -123,20 +123,20 @@ class _DiamondPainter extends CustomPainter {
   @override
   bool shouldRepaint(_DiamondPainter old) =>
       old.color != color ||
-          old.filled != filled ||
-          old.strokeWidth != strokeWidth;
+      old.filled != filled ||
+      old.strokeWidth != strokeWidth;
 }
 
 /// Spaced uppercase label text, e.g. "WHAT CHANGES" or "STATUS".
 class RpgLabel extends StatelessWidget {
   const RpgLabel(
-      this.text, {
-        super.key,
-        this.tone = RpgTone.muted,
-        this.size = 12,
-        this.spacing = 2,
-        this.weight = FontWeight.w700,
-      });
+    this.text, {
+    super.key,
+    this.tone = RpgTone.muted,
+    this.size = 12,
+    this.spacing = 2,
+    this.weight = FontWeight.w700,
+  });
 
   final String text;
   final RpgTone tone;
@@ -228,21 +228,18 @@ class RpgPanel extends StatelessWidget {
     }
     final box = dashed
         ? CustomPaint(
-      painter: _DashedBorderPainter(color: borderColor),
-      child: Material(
-        type: MaterialType.transparency,
-        child: content,
-      ),
-    )
+            painter: _DashedBorderPainter(color: borderColor),
+            child: Material(type: MaterialType.transparency, child: content),
+          )
         : Material(
-      color: selected ? BalanceColors.accentDim : tone.background,
-      shape: RoundedRectangleBorder(
-        borderRadius: radius,
-        side: BorderSide(color: borderColor, width: selected ? 1.6 : 1.2),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: content,
-    );
+            color: selected ? BalanceColors.accentDim : tone.background,
+            shape: RoundedRectangleBorder(
+              borderRadius: radius,
+              side: BorderSide(color: borderColor, width: selected ? 1.6 : 1.2),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: content,
+          );
     return Padding(padding: margin, child: box);
   }
 }
@@ -279,12 +276,12 @@ class _DashedBorderPainter extends CustomPainter {
 /// Panel title row: "STATUS ............ Thursday, 10 September".
 class PanelHeader extends StatelessWidget {
   const PanelHeader(
-      this.title, {
-        super.key,
-        this.trailing,
-        this.tone = RpgTone.neutral,
-        this.divider = false,
-      });
+    this.title, {
+    super.key,
+    this.trailing,
+    this.tone = RpgTone.neutral,
+    this.divider = false,
+  });
 
   final String title;
   final Widget? trailing;
@@ -295,16 +292,19 @@ class PanelHeader extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Row(
+      // Wrap, not Row: at large text sizes the trailing tag moves below the
+      // title instead of overflowing.
+      Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        runSpacing: 6,
         children: [
-          Expanded(child: RpgLabel(title, tone: tone, size: 14, spacing: 2.4)),
+          RpgLabel(title, tone: tone, size: 14, spacing: 2.4),
           ?trailing,
         ],
       ),
-      if (divider) ...[
-        const SizedBox(height: 10),
-        const Divider(height: 1),
-      ],
+      if (divider) ...[const SizedBox(height: 10), const Divider(height: 1)],
     ],
   );
 }
@@ -312,12 +312,12 @@ class PanelHeader extends StatelessWidget {
 /// Outlined square tag, e.g. "PROTECTED", "FIXED", "2H OVER".
 class RpgTag extends StatelessWidget {
   const RpgTag(
-      this.label, {
-        super.key,
-        this.tone = RpgTone.muted,
-        this.icon,
-        this.filled = false,
-      });
+    this.label, {
+    super.key,
+    this.tone = RpgTone.muted,
+    this.icon,
+    this.filled = false,
+  });
 
   final String label;
   final RpgTone tone;
@@ -343,14 +343,18 @@ class RpgTag extends StatelessWidget {
             Icon(icon, size: 13, color: color),
             const SizedBox(width: 5),
           ],
-          Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              fontFamily: AppTheme.displayFont,
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-              letterSpacing: 1.6,
-              color: color,
+          // Flexible lets a long tag wrap at large text sizes instead of
+          // overflowing its row.
+          Flexible(
+            child: Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                fontFamily: AppTheme.displayFont,
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                letterSpacing: 1.6,
+                color: color,
+              ),
             ),
           ),
         ],
@@ -376,11 +380,11 @@ class SegmentMeter extends StatelessWidget {
 
   /// Builds a meter from a 0–100 score.
   factory SegmentMeter.fromScore(
-      int score, {
-        Key? key,
-        int total = 5,
-        String? semanticsLabel,
-      }) {
+    int score, {
+    Key? key,
+    int total = 5,
+    String? semanticsLabel,
+  }) {
     final clamped = score < 0 ? 0 : (score > 100 ? 100 : score);
     final raw = (clamped / 100 * total).ceil();
     final segments = raw > total ? total : raw;
@@ -430,12 +434,12 @@ class SegmentMeter extends StatelessWidget {
 /// Section divider label: "SACRED CONTRACTS ——————".
 class SectionRule extends StatelessWidget {
   const SectionRule(
-      this.label, {
-        super.key,
-        this.subtitle,
-        this.tone = RpgTone.accent,
-        this.trailing,
-      });
+    this.label, {
+    super.key,
+    this.subtitle,
+    this.tone = RpgTone.accent,
+    this.trailing,
+  });
 
   final String label;
   final String? subtitle;
