@@ -15,6 +15,7 @@ class TaskCard extends StatelessWidget {
     required this.onDelete,
     this.onStatusChange,
     this.isOverdue = false,
+    this.onTap,
   });
 
   final TaskItem task;
@@ -27,12 +28,21 @@ class TaskCard extends StatelessWidget {
   /// Display only. The label is text, not colour alone, for screen readers.
   final bool isOverdue;
 
+  /// Opens the task's details.
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     final protectedTask = task.isProtected;
     final done = task.status != TaskStatus.planned;
     final minutes = task.effectiveRemainingMinutes;
-    final dueText = DateFormat.yMMMd().add_jm().format(task.dueAt.toLocal());
+    final due = task.dueAt.toLocal();
+    // Short date: the year only appears when it is not this year.
+    final dueText = DateFormat(
+      due.year == DateTime.now().year
+          ? 'EEE d MMM, h:mm a'
+          : 'EEE d MMM y, h:mm a',
+    ).format(due);
     final PopupMenuItem<String> statusAction = switch (task.status) {
       TaskStatus.planned => const PopupMenuItem(
         value: 'done',
@@ -48,6 +58,7 @@ class TaskCard extends StatelessWidget {
       ),
     };
     return RpgPanel(
+      onTap: onTap,
       tone: protectedTask
           ? RpgTone.calm
           : isOverdue
@@ -122,7 +133,8 @@ class TaskCard extends StatelessWidget {
                         icon: Icons.shield_outlined,
                       ),
                     RpgTag(
-                      task.loadCategory?.label ?? 'Uncategorized · Needs Review',
+                      task.loadCategory?.label ??
+                          'Uncategorized · Needs Review',
                       tone: task.loadCategory == null
                           ? RpgTone.warning
                           : RpgTone.accent,

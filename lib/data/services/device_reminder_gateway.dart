@@ -13,6 +13,7 @@ abstract interface class ReminderGateway {
   Future<bool> permission({bool request = false});
   Future<void> cancelAll();
   Future<void> schedule(int id, TaskReminder reminder);
+  Future<void> scheduleOverload(int id, OverloadAlert alert);
 }
 
 class DeviceReminderGateway implements ReminderGateway {
@@ -92,4 +93,34 @@ class DeviceReminderGateway implements ReminderGateway {
       iOS: DarwinNotificationDetails(presentBadge: false),
     ),
   );
+
+  @override
+  Future<void> scheduleOverload(int id, OverloadAlert alert) {
+    final hours = alert.overloadMinutes ~/ 60;
+    final minutes = alert.overloadMinutes % 60;
+    final amount = hours == 0
+        ? '${minutes}m'
+        : minutes == 0
+        ? '${hours}h'
+        : '${hours}h ${minutes}m';
+    return _plugin.zonedSchedule(
+      id: id,
+      title: 'Tomorrow is over capacity',
+      body:
+          'Planned work is $amount more than your available time. '
+          'Open War Council to compare safe options.',
+      scheduledDate: alert.at,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'overload_alerts_v1',
+          'Overload alerts',
+          channelDescription:
+              'Optional alerts the evening before an overloaded day',
+          visibility: NotificationVisibility.private,
+        ),
+        iOS: DarwinNotificationDetails(presentBadge: false),
+      ),
+    );
+  }
 }

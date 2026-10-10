@@ -40,8 +40,8 @@ void main() {
   });
 
   testWidgets('profile opens from the app shell and returns to Today', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await tester.pumpWidget(const BalanceApp());
     await tester.pumpAndSettle();
 
@@ -56,8 +56,8 @@ void main() {
   });
 
   testWidgets('War Council can return to Today without confirming', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await tester.pumpWidget(const BalanceApp());
     await tester.pumpAndSettle();
 
@@ -66,18 +66,20 @@ void main() {
     expect(find.byType(WarCouncilScreen), findsOneWidget);
     final returnButton = find.text('Back to Today');
     await tester.scrollUntilVisible(returnButton, 250);
+    // A day without overload says so plainly instead of offering plans.
     expect(
-      find.textContaining('Nothing moves until confirmed'),
+      find.text('No changes needed. Your plan fits this day.'),
       findsOneWidget,
     );
+    expect(find.text('Confirm selected plan'), findsNothing);
     await tester.tap(returnButton);
     await tester.pumpAndSettle();
     expect(find.byType(TodayScreen), findsOneWidget);
   });
 
   testWidgets('Android back on a tab returns to Today instead of closing', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await tester.pumpWidget(const BalanceApp());
     await tester.pumpAndSettle();
 
@@ -92,8 +94,8 @@ void main() {
   });
 
   testWidgets('Journey opens saved reflections from earlier weeks', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await tester.pumpWidget(const BalanceApp());
     await tester.pumpAndSettle();
 
@@ -109,8 +111,8 @@ void main() {
   });
 
   testWidgets('War Council without availability does not claim On track', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await tester.pumpWidget(const BalanceApp());
     await tester.pumpAndSettle();
 
@@ -121,8 +123,8 @@ void main() {
   });
 
   testWidgets('War Council opens plan history so a plan can be undone later', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await tester.pumpWidget(const BalanceApp());
     await tester.pumpAndSettle();
 
@@ -137,4 +139,3 @@ void main() {
     expect(find.byType(WarCouncilScreen), findsOneWidget);
   });
 }
-

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/shared_widgets/section_header.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
+import '../../core/audio/sound_service.dart';
 import '../../core/router/app_router.dart';
 import '../../domain/enums/validation_status.dart';
 import 'no_plan_explanation_card.dart';
@@ -38,8 +40,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
     return BalanceScaffold(
       title: 'War Council',
       headline: 'Compare plans',
-      subtitle:
-          'Feasible options for today. Nothing changes until you confirm.',
+      subtitle: 'Safe ways to fix an overloaded day.',
       currentIndex: 2,
       actions: [
         // Only entry to confirmed plans, so a plan can still be undone after
@@ -69,25 +70,29 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
             _CapacitySummary(viewModel: viewModel),
             const SizedBox(height: 12),
             _ProtectedItems(viewModel: viewModel),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: RpgTag(
-                switch (viewModel.validationStatus) {
-                  ValidationStatus.feasible => 'Feasible',
-                  ValidationStatus.needsReview => 'Needs Review',
-                  ValidationStatus.needsAgreement => 'Needs Agreement',
-                  ValidationStatus.noFeasiblePlan => 'No Feasible Plan',
-                },
-                tone: switch (viewModel.validationStatus) {
-                  ValidationStatus.feasible => RpgTone.calm,
-                  ValidationStatus.needsReview => RpgTone.warning,
-                  ValidationStatus.needsAgreement => RpgTone.warning,
-                  ValidationStatus.noFeasiblePlan => RpgTone.danger,
-                },
-                filled: true,
+            // A day that already fits needs no status badge.
+            if (viewModel.capacity.overloadMinutes > 0 ||
+                viewModel.validationStatus != ValidationStatus.feasible) ...[
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: RpgTag(
+                  switch (viewModel.validationStatus) {
+                    ValidationStatus.feasible => 'Feasible',
+                    ValidationStatus.needsReview => 'Needs Review',
+                    ValidationStatus.needsAgreement => 'Needs Agreement',
+                    ValidationStatus.noFeasiblePlan => 'No Feasible Plan',
+                  },
+                  tone: switch (viewModel.validationStatus) {
+                    ValidationStatus.feasible => RpgTone.calm,
+                    ValidationStatus.needsReview => RpgTone.warning,
+                    ValidationStatus.needsAgreement => RpgTone.warning,
+                    ValidationStatus.noFeasiblePlan => RpgTone.danger,
+                  },
+                  filled: true,
+                ),
               ),
-            ),
+            ],
             if (viewModel.isLoading) ...[
               const SizedBox(height: 28),
               const Center(child: CircularProgressIndicator()),
@@ -101,7 +106,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     child: Text(
                       viewModel.isConfigured
                           ? 'Database update needed to confirm plans.'
-                          : 'Connect Supabase to confirm plans.',
+                          : 'Sign in to confirm plans.',
                     ),
                   ),
                 ),
@@ -136,8 +141,8 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     padding: const EdgeInsets.all(2),
                     child: Text(
                       viewModel.isCheckingCapacity
-                          ? 'Checking capacity with Supabase…'
-                          : viewModel.capacityCheckError ?? 'The app and database calculate different capacity for this day. Check your profile time zone in Supabase, then refresh before confirming.',
+                          ? 'Checking your saved capacity…'
+                          : viewModel.capacityCheckError ?? 'The app and database calculate different capacity for this day. Check your planning time zone in Profile, then refresh before confirming.',
                     ),
                   ),
                 ),
@@ -155,57 +160,77 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                   ),
                 ),
               ],
-              const SizedBox(height: 26),
-              const SectionHeader(
-                title: 'Choose a plan',
-                subtitle: 'Suggestions only. Nothing moves until confirmed.',
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () => context.go(AppRoutes.today),
-                icon: const Icon(Icons.today_outlined),
-                label: const Text('Back to Today'),
-              ),
-              const SizedBox(height: 12),
-              if (viewModel.options.isEmpty)
-                _NoPlanGuidance(viewModel: viewModel)
-              else
-                for (final option in viewModel.options) ...[
-                  TradeOffOptionCard(
-                    title: option.title,
-                    description: option.description,
-                    movedMinutes: option.movedMinutes,
-                    recoveryMinutes: 0,
-                    protectedSummary:
-                        'Existing protected tasks and recovery stay unchanged.',
-                    costSummary:
-                        '${option.allMoves.length} task moves to new times before their deadlines.',
-                    roomSummary:
-                        '${option.movedMinutes} min moved from this day. Recovery time is not reserved by this suggestion.',
-                    reviewSummary: option.needsAgreement
-                        ? 'Get agreement before this change can be confirmed.'
-                        : 'Check the proposed time and deadline before confirming.',
-                    needsAgreement: option.needsAgreement,
-                    isSelected: viewModel.selectedOptionId == option.id,
-                    onTap: () => viewModel.selectOption(option.id),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-              const SizedBox(height: 8),
-              FilledButton.icon(
-                onPressed: viewModel.canConfirm
-                    ? () => _confirm(context, viewModel)
-                    : null,
-                icon: viewModel.isSaving
-                    ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.play_arrow_rounded),
-                label: Text(
-                  viewModel.isSaving ? 'Saving plan…' : 'Confirm selected plan',
+              // Nothing to fix: one clear line instead of an empty plan list
+              // and a disabled Confirm button.
+              if (viewModel.capacity.overloadMinutes == 0) ...[
+                const SizedBox(height: 18),
+                const RpgPanel(
+                  tone: RpgTone.calm,
+                  child: Text('No changes needed. Your plan fits this day.'),
                 ),
-              ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () => context.go(AppRoutes.today),
+                  icon: const Icon(Icons.today_outlined),
+                  label: const Text('Back to Today'),
+                ),
+              ] else ...[
+                const SizedBox(height: 26),
+                const SectionHeader(
+                  title: 'Choose a plan',
+                  subtitle: 'Suggestions only. Nothing moves until confirmed.',
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () => context.go(AppRoutes.today),
+                  icon: const Icon(Icons.today_outlined),
+                  label: const Text('Back to Today'),
+                ),
+                const SizedBox(height: 12),
+                if (viewModel.options.isEmpty)
+                  _NoPlanGuidance(viewModel: viewModel)
+                else
+                  for (final option in viewModel.options) ...[
+                    TradeOffOptionCard(
+                      title: option.title,
+                      description: option.description,
+                      movedMinutes: option.movedMinutes,
+                      recoveryMinutes: 0,
+                      protectedSummary: 'Existing protected tasks and recovery stay unchanged.',
+                      costSummary:
+                          '${option.allMoves.length} task moves to new times before their deadlines.',
+                      roomSummary:
+                          '${option.movedMinutes} min moved from this day. Recovery time is not reserved by this suggestion.',
+                      reviewSummary: option.needsAgreement
+                          ? 'Get agreement before this change can be confirmed.'
+                          : 'Check the proposed time and deadline before confirming.',
+                      needsAgreement: option.needsAgreement,
+                      isSelected: viewModel.selectedOptionId == option.id,
+                      onTap: () => viewModel.selectOption(option.id),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                // No options means nothing to confirm; hide the dead button.
+                if (viewModel.options.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  FilledButton.icon(
+                    onPressed: viewModel.canConfirm
+                        ? () => _confirm(context, viewModel)
+                        : null,
+                    icon: viewModel.isSaving
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.play_arrow_rounded),
+                    label: Text(
+                      viewModel.isSaving
+                          ? 'Saving plan…'
+                          : 'Confirm selected plan',
+                    ),
+                  ),
+                ],
+              ],
             ],
           ],
         ),
@@ -229,6 +254,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
       );
       return;
     }
+    unawaited(_maybeSound(context)?.playConfirm());
     context.push('/council/updated/$changeId');
   }
 }
@@ -409,11 +435,6 @@ class _ProtectedItems extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const RpgLabel('What stays protected', tone: RpgTone.calm, size: 13),
-          const SizedBox(height: 4),
-          Text(
-            'Protected items',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
           const SizedBox(height: 8),
           if (tasks.isEmpty && recovery.isEmpty)
             const Text(
@@ -478,4 +499,13 @@ class _Metric extends StatelessWidget {
       ),
     ],
   );
+}
+
+/// Sound is optional; screens in tests may not provide it.
+SoundService? _maybeSound(BuildContext context) {
+  try {
+    return context.read<SoundService>();
+  } on ProviderNotFoundException {
+    return null;
+  }
 }

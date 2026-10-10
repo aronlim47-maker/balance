@@ -8,7 +8,10 @@ import '../../core/shared_widgets/balance_scaffold.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
+import '../../data/repositories/availability_repository.dart';
 import '../../data/repositories/recovery_repository.dart';
+import '../../data/repositories/task_repository.dart';
+import '../../domain/usecases/free_windows.dart';
 import '../../domain/models/recovery_slot.dart';
 import 'recovery_slot_card.dart';
 import 'sanctuary_view_model.dart';
@@ -23,13 +26,25 @@ const recoverySuggestions = <String>[
   'Visit a campus support service',
 ];
 
+/// Reads an optional dependency; screens in tests may not provide it.
+T? _maybeRead<T>(BuildContext context) {
+  try {
+    return context.read<T>();
+  } on ProviderNotFoundException {
+    return null;
+  }
+}
+
 class SanctuaryScreen extends StatelessWidget {
   const SanctuaryScreen({super.key});
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
-    create: (_) =>
-        SanctuaryViewModel(context.read<RecoveryRepository?>())..load(),
+    create: (_) => SanctuaryViewModel(
+      context.read<RecoveryRepository?>(),
+      availabilityRepository: _maybeRead<AvailabilityRepository>(context),
+      taskRepository: _maybeRead<TaskRepository>(context),
+    )..load(),
     child: const _RecoveryContent(),
   );
 }
@@ -53,7 +68,7 @@ class _RecoveryContent extends StatelessWidget {
     return BalanceScaffold(
       title: 'Sanctuary',
       headline: 'Recovery time',
-      subtitle: 'The slot is protected whether or not you do anything with it.',
+      subtitle: 'Protected time for rest. Activities are optional.',
       eyebrowTone: RpgTone.calm,
       currentIndex: 3,
       actions: [
@@ -110,10 +125,19 @@ class _RecoveryContent extends StatelessWidget {
                             icon: const Icon(Icons.event_available_outlined),
                             label: const Text('Go to Today'),
                           ),
-                        TextButton(
-                          onPressed: model.busy ? null : model.load,
-                          child: const Text('Try again'),
-                        ),
+                        // A rejected time needs a new time, not a page reload.
+                        if (model.needsAvailability)
+                          TextButton(
+                            onPressed: canEdit
+                                ? () => _edit(context, model)
+                                : null,
+                            child: const Text('Choose another time'),
+                          )
+                        else
+                          TextButton(
+                            onPressed: model.busy ? null : model.load,
+                            child: const Text('Try again'),
+                          ),
                       ],
                     ),
                   ],
@@ -126,7 +150,7 @@ class _RecoveryContent extends StatelessWidget {
               const SizedBox(height: 20),
             ],
             if (!model.busy &&
-                model.error == null &&
+                (model.error == null || model.needsAvailability) &&
                 model.repository != null &&
                 model.slots.isEmpty)
               RpgPanel(
@@ -168,11 +192,7 @@ class _RecoveryContent extends StatelessWidget {
                 ),
               ),
             if (model.slots.isNotEmpty) ...[
-              const SectionRule(
-                'All recovery slots',
-                subtitle: 'An activity is optional · the slot holds either way',
-                tone: RpgTone.calm,
-              ),
+              const SectionRule('All recovery slots', tone: RpgTone.calm),
               const SizedBox(height: 10),
               for (final slot in model.slots)
                 Padding(
@@ -189,15 +209,9 @@ class _RecoveryContent extends StatelessWidget {
             ],
             const SizedBox(height: 8),
             const Text(
-              'You can skip an activity without any penalty. Marking an '
-              'activity done does not change your workload scores.',
-              style: TextStyle(fontSize: 13, color: BalanceColors.textMuted),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Sanctuary offers ideas for rest. It is not a medical or '
-              'therapy service.',
-              style: TextStyle(fontSize: 12, color: BalanceColors.textFaint),
+              'Skipping has no penalty, and rest does not change your scores. '
+              'Not a medical or therapy service.',
+              style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
             ),
           ],
         ),
@@ -212,7 +226,10 @@ class _RecoveryContent extends StatelessWidget {
   ]) async {
     final result = await showDialog<RecoverySlot>(
       context: context,
-      builder: (_) => _RecoveryForm(slot: slot),
+      builder: (_) => _RecoveryForm(
+        slot: slot,
+        windowsFor: (day) => model.freeWindows(day, exceptSlotId: slot?.id),
+      ),
     );
     if (result == null || !context.mounted) return;
     final saved = await model.save(result);
@@ -266,9 +283,9 @@ class _RecoveryContent extends StatelessWidget {
     }
   }
 
-  void _snack(BuildContext context, String message) => ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(SnackBar(content: Text(message)));
+  void _snack(BuildContext context, String message) =>
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
 }
 
 /// Big green panel for the current or next slot: "TONIGHT · 21:30 – 22:15".
@@ -358,8 +375,11 @@ class _FeaturedSlot extends StatelessWidget {
 }
 
 class _RecoveryForm extends StatefulWidget {
-  const _RecoveryForm({this.slot});
+  const _RecoveryForm({this.slot, required this.windowsFor});
   final RecoverySlot? slot;
+
+  /// Free time on a day, offered as one-tap suggestions.
+  final List<FreeWindow> Function(DateTime day) windowsFor;
 
   @override
   State<_RecoveryForm> createState() => _RecoveryFormState();
@@ -379,6 +399,18 @@ class _RecoveryFormState extends State<_RecoveryForm> {
   @override
   void initState() {
     super.initState();
+    // A new slot starts in the first free window instead of a guessed time.
+    if (widget.slot == null) {
+      for (var ahead = 0; ahead <= 7; ahead++) {
+        final windows = widget.windowsFor(
+          DateTime(start.year, start.month, start.day + ahead),
+        );
+        if (windows.isNotEmpty) {
+          _useWindow(windows.first);
+          break;
+        }
+      }
+    }
     final current = widget.slot?.selectedActivity;
     if (current == null) {
       choice = _skip;
@@ -401,6 +433,77 @@ class _RecoveryFormState extends State<_RecoveryForm> {
       now.day,
       now.hour,
     ).add(Duration(minutes: minutes));
+  }
+
+  void _useWindow(FreeWindow window) {
+    start = window.start;
+    end = start.add(
+      Duration(minutes: window.minutes < 30 ? window.minutes : 30),
+    );
+    error = null;
+  }
+
+  static String _length(int minutes) {
+    final h = minutes ~/ 60, m = minutes % 60;
+    return h == 0 ? '${m}m' : (m == 0 ? '${h}h' : '${h}h ${m}m');
+  }
+
+  Widget _freeTime() {
+    // Look up to a week ahead so a fully booked day still gets a suggestion.
+    var day = start;
+    var windows = widget.windowsFor(day);
+    for (var ahead = 1; windows.isEmpty && ahead <= 7; ahead++) {
+      day = DateTime(start.year, start.month, start.day + ahead);
+      windows = widget.windowsFor(day);
+    }
+    final sameDay = DateUtils.isSameDay(day, start);
+    final time = DateFormat.jm();
+    final date = DateFormat('EEE d MMM');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RpgLabel(
+          windows.isEmpty || sameDay
+              ? 'Free on ${date.format(start)}'
+              : 'Next free time · ${date.format(day)}',
+          size: 12,
+        ),
+        const SizedBox(height: 8),
+        if (windows.isEmpty)
+          const Text(
+            'No free time this week. Add availability on Today first.',
+            style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
+          )
+        else ...[
+          if (!sameDay)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                'Nothing free on ${date.format(start)}. Tap a time to use it.',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: BalanceColors.textMuted,
+                ),
+              ),
+            ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final w in windows.take(4))
+                ChoiceChip(
+                  label: Text(
+                    '${time.format(w.start)} – ${time.format(w.end)} · '
+                    '${_length(w.minutes)} free',
+                  ),
+                  selected: !start.isBefore(w.start) && !end.isAfter(w.end),
+                  onSelected: (_) => setState(() => _useWindow(w)),
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
   }
 
   @override
@@ -468,7 +571,11 @@ class _RecoveryFormState extends State<_RecoveryForm> {
                 ),
               ),
             ),
-            const Icon(Icons.schedule, size: 18, color: BalanceColors.textMuted),
+            const Icon(
+              Icons.schedule,
+              size: 18,
+              color: BalanceColors.textMuted,
+            ),
           ],
         ),
       );
@@ -496,13 +603,8 @@ class _RecoveryFormState extends State<_RecoveryForm> {
               label: 'End',
               child: _timeTile('End', end, () => pick(false)),
             ),
-            const SizedBox(height: 6),
-            const Text(
-              'Must fit inside your available time without overlapping '
-              'planned work. Add availability on Today first if this day '
-              'has none.',
-              style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
-            ),
+            const SizedBox(height: 14),
+            _freeTime(),
             const SizedBox(height: 18),
             const SectionRule(
               'Something to do with it',

@@ -48,6 +48,7 @@ class TodayViewModel extends LifecycleNotifier {
   final SocialRepository? _socialRepository;
   final WorldHistoryRepository? _historyRepository;
   List<int?> _previousTotals = List.filled(7, null);
+  WorldStatusResult? _previousDayStatus;
   String? historyNotice;
   WorldStatusResult? _historicalStatus;
   final List<TaskItem> _tasks = [];
@@ -67,6 +68,7 @@ class TodayViewModel extends LifecycleNotifier {
   bool _isSavingSocial = false;
   bool _isSavingReview = false;
   bool _isSavingAvailability = false;
+  bool get isSavingAvailability => _isSavingAvailability;
   bool _isSavingMovement = false;
   String? _errorMessage;
   String? _loadErrorMessage;
@@ -77,6 +79,24 @@ class TodayViewModel extends LifecycleNotifier {
   /// Recorded World Status totals for the seven dates before [selectedDay],
   /// oldest first; `null` means no snapshot exists for that date.
   List<int?> get previousTotals => List.unmodifiable(_previousTotals);
+
+  /// Change of each dimension against the previous day's recorded snapshot.
+  /// Null when either day has no score: a missing day is never read as zero.
+  Map<WorldDimension, int?> get dimensionChanges {
+    final previous = _previousDayStatus;
+    final current = worldStatus;
+    return {
+      for (final dimension in WorldDimension.values)
+        dimension: switch ((
+          current.dimensions[dimension]?.score,
+          previous?.dimensions[dimension]?.score,
+        )) {
+          (final int now, final int before) => now - before,
+          _ => null,
+        },
+    };
+  }
+
   bool get isLoading => _isLoading;
   bool get hasLoaded => _hasLoaded;
   String? get errorMessage => _errorMessage;
@@ -338,6 +358,14 @@ class TodayViewModel extends LifecycleNotifier {
           final totals = await _historyRepository.loadPreviousWeek(loadingDay);
           if (loadVersion == _loadVersion) {
             _previousTotals = totals;
+            try {
+              final previous = await _historyRepository.loadDaySnapshot(
+                DateTime(loadingDay.year, loadingDay.month, loadingDay.day - 1),
+              );
+              if (loadVersion == _loadVersion) _previousDayStatus = previous;
+            } catch (_) {
+              if (loadVersion == _loadVersion) _previousDayStatus = null;
+            }
             final history = _historyRepository;
             if (history is SnapshotCaptureStatus) {
               historyNotice ??=
@@ -371,6 +399,7 @@ class TodayViewModel extends LifecycleNotifier {
     _selectedDay = _dateOnly(day);
     _hasLoaded = false;
     _previousTotals = List.filled(7, null);
+    _previousDayStatus = null;
     _historicalStatus = null;
     _checkIn = null;
     _latestExercise = null;
@@ -614,6 +643,77 @@ class TodayViewModel extends LifecycleNotifier {
       );
       notifyListeners();
       return false;
+    } finally {
+      _isSavingAvailability = false;
+      notifyListeners();
+    }
+  }
+
+  /// Blocks that start on [day] (local date).
+  List<AvailabilityBlock> blocksStartingOn(DateTime day) {
+    final d = _dateOnly(day);
+    return [
+      for (final b in _availability)
+        if (_dateOnly(b.startAt.toLocal()) == d) b,
+    ];
+  }
+
+  /// The previous day's blocks, offered for copying when the day is empty.
+  List<AvailabilityBlock> get previousDayAvailability => blocksStartingOn(
+    DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day - 1),
+  );
+
+  /// Copies the blocks that start on [from] to each day in [to], keeping
+  /// their times. Days that already have availability are skipped so nothing
+  /// is duplicated or overlapped. Returns how many days were filled, or null
+  /// when saving failed (already saved days stay saved).
+  Future<int?> copyAvailability(DateTime from, List<DateTime> to) async {
+    if (isDisposed || _isSavingAvailability) return null;
+    final source = blocksStartingOn(from);
+    if (source.isEmpty) return 0;
+    _isSavingAvailability = true;
+    _invalidateLoads();
+    _errorMessage = null;
+    _refreshWarning = null;
+    notifyListeners();
+    var filled = 0;
+    try {
+      for (final day in to) {
+        if (blocksStartingOn(day).isNotEmpty) continue;
+        for (final block in source) {
+          final start = block.startAt.toLocal();
+          final newStart = DateTime(
+            day.year,
+            day.month,
+            day.day,
+            start.hour,
+            start.minute,
+          );
+          final saved = await _availabilityRepository.createAvailability(
+            AvailabilityBlock(
+              id: '',
+              startAt: newStart,
+              endAt: newStart.add(block.endAt.difference(block.startAt)),
+              isAvailable: block.isAvailable,
+              label: block.label,
+            ),
+          );
+          if (isDisposed) return filled;
+          _availability.add(saved);
+        }
+        filled++;
+      }
+      _availability.sort((a, b) => a.startAt.compareTo(b.startAt));
+      notifyListeners();
+      await _refreshHistoryAfterSave();
+      return filled;
+    } catch (error) {
+      _availability.sort((a, b) => a.startAt.compareTo(b.startAt));
+      _errorMessage = AppErrorMessage.from(
+        error,
+        fallback: 'Could not copy all time blocks. Please try again.',
+      );
+      return null;
     } finally {
       _isSavingAvailability = false;
       notifyListeners();

@@ -67,6 +67,9 @@ void main() {
     expect(find.text('Try again'), findsOneWidget);
 
     repository.fail = false;
+    // Bring the button fully into view so the tap is not taken by the nav bar.
+    await tester.ensureVisible(find.text('Try again'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Try again'));
     await tester.pumpAndSettle();
     expect(

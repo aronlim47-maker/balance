@@ -71,7 +71,7 @@ class _PlanHistoryScreenState extends State<PlanHistoryScreen> {
             Text(
               context.read<PlanRepository?>() == null
                   ? 'Connect your account to see plan history.'
-                  : 'No confirmed plans yet.',
+                  : 'No confirmed plans yet. Plans you confirm in War Council appear here, and you can undo them from here.',
             ),
           for (final plan in _plans)
             Card(

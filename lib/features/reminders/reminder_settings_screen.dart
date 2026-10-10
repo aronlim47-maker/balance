@@ -11,7 +11,7 @@ class ReminderSettingsScreen extends StatelessWidget {
     final controller = context.watch<ReminderController>();
     final settings = controller.preferences;
     return Scaffold(
-      appBar: AppBar(title: const Text('Task reminders')),
+      appBar: AppBar(title: const Text('Reminders and alerts')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -54,6 +54,30 @@ class ReminderSettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             SwitchListTile(
+              title: const Text('Overload alerts'),
+              subtitle: const Text(
+                'The evening before a day with more planned work than '
+                'available time. Off by default.',
+              ),
+              value: settings.overloadAlerts,
+              onChanged: controller.available && !controller.busy
+                  ? (value) => controller.save(
+                      settings.copyWith(overloadAlerts: value),
+                    )
+                  : null,
+            ),
+            ListTile(
+              title: const Text('Alert time'),
+              trailing: Text(_time(settings.overloadAt).format(context)),
+              onTap:
+                  controller.available &&
+                      !controller.busy &&
+                      settings.overloadAlerts
+                  ? () => _chooseAlertTime(context, controller)
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            SwitchListTile(
               title: const Text('Quiet hours'),
               subtitle: const Text('Reminders in this period are skipped.'),
               value: settings.quietEnabled,
@@ -91,7 +115,10 @@ class ReminderSettingsScreen extends StatelessWidget {
                 ),
               ),
             if (controller.available) ...[
-              Text('${controller.scheduledCount} reminders scheduled'),
+              Text(
+                '${controller.scheduledCount} reminders and '
+                '${controller.overloadAlertCount} overload alerts scheduled',
+              ),
               TextButton.icon(
                 onPressed: controller.busy ? null : controller.refresh,
                 icon: const Icon(Icons.refresh),
@@ -117,6 +144,22 @@ class ReminderSettingsScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _chooseAlertTime(
+    BuildContext context,
+    ReminderController controller,
+  ) async {
+    final selected = await showTimePicker(
+      context: context,
+      initialTime: _time(controller.preferences.overloadAt),
+    );
+    if (selected == null || !context.mounted) return;
+    await controller.save(
+      controller.preferences.copyWith(
+        overloadAt: selected.hour * 60 + selected.minute,
       ),
     );
   }

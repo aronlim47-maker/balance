@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'core/audio/sound_service.dart';
 import 'core/router/app_router.dart';
 import 'core/state/planning_day_controller.dart';
 import 'core/theme/app_theme.dart';
@@ -62,6 +63,7 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
   late final PlanningDayController _planningDayController;
   String? _sessionUserId;
   late final ReminderController _reminders;
+  final SoundService _sound = SoundService()..load();
 
   @override
   void initState() {
@@ -81,6 +83,7 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
       rawTasks,
       DeviceReminderGateway(),
       DeviceReminderStore(),
+      fetchAvailability: () => _availabilityRepository.fetchAvailability(),
     );
     _taskRepository = RemindingTaskRepository(
       rawTasks,
@@ -136,6 +139,7 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _reminders.dispose();
+    _sound.dispose();
     _router.dispose();
     _authViewModel.removeListener(_handleAccountChange);
     _authViewModel.dispose();
@@ -149,6 +153,7 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
       key: ValueKey(_sessionUserId),
       providers: [
         ChangeNotifierProvider.value(value: _reminders),
+        ChangeNotifierProvider.value(value: _sound),
         ChangeNotifierProvider.value(value: _authViewModel),
         ChangeNotifierProvider.value(value: _planningDayController),
         ChangeNotifierProvider(

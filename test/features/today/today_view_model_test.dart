@@ -174,4 +174,59 @@ void main() {
       );
     },
   );
+
+  test(
+    'copies a day of availability and skips days that already have time',
+    () async {
+      final availability = LocalAvailabilityRepository();
+      final day = DateTime(today.year, today.month, today.day + 1);
+      DateTime at(DateTime d, int h) => DateTime(d.year, d.month, d.day, h);
+      final next = DateTime(day.year, day.month, day.day + 1);
+      final busy = DateTime(day.year, day.month, day.day + 2);
+      await availability.createAvailability(
+        AvailabilityBlock(
+          id: '',
+          startAt: at(day, 9),
+          endAt: at(day, 12),
+          isAvailable: true,
+        ),
+      );
+      await availability.createAvailability(
+        AvailabilityBlock(
+          id: '',
+          startAt: at(day, 13),
+          endAt: at(day, 14),
+          isAvailable: false,
+          label: 'Lunch',
+        ),
+      );
+      await availability.createAvailability(
+        AvailabilityBlock(
+          id: '',
+          startAt: at(busy, 18),
+          endAt: at(busy, 20),
+          isAvailable: true,
+        ),
+      );
+      final viewModel = TodayViewModel(LocalTaskRepository(), availability)
+        ..selectDay(day);
+      await viewModel.load();
+
+      final filled = await viewModel.copyAvailability(day, [next, busy]);
+
+      expect(filled, 1);
+      final copied = viewModel.blocksStartingOn(next);
+      expect(copied, hasLength(2));
+      expect(copied.first.startAt, at(next, 9));
+      expect(copied.first.endAt, at(next, 12));
+      expect(copied.last.isAvailable, isFalse);
+      expect(copied.last.label, 'Lunch');
+      // The day that already had time is left untouched.
+      expect(viewModel.blocksStartingOn(busy), hasLength(1));
+
+      viewModel.selectDay(next, reload: false);
+      expect(viewModel.previousDayAvailability, hasLength(2));
+      viewModel.dispose();
+    },
+  );
 }

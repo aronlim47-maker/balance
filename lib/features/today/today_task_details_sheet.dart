@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/enums/task_flexibility.dart';
+import '../../domain/enums/task_status.dart';
 import '../../domain/models/task_item.dart';
 import '../../domain/models/plan_reservation.dart';
 
@@ -10,10 +11,18 @@ class TodayTaskDetailsSheet extends StatelessWidget {
     super.key,
     required this.task,
     this.reservations = const [],
+    this.explainDay = true,
+    this.onEdit,
   });
 
   final TaskItem task;
   final List<PlanReservation> reservations;
+
+  /// Today explains why the task counts on the viewed day; Quest Board does not.
+  final bool explainDay;
+
+  /// When given, an Edit button replaces the "edit in Quest Board" hint.
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -60,21 +69,38 @@ class TodayTaskDetailsSheet extends StatelessWidget {
               const _Detail(label: 'Protection', value: 'Protected'),
             if (task.isOptional)
               const _Detail(label: 'Priority', value: 'Optional'),
-            const SizedBox(height: 14),
-            Text(
-              'Why is it here?',
-              style: Theme.of(context).textTheme.titleMedium,
+            _Detail(
+              label: 'Status',
+              value: switch (task.status) {
+                TaskStatus.planned => 'Planned',
+                TaskStatus.completed => 'Done',
+                TaskStatus.cancelled => 'Cancelled',
+              },
             ),
-            const SizedBox(height: 4),
-            Text(
-              reservations.isNotEmpty
-                  ? 'Council moved part of this task here. Its reserved time counts toward this day’s capacity.'
-                  : scheduled
-                  ? 'Scheduled work overlaps this day and counts toward its capacity.'
-                  : 'Due on this day. Remaining work counts toward capacity, but no time slot is reserved.',
-            ),
-            const SizedBox(height: 8),
-            const Text('Review or edit this task in Quest Board.'),
+            if (explainDay) ...[
+              const SizedBox(height: 14),
+              Text(
+                'Why is it here?',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                reservations.isNotEmpty
+                    ? 'Council moved part of this task here. Its reserved time counts toward this day’s capacity.'
+                    : scheduled
+                    ? 'Scheduled work overlaps this day and counts toward its capacity.'
+                    : 'Due on this day. Remaining work counts toward capacity, but no time slot is reserved.',
+              ),
+            ],
+            const SizedBox(height: 16),
+            if (onEdit != null)
+              FilledButton.icon(
+                onPressed: onEdit,
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Edit task'),
+              )
+            else
+              const Text('Review or edit this task in Quest Board.'),
           ],
         ),
       ),

@@ -14,6 +14,7 @@ import '../../domain/enums/task_status.dart';
 import '../../domain/models/movement_models.dart';
 import '../../domain/models/task_item.dart';
 import '../today/movement_card.dart';
+import '../today/today_task_details_sheet.dart';
 import 'quest_board_view_model.dart';
 import 'task_card.dart';
 import 'task_form_screen.dart';
@@ -195,6 +196,20 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
             _setStatus(context, viewModel, task, status),
         onEdit: () => _openTaskForm(context, viewModel, task: task),
         onDelete: () => _confirmDelete(context, viewModel, task),
+        onTap: () => showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          showDragHandle: true,
+          useSafeArea: true,
+          builder: (sheetContext) => TodayTaskDetailsSheet(
+            task: task,
+            explainDay: false,
+            onEdit: () {
+              Navigator.of(sheetContext).pop();
+              _openTaskForm(context, viewModel, task: task);
+            },
+          ),
+        ),
       ),
     );
     return [

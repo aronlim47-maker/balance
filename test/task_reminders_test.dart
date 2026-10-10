@@ -4,6 +4,7 @@ import 'package:balance/data/repositories/local_planning_repositories.dart';
 import 'package:balance/data/repositories/reminding_task_repository.dart';
 import 'package:balance/data/services/device_reminder_gateway.dart';
 import 'package:balance/domain/enums/task_status.dart';
+import 'package:balance/domain/models/availability_block.dart';
 import 'package:balance/domain/models/task_item.dart';
 import 'package:balance/domain/usecases/plan_task_reminders.dart';
 import 'package:balance/features/reminders/reminder_controller.dart';
@@ -12,10 +13,10 @@ import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 TaskItem task(
-    String id,
-    DateTime due, {
-      TaskStatus status = TaskStatus.planned,
-    }) => TaskItem(
+  String id,
+  DateTime due, {
+  TaskStatus status = TaskStatus.planned,
+}) => TaskItem(
   id: id,
   title: 'Private title',
   estimatedMinutes: 30,
@@ -64,6 +65,7 @@ class FakeGateway implements ReminderGateway {
   @override
   Future<void> cancelAll() async {
     scheduled.clear();
+    overloads.clear();
   }
 
   @override
@@ -71,6 +73,12 @@ class FakeGateway implements ReminderGateway {
     if (failSchedule) throw StateError('raw private platform error');
     await scheduleGate?.future;
     scheduled.add(reminder);
+  }
+
+  final overloads = <OverloadAlert>[];
+  @override
+  Future<void> scheduleOverload(int id, OverloadAlert alert) async {
+    overloads.add(alert);
   }
 }
 
@@ -102,14 +110,16 @@ void main() {
     final reminders = planTaskReminders(tasks, enabled, now, tz.UTC);
     expect(reminders.map((r) => r.taskId), ['a']);
     expect(
-      reminders.single.at.isAtSameMomentAs(now.add(const Duration(minutes: 90))),
+      reminders.single.at.isAtSameMomentAs(
+        now.add(const Duration(minutes: 90)),
+      ),
       isTrue,
     );
   });
 
   test(
     'Quiet hours use device zone, with inclusive start and exclusive end',
-        () {
+    () {
       final zone = tz.getLocation('Asia/Kuala_Lumpur');
       final tasks = [
         task('start', DateTime.utc(2026, 10, 4, 14, 30)),
@@ -131,7 +141,7 @@ void main() {
   test('Same-day quiet hours, equal endpoints invalid, limit nearest 50', () {
     final tasks = List.generate(
       65,
-          (i) => task('$i', now.add(Duration(hours: i + 1))),
+      (i) => task('$i', now.add(Duration(hours: i + 1))),
     );
     expect(planTaskReminders(tasks, enabled, now, tz.UTC), hasLength(50));
     expect(
@@ -161,7 +171,9 @@ void main() {
       tz.getLocation('America/New_York'),
     );
     expect(
-      result.single.at.isAtSameMomentAs(due.subtract(const Duration(minutes: 30))),
+      result.single.at.isAtSameMomentAs(
+        due.subtract(const Duration(minutes: 30)),
+      ),
       isTrue,
     );
   });
@@ -238,7 +250,7 @@ void main() {
 
   test(
     'Account switch during scheduling leaves no stale owner reminder',
-        () async {
+    () async {
       final inner = LocalTaskRepository();
       await inner.createTask(
         task('', DateTime.now().add(const Duration(days: 2))),
@@ -267,7 +279,7 @@ void main() {
 
   test(
     'Offline refresh preserves existing reminders and reports a safe warning',
-        () async {
+    () async {
       final tasks = FailingReadTasks();
       await tasks.createTask(
         task('', DateTime.now().add(const Duration(days: 2))),
@@ -291,7 +303,7 @@ void main() {
 
   test(
     'Committed create, update and delete do not wait for reminder I/O',
-        () async {
+    () async {
       final inner = LocalTaskRepository();
       final gate = Completer<void>();
       final repo = RemindingTaskRepository(inner, () => gate.future);
@@ -307,4 +319,134 @@ void main() {
       gate.complete();
     },
   );
+
+  group('overload alerts', () {
+    final base = DateTime(2030, 3, 4, 12);
+    DateTime day(int d, int h) => DateTime(2030, 3, 4 + d, h);
+    const alerts = ReminderPreferences(overloadAlerts: true);
+    final tomorrowTasks = [
+      TaskItem(
+        id: 'big',
+        title: 'Private title',
+        estimatedMinutes: 300,
+        dueAt: day(1, 17),
+      ),
+    ];
+    final tomorrowTime = [
+      AvailabilityBlock(
+        id: 'a',
+        startAt: day(1, 9),
+        endAt: day(1, 12),
+        isAvailable: true,
+      ),
+    ];
+
+    test('warns the evening before an overloaded day', () {
+      final result = planOverloadAlerts(
+        tomorrowTasks,
+        tomorrowTime,
+        alerts,
+        base,
+        tz.UTC,
+      );
+      expect(result, hasLength(1));
+      expect(result.single.overloadMinutes, 120);
+      expect(result.single.at, tz.TZDateTime(tz.UTC, 2030, 3, 4, 20));
+    });
+
+    test('off by default, nothing for days that fit or evenings passed', () {
+      expect(
+        planOverloadAlerts(
+          tomorrowTasks,
+          tomorrowTime,
+          const ReminderPreferences(),
+          base,
+          tz.UTC,
+        ),
+        isEmpty,
+      );
+      final roomy = [
+        AvailabilityBlock(
+          id: 'b',
+          startAt: day(1, 9),
+          endAt: day(1, 15),
+          isAvailable: true,
+        ),
+      ];
+      expect(
+        planOverloadAlerts(tomorrowTasks, roomy, alerts, base, tz.UTC),
+        isEmpty,
+      );
+      expect(
+        planOverloadAlerts(
+          tomorrowTasks,
+          tomorrowTime,
+          alerts,
+          // Same zone as the alert location: 21:00 is after the 20:00 alert.
+          DateTime.utc(2030, 3, 4, 21),
+          tz.UTC,
+        ),
+        isEmpty,
+      );
+    });
+
+    test('an alert time inside quiet hours is skipped', () {
+      expect(
+        planOverloadAlerts(
+          tomorrowTasks,
+          tomorrowTime,
+          alerts.copyWith(overloadAt: 23 * 60),
+          base,
+          tz.UTC,
+        ),
+        isEmpty,
+      );
+    });
+
+    test('preferences survive a save and reload', () {
+      final saved = ReminderPreferences.fromJson(
+        alerts.copyWith(overloadAt: 19 * 60 + 30).toJson(),
+      );
+      expect(saved.overloadAlerts, isTrue);
+      expect(saved.overloadAt, 19 * 60 + 30);
+      expect(ReminderPreferences.fromJson(const {}).overloadAlerts, isFalse);
+    });
+
+    test(
+      'the controller schedules alerts without deadline reminders',
+      () async {
+        final tasks = LocalTaskRepository();
+        await tasks.createTask(
+          TaskItem(
+            id: '',
+            title: 'Private title',
+            estimatedMinutes: 600,
+            dueAt: DateTime.now().add(const Duration(days: 3)),
+          ),
+        );
+        final now = DateTime.now();
+        final target = DateTime(now.year, now.month, now.day + 2);
+        final gateway = FakeGateway();
+        final controller = ReminderController(
+          tasks,
+          gateway,
+          MemoryStore(),
+          fetchAvailability: () async => [
+            AvailabilityBlock(
+              id: 'x',
+              startAt: target.add(const Duration(hours: 9)),
+              endAt: target.add(const Duration(hours: 10)),
+              isAvailable: true,
+            ),
+          ],
+        );
+        addTearDown(controller.dispose);
+        await controller.setOwner('a');
+        await controller.save(alerts);
+        expect(gateway.scheduled, isEmpty);
+        expect(gateway.overloads, isNotEmpty);
+        expect(controller.overloadAlertCount, gateway.overloads.length);
+      },
+    );
+  });
 }

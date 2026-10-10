@@ -24,6 +24,7 @@ import 'capacity_gap_card.dart';
 import 'daily_review_card.dart';
 import 'movement_card.dart';
 import 'social_card.dart';
+import '../onboarding/onboarding.dart';
 import 'today_view_model.dart';
 import 'today_task_details_sheet.dart';
 import 'world_status_card.dart';
@@ -47,7 +48,7 @@ class TodayScreen extends StatelessWidget {
       context.read<SocialRepository>(),
       context.read<WorldHistoryRepository?>(),
     )..load(),
-    child: const _TodayContent(),
+    child: const OnboardingGate(child: _TodayContent()),
   );
 }
 
@@ -127,13 +128,13 @@ class _TodayContent extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 16),
-          WorldStatusCard(
+          // Decide first: capacity, the verdict, then the day's time and work.
+          TimeCapacityPanel(
             plannedMinutes: viewModel.plannedMinutes,
             availableMinutes: viewModel.availableMinutes,
-            status: viewModel.worldStatus,
-            selectedDay: viewModel.selectedDay,
-            previousTotals: viewModel.previousTotals,
           ),
+          const SizedBox(height: 12),
+          CapacityGapCard(overloadMinutes: viewModel.overloadMinutes),
           if (viewModel.overloadMinutes > 0 &&
               viewModel.earlyReviewCandidate != null &&
               context.read<VerifiedProgressService?>() != null)
@@ -142,58 +143,6 @@ class _TodayContent extends StatelessWidget {
               icon: const Icon(Icons.fact_check_outlined),
               label: const Text('I reviewed this overload'),
             ),
-          const SizedBox(height: 12),
-          DailyReviewCard(
-            review: viewModel.checkIn,
-            isSaving: viewModel.isSavingReview,
-            onEdit: () => _openDailyReview(context, viewModel),
-          ),
-          const SizedBox(height: 12),
-          MovementCard(
-            selectedDay: viewModel.selectedDay,
-            settings: viewModel.movementSettings,
-            latestExercise: viewModel.latestExercise,
-            dayLogs: viewModel.exerciseLogsForDay,
-            isSaving: viewModel.isSavingMovement,
-            onTrackingChanged: (enabled) => _saveMovementSettings(
-              context,
-              viewModel,
-              MovementSettings(
-                trackingEnabled: enabled,
-                targetDays: viewModel.movementSettings.targetDays,
-                targetRecoveryMinutes:
-                    viewModel.movementSettings.targetRecoveryMinutes,
-                targetSocialMinutesWeek:
-                    viewModel.movementSettings.targetSocialMinutesWeek,
-              ),
-            ),
-            onTargetDaysChanged: (days) => _saveMovementSettings(
-              context,
-              viewModel,
-              MovementSettings(
-                trackingEnabled: viewModel.movementSettings.trackingEnabled,
-                targetDays: days,
-                targetRecoveryMinutes:
-                    viewModel.movementSettings.targetRecoveryMinutes,
-                targetSocialMinutesWeek:
-                    viewModel.movementSettings.targetSocialMinutesWeek,
-              ),
-            ),
-            onAdd: () => _openExercise(context, viewModel),
-            onDelete: (log) => _deleteExercise(context, viewModel, log),
-          ),
-          const SizedBox(height: 12),
-          SocialCard(
-            events: viewModel.socialEvents,
-            noCommitments: viewModel.noSocialCommitments,
-            isSaving: viewModel.isSavingSocial,
-            onAdd: () => _openSocialEvent(context, viewModel),
-            onDelete: (event) => _deleteSocialEvent(context, viewModel, event),
-            onNoCommitmentsChanged: (value) =>
-                _setNoSocialCommitments(context, viewModel, value),
-          ),
-          const SizedBox(height: 12),
-          CapacityGapCard(overloadMinutes: viewModel.overloadMinutes),
           const SizedBox(height: 24),
           _SectionTitle(
             title: 'Availability',
@@ -201,11 +150,24 @@ class _TodayContent extends StatelessWidget {
             onAction: () => _openAvailabilityForm(context, viewModel),
           ),
           const SizedBox(height: 10),
-          if (viewModel.availabilityForDay.isEmpty)
+          if (viewModel.availabilityForDay.isEmpty) ...[
             const _EmptyCard(
               message: 'No availability has been added for this day.',
-            )
-          else
+            ),
+            if (viewModel.previousDayAvailability.isNotEmpty)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: viewModel.isSavingAvailability
+                      ? null
+                      : () => _copyFromPreviousDay(context, viewModel),
+                  icon: const Icon(Icons.content_copy_outlined),
+                  label: Text(
+                    'Copy from ${DateFormat('EEE d MMM').format(viewModel.selectedDay.subtract(const Duration(days: 1)))}',
+                  ),
+                ),
+              ),
+          ] else ...[
             ...viewModel.availabilityForDay.map(
               (block) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -218,6 +180,17 @@ class _TodayContent extends StatelessWidget {
                 ),
               ),
             ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: viewModel.isSavingAvailability
+                    ? null
+                    : () => _repeatForWeek(context, viewModel),
+                icon: const Icon(Icons.repeat),
+                label: const Text('Repeat for the next 6 days'),
+              ),
+            ),
+          ],
           const SizedBox(height: 14),
           const _SectionTitle(title: 'Planned tasks'),
           const SizedBox(height: 10),
@@ -253,7 +226,153 @@ class _TodayContent extends StatelessWidget {
                 ),
               ),
             ),
+          const SizedBox(height: 24),
+          WorldStatusCard(
+            plannedMinutes: viewModel.plannedMinutes,
+            availableMinutes: viewModel.availableMinutes,
+            status: viewModel.worldStatus,
+            selectedDay: viewModel.selectedDay,
+            previousTotals: viewModel.previousTotals,
+            showCapacity: false,
+            changes: viewModel.dimensionChanges,
+          ),
+          const SizedBox(height: 24),
+          // Optional inputs that only refine World Status.
+          const _SectionTitle(title: 'Optional updates'),
+          const SizedBox(height: 4),
+          const Text(
+            'Add detail to your Workload Overview. Skipping is fine.',
+            style: TextStyle(color: BalanceColors.textMuted),
+          ),
+          const SizedBox(height: 10),
+          DailyReviewCard(
+            review: viewModel.checkIn,
+            isSaving: viewModel.isSavingReview,
+            onEdit: () => _openDailyReview(context, viewModel),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                MovementCard(
+                  embedded: true,
+                  selectedDay: viewModel.selectedDay,
+                  settings: viewModel.movementSettings,
+                  latestExercise: viewModel.latestExercise,
+                  dayLogs: viewModel.exerciseLogsForDay,
+                  isSaving: viewModel.isSavingMovement,
+                  onTrackingChanged: (enabled) => _saveMovementSettings(
+                    context,
+                    viewModel,
+                    MovementSettings(
+                      trackingEnabled: enabled,
+                      targetDays: viewModel.movementSettings.targetDays,
+                      targetRecoveryMinutes:
+                          viewModel.movementSettings.targetRecoveryMinutes,
+                      targetSocialMinutesWeek:
+                          viewModel.movementSettings.targetSocialMinutesWeek,
+                    ),
+                  ),
+                  onTargetDaysChanged: (days) => _saveMovementSettings(
+                    context,
+                    viewModel,
+                    MovementSettings(
+                      trackingEnabled:
+                          viewModel.movementSettings.trackingEnabled,
+                      targetDays: days,
+                      targetRecoveryMinutes:
+                          viewModel.movementSettings.targetRecoveryMinutes,
+                      targetSocialMinutesWeek:
+                          viewModel.movementSettings.targetSocialMinutesWeek,
+                    ),
+                  ),
+                  onAdd: () => _openExercise(context, viewModel),
+                  onDelete: (log) => _deleteExercise(context, viewModel, log),
+                ),
+                const Divider(height: 1),
+                SocialCard(
+                  embedded: true,
+                  events: viewModel.socialEvents,
+                  noCommitments: viewModel.noSocialCommitments,
+                  isSaving: viewModel.isSavingSocial,
+                  onAdd: () => _openSocialEvent(context, viewModel),
+                  onDelete: (event) =>
+                      _deleteSocialEvent(context, viewModel, event),
+                  onNoCommitmentsChanged: (value) =>
+                      _setNoSocialCommitments(context, viewModel, value),
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _copyFromPreviousDay(
+    BuildContext context,
+    TodayViewModel viewModel,
+  ) async {
+    final day = viewModel.selectedDay;
+    final filled = await viewModel.copyAvailability(
+      DateTime(day.year, day.month, day.day - 1),
+      [day],
+    );
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          filled == null
+              ? viewModel.errorMessage ?? 'Could not copy time blocks.'
+              : 'Copied the previous day’s time.',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _repeatForWeek(
+    BuildContext context,
+    TodayViewModel viewModel,
+  ) async {
+    final day = viewModel.selectedDay;
+    final targets = [
+      for (var i = 1; i <= 6; i++) DateTime(day.year, day.month, day.day + i),
+    ];
+    final range =
+        '${DateFormat('EEE d MMM').format(targets.first)} – ${DateFormat('EEE d MMM').format(targets.last)}';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Repeat this day’s time?'),
+        content: Text(
+          'Copy ${viewModel.availabilityForDay.length} time block(s) to $range. '
+          'Days that already have time are skipped.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Repeat'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final filled = await viewModel.copyAvailability(day, targets);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          filled == null
+              ? viewModel.errorMessage ?? 'Could not copy time blocks.'
+              : filled == 0
+              ? 'Every day already has time. Nothing was copied.'
+              : 'Copied to $filled day${filled == 1 ? '' : 's'}.',
+        ),
       ),
     );
   }
@@ -661,7 +780,8 @@ class _StatusBadge extends StatelessWidget {
               DiamondIcon(size: 10, filled: true, color: tone.foreground),
               const SizedBox(width: 6),
               RpgLabel(
-                label == 'Not enough data' ? 'No data yet' : label,
+                // Name the measure so 'Low' is not read as 'plan fits'.
+                label == 'Not enough data' ? 'Load: no data' : 'Load: $label',
                 tone: tone == RpgTone.muted ? RpgTone.muted : tone,
                 size: 12,
                 spacing: 1.6,

@@ -1,13 +1,40 @@
 import '../../core/state/lifecycle_notifier.dart';
 
 import '../../core/utils/app_error_message.dart';
+import '../../data/repositories/availability_repository.dart';
 import '../../data/repositories/recovery_repository.dart';
+import '../../data/repositories/task_repository.dart';
+import '../../domain/models/availability_block.dart';
 import '../../domain/models/recovery_slot.dart';
+import '../../domain/models/task_item.dart';
+import '../../domain/usecases/free_windows.dart';
 
 class SanctuaryViewModel extends LifecycleNotifier {
-  SanctuaryViewModel(this.repository);
+  SanctuaryViewModel(
+    this.repository, {
+    this.availabilityRepository,
+    this.taskRepository,
+  });
   final RecoveryRepository? repository;
+
+  /// Optional sources for free-time suggestions; without them the form simply
+  /// offers no suggestions.
+  final AvailabilityRepository? availabilityRepository;
+  final TaskRepository? taskRepository;
   List<RecoverySlot> slots = [];
+  List<AvailabilityBlock> _availability = [];
+  List<TaskItem> _tasks = [];
+
+  /// Free time on [day] where a recovery slot fits (see [freeWindowsOn]).
+  List<FreeWindow> freeWindows(DateTime day, {String? exceptSlotId}) =>
+      freeWindowsOn(
+        day,
+        availability: _availability,
+        tasks: _tasks,
+        recovery: slots,
+        exceptSlotId: exceptSlotId,
+        now: DateTime.now(),
+      );
   bool _loading = false;
   bool _mutating = false;
   int _loadVersion = 0;
@@ -34,6 +61,15 @@ class SanctuaryViewModel extends LifecycleNotifier {
       final fetched = await repository?.fetchRecoverySlots() ?? [];
       if (isDisposed || version != _loadVersion) return;
       slots = fetched;
+      // Suggestions are a convenience: a failure here never blocks Sanctuary.
+      try {
+        final availability =
+            await availabilityRepository?.fetchAvailability() ?? const [];
+        final tasks = await taskRepository?.fetchTasks() ?? const [];
+        if (isDisposed || version != _loadVersion) return;
+        _availability = availability;
+        _tasks = tasks;
+      } catch (_) {}
     } catch (e) {
       if (isDisposed || version != _loadVersion) return;
       error = AppErrorMessage.from(
@@ -62,8 +98,8 @@ class SanctuaryViewModel extends LifecycleNotifier {
       return false;
     }
     if (slots.any(
-          (other) =>
-      other.id != slot.id &&
+      (other) =>
+          other.id != slot.id &&
           other.startAt.isBefore(slot.endAt) &&
           other.endAt.isAfter(slot.startAt),
     )) {

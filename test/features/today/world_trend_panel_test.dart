@@ -9,11 +9,11 @@ void main() {
   final day = DateTime(2026, 10, 4);
 
   Future<void> pump(
-      WidgetTester tester, {
-        required List<int?> previous,
-        required int? today,
-        bool partial = false,
-      }) => tester.pumpWidget(
+    WidgetTester tester, {
+    required List<int?> previous,
+    required int? today,
+    bool partial = false,
+  }) => tester.pumpWidget(
     MaterialApp(
       home: Scaffold(
         body: SingleChildScrollView(
@@ -29,32 +29,57 @@ void main() {
   );
 
   testWidgets('shows the period, the unit and seven labelled days', (
+    tester,
+  ) async {
+    await pump(
       tester,
-      ) async {
-    await pump(tester, previous: List.filled(7, null), today: 50);
-    expect(find.text('7-DAY WORKLOAD TREND'), findsOneWidget);
-    expect(
-      find.textContaining('28 Sep – 4 Oct · score 0–100'),
-      findsOneWidget,
+      previous: const [null, null, null, null, 30, null, 40],
+      today: 50,
     );
+    expect(find.text('7-DAY WORKLOAD TREND'), findsOneWidget);
+    expect(find.textContaining('28 Sep – 4 Oct · score 0–100'), findsOneWidget);
     for (final weekday in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']) {
       expect(find.text(weekday), findsOneWidget, reason: weekday);
     }
   });
 
   testWidgets('no data is No data, not an improving or zero trend', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await pump(tester, previous: List.filled(7, null), today: null);
     expect(find.textContaining('No data in this period'), findsOneWidget);
     expect(find.textContaining('Cumulative load'), findsNothing);
-    expect(find.text('No data'), findsNWidgets(7));
     expect(find.textContaining('average'), findsNothing);
+    expect(find.textContaining('(0 of 3 so far)'), findsOneWidget);
+  });
+
+  testWidgets('fewer than three recorded days shows progress, not empty bars', (
+    tester,
+  ) async {
+    await pump(tester, previous: List.filled(7, null), today: 16);
+    expect(find.text('No data'), findsNothing);
+    expect(
+      find.text('The chart appears after 3 days of records (1 of 3 so far).'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Cumulative load: 16 points'), findsOneWidget);
+  });
+
+  testWidgets('three recorded days draw the bars and mark gaps as No data', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      previous: const [null, null, null, null, 30, null, 40],
+      today: 50,
+    );
+    expect(find.text('No data'), findsNWidgets(4));
+    expect(find.textContaining('appears after'), findsNothing);
   });
 
   testWidgets('missing days are listed and left out of the average', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     // Window days Mon..Sun = previous[1..6] then today.
     await pump(
       tester,
@@ -72,8 +97,8 @@ void main() {
   });
 
   testWidgets('a recorded zero is counted, an absent day is not', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await pump(
       tester,
       previous: const [null, null, null, null, null, null, 0],
@@ -124,15 +149,15 @@ void main() {
   });
 
   testWidgets('a history list of the wrong length is treated as no data', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await pump(tester, previous: const [10, 20], today: null);
     expect(find.textContaining('No data in this period'), findsOneWidget);
   });
 
   testWidgets('the card shows the panel only when history is supplied', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     final status = const WorldStatusCalculator().calculate(
       WorldStatusInput(
         localDate: day,

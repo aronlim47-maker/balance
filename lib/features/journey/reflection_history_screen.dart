@@ -60,7 +60,9 @@ class _ReflectionHistoryScreenState extends State<ReflectionHistoryScreen> {
               TextButton(onPressed: _reload, child: const Text('Retry')),
             ] else if (snapshot.connectionState == ConnectionState.done &&
                 snapshot.data!.isEmpty)
-              const Text('No reflections yet.'),
+              const Text(
+                'No reflections yet. Reflections you save in Journey appear here.',
+              ),
             if (!snapshot.hasError)
               for (final reflection in snapshot.data ?? <ReflectionRecord>[])
                 Card(

@@ -114,4 +114,47 @@ void main() {
     expect(find.text('FITS'), findsNothing);
     expect(find.textContaining('Beyond capacity'), findsOneWidget);
   });
+
+  testWidgets('shows change since yesterday only where both days are known', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    final status = const WorldStatusCalculator().calculate(
+      WorldStatusInput(
+        localDate: DateTime(2026, 9, 27),
+        windowStart: DateTime(2026, 9, 27),
+        previousSevenTotals: const [null, null, null, null, null, null, null],
+        plannedMinutes: 120,
+        availableMinutes: 60,
+        unfinishedTasks: const [],
+      ),
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: WorldStatusCard(
+              plannedMinutes: 120,
+              availableMinutes: 60,
+              status: status,
+              changes: const {
+                WorldDimension.mental: 6,
+                WorldDimension.time: -4,
+                WorldDimension.physical: null,
+                WorldDimension.social: 0,
+                WorldDimension.errands: null,
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('▲ 6'), findsOneWidget);
+    expect(find.text('▼ 4'), findsOneWidget);
+    expect(find.text('–'), findsOneWidget);
+    expect(find.text('▲ ▼ change since yesterday'), findsOneWidget);
+    expect(find.bySemanticsLabel('up 6 since yesterday'), findsOneWidget);
+    expect(find.bySemanticsLabel('down 4 since yesterday'), findsOneWidget);
+    semantics.dispose();
+  });
 }

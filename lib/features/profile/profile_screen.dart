@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../core/audio/sound_service.dart';
+import '../onboarding/onboarding.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../../core/router/app_router.dart';
@@ -105,7 +109,7 @@ class _ProfileContent extends StatelessWidget {
                       Expanded(
                         child: Text(
                           auth.isConfigured
-                              ? 'Supabase mode · Changes are sent to your account.'
+                              ? 'Signed in · Changes are saved to your account.'
                               : 'Local preview · Your changes are not saved to Supabase and may disappear when the app closes.',
                         ),
                       ),
@@ -227,8 +231,18 @@ class _ProfileContent extends StatelessWidget {
               const SizedBox(height: 24),
               Card(
                 child: ListTile(
+                  leading: const Icon(Icons.help_outline),
+                  title: const Text('How Balance works'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showOnboarding(context),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const _SoundSettings(),
+              Card(
+                child: ListTile(
                   leading: const Icon(Icons.notifications_outlined),
-                  title: const Text('Task reminders'),
+                  title: const Text('Reminders and alerts'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push(AppRoutes.reminders),
                 ),
@@ -345,4 +359,45 @@ class _SummaryRow extends StatelessWidget {
       Text(value, style: Theme.of(context).textTheme.titleMedium),
     ],
   );
+}
+
+/// Sound toggles; hidden when no [SoundService] is provided (e.g. in tests).
+class _SoundSettings extends StatelessWidget {
+  const _SoundSettings();
+
+  @override
+  Widget build(BuildContext context) {
+    final SoundService sound;
+    try {
+      sound = context.watch<SoundService>();
+    } on ProviderNotFoundException {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        child: Column(
+          children: [
+            SwitchListTile(
+              secondary: const Icon(Icons.music_note_outlined),
+              title: const Text('Sound effects'),
+              subtitle: const Text(
+                'Chimes for achievements and confirmed plans',
+              ),
+              value: sound.effectsOn,
+              onChanged: sound.setEffects,
+            ),
+            const Divider(height: 1),
+            SwitchListTile(
+              secondary: const Icon(Icons.headphones_outlined),
+              title: const Text('Relaxing background music'),
+              subtitle: const Text('A calm ambient loop while you plan'),
+              value: sound.musicOn,
+              onChanged: sound.setMusic,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
