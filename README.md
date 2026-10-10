@@ -60,8 +60,14 @@ Step-by-step instructions with screenshots are in the [user guide](docs/USER_GUI
 
 Flutter and Dart (Android first) · Supabase Auth, PostgreSQL, Row Level Security and
 transactional RPCs · Provider + go_router. The [Architecture](#architecture) and
-[Testing and coverage](#testing-and-coverage) sections below give details: 341
+[Testing and coverage](#testing-and-coverage) sections below give details: 351
 automated tests pass and critical code has 91.7% line coverage, enforced by CI.
+
+**Monitoring.** An hourly GitHub Actions job
+([Production health check](.github/workflows/health.yml)) verifies that Supabase Auth
+responds and that the published APK download link works; a failed run emails the
+maintainer. Crash reporting uses Sentry (errors only; no screenshots, IP address or user
+email).
 
 ---
 
@@ -232,7 +238,7 @@ python tools/check_coverage.py --min 70       # critical code: lib/domain + *_vi
 
 `tools/check_coverage.py` prints per-file line coverage for the critical code and exits 1 when
 the combined figure is below `--min`. CI enforces the 70% minimum; the 9 October 2026 local
-run measured 91.7% (2210/2410 lines) with 341 tests passing.
+run measured 91.7% (2210/2410 lines) with 351 tests passing.
 The WS01-WS14 and achievement test map is `docs/WS_AND_ACHIEVEMENT_TEST_MAP.md`.
 `test/domain/full_scenario_test.dart` is the domain-level full-journey regression
 (300 minutes proposed for a 180-minute evening). SQL scripts in `supabase/tests` need a
