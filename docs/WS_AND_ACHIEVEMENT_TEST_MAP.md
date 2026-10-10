@@ -63,29 +63,28 @@ The user accounts must be new (the script refuses accounts that already hold awa
 | 8 Oct 2026 | Local PostgreSQL 16 with a minimal Supabase auth stub; all 12 migrations applied to an empty database | All 4 SQL scripts passed (`achievement_eligibility`, `active_planning_and_retry`, `verified_progress_runtime`, `world_status_achievements`). Two deliberately broken copies failed as expected. This is **not** a Supabase run and does not prove real Auth sessions. |
 | 8 Oct 2026 | Merged `origin/master` `e89f55a`; local SQL parser | Syntax passed for all 13 migrations and 5 Supabase test scripts. Syntax is not runtime/database acceptance. |
 | 8 Oct 2026 | Tan's Windows PC: `flutter analyze --no-pub` / `flutter test --no-pub` | Analysis clean; 225 tests passed after master merge. Later inline-retry changes have focused widget-test evidence; full-suite result is recorded in the current delivery note. |
+| 10 Oct 2026 | Matthew's Windows PC: `flutter analyze` / `flutter test --coverage` / `python tools/check_coverage.py --min 70` | Analysis: No issues found. Full suite: all 313 tests passed (after fixing two uppercase-text assertions in `world_trend_panel_test.dart`). Critical-code line coverage 91.3% (2087/2285 lines; required 70%). Run on a developer PC, not CI. |
 | | Disposable Supabase (Chong) | _fill in_ |
 
 ## Domain contract and regression files (added 9 October)
 
-| File | Purpose | Status |
-| --- | --- | --- |
-| `lib/domain/usecases/achievement_evaluator.dart` + `test/domain/achievement_evaluator_test.dart` | Dart reference for the seven eligibility rules (positive and negative cases, once-per-type, retries). Never grants awards; the SQL stays the source of truth. | Written; **not yet run** |
-| `lib/domain/usecases/world_trend_calculator.dart`, `lib/domain/models/world_trend_models.dart` + `test/domain/world_trend_calculator_test.dart` | Rolling 7-day cumulative load, moving average and direction per dimension; Unknown days skipped and kept out of the denominator. | Written; **not yet run** |
-| `test/domain/full_scenario_test.dart` | Domain-level full journey for the 300/180 scenario: overload, compare plans, Confirm arithmetic (150 work + 30 free), recovery, achievements, Undo. | Written; **not yet run** |
-| `test/domain/validate_plan_test.dart` | The four plan statuses and their priority; overload formula. | Written; **not yet run** |
-| `test/features/today/world_status_card_test.dart` (3 new cases) | No time added shows a neutral tag, never green Fits. | Written; **not yet run** |
-| `tools/check_coverage.py` | Line coverage of critical code; checked on a synthetic lcov only. | Script tested; real figure **pending** |
-
-A row becomes Pass only after `flutter test` is run on a team PC and the result is recorded below.
-
-| Date | Where | Result |
-| --- | --- | --- |
-| | Team PC: `flutter analyze` / `flutter test --coverage` | _fill in_ |
+| File | Purpose | Status                                                                     |
+| --- | --- |----------------------------------------------------------------------------|
+| `lib/domain/usecases/achievement_evaluator.dart` + `test/domain/achievement_evaluator_test.dart` | Dart reference for the seven eligibility rules (positive and negative cases, once-per-type, retries). Never grants awards; the SQL stays the source of truth. | **Pass** (`flutter test`, Matthew's PC, 9 Oct 2026)                        |
+| `lib/domain/usecases/world_trend_calculator.dart`, `lib/domain/models/world_trend_models.dart` + `test/domain/world_trend_calculator_test.dart` | Rolling 7-day cumulative load, moving average and direction per dimension; Unknown days skipped and kept out of the denominator. | **Pass** (`flutter test`, Matthew's PC, 9 Oct 2026)                        |
+| `test/domain/full_scenario_test.dart` | Domain-level full journey for the 300/180 scenario: overload, compare plans, Confirm arithmetic (150 work + 30 free), recovery, achievements, Undo. | **Pass** (`flutter test`, Matthew's PC, 9 Oct 2026)                        |
+| `test/domain/validate_plan_test.dart` | The four plan statuses and their priority; overload formula. | **Pass** (`flutter test`, Matthew's PC, 9 Oct 2026)                        |
+| `test/features/today/world_status_card_test.dart` (3 new cases) | No time added shows a neutral tag, never green Fits. | **Pass** (`flutter test`, Matthew's PC, 9 Oct 2026)                        |
+| `tools/check_coverage.py` | Line coverage of critical code (`lib/domain` + `*_view_model.dart`). | **Pass**: 2087/2285 lines = 91.3% (required 70%), Matthew's PC, 9 Oct 2026 |
 
 ## Multi-day trend UI and formula sheet (added 9 October)
 
-| File | Covers | Status                            |
-|---|---|-----------------------------------|
-| `docs/WORLD_STATUS_FORMULA_SHEET.md` | WL02 formula sheet for the five dimensions and the trend | Written; team confirmation pending |
-| `lib/features/today/world_trend_panel.dart` | WL05 period, unit, cumulative load, data gaps on Today | Written; passed                   |
-| `test/features/today/world_trend_panel_test.dart` | 8 widget tests: no data, gaps, recorded zero, singular wording, card wiring | Written; passed                   |
+| File | Covers | Status                                              |
+| --- | --- |-----------------------------------------------------|
+| `docs/WORLD_STATUS_FORMULA_SHEET.md` | WL02 formula sheet for the five dimensions and the trend | Written; team confirmation pending                  |
+| `lib/features/today/world_trend_panel.dart` | WL05 period, unit, cumulative load, data gaps on Today | **Pass** (`flutter test`, Matthew's PC, 9 Oct 2026) |
+| `test/features/today/world_trend_panel_test.dart` | 8 widget tests: no data, gaps, recorded zero, singular wording, card wiring | **Pass** (`flutter test`, Matthew's PC, 9 Oct 2026) |
+
+Still manual (not covered by the rows above): English mobile screenshots of Today
+(five dimensions and the 7-day trend panel), two-device checks, and the disposable
+Supabase run.
