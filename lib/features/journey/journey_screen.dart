@@ -171,19 +171,10 @@ class _JourneyContent extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            const RpgPanel(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  PanelHeader('How progress works', divider: true),
-                  SizedBox(height: 10),
-                  Text(
-                    'Only verified actions unlock achievements. Rest never removes progress.',
-                    style: TextStyle(height: 1.35),
-                  ),
-                ],
-              ),
+            const SizedBox(height: 6),
+            const Text(
+              'Only verified actions unlock achievements. Rest never removes progress.',
+              style: TextStyle(fontSize: 13, color: BalanceColors.textMuted),
             ),
             if (viewModel.isLoading) ...[
               const SizedBox(height: 12),
@@ -206,7 +197,15 @@ class _JourneyContent extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 12),
-            for (final definition in viewModel.definitions) ...[
+            // Earned achievements first, then the ones still to unlock.
+            for (final definition in [
+              ...viewModel.definitions.where(
+                (d) => viewModel.awardFor(d.key) != null,
+              ),
+              ...viewModel.definitions.where(
+                (d) => viewModel.awardFor(d.key) == null,
+              ),
+            ]) ...[
               _AchievementCard(
                 definition: definition,
                 award: viewModel.awardFor(definition.key),
@@ -436,7 +435,7 @@ class _AchievementCard extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: AppTheme.displayFont,
                     fontWeight: FontWeight.w700,
-                    fontSize: 18,
+                    fontSize: 16,
                     letterSpacing: 0.8,
                     color: unlocked
                         ? BalanceColors.text
@@ -452,14 +451,7 @@ class _AchievementCard extends StatelessWidget {
                     height: 1.3,
                   ),
                 ),
-                const SizedBox(height: 8),
-                SegmentMeter(
-                  total: 1,
-                  filled: unlocked ? 1 : 0,
-                  color: BalanceColors.calmFill,
-                  height: 5,
-                ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
                   definition.rpgName,
                   style: const TextStyle(

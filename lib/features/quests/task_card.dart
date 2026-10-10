@@ -32,7 +32,13 @@ class TaskCard extends StatelessWidget {
     final protectedTask = task.isProtected;
     final done = task.status != TaskStatus.planned;
     final minutes = task.effectiveRemainingMinutes;
-    final dueText = DateFormat.yMMMd().add_jm().format(task.dueAt.toLocal());
+    final due = task.dueAt.toLocal();
+    // Short date: the year only appears when it is not this year.
+    final dueText = DateFormat(
+      due.year == DateTime.now().year
+          ? 'EEE d MMM, h:mm a'
+          : 'EEE d MMM y, h:mm a',
+    ).format(due);
     final PopupMenuItem<String> statusAction = switch (task.status) {
       TaskStatus.planned => const PopupMenuItem(
         value: 'done',
@@ -122,7 +128,8 @@ class TaskCard extends StatelessWidget {
                         icon: Icons.shield_outlined,
                       ),
                     RpgTag(
-                      task.loadCategory?.label ?? 'Uncategorized · Needs Review',
+                      task.loadCategory?.label ??
+                          'Uncategorized · Needs Review',
                       tone: task.loadCategory == null
                           ? RpgTone.warning
                           : RpgTone.accent,

@@ -53,7 +53,7 @@ class _RecoveryContent extends StatelessWidget {
     return BalanceScaffold(
       title: 'Sanctuary',
       headline: 'Recovery time',
-      subtitle: 'The slot is protected whether or not you do anything with it.',
+      subtitle: 'Protected time for rest. Activities are optional.',
       eyebrowTone: RpgTone.calm,
       currentIndex: 3,
       actions: [
@@ -168,11 +168,7 @@ class _RecoveryContent extends StatelessWidget {
                 ),
               ),
             if (model.slots.isNotEmpty) ...[
-              const SectionRule(
-                'All recovery slots',
-                subtitle: 'An activity is optional · the slot holds either way',
-                tone: RpgTone.calm,
-              ),
+              const SectionRule('All recovery slots', tone: RpgTone.calm),
               const SizedBox(height: 10),
               for (final slot in model.slots)
                 Padding(
@@ -189,15 +185,9 @@ class _RecoveryContent extends StatelessWidget {
             ],
             const SizedBox(height: 8),
             const Text(
-              'You can skip an activity without any penalty. Marking an '
-              'activity done does not change your workload scores.',
-              style: TextStyle(fontSize: 13, color: BalanceColors.textMuted),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Sanctuary offers ideas for rest. It is not a medical or '
-              'therapy service.',
-              style: TextStyle(fontSize: 12, color: BalanceColors.textFaint),
+              'Skipping has no penalty, and rest does not change your scores. '
+              'Not a medical or therapy service.',
+              style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
             ),
           ],
         ),
@@ -266,9 +256,9 @@ class _RecoveryContent extends StatelessWidget {
     }
   }
 
-  void _snack(BuildContext context, String message) => ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(SnackBar(content: Text(message)));
+  void _snack(BuildContext context, String message) =>
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
 }
 
 /// Big green panel for the current or next slot: "TONIGHT · 21:30 – 22:15".
@@ -468,7 +458,11 @@ class _RecoveryFormState extends State<_RecoveryForm> {
                 ),
               ),
             ),
-            const Icon(Icons.schedule, size: 18, color: BalanceColors.textMuted),
+            const Icon(
+              Icons.schedule,
+              size: 18,
+              color: BalanceColors.textMuted,
+            ),
           ],
         ),
       );
