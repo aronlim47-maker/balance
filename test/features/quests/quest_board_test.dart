@@ -141,6 +141,33 @@ void main() {
     expect(find.text('Create task'), findsOneWidget);
   });
 
+  testWidgets('tapping a task opens its details with an Edit action', (
+    tester,
+  ) async {
+    final repository = _FakeTaskRepository([_task('math', 'Math assignment')]);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthViewModel()),
+          Provider<TaskRepository>.value(value: repository),
+        ],
+        child: const MaterialApp(home: QuestBoardScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Math assignment'));
+    await tester.pumpAndSettle();
+    expect(find.text('Remaining'), findsOneWidget);
+    expect(find.text('Status'), findsOneWidget);
+    expect(find.text('Why is it here?'), findsNothing);
+
+    await tester.tap(find.text('Edit task'));
+    await tester.pumpAndSettle();
+    expect(find.text('Remaining'), findsNothing);
+    expect(find.text('Math assignment'), findsWidgets);
+  });
+
   testWidgets('search bar filters visible Quest Board cards', (tester) async {
     final repository = _FakeTaskRepository([
       _task('math', 'Math assignment'),

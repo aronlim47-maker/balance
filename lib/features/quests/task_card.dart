@@ -15,6 +15,7 @@ class TaskCard extends StatelessWidget {
     required this.onDelete,
     this.onStatusChange,
     this.isOverdue = false,
+    this.onTap,
   });
 
   final TaskItem task;
@@ -26,6 +27,9 @@ class TaskCard extends StatelessWidget {
 
   /// Display only. The label is text, not colour alone, for screen readers.
   final bool isOverdue;
+
+  /// Opens the task's details.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +58,7 @@ class TaskCard extends StatelessWidget {
       ),
     };
     return RpgPanel(
+      onTap: onTap,
       tone: protectedTask
           ? RpgTone.calm
           : isOverdue
