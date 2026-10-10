@@ -14,7 +14,11 @@ class WorldStatusCard extends StatelessWidget {
     required this.status,
     this.selectedDay,
     this.previousTotals,
+    this.showCapacity = true,
   });
+
+  /// Today shows [TimeCapacityPanel] on its own at the top of the page.
+  final bool showCapacity;
 
   final int plannedMinutes;
   final int availableMinutes;
@@ -27,16 +31,16 @@ class WorldStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final overMinutes = plannedMinutes - availableMinutes;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _CapacityPanel(
-          plannedMinutes: plannedMinutes,
-          availableMinutes: availableMinutes,
-          overMinutes: overMinutes,
-        ),
-        const SizedBox(height: 12),
+        if (showCapacity) ...[
+          TimeCapacityPanel(
+            plannedMinutes: plannedMinutes,
+            availableMinutes: availableMinutes,
+          ),
+          const SizedBox(height: 12),
+        ],
         RpgPanel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,72 +226,86 @@ class _DimensionExplanation extends StatelessWidget {
   final String name;
   final DimensionResult result;
 
+  static bool _adds(WorldStatusContribution c) =>
+      c.points == null || c.points! >= 0.05;
+
   @override
-  Widget build(BuildContext context) => ExpansionTile(
-    tilePadding: EdgeInsets.zero,
-    childrenPadding: const EdgeInsets.only(left: 12, bottom: 8),
-    dense: true,
-    title: Text(
-      '$name · ${result.score == null ? 'Unknown' : '${result.score}/100'}',
-      style: Theme.of(context).textTheme.bodySmall,
-    ),
-    subtitle: result.reason == null
-        ? null
-        : Text(result.reason!, style: Theme.of(context).textTheme.bodySmall),
-    children: [
-      if (result.contributions.isEmpty)
-        const Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            'No component-level data is available for this snapshot.',
-          ),
-        )
-      else
-        for (final contribution in result.contributions) ...[
+  Widget build(BuildContext context) {
+    final small = Theme.of(context).textTheme.bodySmall;
+    final faint = small?.copyWith(color: BalanceColors.textMuted);
+    final adding = result.contributions.where(_adds).toList()
+      ..sort((a, b) => (b.points ?? -1).compareTo(a.points ?? -1));
+    final zero = result.contributions.where((c) => !_adds(c)).toList();
+    // One line answers "why this score?"; the full breakdown stays one tap away.
+    final headline = adding.isNotEmpty && adding.first.points != null
+        ? adding.first.evidence
+        : result.reason;
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: const EdgeInsets.only(left: 12, bottom: 8),
+      dense: true,
+      title: Text(
+        '$name · ${result.score == null ? 'Unknown' : '${result.score}/100'}',
+        style: small?.copyWith(fontWeight: FontWeight.w700),
+      ),
+      subtitle: headline == null ? null : Text(headline, style: faint),
+      children: [
+        if (result.contributions.isEmpty)
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              '${contribution.label}: '
-              '${contribution.score == null ? 'Unknown' : '${contribution.score!.round()}/100'}'
-              '${contribution.points == null ? '' : ' · +${contribution.points!.toStringAsFixed(1)} pts'}',
-              style: Theme.of(context).textTheme.bodySmall,
+              'No component-level data is available for this snapshot.',
+              style: small,
+            ),
+          ),
+        for (final c in adding) ...[
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              c.points == null
+                  ? '${c.label} · Unknown'
+                  : '${c.label} · +${c.points!.round()}',
+              style: small?.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-              contribution.evidence,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            child: Text(c.evidence, style: small),
           ),
-          if (contribution.sources.isNotEmpty)
+          if (c.sources.isNotEmpty)
             Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                'Records: ${contribution.sources.join(', ')}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              child: Text('From: ${c.sources.join(', ')}', style: faint),
             ),
           const SizedBox(height: 6),
         ],
-    ],
-  );
+        if (zero.isNotEmpty)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'No pressure from: ${zero.map((c) => c.label).join(', ')}',
+              style: faint,
+            ),
+          ),
+      ],
+    );
+  }
 }
 
 /// "TIME CAPACITY · 3H AVAILABLE · 5H PLANNED" with a fits/beyond bar.
-class _CapacityPanel extends StatelessWidget {
-  const _CapacityPanel({
+class TimeCapacityPanel extends StatelessWidget {
+  const TimeCapacityPanel({
+    super.key,
     required this.plannedMinutes,
     required this.availableMinutes,
-    required this.overMinutes,
   });
 
   final int plannedMinutes;
   final int availableMinutes;
-  final int overMinutes;
 
   @override
   Widget build(BuildContext context) {
+    final overMinutes = plannedMinutes - availableMinutes;
     const segments = 10;
     final scale = plannedMinutes > availableMinutes
         ? plannedMinutes

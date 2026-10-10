@@ -32,13 +32,25 @@ class WorldTrendPanel extends StatelessWidget {
   final int? todayTotal;
   final bool todayIsPartial;
 
+  static const _barsAfterDays = 3;
   static const _weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   static const _months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
-  static String _date(LocalDate d) => '${d.value.day} ${_months[d.value.month - 1]}';
+  static String _date(LocalDate d) =>
+      '${d.value.day} ${_months[d.value.month - 1]}';
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +60,18 @@ class WorldTrendPanel extends StatelessWidget {
         : List<int?>.filled(7, null);
 
     // Window date k (0 = oldest, 6 = selected day) <-> previous[k + 1].
-    final values = <int?>[for (var k = 0; k < 6; k++) previous[k + 1], todayTotal];
+    final values = <int?>[
+      for (var k = 0; k < 6; k++) previous[k + 1],
+      todayTotal,
+    ];
     final history = <DailyWorldStatus>[
       for (var i = 0; i < 7; i++)
         if (previous[i] != null)
           DailyWorldStatus(
             localDate: end.addDays(i - 7),
-            total: DimensionReading.known(previous[i]!.clamp(0, 100).toDouble()),
+            total: DimensionReading.known(
+              previous[i]!.clamp(0, 100).toDouble(),
+            ),
           ),
       if (todayTotal != null)
         DailyWorldStatus(
@@ -89,22 +106,41 @@ class WorldTrendPanel extends StatelessWidget {
           Text(
             '${_date(report.windowStart)} – ${_date(report.windowEnd)} · '
             'score 0–100, higher means more planning pressure',
-            style: const TextStyle(fontSize: 12, color: BalanceColors.textMuted),
+            style: const TextStyle(
+              fontSize: 12,
+              color: BalanceColors.textMuted,
+            ),
           ),
           const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              for (var k = 0; k < 7; k++)
-                Expanded(
-                  child: _DayBar(
-                    label: _weekdays[report.windowStart.addDays(k).value.weekday - 1],
-                    value: values[k],
-                    isToday: k == 6,
+          // Seven mostly empty bars say little; show progress until 3 days exist.
+          if (trend.observedDays < _barsAfterDays)
+            Text(
+              'The chart appears after $_barsAfterDays days of records '
+              '(${trend.observedDays} of $_barsAfterDays so far).',
+              style: const TextStyle(
+                fontSize: 13,
+                color: BalanceColors.textMuted,
+              ),
+            )
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (var k = 0; k < 7; k++)
+                  Expanded(
+                    child: _DayBar(
+                      label:
+                          _weekdays[report.windowStart
+                                  .addDays(k)
+                                  .value
+                                  .weekday -
+                              1],
+                      value: values[k],
+                      isToday: k == 6,
+                    ),
                   ),
-                ),
-            ],
-          ),
+              ],
+            ),
           const SizedBox(height: 10),
           Text(summary, style: const TextStyle(fontSize: 13)),
           if (trend.observedDays > 0 && gaps > 0) ...[
@@ -113,7 +149,10 @@ class WorldTrendPanel extends StatelessWidget {
               gaps == 1
                   ? '1 day has no data and is left out of the average.'
                   : '$gaps days have no data and are left out of the average.',
-              style: const TextStyle(fontSize: 12, color: BalanceColors.textMuted),
+              style: const TextStyle(
+                fontSize: 12,
+                color: BalanceColors.textMuted,
+              ),
             ),
           ],
         ],
@@ -123,7 +162,11 @@ class WorldTrendPanel extends StatelessWidget {
 }
 
 class _DayBar extends StatelessWidget {
-  const _DayBar({required this.label, required this.value, required this.isToday});
+  const _DayBar({
+    required this.label,
+    required this.value,
+    required this.isToday,
+  });
 
   final String label;
   final int? value;
@@ -134,9 +177,12 @@ class _DayBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final score = value;
-    final height = score == null ? 0.0 : (score / 100 * _maxHeight).clamp(2.0, _maxHeight);
+    final height = score == null
+        ? 0.0
+        : (score / 100 * _maxHeight).clamp(2.0, _maxHeight);
     return Semantics(
-      label: '$label${isToday ? ' (selected day)' : ''}: '
+      label:
+          '$label${isToday ? ' (selected day)' : ''}: '
           '${score == null ? 'no data' : '$score out of 100'}',
       excludeSemantics: true,
       child: Column(
@@ -147,11 +193,16 @@ class _DayBar extends StatelessWidget {
             child: Align(
               alignment: Alignment.bottomCenter,
               child: score == null
-                  ? const Text('—', style: TextStyle(color: BalanceColors.textMuted))
+                  ? const Text(
+                      '—',
+                      style: TextStyle(color: BalanceColors.textMuted),
+                    )
                   : Container(
                       width: 14,
                       height: height,
-                      color: isToday ? BalanceColors.accentBright : BalanceColors.accent,
+                      color: isToday
+                          ? BalanceColors.accentBright
+                          : BalanceColors.accent,
                     ),
             ),
           ),
@@ -167,7 +218,9 @@ class _DayBar extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 10,
-              color: isToday ? BalanceColors.accentBright : BalanceColors.textMuted,
+              color: isToday
+                  ? BalanceColors.accentBright
+                  : BalanceColors.textMuted,
             ),
           ),
         ],

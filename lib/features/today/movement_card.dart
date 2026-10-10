@@ -16,8 +16,11 @@ class MovementCard extends StatelessWidget {
     required this.onTargetDaysChanged,
     required this.onAdd,
     required this.onDelete,
+    this.embedded = false,
   });
 
+  /// Inside another card: render without its own card background.
+  final bool embedded;
   final DateTime selectedDay;
   final MovementSettings settings;
   final ExerciseLog? latestExercise;
@@ -36,73 +39,69 @@ class MovementCard extends StatelessWidget {
       selectedDay.month,
       selectedDay.day,
     ).isAfter(DateTime(today.year, today.month, today.day));
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Movement', style: Theme.of(context).textTheme.titleMedium),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Track movement'),
-              value: settings.trackingEnabled,
-              onChanged: isSaving ? null : onTrackingChanged,
-            ),
-            if (settings.trackingEnabled) ...[
-              Row(
-                children: [
-                  const Expanded(child: Text('Preferred interval')),
-                  DropdownButton<int>(
-                    value: settings.targetDays,
-                    onChanged: isSaving
-                        ? null
-                        : (value) {
-                      if (value != null) onTargetDaysChanged(value);
-                    },
-                    items: [
-                      for (var days = 1; days <= 14; days++)
-                        DropdownMenuItem(
-                          value: days,
-                          child: Text('$days days'),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-              Text(
-                latestExercise == null
-                    ? 'No exercise recorded'
-                    : 'Last: ${DateFormat.yMMMd().format(latestExercise!.occurredAt.toLocal())}',
-              ),
-              const SizedBox(height: 6),
-              TextButton.icon(
-                onPressed: isSaving || isFutureDay ? null : onAdd,
-                icon: const Icon(Icons.add),
-                label: const Text('Record exercise'),
-              ),
-              if (isFutureDay)
-                const Text('You can record an activity after it happens.'),
-              for (final log in dayLogs)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.directions_run_outlined),
-                  title: Text('${log.durationMinutes} minutes recorded'),
-                  subtitle: Text(
-                    '${DateFormat.jm().format(log.occurredAt.toLocal())}'
-                        '${log.taskId != null ? ' · Linked to a task' : ''}',
-                  ),
-                  trailing: IconButton(
-                    tooltip: 'Remove exercise record',
-                    onPressed: isSaving ? null : () => onDelete(log),
-                    icon: const Icon(Icons.delete_outline),
-                  ),
+    final content = Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Movement', style: Theme.of(context).textTheme.titleMedium),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Track movement'),
+            value: settings.trackingEnabled,
+            onChanged: isSaving ? null : onTrackingChanged,
+          ),
+          if (settings.trackingEnabled) ...[
+            Row(
+              children: [
+                const Expanded(child: Text('Preferred interval')),
+                DropdownButton<int>(
+                  value: settings.targetDays,
+                  onChanged: isSaving
+                      ? null
+                      : (value) {
+                          if (value != null) onTargetDaysChanged(value);
+                        },
+                  items: [
+                    for (var days = 1; days <= 14; days++)
+                      DropdownMenuItem(value: days, child: Text('$days days')),
+                  ],
                 ),
-            ],
+              ],
+            ),
+            Text(
+              latestExercise == null
+                  ? 'No exercise recorded'
+                  : 'Last: ${DateFormat.yMMMd().format(latestExercise!.occurredAt.toLocal())}',
+            ),
+            const SizedBox(height: 6),
+            TextButton.icon(
+              onPressed: isSaving || isFutureDay ? null : onAdd,
+              icon: const Icon(Icons.add),
+              label: const Text('Record exercise'),
+            ),
+            if (isFutureDay)
+              const Text('You can record an activity after it happens.'),
+            for (final log in dayLogs)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.directions_run_outlined),
+                title: Text('${log.durationMinutes} minutes recorded'),
+                subtitle: Text(
+                  '${DateFormat.jm().format(log.occurredAt.toLocal())}'
+                  '${log.taskId != null ? ' · Linked to a task' : ''}',
+                ),
+                trailing: IconButton(
+                  tooltip: 'Remove exercise record',
+                  onPressed: isSaving ? null : () => onDelete(log),
+                  icon: const Icon(Icons.delete_outline),
+                ),
+              ),
           ],
-        ),
+        ],
       ),
     );
+    return embedded ? content : Card(child: content);
   }
 }
 
@@ -142,8 +141,8 @@ class _ExerciseLogSheetState extends State<ExerciseLogSheet> {
     final now = DateTime.now();
     final isToday =
         now.year == widget.day.year &&
-            now.month == widget.day.month &&
-            now.day == widget.day.day;
+        now.month == widget.day.month &&
+        now.day == widget.day.day;
     _time = isToday
         ? TimeOfDay.fromDateTime(now)
         : const TimeOfDay(hour: 18, minute: 0);

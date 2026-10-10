@@ -127,13 +127,13 @@ class _TodayContent extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 16),
-          WorldStatusCard(
+          // Decide first: capacity, the verdict, then the day's time and work.
+          TimeCapacityPanel(
             plannedMinutes: viewModel.plannedMinutes,
             availableMinutes: viewModel.availableMinutes,
-            status: viewModel.worldStatus,
-            selectedDay: viewModel.selectedDay,
-            previousTotals: viewModel.previousTotals,
           ),
+          const SizedBox(height: 12),
+          CapacityGapCard(overloadMinutes: viewModel.overloadMinutes),
           if (viewModel.overloadMinutes > 0 &&
               viewModel.earlyReviewCandidate != null &&
               context.read<VerifiedProgressService?>() != null)
@@ -142,58 +142,6 @@ class _TodayContent extends StatelessWidget {
               icon: const Icon(Icons.fact_check_outlined),
               label: const Text('I reviewed this overload'),
             ),
-          const SizedBox(height: 12),
-          DailyReviewCard(
-            review: viewModel.checkIn,
-            isSaving: viewModel.isSavingReview,
-            onEdit: () => _openDailyReview(context, viewModel),
-          ),
-          const SizedBox(height: 12),
-          MovementCard(
-            selectedDay: viewModel.selectedDay,
-            settings: viewModel.movementSettings,
-            latestExercise: viewModel.latestExercise,
-            dayLogs: viewModel.exerciseLogsForDay,
-            isSaving: viewModel.isSavingMovement,
-            onTrackingChanged: (enabled) => _saveMovementSettings(
-              context,
-              viewModel,
-              MovementSettings(
-                trackingEnabled: enabled,
-                targetDays: viewModel.movementSettings.targetDays,
-                targetRecoveryMinutes:
-                    viewModel.movementSettings.targetRecoveryMinutes,
-                targetSocialMinutesWeek:
-                    viewModel.movementSettings.targetSocialMinutesWeek,
-              ),
-            ),
-            onTargetDaysChanged: (days) => _saveMovementSettings(
-              context,
-              viewModel,
-              MovementSettings(
-                trackingEnabled: viewModel.movementSettings.trackingEnabled,
-                targetDays: days,
-                targetRecoveryMinutes:
-                    viewModel.movementSettings.targetRecoveryMinutes,
-                targetSocialMinutesWeek:
-                    viewModel.movementSettings.targetSocialMinutesWeek,
-              ),
-            ),
-            onAdd: () => _openExercise(context, viewModel),
-            onDelete: (log) => _deleteExercise(context, viewModel, log),
-          ),
-          const SizedBox(height: 12),
-          SocialCard(
-            events: viewModel.socialEvents,
-            noCommitments: viewModel.noSocialCommitments,
-            isSaving: viewModel.isSavingSocial,
-            onAdd: () => _openSocialEvent(context, viewModel),
-            onDelete: (event) => _deleteSocialEvent(context, viewModel, event),
-            onNoCommitmentsChanged: (value) =>
-                _setNoSocialCommitments(context, viewModel, value),
-          ),
-          const SizedBox(height: 12),
-          CapacityGapCard(overloadMinutes: viewModel.overloadMinutes),
           const SizedBox(height: 24),
           _SectionTitle(
             title: 'Availability',
@@ -253,6 +201,84 @@ class _TodayContent extends StatelessWidget {
                 ),
               ),
             ),
+          const SizedBox(height: 24),
+          WorldStatusCard(
+            plannedMinutes: viewModel.plannedMinutes,
+            availableMinutes: viewModel.availableMinutes,
+            status: viewModel.worldStatus,
+            selectedDay: viewModel.selectedDay,
+            previousTotals: viewModel.previousTotals,
+            showCapacity: false,
+          ),
+          const SizedBox(height: 24),
+          // Optional inputs that only refine World Status.
+          const _SectionTitle(title: 'Optional updates'),
+          const SizedBox(height: 4),
+          const Text(
+            'Add detail to your Workload Overview. Skipping is fine.',
+            style: TextStyle(color: BalanceColors.textMuted),
+          ),
+          const SizedBox(height: 10),
+          DailyReviewCard(
+            review: viewModel.checkIn,
+            isSaving: viewModel.isSavingReview,
+            onEdit: () => _openDailyReview(context, viewModel),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                MovementCard(
+                  embedded: true,
+                  selectedDay: viewModel.selectedDay,
+                  settings: viewModel.movementSettings,
+                  latestExercise: viewModel.latestExercise,
+                  dayLogs: viewModel.exerciseLogsForDay,
+                  isSaving: viewModel.isSavingMovement,
+                  onTrackingChanged: (enabled) => _saveMovementSettings(
+                    context,
+                    viewModel,
+                    MovementSettings(
+                      trackingEnabled: enabled,
+                      targetDays: viewModel.movementSettings.targetDays,
+                      targetRecoveryMinutes:
+                          viewModel.movementSettings.targetRecoveryMinutes,
+                      targetSocialMinutesWeek:
+                          viewModel.movementSettings.targetSocialMinutesWeek,
+                    ),
+                  ),
+                  onTargetDaysChanged: (days) => _saveMovementSettings(
+                    context,
+                    viewModel,
+                    MovementSettings(
+                      trackingEnabled:
+                          viewModel.movementSettings.trackingEnabled,
+                      targetDays: days,
+                      targetRecoveryMinutes:
+                          viewModel.movementSettings.targetRecoveryMinutes,
+                      targetSocialMinutesWeek:
+                          viewModel.movementSettings.targetSocialMinutesWeek,
+                    ),
+                  ),
+                  onAdd: () => _openExercise(context, viewModel),
+                  onDelete: (log) => _deleteExercise(context, viewModel, log),
+                ),
+                const Divider(height: 1),
+                SocialCard(
+                  embedded: true,
+                  events: viewModel.socialEvents,
+                  noCommitments: viewModel.noSocialCommitments,
+                  isSaving: viewModel.isSavingSocial,
+                  onAdd: () => _openSocialEvent(context, viewModel),
+                  onDelete: (event) =>
+                      _deleteSocialEvent(context, viewModel, event),
+                  onNoCommitmentsChanged: (value) =>
+                      _setNoSocialCommitments(context, viewModel, value),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

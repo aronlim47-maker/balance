@@ -14,7 +14,11 @@ class SocialCard extends StatelessWidget {
     required this.onAdd,
     required this.onDelete,
     required this.onNoCommitmentsChanged,
+    this.embedded = false,
   });
+
+  /// Inside another card: render without its own card background.
+  final bool embedded;
 
   final List<SocialEventRecord> events;
   final bool noCommitments;
@@ -24,8 +28,8 @@ class SocialCard extends StatelessWidget {
   final ValueChanged<bool> onNoCommitmentsChanged;
 
   @override
-  Widget build(BuildContext context) => Card(
-    child: ExpansionTile(
+  Widget build(BuildContext context) {
+    final tile = ExpansionTile(
       title: const Text('Social'),
       subtitle: Text(
         events.isNotEmpty
@@ -68,8 +72,9 @@ class SocialCard extends StatelessWidget {
             ),
           ),
       ],
-    ),
-  );
+    );
+    return embedded ? tile : Card(child: tile);
+  }
 
   static String _pressureLabel(SocialPressure pressure) => switch (pressure) {
     SocialPressure.neutral => 'Neutral',
@@ -119,27 +124,42 @@ class _SocialEventSheetState extends State<SocialEventSheet> {
           ),
           const SizedBox(height: 12),
           Text(DateFormat.yMMMMd().format(widget.day)),
-          if (widget.tasks.isNotEmpty) DropdownButtonFormField<String?>(
-            initialValue: _taskId,
-            isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Linked social task (optional)'),
-            items: [
-              const DropdownMenuItem(value: null, child: Text('No linked task')),
-              for (final task in widget.tasks)
-                DropdownMenuItem(value: task.id, child: Text(task.title,
-                    overflow: TextOverflow.ellipsis)),
-            ],
-            onChanged: (value) => setState(() {
-              _taskId = value;
-              final task = widget.tasks.where((item) => item.id == value).firstOrNull;
-              final start = task?.scheduledStart?.toLocal();
-              if (start != null && start.year == widget.day.year &&
-                  start.month == widget.day.month && start.day == widget.day.day) {
-                _time = TimeOfDay.fromDateTime(start);
-                _minutes.text = task!.scheduledEnd!.difference(task.scheduledStart!).inMinutes.toString();
-              }
-            }),
-          ),
+          if (widget.tasks.isNotEmpty)
+            DropdownButtonFormField<String?>(
+              initialValue: _taskId,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                labelText: 'Linked social task (optional)',
+              ),
+              items: [
+                const DropdownMenuItem(
+                  value: null,
+                  child: Text('No linked task'),
+                ),
+                for (final task in widget.tasks)
+                  DropdownMenuItem(
+                    value: task.id,
+                    child: Text(task.title, overflow: TextOverflow.ellipsis),
+                  ),
+              ],
+              onChanged: (value) => setState(() {
+                _taskId = value;
+                final task = widget.tasks
+                    .where((item) => item.id == value)
+                    .firstOrNull;
+                final start = task?.scheduledStart?.toLocal();
+                if (start != null &&
+                    start.year == widget.day.year &&
+                    start.month == widget.day.month &&
+                    start.day == widget.day.day) {
+                  _time = TimeOfDay.fromDateTime(start);
+                  _minutes.text = task!.scheduledEnd!
+                      .difference(task.scheduledStart!)
+                      .inMinutes
+                      .toString();
+                }
+              }),
+            ),
           ListTile(
             contentPadding: EdgeInsets.zero,
             title: const Text('Start time'),
@@ -192,7 +212,7 @@ class _SocialEventSheetState extends State<SocialEventSheet> {
     final minutes = int.tryParse(_minutes.text.trim());
     if (minutes == null || minutes < 1 || minutes > 720 || _pressure == null) {
       setState(
-            () => _error = 'Enter 1–720 minutes and choose a pressure level.',
+        () => _error = 'Enter 1–720 minutes and choose a pressure level.',
       );
       return;
     }
