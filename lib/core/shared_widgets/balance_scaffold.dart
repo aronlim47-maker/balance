@@ -67,7 +67,7 @@ class BalanceScaffold extends StatelessWidget {
     fontFamily: AppTheme.displayFont,
     fontWeight: FontWeight.w700,
     fontSize: 11.5,
-    letterSpacing: 1.2,
+    letterSpacing: 0.8,
   );
 
   @override
@@ -202,21 +202,26 @@ class BalanceScaffold extends StatelessWidget {
                       top: BorderSide(color: BalanceColors.outline),
                     ),
                   ),
-                  child: NavigationBar(
-                    selectedIndex: currentIndex,
-                    onDestinationSelected: (index) =>
-                        context.go(_routes[index]),
-                    destinations: [
-                      for (var i = 0; i < _labels.length; i++)
-                        NavigationDestination(
-                          icon: _icon(i, selected: false),
-                          selectedIcon: _icon(i, selected: true),
-                          label: _labels[i].toUpperCase(),
-                        ),
-                    ],
+                  child: MediaQuery.withClampedTextScaling(
+                    // Bottom-bar labels stay on one line at large text sizes.
+                    // Page content still scales with the phone's font setting.
+                    maxScaleFactor: 1.0,
+                    child: NavigationBar(
+                      selectedIndex: currentIndex,
+                      onDestinationSelected: (index) =>
+                          context.go(_routes[index]),
+                      destinations: [
+                        for (var i = 0; i < _labels.length; i++)
+                          NavigationDestination(
+                            icon: _icon(i, selected: false),
+                            selectedIcon: _icon(i, selected: true),
+                            label: _labels[i].toUpperCase(),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+        ),
       ),
     );
   }
