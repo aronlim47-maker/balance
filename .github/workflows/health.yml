@@ -1,0 +1,40 @@
+name: Production health check
+# Automated monitoring for the judged deployment. A failed run makes GitHub
+# email the repository owner, so an outage is noticed without anyone watching.
+on:
+  schedule:
+    - cron: '17 * * * *' # hourly, off the top of the hour
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Supabase Auth is reachable
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "::error::Add SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY as repository secrets."
+            exit 1
+          fi
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 \
+            -H "apikey: $SUPABASE_PUBLISHABLE_KEY" "$SUPABASE_URL/auth/v1/health")
+          echo "Auth health HTTP $code"
+          [ "$code" = "200" ] || { echo "::error::Supabase Auth returned HTTP $code"; exit 1; }
+      - name: Judge APK download link works
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          url=$(gh api "repos/${{ github.repository }}/releases/latest" \
+            --jq '.assets[] | select(.name|endswith(".apk")) | .browser_download_url' 2>/dev/null | head -1)
+          if [ -z "$url" ]; then
+            echo "::warning::No published release with an APK yet."
+            exit 0
+          fi
+          code=$(curl -sL -o /dev/null -w '%{http_code}' --max-time 60 "$url")
+          echo "APK download HTTP $code: $url"
+          [ "$code" = "200" ] || { echo "::error::APK download returned HTTP $code"; exit 1; }
