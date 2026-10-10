@@ -1,7 +1,11 @@
 // Sanctuary: a recovery slot outside every available block gets a clear
 // English message pointing to Today, never the raw database text.
 import 'package:balance/core/utils/app_error_message.dart';
+import 'package:balance/data/repositories/availability_repository.dart';
+import 'package:balance/data/repositories/local_planning_repositories.dart';
 import 'package:balance/data/repositories/recovery_repository.dart';
+import 'package:balance/data/repositories/task_repository.dart';
+import 'package:balance/domain/models/availability_block.dart';
 import 'package:balance/domain/models/recovery_slot.dart';
 import 'package:balance/features/auth/auth_view_model.dart';
 import 'package:balance/features/sanctuary/sanctuary_screen.dart';
@@ -33,7 +37,10 @@ void main() {
       'Recovery slot overlaps a moved task',
     ]) {
       expect(
-        AppErrorMessage.from(PostgrestException(message: raw), fallback: fallback),
+        AppErrorMessage.from(
+          PostgrestException(message: raw),
+          fallback: fallback,
+        ),
         'This recovery time overlaps planned work. Choose a different time.',
       );
     }
@@ -130,7 +137,53 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Go to Today'), findsOneWidget);
-    expect(find.text('Try again'), findsOneWidget);
+    expect(find.text('Choose another time'), findsOneWidget);
+    expect(find.text('Try again'), findsNothing);
+  });
+
+  testWidgets('the form offers free time and fills it in with one tap', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final availability = LocalAvailabilityRepository();
+    await availability.createAvailability(
+      AvailabilityBlock(
+        id: '',
+        startAt: tomorrow.add(const Duration(hours: 9)),
+        endAt: tomorrow.add(const Duration(hours: 11)),
+        isAvailable: true,
+      ),
+    );
+    final recovery = _Recovery();
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthViewModel()),
+          Provider<RecoveryRepository?>.value(value: recovery),
+          Provider<AvailabilityRepository>.value(value: availability),
+          Provider<TaskRepository>.value(value: LocalTaskRepository()),
+        ],
+        child: const MaterialApp(home: SanctuaryScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Add recovery time'));
+    await tester.pumpAndSettle();
+
+    // Today has no availability, so the next free day is suggested and used.
+    expect(find.textContaining('2h free'), findsOneWidget);
+    expect(find.textContaining('9:00'), findsWidgets);
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(
+      recovery.slots.single.startAt,
+      tomorrow.add(const Duration(hours: 9)),
+    );
+    expect(
+      recovery.slots.single.endAt,
+      tomorrow.add(const Duration(hours: 9, minutes: 30)),
+    );
   });
 }
 
