@@ -30,19 +30,31 @@ class MovementService implements MovementRepository {
   @override
   Future<MovementSettings> saveSettings(MovementSettings settings) async {
     final userId = requireAuthenticatedUserId(_client);
-    final row = await _client
+    const columns =
+        'movement_tracking_enabled,movement_target_days,target_recovery_minutes,target_social_minutes_week';
+    final values = {
+      'movement_tracking_enabled': settings.trackingEnabled,
+      'movement_target_days': settings.targetDays,
+      'target_recovery_minutes': settings.targetRecoveryMinutes,
+      'target_social_minutes_week': settings.targetSocialMinutesWeek,
+    };
+    // Not upsert: ON CONFLICT DO UPDATE would also set user_id, and clients are
+    // only granted UPDATE on the four setting columns, so the database rejects
+    // it. Update the owner's row, and insert it the first time.
+    // A list, not maybeSingle(): on PATCH that relies on matching PostgREST's
+    // "0 rows" error text, which differs between server versions.
+    final updated = await _client
         .from('world_status_settings')
-        .upsert({
-          'user_id': userId,
-          'movement_tracking_enabled': settings.trackingEnabled,
-          'movement_target_days': settings.targetDays,
-          'target_recovery_minutes': settings.targetRecoveryMinutes,
-          'target_social_minutes_week': settings.targetSocialMinutesWeek,
-        }, onConflict: 'user_id')
-        .select(
-          'movement_tracking_enabled,movement_target_days,target_recovery_minutes,target_social_minutes_week',
-        )
-        .single();
+        .update(values)
+        .eq('user_id', userId)
+        .select(columns);
+    final row = updated.isNotEmpty
+        ? updated.first
+        : await _client
+              .from('world_status_settings')
+              .insert({'user_id': userId, ...values})
+              .select(columns)
+              .single();
     ensureAuthenticatedUserUnchanged(_client, userId);
     return _settings(row);
   }
