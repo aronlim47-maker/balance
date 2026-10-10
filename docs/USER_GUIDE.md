@@ -22,7 +22,7 @@ every confirmed change.
 
 | You need | Where to get it |
 | --- | --- |
-| An Android phone (Android 7.0 or later) with internet | — |
+| An Android phone (Android 8.0 or later) with internet | — |
 | The Balance app | [Latest release](https://github.com/aronlim47-maker/balance/releases/latest) → download `app-release.apk` |
 | The judge account email and password | In our submission form. They are never stored in this repository. |
 | The **sample date** | In our submission form, next to the account details. |
