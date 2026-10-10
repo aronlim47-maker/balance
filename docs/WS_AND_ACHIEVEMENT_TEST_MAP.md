@@ -63,6 +63,8 @@ The user accounts must be new (the script refuses accounts that already hold awa
 | 8 Oct 2026 | Local PostgreSQL 16 with a minimal Supabase auth stub; all 12 migrations applied to an empty database | All 4 SQL scripts passed (`achievement_eligibility`, `active_planning_and_retry`, `verified_progress_runtime`, `world_status_achievements`). Two deliberately broken copies failed as expected. This is **not** a Supabase run and does not prove real Auth sessions. |
 | 8 Oct 2026 | Merged `origin/master` `e89f55a`; local SQL parser | Syntax passed for all 13 migrations and 5 Supabase test scripts. Syntax is not runtime/database acceptance. |
 | 8 Oct 2026 | Tan's Windows PC: `flutter analyze --no-pub` / `flutter test --no-pub` | Analysis clean; 225 tests passed after master merge. Later inline-retry changes have focused widget-test evidence; full-suite result is recorded in the current delivery note. |
+| 10 Oct 2026 | Lim's Windows PC on `7fdca8c` (master after PR #22): `flutter analyze` / `flutter test --coverage` / `tools/check_coverage.py --min 70` | Analysis clean; 376 tests passed; critical code 92.4% (2360/2554 lines). GitHub CI passed the same checks plus web compilation and SQL syntax. |
+| 10 Oct 2026 | Judge account on an Android 15 emulator set to Asia/Kuala_Lumpur (read-only check) | 1 Nov sample day: 300 planned / 180 available / 120 over; availability 9:00 AM – 12:00 PM; deadlines 5:00 PM. |
 | | Disposable Supabase (Chong) | _fill in_ |
 
 ## Domain contract and regression files (added 9 October)

@@ -21,11 +21,15 @@ cost.** Balance answers those questions in one flow:
 
 | Practical feature | RPG label | What it does |
 | --- | --- | --- |
-| Workload Overview | World Status | Planned vs available minutes, five load dimensions (Mental, Time, Physical, Social, Errands) and a 7-day trend. Missing data shows **Unknown**, never zero. |
-| Tasks and Protected Commitments | Quest Board | Tasks with category, duration, deadline, flexibility and protection. Protected work is never moved to make a plan look feasible. |
-| Plan Comparison | War Council | Compares safe moves and shows what changes, what stays protected and the cost on other days. Nothing changes until you **Confirm**; every confirmed plan can be **Undone**. |
-| Recovery Time | Sanctuary | Protects genuinely freed time for optional rest. Skipping has no penalty. |
-| Weekly Reflection | Journey | Private weekly summary, optional reflection and seven sustainable-planning achievements. No streaks, rankings or rewards for overwork. |
+| Workload Overview | World Status | Planned vs available minutes first, then five load dimensions (Mental, Time, Physical, Social, Errands) with their change since yesterday and a 7-day trend. Missing data shows **Unknown**, never zero. Availability can be copied from the previous day or repeated for a week. |
+| Tasks and Protected Commitments | Quest Board | Tasks with category, duration, deadline, flexibility and protection; tap a task for its details. Protected work is never moved to make a plan look feasible. |
+| Plan Comparison | War Council | Compares safe moves and shows what changes, what stays protected and the cost on other days. Nothing changes until you **Confirm**; every confirmed plan can be **Undone** from Plan history. |
+| Recovery Time | Sanctuary | Protects genuinely freed time for optional rest and suggests free windows to choose from. Skipping has no penalty. |
+| Weekly Reflection | Journey | Private weekly summary, optional reflection and an RPG achievement wall of seven sustainable-planning badges, celebrated once when earned. No streaks, rankings or rewards for overwork. |
+| Overload Alert | Calamity Alert | Optional notification the evening before a day with more planned work than available time. Off by default. |
+
+Also: a three-page first-run introduction, optional sound (effects on, relaxing music
+off by default; all audio original), and accessibility checks on every main page.
 
 Balance is a planning aid. Its scores describe recorded planning data; they are not a
 medical, diagnostic or mental-health assessment.
@@ -36,18 +40,20 @@ medical, diagnostic or mental-health assessment.
    on an Android phone (allow installing from this source when asked).
 2. Sign in with the judge account supplied in our submission form. Credentials are
    never stored in this repository.
-3. **Today:** the sample evening has 300 planned minutes but only 180 available — a
-   120-minute overload — and five World Status bars.
-4. **Council:** compare the options, **Confirm** one, check Today, then **Undo** it.
-5. **Sanctuary:** see the protected recovery slot. **Journey:** see the weekly summary and
-   the seven achievement cards.
+3. **Today:** the sample day (1 November 2026) has 300 planned minutes but only 180
+   available, a 120-minute overload, and five World Status bars.
+4. **Council:** compare the options, **Confirm** one, check Today, then **Undo** it from
+   Plan history.
+5. **Sanctuary:** protect 30 minutes from a suggested free window. **Journey:** see the
+   weekly summary and the achievement wall.
 
 Step-by-step instructions with screenshots are in the [user guide](docs/USER_GUIDE.md).
 
 ## Scope and known limitations
 
-- Android is the supported platform. A web build compiles but has not passed browser
-  acceptance; iOS has not been tested on a device.
+- Android 8.0 or later is the supported platform. A web build compiles but has not
+  passed browser acceptance; iOS has not been tested on a device.
+- Times follow the phone's time zone; set it to Malaysia time to match the sample data.
 - **Team Coordination** stays Locked: shared tasks with real agreement workflows are a
   future version.
 - Every task needs a deadline; a "No deadline" option is a design proposal only.
@@ -60,8 +66,8 @@ Step-by-step instructions with screenshots are in the [user guide](docs/USER_GUI
 
 Flutter and Dart (Android first) · Supabase Auth, PostgreSQL, Row Level Security and
 transactional RPCs · Provider + go_router. The [Architecture](#architecture) and
-[Testing and coverage](#testing-and-coverage) sections below give details: 351
-automated tests pass and critical code has 91.7% line coverage, enforced by CI.
+[Testing and coverage](#testing-and-coverage) sections below give details: 376
+automated tests pass and critical code has 92.4% line coverage, enforced by CI.
 
 **Monitoring.** An hourly GitHub Actions job
 ([Production health check](.github/workflows/health.yml)) verifies that Supabase Auth
@@ -238,23 +244,20 @@ python tools/check_coverage.py --min 70       # critical code: lib/domain + *_vi
 
 `tools/check_coverage.py` prints per-file line coverage for the critical code and exits 1 when
 the combined figure is below `--min`. CI enforces the 70% minimum; the 9 October 2026 local
-run measured 91.7% (2210/2410 lines) with 351 tests passing.
+run measured 92.4% (2360/2554 lines) with 376 tests passing (10 October 2026).
 The WS01-WS14 and achievement test map is `docs/WS_AND_ACHIEVEMENT_TEST_MAP.md`.
 `test/domain/full_scenario_test.dart` is the domain-level full-journey regression
 (300 minutes proposed for a 180-minute evening). SQL scripts in `supabase/tests` need a
 disposable Supabase database and are not run by `flutter test`.
 
-## Judge guide
+## Judge guide and judge accounts
 
-1. Install the APK built with `flutter build apk --release --dart-define-from-file=.env`.
-2. Sign in with the dedicated judge account (alias only in Git; credentials are shared
-   out of band, never committed). Seed its sample day with
-   `supabase/manual/20261008_judge_demo.sql` after the rehearsal described in
-   `docs/20261008_CHONG_WS11_AND_JUDGE.md`.
-3. Today: 300 planned vs 180 available, a 120-minute overload, five World Status bars
-   (missing data says Unknown).
-4. Council: compare plans, Confirm a valid plan, then Undo.
-5. Sanctuary: a protected recovery slot. Journey: weekly summary and seven achievements
-   (Team Coordination stays Locked until verified shared tasks exist).
+Judges follow [docs/USER_GUIDE.md](docs/USER_GUIDE.md) (also as PDF and Word in `docs/`).
+What changed in this build: [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md).
 
-Demo account: none is created by the repository. Create a fresh account, then run the seed.
+Judge accounts are prepared by the team, never by the repository: create a fresh Auth
+account, set its profile time zone to `Asia/Kuala_Lumpur` **before** seeding, then run
+`supabase/manual/20261008_judge_demo.sql` with `demo_date` 2026-11-01. The full,
+checked procedure is in
+[docs/20261010_CHONG_JUDGE_ACCOUNT_GUIDE.md](docs/20261010_CHONG_JUDGE_ACCOUNT_GUIDE.md).
+Credentials are shared out of band and never committed.
