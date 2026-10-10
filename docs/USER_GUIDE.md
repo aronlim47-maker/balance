@@ -221,7 +221,7 @@ rest is not graded, and skipping it has no penalty.
    locked badges are dimmed with a lock. **Tap a badge** to see how it is earned.
 5. Confirming the plan in step 4 can earn **Safe Trade-off** (*Wise Strategist*) and
    **Deadline Safety** (*Deadline Guardian*). A newly earned badge is celebrated once with an
-   **ACHIEVEMENT UNLOCKED** animation and a chime. Badges are earned once per account, so some
+   **ACHIEVEMENT UNLOCKED** animation and a chime when you next open Journey. Badges are earned once per account, so some
    may already be unlocked if another judge used the account first.
 6. **Team Coordination** stays **Locked**: it needs shared tasks, planned for a later version.
 
@@ -257,7 +257,7 @@ There are no streaks, rankings or penalties for skipping.
 
 | Element | What it does |
 | --- | --- |
-| **TODAY, QUESTS, COUNCIL, SANCTUARY, JOURNEY** | The five main pages. The phone's Back gesture returns to Today, then leaves the app. |
+| **TODAY** (globe), **QUESTS** (quest book), **COUNCIL** (castle), **SANCTUARY** (campfire), **JOURNEY** (compass) | The five main pages. The phone's Back gesture returns to Today, then leaves the app. |
 | Eyebrow label (e.g. *WORLD STATUS*) and title (e.g. *TODAY*) | The game-style label and the practical page name. |
 | Round profile icon | Opens Profile. |
 | Clock icon | *Plan history* on Council; *My reflections* on Journey. |
