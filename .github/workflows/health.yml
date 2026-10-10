@@ -30,7 +30,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           url=$(gh api "repos/${{ github.repository }}/releases/latest" \
-            --jq '.assets[] | select(.name|endswith(".apk")) | .browser_download_url' 2>/dev/null | head -1)
+            --jq '.assets[] | select(.name|endswith(".apk")) | .browser_download_url' 2>/dev/null | head -1 || true)
           if [ -z "$url" ]; then
             echo "::warning::No published release with an APK yet."
             exit 0
