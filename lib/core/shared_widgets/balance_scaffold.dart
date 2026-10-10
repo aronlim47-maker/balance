@@ -54,13 +54,19 @@ class BalanceScaffold extends StatelessWidget {
     final color = selected
         ? BalanceColors.accentBright
         : BalanceColors.textMuted;
-    return switch (index) {
-      0 => DiamondIcon(size: 20, color: color, strokeWidth: 1.6),
-      1 => Icon(Icons.notes_rounded, size: 22, color: color),
-      2 => DiamondIcon(size: 20, filled: true, color: color),
-      3 => Icon(Icons.eco_outlined, size: 21, color: color),
-      _ => Icon(Icons.bar_chart_rounded, size: 22, color: color),
+    // RPG landmarks: the world, the quest book, the council keep, the
+    // campfire and the compass.
+    final icon = switch (index) {
+      0 => selected ? Icons.public : Icons.public_outlined,
+      1 => selected ? Icons.auto_stories : Icons.auto_stories_outlined,
+      2 => selected ? Icons.castle : Icons.castle_outlined,
+      3 =>
+        selected
+            ? Icons.local_fire_department
+            : Icons.local_fire_department_outlined,
+      _ => selected ? Icons.explore : Icons.explore_outlined,
     };
+    return Icon(icon, size: 22, color: color);
   }
 
   static const _navLabelStyle = TextStyle(
@@ -221,7 +227,7 @@ class BalanceScaffold extends StatelessWidget {
                     ),
                   ),
                 ),
-        ),
+              ),
       ),
     );
   }
@@ -273,6 +279,10 @@ class _Header extends StatelessWidget {
               ?trailing,
             ],
           ),
+        ),
+        const Padding(
+          padding: EdgeInsets.only(top: 6, right: 12),
+          child: RpgOrnament(),
         ),
         if (subtitle != null) ...[
           const SizedBox(height: 6),

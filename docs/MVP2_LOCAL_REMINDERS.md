@@ -1,8 +1,9 @@
-# MVP2 local task reminders
+# MVP2 local task reminders and overload alerts
 
 ## Scope and entry point
 
-Open **Profile → Task reminders** after signing in on Android or iOS.
+Open **Profile → Reminders and alerts** (formerly Task reminders) after signing in on
+Android or iOS.
 This is local notification scheduling, not remote push, calendar synchronization
 or automatic rescheduling. No new Supabase migration is required.
 
@@ -40,6 +41,21 @@ or automatic rescheduling. No new Supabase migration is required.
 - Android reboot/update receivers and a retained monochrome notification icon are
   configured. iOS notification delegate setup is included but not device-tested.
 
+## Overload alerts (added 10 October 2026)
+
+- Off by default, in the same screen. One notification the evening before each of the
+  next seven local days whose planned work exceeds its available time
+  (`planOverloadAlerts`, using the same `DailyCapacity` rule as Today). Default time
+  8:00 PM, adjustable; skipped when that time is in quiet hours or already passed.
+- Read-only: an alert never moves a task. Wording is generic ("Tomorrow is over
+  capacity … Open War Council"), without task titles.
+- Separate Android channel `overload_alerts_v1` and id range (1000+), so deadline
+  reminders and alerts never replace each other. Enabling either asks for permission.
+- Preferences persist with the reminder preferences (`overload`, `overloadAt`).
+- Tests: planning, off-by-default, fitting days, passed evenings, quiet hours,
+  persistence and controller scheduling without deadline reminders
+  (`test/task_reminders_test.dart`, group "overload alerts").
+
 ## Automated verification
 
 Eight new domain/controller tests cover default-off, expired/completed/cancelled
@@ -68,6 +84,9 @@ acceptance remain pending.
 - [ ] Reboot Android and test delivery with normal and restricted battery settings.
 - [ ] Change device time zone, resume and refresh; verify quiet-hour interpretation.
 - [ ] Verify iOS permission, background delivery and account switching on macOS/iPhone.
+- [ ] Overload alerts: on a test account, make tomorrow overloaded, set the alert time a
+  few minutes ahead, background the app and verify one alert; then fix the overload,
+  refresh, and verify the alert is removed.
 
 Keep actual device, OS, test time and outcomes with release evidence. A successful
 APK build is not evidence that a notification arrived.

@@ -1,5 +1,6 @@
 import 'package:balance/domain/enums/task_flexibility.dart';
 import 'package:balance/domain/models/availability_block.dart';
+import 'package:balance/domain/models/recovery_slot.dart';
 import 'package:balance/domain/models/task_item.dart';
 import 'package:balance/domain/usecases/daily_capacity.dart';
 import 'package:balance/domain/usecases/explain_no_feasible_plan.dart';
@@ -130,10 +131,7 @@ void main() {
       [free(21, 22)],
     );
 
-    expect(
-      kinds(explanation),
-      contains(NoPlanReasonKind.needsAgreement),
-    );
+    expect(kinds(explanation), contains(NoPlanReasonKind.needsAgreement));
     expect(
       kinds(explanation),
       isNot(contains(NoPlanReasonKind.flexibleUnscheduled)),
@@ -164,5 +162,55 @@ void main() {
       explanation.reasons.map((reason) => reason.taskId),
       isNot(contains('later')),
     );
+  });
+
+  test('protected rest in the only later free time is named', () {
+    final tasks = [
+      TaskItem(
+        id: 'report',
+        title: 'Report',
+        estimatedMinutes: 180,
+        dueAt: DateTime(2026, 10, 10, 17),
+        scheduledStart: DateTime(2026, 10, 9, 9),
+        scheduledEnd: DateTime(2026, 10, 9, 12),
+      ),
+      TaskItem(
+        id: 'deadline',
+        title: 'Deadline work',
+        estimatedMinutes: 120,
+        dueAt: DateTime(2026, 10, 9, 17),
+      ),
+    ];
+    final availability = [
+      free(9, 12),
+      AvailabilityBlock(
+        id: 'next',
+        startAt: DateTime(2026, 10, 10, 9),
+        endAt: DateTime(2026, 10, 10, 11),
+        isAvailable: true,
+      ),
+    ];
+    final explanation = explainNoFeasiblePlan(
+      day: day,
+      tasks: tasks,
+      availability: availability,
+      capacity: DailyCapacity.forDay(
+        day: day,
+        tasks: tasks,
+        availability: availability,
+      ),
+      recoverySlots: [
+        RecoverySlot(
+          id: 'walk',
+          startAt: DateTime(2026, 10, 10, 9),
+          endAt: DateTime(2026, 10, 10, 9, 30),
+        ),
+      ],
+    );
+    final reason = explanation.reasons.firstWhere(
+      (r) => r.kind == NoPlanReasonKind.noLaterFreeTime,
+    );
+    expect(reason.message, contains('protected recovery time (Sat 10 Oct, '));
+    expect(reason.message, contains('Sanctuary'));
   });
 }

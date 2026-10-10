@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import '../enums/task_flexibility.dart';
 import '../enums/task_status.dart';
 import '../models/availability_block.dart';
+import '../models/recovery_slot.dart';
 import '../models/task_item.dart';
 import 'daily_capacity.dart';
 
@@ -68,6 +69,7 @@ NoPlanExplanation explainNoFeasiblePlan({
   required Iterable<TaskItem> tasks,
   required Iterable<AvailabilityBlock> availability,
   required DailyCapacity capacity,
+  Iterable<RecoverySlot> recoverySlots = const [],
 }) {
   final selectedDay = DateTime(day.year, day.month, day.day);
   final gap = capacity.overloadMinutes;
@@ -119,12 +121,40 @@ NoPlanExplanation explainNoFeasiblePlan({
   final scheduledMovable = dayTasks
       .where((task) => _isMovableKind(task) && task.scheduledStart != null)
       .take(3);
+  final dayEnd = DateTime(
+    selectedDay.year,
+    selectedDay.month,
+    selectedDay.day + 1,
+  );
   for (final task in scheduledMovable) {
+    // Name protected rest that sits in the free time Council could have used,
+    // so the student knows what to change instead of a generic message.
+    final blocking =
+        recoverySlots
+            .where(
+              (slot) =>
+                  slot.isProtected &&
+                  !slot.startAt.isBefore(dayEnd) &&
+                  slot.startAt.isBefore(task.dueAt) &&
+                  availability.any(
+                    (block) =>
+                        block.isAvailable &&
+                        block.startAt.isBefore(slot.endAt) &&
+                        block.endAt.isAfter(slot.startAt),
+                  ),
+            )
+            .toList()
+          ..sort((a, b) => a.startAt.compareTo(b.startAt));
     reasons.add(
       NoPlanReason(
         NoPlanReasonKind.noLaterFreeTime,
-        'No free time was found for "${task.title}" before it is due. Add free '
-        'time on another day before its deadline.',
+        blocking.isEmpty
+            ? 'No free time was found for "${task.title}" before it is due. '
+                  'Add free time on another day before its deadline.'
+            : '"${task.title}" does not fit before it is due because protected '
+                  'recovery time (${_day(blocking.first.startAt)}, '
+                  '${_clock(blocking.first.startAt)}) uses free time it needs. '
+                  'Remove or move that slot in Sanctuary, or add free time.',
         taskId: task.id,
       ),
     );
@@ -215,4 +245,24 @@ String _clock(DateTime time) {
   final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;
   final minute = time.minute.toString().padLeft(2, '0');
   return '$hour:$minute ${time.hour < 12 ? 'AM' : 'PM'}';
+}
+
+String _day(DateTime time) {
+  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  final local = time.toLocal();
+  return '${weekdays[local.weekday - 1]} ${local.day} ${months[local.month - 1]}';
 }

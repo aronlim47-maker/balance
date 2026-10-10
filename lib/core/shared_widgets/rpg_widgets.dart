@@ -197,7 +197,43 @@ class RpgHeadline extends StatelessWidget {
   );
 }
 
+/// Gold flourish under a page headline: ◆ ———— ◇.
+class RpgOrnament extends StatelessWidget {
+  const RpgOrnament({super.key, this.width = 120});
+
+  final double width;
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: SizedBox(
+      width: width,
+      child: Row(
+        children: [
+          const DiamondIcon(size: 8, filled: true, color: BalanceColors.gold),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Container(
+              height: 1.2,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    BalanceColors.gold.withValues(alpha: 0.8),
+                    BalanceColors.gold.withValues(alpha: 0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 /// A bordered panel. Tone changes the border, background and accents.
+///
+/// Toned and selected panels get small gold-tinted corner brackets, like a
+/// framed game window.
 class RpgPanel extends StatelessWidget {
   const RpgPanel({
     super.key,
@@ -240,8 +276,54 @@ class RpgPanel extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: content,
           );
-    return Padding(padding: margin, child: box);
+    final framed =
+        !dashed &&
+        (selected || tone != RpgTone.neutral && tone != RpgTone.muted);
+    return Padding(
+      padding: margin,
+      child: framed
+          ? CustomPaint(
+              foregroundPainter: _CornerPainter(
+                color: selected ? BalanceColors.gold : borderColor,
+              ),
+              child: box,
+            )
+          : box,
+    );
   }
+}
+
+/// Short L-shaped brackets just inside each corner of a panel.
+class _CornerPainter extends CustomPainter {
+  _CornerPainter({required this.color});
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const inset = 4.0, arm = 9.0;
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.6;
+    final r = size.width - inset, b = size.height - inset;
+    final path = Path()
+      ..moveTo(inset, inset + arm)
+      ..lineTo(inset, inset)
+      ..lineTo(inset + arm, inset)
+      ..moveTo(r - arm, inset)
+      ..lineTo(r, inset)
+      ..lineTo(r, inset + arm)
+      ..moveTo(r, b - arm)
+      ..lineTo(r, b)
+      ..lineTo(r - arm, b)
+      ..moveTo(inset + arm, b)
+      ..lineTo(inset, b)
+      ..lineTo(inset, b - arm);
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(_CornerPainter old) => old.color != color;
 }
 
 class _DashedBorderPainter extends CustomPainter {
