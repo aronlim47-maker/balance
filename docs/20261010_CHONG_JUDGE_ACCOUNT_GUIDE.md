@@ -30,7 +30,9 @@
 4. 点 **Create user**
 5. 在用户列表点开这个账号，**复制 User UID**（一串 UUID），等一下要用
 
-## 第 2 步：设置时区
+## 第 2 步：设置时区（⚠️ 一定要在第 3 步之前做完）
+
+> **脚本会用账号「当时」的时区来计算时间。** 如果先跑脚本再改时区，所有时间都会错，而且之后改时区也不会修正。10/10 第一批评审账号就是这样，示例时间变成了凌晨 1:00–4:00。
 
 新账号的时区默认是 `UTC`，评审的手机是马来西亚时间，不改的话日期和时段会对不上。
 
@@ -44,7 +46,7 @@ where id = 'UUID';
 select id, time_zone from public.profiles where id = 'UUID';
 ```
 
-结果应该显示 `Asia/Kuala_Lumpur`。如果查不到这一行，说明 profile 没有自动建立，先停下来告诉 Lim。
+结果**必须**显示 `Asia/Kuala_Lumpur`，确认后才能进行第 3 步。如果查不到这一行，说明 profile 没有自动建立，先停下来告诉 Lim。
 
 ## 第 3 步：预览示例数据（不会真的写入）
 
@@ -134,7 +136,28 @@ select (select count(*) from public.tasks where user_id = 'UUID') as tasks,
 
 ⚠️ 这一步每个账号只能做一次。要重做的话，换一个新账号，不要手动删数据。
 
-## 第 5 步：用 App 确认
+## 第 5 步：用 App 确认（时间一定要对）
+
+先用 SQL 确认写入的时间是马来西亚时间（把 `UUID` 换掉）：
+
+```sql
+select title, due_at at time zone 'Asia/Kuala_Lumpur' as due_local
+from public.tasks where user_id = 'UUID';
+
+select start_at at time zone 'Asia/Kuala_Lumpur' as start_local,
+       end_at   at time zone 'Asia/Kuala_Lumpur' as end_local
+from public.availability_blocks where user_id = 'UUID';
+```
+
+| 必须看到 | |
+| --- | --- |
+| deadline work 截止 | 示例日 **17:00** |
+| flexible report 截止 | 示例日第二天 **17:00** |
+| 可用时间 | 示例日 **09:00–12:00**，第二天 **09:00–11:00** |
+
+时间不对（例如 01:00 或 09:00 截止）→ 这个账号不要用，换新账号从第 1 步重来，**先改时区**。
+
+然后在 App 里确认：
 
 1. 装 Lim 发的**新版 APK**（旧版要先卸载，因为 App ID 改了）
 2. 用评审账号登录
