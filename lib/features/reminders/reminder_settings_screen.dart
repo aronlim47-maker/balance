@@ -11,7 +11,7 @@ class ReminderSettingsScreen extends StatelessWidget {
     final controller = context.watch<ReminderController>();
     final settings = controller.preferences;
     return Scaffold(
-      appBar: AppBar(title: const Text('Task reminders')),
+      appBar: AppBar(title: const Text('Reminders and alerts')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),

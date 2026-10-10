@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/audio/sound_service.dart';
+import '../onboarding/onboarding.dart';
 
 import 'package:go_router/go_router.dart';
 
@@ -228,11 +229,20 @@ class _ProfileContent extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 24),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.help_outline),
+                  title: const Text('How Balance works'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showOnboarding(context),
+                ),
+              ),
+              const SizedBox(height: 12),
               const _SoundSettings(),
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.notifications_outlined),
-                  title: const Text('Task reminders'),
+                  title: const Text('Reminders and alerts'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push(AppRoutes.reminders),
                 ),

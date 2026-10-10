@@ -24,6 +24,7 @@ import 'capacity_gap_card.dart';
 import 'daily_review_card.dart';
 import 'movement_card.dart';
 import 'social_card.dart';
+import '../onboarding/onboarding.dart';
 import 'today_view_model.dart';
 import 'today_task_details_sheet.dart';
 import 'world_status_card.dart';
@@ -47,7 +48,7 @@ class TodayScreen extends StatelessWidget {
       context.read<SocialRepository>(),
       context.read<WorldHistoryRepository?>(),
     )..load(),
-    child: const _TodayContent(),
+    child: const OnboardingGate(child: _TodayContent()),
   );
 }
 
