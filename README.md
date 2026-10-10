@@ -51,6 +51,8 @@ Step-by-step instructions with screenshots are in the [user guide](docs/USER_GUI
 - **Team Coordination** stays Locked: shared tasks with real agreement workflows are a
   future version.
 - Every task needs a deadline; a "No deadline" option is a design proposal only.
+- The app is currently English-only. Bahasa Melayu and Chinese, selectable in Profile,
+  are planned.
 - Email verification and password-reset links must be opened on the same phone that
   requested them.
 

@@ -20,7 +20,8 @@ abstract final class BalanceColors {
   // Text
   static const text = Color(0xFFEDEEF4);
   static const textMuted = Color(0xFF9CA2B6);
-  static const textFaint = Color(0xFF6C7287);
+  // Lightest grey that still meets WCAG AA (4.5:1) for small text on surface.
+  static const textFaint = Color(0xFF7C8297);
 
   // Accent (periwinkle) — buttons, meters, selected states
   static const accent = Color(0xFF7B83D4);

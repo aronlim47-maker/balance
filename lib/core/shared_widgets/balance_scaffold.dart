@@ -51,7 +51,9 @@ class BalanceScaffold extends StatelessWidget {
   static const _labels = ['Today', 'Quests', 'Council', 'Sanctuary', 'Journey'];
 
   static Widget _icon(int index, {required bool selected}) {
-    final color = selected ? BalanceColors.accentBright : BalanceColors.textMuted;
+    final color = selected
+        ? BalanceColors.accentBright
+        : BalanceColors.textMuted;
     return switch (index) {
       0 => DiamondIcon(size: 20, color: color, strokeWidth: 1.6),
       1 => Icon(Icons.notes_rounded, size: 22, color: color),
@@ -93,115 +95,128 @@ class BalanceScaffold extends StatelessWidget {
           builder: (context, auth, _) => auth.isConfigured
               ? const SizedBox.shrink()
               : Container(
-            width: double.infinity,
-            margin: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            decoration: BoxDecoration(
-              color: BalanceColors.warningBg,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: BalanceColors.warningBorder),
-            ),
-            child: const Text(
-              'Local preview · Changes are not saved to Supabase',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: BalanceColors.warning, fontSize: 13),
-            ),
-          ),
+                  width: double.infinity,
+                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: BalanceColors.warningBg,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: BalanceColors.warningBorder),
+                  ),
+                  child: const Text(
+                    'Local preview · Changes are not saved to Supabase',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: BalanceColors.warning,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
         ),
         Expanded(child: body),
       ],
     );
 
-    return Scaffold(
-      backgroundColor: BalanceColors.background,
-      body: SafeArea(
-        bottom: wide,
-        child: wide
-            ? Row(
-          children: [
-            NavigationRailTheme(
-              data: NavigationRailThemeData(
-                backgroundColor: BalanceColors.surfaceSunken,
-                indicatorColor: BalanceColors.accentDim,
-                indicatorShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                selectedLabelTextStyle: _navLabelStyle.copyWith(
-                  color: BalanceColors.text,
-                ),
-                unselectedLabelTextStyle: _navLabelStyle.copyWith(
-                  color: BalanceColors.textMuted,
-                ),
-              ),
-              child: NavigationRail(
-                selectedIndex: currentIndex,
-                labelType: NavigationRailLabelType.all,
-                onDestinationSelected: (index) =>
-                    context.go(_routes[index]),
-                destinations: [
-                  for (var i = 0; i < _labels.length; i++)
-                    NavigationRailDestination(
-                      icon: _icon(i, selected: false),
-                      selectedIcon: _icon(i, selected: true),
-                      label: Text(_labels[i]),
+    // Tabs are switched with context.go, so there is no route below a tab:
+    // Android back on any tab except Today returns to Today instead of
+    // closing the app.
+    return PopScope(
+      canPop: currentIndex == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) context.go(_routes[0]);
+      },
+      child: Scaffold(
+        backgroundColor: BalanceColors.background,
+        body: SafeArea(
+          bottom: wide,
+          child: wide
+              ? Row(
+                  children: [
+                    NavigationRailTheme(
+                      data: NavigationRailThemeData(
+                        backgroundColor: BalanceColors.surfaceSunken,
+                        indicatorColor: BalanceColors.accentDim,
+                        indicatorShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        selectedLabelTextStyle: _navLabelStyle.copyWith(
+                          color: BalanceColors.text,
+                        ),
+                        unselectedLabelTextStyle: _navLabelStyle.copyWith(
+                          color: BalanceColors.textMuted,
+                        ),
+                      ),
+                      child: NavigationRail(
+                        selectedIndex: currentIndex,
+                        labelType: NavigationRailLabelType.all,
+                        onDestinationSelected: (index) =>
+                            context.go(_routes[index]),
+                        destinations: [
+                          for (var i = 0; i < _labels.length; i++)
+                            NavigationRailDestination(
+                              icon: _icon(i, selected: false),
+                              selectedIcon: _icon(i, selected: true),
+                              label: Text(_labels[i]),
+                            ),
+                        ],
+                      ),
                     ),
-                ],
-              ),
-            ),
-            const VerticalDivider(width: 1),
-            Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1100),
-                  child: content,
+                    const VerticalDivider(width: 1),
+                    Expanded(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 1100),
+                          child: content,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : content,
+        ),
+        bottomNavigationBar: wide
+            ? null
+            : NavigationBarTheme(
+                data: NavigationBarThemeData(
+                  backgroundColor: BalanceColors.surfaceSunken,
+                  surfaceTintColor: Colors.transparent,
+                  indicatorColor: BalanceColors.accentDim,
+                  indicatorShape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  height: 68,
+                  labelTextStyle: WidgetStateProperty.resolveWith(
+                    (states) => _navLabelStyle.copyWith(
+                      color: states.contains(WidgetState.selected)
+                          ? BalanceColors.text
+                          : BalanceColors.textMuted,
+                    ),
+                  ),
+                ),
+                child: DecoratedBox(
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: BalanceColors.outline),
+                    ),
+                  ),
+                  child: NavigationBar(
+                    selectedIndex: currentIndex,
+                    onDestinationSelected: (index) =>
+                        context.go(_routes[index]),
+                    destinations: [
+                      for (var i = 0; i < _labels.length; i++)
+                        NavigationDestination(
+                          icon: _icon(i, selected: false),
+                          selectedIcon: _icon(i, selected: true),
+                          label: _labels[i].toUpperCase(),
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        )
-            : content,
-      ),
-      bottomNavigationBar: wide
-          ? null
-          : NavigationBarTheme(
-        data: NavigationBarThemeData(
-          backgroundColor: BalanceColors.surfaceSunken,
-          surfaceTintColor: Colors.transparent,
-          indicatorColor: BalanceColors.accentDim,
-          indicatorShape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
-          height: 68,
-          labelTextStyle: WidgetStateProperty.resolveWith(
-                (states) => _navLabelStyle.copyWith(
-              color: states.contains(WidgetState.selected)
-                  ? BalanceColors.text
-                  : BalanceColors.textMuted,
-            ),
-          ),
-        ),
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            border: Border(
-              top: BorderSide(color: BalanceColors.outline),
-            ),
-          ),
-          child: NavigationBar(
-            selectedIndex: currentIndex,
-            onDestinationSelected: (index) => context.go(_routes[index]),
-            destinations: [
-              for (var i = 0; i < _labels.length; i++)
-                NavigationDestination(
-                  icon: _icon(i, selected: false),
-                  selectedIcon: _icon(i, selected: true),
-                  label: _labels[i].toUpperCase(),
-                ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -228,47 +243,47 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.fromLTRB(20, 4, 8, 10),
     child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-    Row(
-    children: [
-    Expanded(
-    child: eyebrow == null
-        ? const SizedBox.shrink()
-        : Align(
-    alignment: Alignment.centerLeft,
-    child: Eyebrow(eyebrow!, tone: tone),
-  ),
-  ),
-  ...actions,
-  ],
-  ),
-  Padding(
-  padding: const EdgeInsets.only(right: 12),
-  child: Row(
-  children: [
-  Expanded(
-  child: Semantics(header: true, child: RpgHeadline(headline)),
-  ),
-  ?trailing,
-  ],
-  ),
-  ),
-  if (subtitle != null) ...[
-  const SizedBox(height: 6),
-  Padding(
-  padding: const EdgeInsets.only(right: 12),
-  child: Text(
-  subtitle!,
-  style: const TextStyle(
-  color: BalanceColors.textMuted,
-  fontSize: 15,
-  height: 1.35,
-  ),
-  ),
-  ),
-  ],
-  ],
-  ),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: eyebrow == null
+                  ? const SizedBox.shrink()
+                  : Align(
+                      alignment: Alignment.centerLeft,
+                      child: Eyebrow(eyebrow!, tone: tone),
+                    ),
+            ),
+            ...actions,
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Semantics(header: true, child: RpgHeadline(headline)),
+              ),
+              ?trailing,
+            ],
+          ),
+        ),
+        if (subtitle != null) ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Text(
+              subtitle!,
+              style: const TextStyle(
+                color: BalanceColors.textMuted,
+                fontSize: 15,
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
+      ],
+    ),
   );
 }

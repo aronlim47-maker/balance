@@ -159,4 +159,35 @@ void main() {
       await repo.events.close();
     },
   );
+
+  testWidgets(
+    'system back on account help and register returns to sign-in',
+    (tester) async {
+      final repo = _Auth();
+      final model = AuthViewModel(repo);
+      final router = buildAppRouter(model);
+      await tester.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: model,
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
+      for (final route in ['/account-help', '/register']) {
+        router.go(route);
+        await tester.pumpAndSettle();
+        expect(router.routeInformationProvider.value.uri.path, route);
+        // Android back button / gesture; returning false would close the app.
+        expect(await tester.binding.handlePopRoute(), isTrue);
+        await tester.pumpAndSettle();
+        expect(
+          router.routeInformationProvider.value.uri.path,
+          AppRoutes.login,
+        );
+      }
+      await tester.pumpWidget(const SizedBox());
+      router.dispose();
+      model.dispose();
+      await repo.events.close();
+    },
+  );
 }
