@@ -29,12 +29,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          url=$(gh api "repos/${{ github.repository }}/releases/latest" \
-            --jq '.assets[] | select(.name|endswith(".apk")) | .browser_download_url' 2>/dev/null | head -1 || true)
-          if [ -z "$url" ]; then
-            echo "::warning::No published release with an APK yet."
+          status=$(curl -s -o release.json -w '%{http_code}' --max-time 20 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/latest" || true)
+          if [ "$status" = "404" ]; then
+            echo "::warning::No published release yet."
             exit 0
           fi
-          code=$(curl -sL -o /dev/null -w '%{http_code}' --max-time 60 "$url")
+          [ "$status" = "200" ] || { echo "::error::GitHub releases API returned HTTP $status"; exit 1; }
+          url=$(jq -r '[.assets[] | select(.name | endswith(".apk")) | .browser_download_url][0] // empty' release.json)
+          [ -n "$url" ] || { echo "::error::The latest release has no APK attached."; exit 1; }
+          # Headers only: confirms the link without downloading the whole APK.
+          code=$(curl -sIL -o /dev/null -w '%{http_code}' --max-time 60 "$url" || true)
           echo "APK download HTTP $code: $url"
           [ "$code" = "200" ] || { echo "::error::APK download returned HTTP $code"; exit 1; }
