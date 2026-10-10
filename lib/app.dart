@@ -83,6 +83,7 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
       rawTasks,
       DeviceReminderGateway(),
       DeviceReminderStore(),
+      fetchAvailability: () => _availabilityRepository.fetchAvailability(),
     );
     _taskRepository = RemindingTaskRepository(
       rawTasks,

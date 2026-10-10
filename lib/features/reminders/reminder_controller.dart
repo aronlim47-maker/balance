@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/state/lifecycle_notifier.dart';
 import '../../data/repositories/task_repository.dart';
 import '../../data/services/device_reminder_gateway.dart';
+import '../../domain/models/availability_block.dart';
 import '../../domain/usecases/plan_task_reminders.dart';
 
 abstract interface class ReminderStore {
@@ -34,8 +35,18 @@ class DeviceReminderStore implements ReminderStore {
 }
 
 class ReminderController extends LifecycleNotifier {
-  ReminderController(this._tasks, this._gateway, this._store);
+  ReminderController(
+    this._tasks,
+    this._gateway,
+    this._store, {
+    Future<List<AvailabilityBlock>> Function()? fetchAvailability,
+    // ignore: prefer_initializing_formals
+  }) : _fetchAvailability = fetchAvailability;
   final TaskRepository _tasks;
+
+  /// Source for overload alerts; without it only deadline reminders run.
+  final Future<List<AvailabilityBlock>> Function()? _fetchAvailability;
+  int overloadAlertCount = 0;
   final ReminderGateway _gateway;
   final ReminderStore _store;
   String? _owner;
@@ -100,7 +111,8 @@ class ReminderController extends LifecycleNotifier {
       return;
     }
     await _gateway.initialize();
-    if (value.enabled && !await _gateway.permission(request: true)) {
+    if ((value.enabled || value.overloadAlerts) &&
+        !await _gateway.permission(request: true)) {
       await _gateway.cancelAll();
       if (!_current(generation)) return;
       scheduledCount = 0;
@@ -121,9 +133,13 @@ class ReminderController extends LifecycleNotifier {
     await _gateway.initialize();
     if (!_current(generation)) return;
     message = null;
-    if (_owner == null || !preferences.enabled) {
+    if (_owner == null ||
+        (!preferences.enabled && !preferences.overloadAlerts)) {
       await _gateway.cancelAll();
-      if (_current(generation)) scheduledCount = 0;
+      if (_current(generation)) {
+        scheduledCount = 0;
+        overloadAlertCount = 0;
+      }
       return;
     }
     if (!await _gateway.permission()) {
@@ -135,8 +151,18 @@ class ReminderController extends LifecycleNotifier {
       return;
     }
     final tasks = await _tasks.fetchTasks();
+    final availability = preferences.overloadAlerts
+        ? await _fetchAvailability?.call() ?? const <AvailabilityBlock>[]
+        : const <AvailabilityBlock>[];
     final location = await _gateway.location();
     if (!_current(generation)) return;
+    final overloads = planOverloadAlerts(
+      tasks,
+      availability,
+      preferences,
+      DateTime.now(),
+      location,
+    );
     final reminders = planTaskReminders(
       tasks,
       preferences,
@@ -159,11 +185,20 @@ class ReminderController extends LifecycleNotifier {
         rethrow;
       }
     }
+    for (var index = 0; index < overloads.length; index++) {
+      if (!_current(generation)) {
+        await _gateway.cancelAll();
+        return;
+      }
+      // Separate id range so deadline reminders and alerts never collide.
+      await _gateway.scheduleOverload(1000 + index, overloads[index]);
+    }
     if (!_current(generation)) {
       await _gateway.cancelAll();
       return;
     }
     scheduledCount = reminders.length;
+    overloadAlertCount = overloads.length;
   }
 
   @override
