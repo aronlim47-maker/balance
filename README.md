@@ -60,8 +60,14 @@ Step-by-step instructions with screenshots are in the [user guide](docs/USER_GUI
 
 Flutter and Dart (Android first) · Supabase Auth, PostgreSQL, Row Level Security and
 transactional RPCs · Provider + go_router. The [Architecture](#architecture) and
-[Testing and coverage](#testing-and-coverage) sections below give details: 341
+[Testing and coverage](#testing-and-coverage) sections below give details: 351
 automated tests pass and critical code has 91.7% line coverage, enforced by CI.
+
+**Monitoring.** An hourly GitHub Actions job
+([Production health check](.github/workflows/health.yml)) verifies that Supabase Auth
+responds and that the published APK download link works; a failed run emails the
+maintainer. Crash reporting uses Sentry (errors only; no screenshots, IP address or user
+email).
 
 ---
 
@@ -90,6 +96,9 @@ Balance is a Flutter workload-planning application with personal tasks, five-dim
 2. Open the Supabase SQL Editor and run each unapplied migration once, in filename order: `202609240001_initial_schema.sql`, `202609250001_war_council_integrity.sql`, `202609270001_world_status_achievements.sql`, `202609270002_verified_progress.sql`, `202610010001_planning_consistency.sql`, `202610010002_atomic_social_event.sql`, `202610020001_recovery_history.sql`, `202610020002_planning_adapter_compatibility.sql`, `202610030001_active_planning_occupancy.sql`, `202610030002_retry_safe_social_event.sql`, `202610040001_plan_review_version.sql`, `202610040002_restore_progress_helpers.sql`, then `202610080001_require_task_category.sql` **only after confirming every supported app client submits a category for new tasks and validating the migration against a disposable database**. The latest migration intentionally rejects new tasks with an omitted/NULL category but preserves legacy NULL rows; an older client will fail to save new tasks after it is deployed. For an existing database, apply only migrations not already run. Each migration depends on those before it. Social-event creation requires the atomic-social-event migration; do not fall back to separate writes. Recovery history requires `202610020001_recovery_history.sql` and is recorded only when today's World Status is captured; past days are not backfilled.
 3. Copy `.env.example` to `.env`.
 4. Put the project URL and publishable key in `.env`. Never use the `service_role` key in the Flutter application.
+   Optional: set `SENTRY_DSN` to the Sentry project DSN to enable crash reporting. When it is
+   empty, Sentry is not initialised. Reports contain errors and stack traces only: no
+   performance tracing, screenshots, IP address or user email.
 5. Run the app with:
 
 ```powershell
@@ -229,7 +238,7 @@ python tools/check_coverage.py --min 70       # critical code: lib/domain + *_vi
 
 `tools/check_coverage.py` prints per-file line coverage for the critical code and exits 1 when
 the combined figure is below `--min`. CI enforces the 70% minimum; the 9 October 2026 local
-run measured 91.7% (2210/2410 lines) with 341 tests passing.
+run measured 91.7% (2210/2410 lines) with 351 tests passing.
 The WS01-WS14 and achievement test map is `docs/WS_AND_ACHIEVEMENT_TEST_MAP.md`.
 `test/domain/full_scenario_test.dart` is the domain-level full-journey regression
 (300 minutes proposed for a 180-minute evening). SQL scripts in `supabase/tests` need a

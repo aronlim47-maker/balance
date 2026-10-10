@@ -38,7 +38,8 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
     return BalanceScaffold(
       title: 'War Council',
       headline: 'Compare plans',
-      subtitle: 'Feasible options for today. Nothing changes until you confirm.',
+      subtitle:
+          'Feasible options for today. Nothing changes until you confirm.',
       currentIndex: 2,
       actions: [
         // Only entry to confirmed plans, so a plan can still be undone after
@@ -60,6 +61,8 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
             SectionHeader(
               title: viewModel.capacity.overloadMinutes > 0
                   ? 'Over capacity'
+                  : viewModel.capacity.availableMinutes == 0
+                  ? 'No time added'
                   : 'On track',
             ),
             const SizedBox(height: 18),
@@ -174,11 +177,11 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     movedMinutes: option.movedMinutes,
                     recoveryMinutes: 0,
                     protectedSummary:
-                    'Existing protected tasks and recovery stay unchanged.',
+                        'Existing protected tasks and recovery stay unchanged.',
                     costSummary:
-                    '${option.allMoves.length} task moves to new times before their deadlines.',
+                        '${option.allMoves.length} task moves to new times before their deadlines.',
                     roomSummary:
-                    '${option.movedMinutes} min moved from this day. Recovery time is not reserved by this suggestion.',
+                        '${option.movedMinutes} min moved from this day. Recovery time is not reserved by this suggestion.',
                     reviewSummary: option.needsAgreement
                         ? 'Get agreement before this change can be confirmed.'
                         : 'Check the proposed time and deadline before confirming.',
@@ -195,9 +198,9 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     : null,
                 icon: viewModel.isSaving
                     ? const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : const Icon(Icons.play_arrow_rounded),
                 label: Text(
                   viewModel.isSaving ? 'Saving plan…' : 'Confirm selected plan',
@@ -211,9 +214,9 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
   }
 
   Future<void> _confirm(
-      BuildContext context,
-      WarCouncilViewModel viewModel,
-      ) async {
+    BuildContext context,
+    WarCouncilViewModel viewModel,
+  ) async {
     final changeId = await viewModel.confirmSelectedPlan();
     if (!context.mounted) return;
     if (changeId == null) {
@@ -310,10 +313,7 @@ class _CapacitySummary extends StatelessWidget {
       0,
       capacity.plannedMinutes - capacity.availableMinutes,
     );
-    final dueBeforeFreeTime = math.max(
-      0,
-      capacity.overloadMinutes - extraWork,
-    );
+    final dueBeforeFreeTime = math.max(0, capacity.overloadMinutes - extraWork);
     return RpgPanel(
       tone: over ? RpgTone.danger : RpgTone.neutral,
       child: Column(
@@ -323,9 +323,9 @@ class _CapacitySummary extends StatelessWidget {
             'Time capacity',
             trailing: over
                 ? RpgTag(
-              '${formatShortDuration(capacity.overloadMinutes)} over',
-              tone: RpgTone.danger,
-            )
+                    '${formatShortDuration(capacity.overloadMinutes)} over',
+                    tone: RpgTone.danger,
+                  )
                 : capacity.availableMinutes == 0
                 ? const RpgTag('No time added', tone: RpgTone.muted)
                 : const RpgTag('Fits', tone: RpgTone.calm),
@@ -435,7 +435,10 @@ class _ProtectedItems extends StatelessWidget {
           for (final slot in recovery)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.eco_outlined, color: BalanceColors.calm),
+              leading: const Icon(
+                Icons.eco_outlined,
+                color: BalanceColors.calm,
+              ),
               title: const Text('Protected recovery'),
               subtitle: Text(
                 '${DateFormat.jm().format(slot.startAt.toLocal())}–${DateFormat.jm().format(slot.endAt.toLocal())}',

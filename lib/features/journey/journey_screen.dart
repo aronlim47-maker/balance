@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/router/app_router.dart';
 import '../../core/shared_widgets/balance_scaffold.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
@@ -36,6 +38,14 @@ class _JourneyContent extends StatelessWidget {
       headline: 'Weekly reflection',
       subtitle: 'A private look at the week\'s patterns.',
       currentIndex: 4,
+      actions: [
+        // Only entry to saved reflections from earlier weeks.
+        IconButton(
+          tooltip: 'My reflections',
+          icon: const Icon(Icons.history),
+          onPressed: () => context.push(AppRoutes.reflectionHistory),
+        ),
+      ],
       body: RefreshIndicator(
         onRefresh: viewModel.load,
         child: ListView(
