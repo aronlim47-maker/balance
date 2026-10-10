@@ -44,6 +44,7 @@ dependencies:
   flutter_timezone: ^5.1.1
   shared_preferences: ^2.5.6
   sentry_flutter: ^10.0.0
+  audioplayers: ^6.8.1
 
 dev_dependencies:
   http: ^1.6.0
@@ -71,6 +72,7 @@ flutter:
     - assets/fonts/
     - assets/icons/
     - assets/images/
+    - assets/audio/
 
   # Balance RPG look: Rajdhani for headings/labels, Barlow for body text.
   # Both are SIL Open Font License fonts (licences in assets/fonts).

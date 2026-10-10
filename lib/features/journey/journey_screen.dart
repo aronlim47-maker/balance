@@ -9,7 +9,7 @@ import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../data/repositories/achievement_repository.dart';
-import '../../domain/models/achievement_models.dart';
+import 'achievement_wall.dart';
 import 'journey_view_model.dart';
 import '../../data/services/verified_progress_service.dart';
 import '../../data/repositories/world_history_repository.dart';
@@ -197,21 +197,16 @@ class _JourneyContent extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 12),
-            // Earned achievements first, then the ones still to unlock.
-            for (final definition in [
-              ...viewModel.definitions.where(
-                (d) => viewModel.awardFor(d.key) != null,
-              ),
-              ...viewModel.definitions.where(
-                (d) => viewModel.awardFor(d.key) == null,
-              ),
-            ]) ...[
-              _AchievementCard(
-                definition: definition,
-                award: viewModel.awardFor(definition.key),
-              ),
-              const SizedBox(height: 10),
-            ],
+            AchievementWall(
+              definitions: viewModel.definitions,
+              awardFor: viewModel.awardFor,
+            ),
+            AchievementUnlockWatcher(
+              definitions: viewModel.definitions,
+              awardFor: viewModel.awardFor,
+              ready: !viewModel.isLoading && viewModel.errorMessage == null,
+            ),
+            const SizedBox(height: 12),
           ],
         ),
       ),
@@ -401,76 +396,4 @@ class _RecoveryKept extends StatelessWidget {
       ],
     ),
   );
-}
-
-class _AchievementCard extends StatelessWidget {
-  const _AchievementCard({required this.definition, required this.award});
-
-  final AchievementDefinition definition;
-  final AchievementAward? award;
-
-  @override
-  Widget build(BuildContext context) {
-    final unlocked = award != null;
-    return RpgPanel(
-      tone: RpgTone.muted,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 2, right: 12),
-            child: Icon(
-              unlocked ? Icons.verified_outlined : Icons.shield_outlined,
-              size: 22,
-              color: unlocked ? BalanceColors.calm : BalanceColors.textFaint,
-              semanticLabel: unlocked ? 'Unlocked' : 'Locked',
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  definition.practicalName,
-                  style: TextStyle(
-                    fontFamily: AppTheme.displayFont,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                    letterSpacing: 0.8,
-                    color: unlocked
-                        ? BalanceColors.text
-                        : BalanceColors.textMuted,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  definition.condition,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: BalanceColors.textMuted,
-                    height: 1.3,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  definition.rpgName,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: BalanceColors.textFaint,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          RpgTag(
-            unlocked
-                ? 'Unlocked ${DateFormat.MMMd().format(award!.awardedAt.toLocal())}'
-                : 'Locked',
-            tone: unlocked ? RpgTone.calm : RpgTone.muted,
-          ),
-        ],
-      ),
-    );
-  }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/shared_widgets/section_header.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
+import '../../core/audio/sound_service.dart';
 import '../../core/router/app_router.dart';
 import '../../domain/enums/validation_status.dart';
 import 'no_plan_explanation_card.dart';
@@ -252,6 +254,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
       );
       return;
     }
+    unawaited(_maybeSound(context)?.playConfirm());
     context.push('/council/updated/$changeId');
   }
 }
@@ -496,4 +499,13 @@ class _Metric extends StatelessWidget {
       ),
     ],
   );
+}
+
+/// Sound is optional; screens in tests may not provide it.
+SoundService? _maybeSound(BuildContext context) {
+  try {
+    return context.read<SoundService>();
+  } on ProviderNotFoundException {
+    return null;
+  }
 }

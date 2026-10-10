@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
+  audioplayers_windows
   flutter_timezone
   sentry_flutter
   url_launcher_windows
