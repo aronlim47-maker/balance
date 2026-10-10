@@ -105,7 +105,7 @@ class _ProfileContent extends StatelessWidget {
                       Expanded(
                         child: Text(
                           auth.isConfigured
-                              ? 'Supabase mode · Changes are sent to your account.'
+                              ? 'Signed in · Changes are saved to your account.'
                               : 'Local preview · Your changes are not saved to Supabase and may disappear when the app closes.',
                         ),
                       ),

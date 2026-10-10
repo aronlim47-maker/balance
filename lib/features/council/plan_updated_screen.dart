@@ -58,10 +58,7 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
         (change?.consequences['task_count'] as num?)?.toInt() ??
         taskTitles.length;
     return Scaffold(
-      appBar: AppBar(
-        title: const Eyebrow('War Council'),
-        titleSpacing: 0,
-      ),
+      appBar: AppBar(title: const Eyebrow('War Council'), titleSpacing: 0),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -100,9 +97,9 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                         ? 'This plan record could not be found. Return to War Council and refresh.'
                         : 'Check the plan status before making another change.'
                   : isUndone
-                  ? '$taskCount task placement${taskCount == 1 ? '' : 's'} restored in Supabase.'
+                  ? '$taskCount task placement${taskCount == 1 ? '' : 's'} restored.'
                   : isConfirmed
-                  ? '$taskCount task${taskCount == 1 ? '' : 's'} updated in Supabase.'
+                  ? '$taskCount task${taskCount == 1 ? '' : 's'} updated.'
                   : 'No task moves were applied.',
             ),
             const SizedBox(height: 22),

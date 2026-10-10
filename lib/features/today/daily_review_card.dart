@@ -33,9 +33,9 @@ class DailyReviewCard extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           review == null
-              ? 'Optional'
+              ? 'How are you today? Share only what you want.'
               : 'Mental: ${review!.mentalEnergyLevel?.label ?? 'Unknown'} · '
-              'Physical: ${review!.physicalEnergyLevel?.label ?? 'Unknown'}',
+                    'Physical: ${review!.physicalEnergyLevel?.label ?? 'Unknown'}',
           style: const TextStyle(color: BalanceColors.textMuted),
         ),
         if (review?.sleepHours != null)
@@ -147,7 +147,7 @@ class _DailyReviewSheetState extends State<DailyReviewSheet> {
                           child: _RestPreset(
                             label: hours == 8 ? '8h+' : '${hours}h',
                             selected:
-                            double.tryParse(_sleepController.text.trim()) ==
+                                double.tryParse(_sleepController.text.trim()) ==
                                 hours.toDouble(),
                             onTap: () => setState(() {
                               _sleepController.text = hours.toString();
@@ -155,7 +155,8 @@ class _DailyReviewSheetState extends State<DailyReviewSheet> {
                             }),
                           ),
                         ),
-                        if (hours != _restPresets.last) const SizedBox(width: 8),
+                        if (hours != _restPresets.last)
+                          const SizedBox(width: 8),
                       ],
                     ],
                   ),

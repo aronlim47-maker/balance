@@ -104,7 +104,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     child: Text(
                       viewModel.isConfigured
                           ? 'Database update needed to confirm plans.'
-                          : 'Connect Supabase to confirm plans.',
+                          : 'Sign in to confirm plans.',
                     ),
                   ),
                 ),
@@ -139,8 +139,8 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     padding: const EdgeInsets.all(2),
                     child: Text(
                       viewModel.isCheckingCapacity
-                          ? 'Checking capacity with Supabase…'
-                          : viewModel.capacityCheckError ?? 'The app and database calculate different capacity for this day. Check your profile time zone in Supabase, then refresh before confirming.',
+                          ? 'Checking your saved capacity…'
+                          : viewModel.capacityCheckError ?? 'The app and database calculate different capacity for this day. Check your planning time zone in Profile, then refresh before confirming.',
                     ),
                   ),
                 ),

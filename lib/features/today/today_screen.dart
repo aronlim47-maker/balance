@@ -687,7 +687,8 @@ class _StatusBadge extends StatelessWidget {
               DiamondIcon(size: 10, filled: true, color: tone.foreground),
               const SizedBox(width: 6),
               RpgLabel(
-                label == 'Not enough data' ? 'No data yet' : label,
+                // Name the measure so 'Low' is not read as 'plan fits'.
+                label == 'Not enough data' ? 'Load: no data' : 'Load: $label',
                 tone: tone == RpgTone.muted ? RpgTone.muted : tone,
                 size: 12,
                 spacing: 1.6,

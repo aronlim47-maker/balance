@@ -38,7 +38,7 @@ class PlanComparisonSheet extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'Rules-based preview. Nothing is saved here. Supabase checks again when you confirm.',
+            'Preview only. Nothing is saved here. Every rule is checked again when you confirm.',
           ),
         ),
         Expanded(
