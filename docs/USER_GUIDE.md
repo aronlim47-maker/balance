@@ -159,8 +159,9 @@ release build; reinstall from the release link.
 
 <img src="images/guide/10_council_top.png" width="200" alt="Council: the problem"> <img src="images/guide/11_council_option.png" width="200" alt="Council: the suggested option"> <img src="images/guide/12_plan_confirmed.png" width="200" alt="Plan confirmed">
 
-6. Tap **Return to Today** and move to the next day: it now shows the 2 moved hours and still
-   fits. The sample day is no longer over capacity.
+6. Tap **Return to Today** and move to the next day: the report now shows **120 min · Moved
+   here by a plan**, and the day still fits. Back on the sample day, the report shows the
+   **60 min** that stayed there, and the day is no longer over capacity.
 
 <img src="images/guide/13_today_after_confirm.png" width="200" alt="The next day after confirming">
 
@@ -273,7 +274,7 @@ There are no streaks, rankings or penalties for skipping.
 | **Capacity gap** / **Plan is balanced** | The verdict for the day. |
 | *I reviewed this overload* | Appears for an overload with a later deadline; recording it early can earn *Early Review*. |
 | **Availability** | Free time blocks; **Add**, **⋮ Edit/Delete**, **Copy from**, **Repeat for the next 6 days**. |
-| **Planned tasks** | Work that counts on this day; tap for details. |
+| **Planned tasks** | Work that counts on this day, with its minutes on this day and why: *Scheduled this day*, *Due this day* or *Moved here by a plan*. Tap for details. |
 | **Workload Overview** | Load total and the five bars, ▲/▼ changes, Calamity trend, *How is this calculated?* |
 | **7-day workload trend** | Daily totals for the last seven days once three are recorded. |
 | **Optional updates** | Daily Review, Movement, Social. |

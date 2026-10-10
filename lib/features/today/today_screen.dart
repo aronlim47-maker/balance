@@ -220,7 +220,7 @@ class _TodayContent extends StatelessWidget {
                     ),
                   ),
                   subtitle: Text(
-                    '${task.effectiveRemainingMinutes} min · ${task.scheduledStart == null ? 'Due this day' : 'Scheduled this day'}',
+                    '${viewModel.minutesOnSelectedDay(task)} min · ${viewModel.reasonOnSelectedDay(task)}',
                   ),
                   trailing: const Icon(Icons.chevron_right),
                 ),
