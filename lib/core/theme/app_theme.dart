@@ -78,12 +78,14 @@ abstract final class AppTheme {
       titleMedium: display(text.titleMedium, spacing: 0.8),
       titleSmall: display(text.titleSmall, spacing: 1.2),
       labelLarge: display(text.labelLarge, spacing: 1.6),
-      labelMedium: display(text.labelMedium, spacing: 1.6)?.copyWith(
-        color: BalanceColors.textMuted,
-      ),
-      labelSmall: display(text.labelSmall, spacing: 1.6)?.copyWith(
-        color: BalanceColors.textMuted,
-      ),
+      labelMedium: display(
+        text.labelMedium,
+        spacing: 1.6,
+      )?.copyWith(color: BalanceColors.textMuted),
+      labelSmall: display(
+        text.labelSmall,
+        spacing: 1.6,
+      )?.copyWith(color: BalanceColors.textMuted),
       bodySmall: text.bodySmall?.copyWith(color: BalanceColors.textMuted),
     );
 
@@ -93,8 +95,9 @@ abstract final class AppTheme {
       fontSize: 16,
       letterSpacing: 1.8,
     );
-    final squareShape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(6),
+    // Cut (chamfered) corners, like the frames of a game menu.
+    final squareShape = BeveledRectangleBorder(
+      borderRadius: BorderRadius.circular(7),
     );
 
     return base.copyWith(
@@ -117,7 +120,10 @@ abstract final class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          side: const BorderSide(color: BalanceColors.outlineStrong, width: 1.2),
+          side: const BorderSide(
+            color: BalanceColors.outlineStrong,
+            width: 1.2,
+          ),
         ),
       ),
       dividerTheme: const DividerThemeData(
@@ -224,20 +230,23 @@ abstract final class AppTheme {
       dialogTheme: DialogThemeData(
         backgroundColor: BalanceColors.surface,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: const BorderSide(color: BalanceColors.outlineStrong),
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: BalanceColors.gold.withValues(alpha: 0.6),
+            width: 1.2,
+          ),
         ),
         titleTextStyle: textTheme.titleLarge,
         contentTextStyle: textTheme.bodyMedium,
       ),
-      bottomSheetTheme: const BottomSheetThemeData(
+      bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: BalanceColors.surface,
         surfaceTintColor: Colors.transparent,
-        dragHandleColor: BalanceColors.outline,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-          side: BorderSide(color: BalanceColors.outline),
+        dragHandleColor: BalanceColors.gold.withValues(alpha: 0.6),
+        shape: BeveledRectangleBorder(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+          side: BorderSide(color: BalanceColors.gold.withValues(alpha: 0.45)),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
@@ -248,7 +257,7 @@ abstract final class AppTheme {
         ),
         actionTextColor: BalanceColors.accentBright,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
+        shape: BeveledRectangleBorder(
           borderRadius: BorderRadius.circular(6),
           side: const BorderSide(color: BalanceColors.outline),
         ),
@@ -256,7 +265,7 @@ abstract final class AppTheme {
       popupMenuTheme: PopupMenuThemeData(
         color: BalanceColors.surfaceRaised,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
+        shape: BeveledRectangleBorder(
           borderRadius: BorderRadius.circular(6),
           side: const BorderSide(color: BalanceColors.outline),
         ),

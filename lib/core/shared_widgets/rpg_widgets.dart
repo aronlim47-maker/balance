@@ -411,11 +411,14 @@ class RpgTag extends StatelessWidget {
     final color = tone == RpgTone.muted ? BalanceColors.text : tone.foreground;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-      decoration: BoxDecoration(
+      // Cut corners, like a game status badge.
+      decoration: ShapeDecoration(
         color: filled ? tone.background : Colors.transparent,
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(
-          color: tone == RpgTone.muted ? BalanceColors.outline : tone.border,
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+          side: BorderSide(
+            color: tone == RpgTone.muted ? BalanceColors.outline : tone.border,
+          ),
         ),
       ),
       child: Row(
@@ -537,6 +540,13 @@ class SectionRule extends StatelessWidget {
           RpgLabel(label, tone: tone, size: 13, spacing: 2.4),
           const SizedBox(width: 10),
           const Expanded(child: Divider(height: 1)),
+          // Small gold stud closing the rule.
+          const SizedBox(width: 6),
+          DiamondIcon(
+            size: 7,
+            filled: true,
+            color: BalanceColors.gold.withValues(alpha: 0.7),
+          ),
           if (trailing != null) ...[const SizedBox(width: 8), trailing!],
         ],
       ),
