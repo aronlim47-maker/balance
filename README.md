@@ -28,7 +28,7 @@ cost.** Balance answers those questions in one flow:
 | Weekly Reflection | Journey | Private weekly summary, optional reflection and an RPG achievement wall of seven sustainable-planning badges, celebrated once when earned. No streaks, rankings or rewards for overwork. |
 | Overload Alert | Calamity Alert | Optional notification the evening before a day with more planned work than available time. Off by default. |
 
-Also: a three-page first-run introduction, optional sound (effects on, relaxing music
+Also: a five-step animated beginner guide (Profile → Beginner guide), optional sound (effects on, relaxing music
 off by default; all audio original), and accessibility checks on every main page.
 
 Balance is a planning aid. Its scores describe recorded planning data; they are not a

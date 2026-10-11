@@ -32,7 +32,8 @@ every confirmed change. Android 8.0 or later. Judges: start with the
 
 ### New in this build
 
-- First-run introduction (three pages), reopenable from Profile → How Balance works.
+- Beginner guide: five simple steps with short animations and "Show me" shortcuts to each
+  page; shown on first run and reopenable from Profile → Beginner guide.
 - Quest Board task details with an Edit action.
 - Copy availability from the previous day, or repeat a day for the next six days.
 - Per-dimension change since yesterday (▲/▼) on the workload bars.
@@ -53,7 +54,7 @@ every confirmed change. Android 8.0 or later. Judges: start with the
 
 ### Quality and monitoring
 
-- 377 automated tests; critical code 92.4% line coverage, enforced by CI on every push.
+- 381 automated tests; critical code 92.4% line coverage, enforced by CI on every push.
 - Accessibility tests on every main page: tap targets, labels, contrast, 200% text.
 - Hourly health check of the backend and the APK download link; crash reporting with
   Sentry (errors only; no screenshots, IP address or user email).
