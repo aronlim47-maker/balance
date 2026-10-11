@@ -1,5 +1,6 @@
 import 'package:balance/data/repositories/achievement_repository.dart';
 import 'package:balance/data/repositories/local_achievement_repository.dart';
+import 'package:balance/data/services/verified_progress_service.dart';
 import 'package:balance/domain/models/achievement_models.dart';
 import 'package:balance/features/journey/journey_view_model.dart';
 import 'package:balance/features/journey/journey_screen.dart';
@@ -78,6 +79,48 @@ void main() {
     );
     expect(repository.fetchCount, 2);
   });
+
+  testWidgets('closing the reflection dialog with Back or Cancel is clean', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthViewModel()),
+          Provider<AchievementRepository>.value(
+            value: _FakeAchievementRepository(),
+          ),
+          Provider<VerifiedProgressService?>.value(value: _FakeProgress()),
+        ],
+        child: const MaterialApp(home: JourneyScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final open = find.text('Add optional reflection');
+
+    // System Back while typing: the dialog's exit animation must not use a
+    // disposed text controller.
+    await tester.ensureVisible(open);
+    await tester.tap(open);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Planning ahead helped');
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text('Weekly reflection'), findsNothing);
+
+    await tester.tap(open);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.byType(JourneyScreen), findsOneWidget);
+  });
+}
+
+class _FakeProgress implements VerifiedProgressService {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class _FakeAchievementRepository implements AchievementRepository {
