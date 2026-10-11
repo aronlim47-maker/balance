@@ -37,7 +37,7 @@ class _JourneyContent extends StatelessWidget {
     builder: (context, viewModel, _) => BalanceScaffold(
       title: 'Journey',
       headline: 'Weekly reflection',
-      subtitle: 'A private look at the week\'s patterns.',
+      help: 'A private look at the week\'s patterns.',
       currentIndex: 4,
       actions: [
         // Only entry to saved reflections from earlier weeks.
@@ -107,7 +107,9 @@ class _JourneyContent extends StatelessWidget {
                 key: const ValueKey('journey.pattern'),
                 id: 'journey.pattern',
                 title: 'Weekly pattern',
-                subtitle: 'World Status score per day',
+                help:
+                    'World Status score per day. Only days captured at the '
+                    'time have a score.',
                 initiallyExpanded: true,
                 summary: 'Score for each day of this week',
                 child: RpgPanel(
@@ -118,14 +120,6 @@ class _JourneyContent extends StatelessWidget {
                         weekStart: viewModel.weekStart,
                         scores: viewModel.week!.dailyScores,
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Only days captured at the time have a score.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: BalanceColors.textMuted,
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -135,6 +129,7 @@ class _JourneyContent extends StatelessWidget {
                 key: const ValueKey('journey.recovery'),
                 id: 'journey.recovery',
                 title: 'Recovery kept',
+                help: 'Days this week that kept their protected rest.',
                 tone: RpgTone.calm,
                 summary: viewModel.week!.recoveryRecordedDays == 0
                     ? 'No recorded recovery this week'
@@ -186,7 +181,9 @@ class _JourneyContent extends StatelessWidget {
               key: const ValueKey('journey.achievements'),
               id: 'journey.achievements',
               title: 'Achievements',
-              subtitle: 'Journey milestones',
+              help:
+                  'Journey milestones. Only verified actions unlock '
+                  'achievements. Rest never removes progress.',
               summary: '${viewModel.unlockedCount} of 7 unlocked',
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -212,14 +209,6 @@ class _JourneyContent extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Only verified actions unlock achievements. Rest never removes progress.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: BalanceColors.textMuted,
-                    ),
                   ),
                   const SizedBox(height: 12),
                   AchievementWall(

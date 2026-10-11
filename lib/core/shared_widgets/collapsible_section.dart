@@ -12,6 +12,9 @@ import 'rpg_widgets.dart';
 /// (for example "2 blocks · 4h free"). The open/closed choice is remembered
 /// on the phone through [SectionMemoryScope] under [id]; until the user
 /// changes it, [initiallyExpanded] decides.
+///
+/// A [help] text (what the section is for) stays hidden behind a ? button
+/// next to the title, so the page shows only what matters at a glance.
 class CollapsibleSection extends StatefulWidget {
   const CollapsibleSection({
     super.key,
@@ -20,7 +23,7 @@ class CollapsibleSection extends StatefulWidget {
     required this.child,
     this.initiallyExpanded = false,
     this.summary,
-    this.subtitle,
+    this.help,
     this.action,
     this.tone = RpgTone.accent,
   });
@@ -37,8 +40,8 @@ class CollapsibleSection extends StatefulWidget {
   /// Short line shown under the title while the section is closed.
   final String? summary;
 
-  /// Short line always shown under the title (e.g. "Protected").
-  final String? subtitle;
+  /// What the section is for. Hidden until the user taps the ? button.
+  final String? help;
 
   /// Optional small action shown next to the +/− button (e.g. "Add").
   final Widget? action;
@@ -51,6 +54,7 @@ class CollapsibleSection extends StatefulWidget {
 
 class _CollapsibleSectionState extends State<CollapsibleSection> {
   bool? _expanded;
+  bool _showHelp = false;
 
   @override
   void didChangeDependencies() {
@@ -113,10 +117,6 @@ class _CollapsibleSectionState extends State<CollapsibleSection> {
                       ),
                     ),
                   ),
-                  if (widget.subtitle != null) ...[
-                    const SizedBox(height: 2),
-                    Text(widget.subtitle!, style: muted),
-                  ],
                   if (!expanded && widget.summary != null) ...[
                     const SizedBox(height: 2),
                     Text(widget.summary!, style: muted),
@@ -124,6 +124,12 @@ class _CollapsibleSectionState extends State<CollapsibleSection> {
                 ],
               ),
             ),
+            if (widget.help != null)
+              HelpButton(
+                topic: widget.title,
+                showing: _showHelp,
+                onPressed: () => setState(() => _showHelp = !_showHelp),
+              ),
             if (widget.action != null) ...[
               const SizedBox(width: 4),
               widget.action!,
@@ -145,6 +151,11 @@ class _CollapsibleSectionState extends State<CollapsibleSection> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         header,
+        if (widget.help != null && _showHelp)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6, right: 52),
+            child: Text(widget.help!, style: muted),
+          ),
         const SizedBox(height: 4),
         const Divider(height: 1),
         AnimatedSize(
@@ -163,4 +174,29 @@ class _CollapsibleSectionState extends State<CollapsibleSection> {
       ],
     );
   }
+}
+
+/// Round ? button that shows or hides a grey description of [topic].
+class HelpButton extends StatelessWidget {
+  const HelpButton({
+    super.key,
+    required this.topic,
+    required this.showing,
+    required this.onPressed,
+  });
+
+  final String topic;
+  final bool showing;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    expanded: showing,
+    child: IconButton(
+      tooltip: showing ? 'Hide info about $topic' : 'What is $topic?',
+      onPressed: onPressed,
+      color: showing ? BalanceColors.accentBright : BalanceColors.textMuted,
+      icon: Icon(showing ? Icons.help : Icons.help_outline, size: 22),
+    ),
+  );
 }

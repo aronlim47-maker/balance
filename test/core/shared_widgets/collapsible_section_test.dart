@@ -94,6 +94,33 @@ void main() {
     expect(find.text('Block details'), findsOneWidget);
   });
 
+  testWidgets('the description stays hidden until ? is tapped', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        const CollapsibleSection(
+          id: 'test.help',
+          title: 'Optional updates',
+          help: 'Add detail to your Workload Overview. Skipping is fine.',
+          child: Text('Inputs'),
+        ),
+      ),
+    );
+    const help = 'Add detail to your Workload Overview. Skipping is fine.';
+    expect(find.text(help), findsNothing);
+
+    await tester.tap(find.byTooltip('What is Optional updates?'));
+    await tester.pumpAndSettle();
+    expect(find.text(help), findsOneWidget);
+    // Showing the description does not open the section.
+    expect(find.text('Inputs'), findsNothing);
+
+    await tester.tap(find.byTooltip('Hide info about Optional updates'));
+    await tester.pumpAndSettle();
+    expect(find.text(help), findsNothing);
+  });
+
   test('load() restores saved section states', () async {
     SharedPreferences.setMockInitialValues({
       '${SectionMemory.keyPrefix}today.workload': true,

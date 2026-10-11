@@ -53,9 +53,10 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
       // Practical name as the headline, RPG name as the eyebrow (Rev7 14.13).
       title: 'Quest Board',
       headline: 'Tasks',
-      subtitle: viewModel.tasks.isEmpty
-          ? 'Every commitment in one place.'
-          : _summary(viewModel),
+      subtitle: viewModel.tasks.isEmpty ? null : _summary(viewModel),
+      help:
+          'Every commitment in one place. Search, filter or sort your '
+          'tasks, and tap + to add one.',
       currentIndex: 1,
       actions: [
         PopupMenuButton<QuestSort>(
@@ -227,7 +228,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
           key: const ValueKey('quests.protected'),
           id: 'quests.protected',
           title: 'Sacred contracts',
-          subtitle: 'Protected',
+          help: 'Protected tasks. Plans never move them.',
           summary: count(protectedTasks),
           tone: RpgTone.calm,
           initiallyExpanded: true,
@@ -240,6 +241,9 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
           key: const ValueKey('quests.active'),
           id: 'quests.active',
           title: 'Quests',
+          help:
+              'Your other planned tasks. Use ⋮ to mark one done, edit or '
+              'delete it.',
           summary: count(otherTasks),
           initiallyExpanded: true,
           child: cards(otherTasks),
@@ -251,7 +255,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
           key: const ValueKey('quests.finished'),
           id: 'quests.finished',
           title: 'Finished',
-          subtitle: 'Completed or cancelled',
+          help: 'Completed or cancelled tasks.',
           summary: count(finishedTasks),
           tone: RpgTone.muted,
           child: cards(finishedTasks),

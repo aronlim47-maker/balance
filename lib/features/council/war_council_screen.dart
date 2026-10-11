@@ -41,7 +41,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
     return BalanceScaffold(
       title: 'War Council',
       headline: 'Compare plans',
-      subtitle: 'Safe ways to fix an overloaded day.',
+      help: 'Safe ways to fix an overloaded day.',
       currentIndex: 2,
       actions: [
         // Only entry to confirmed plans, so a plan can still be undone after
@@ -74,6 +74,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
               key: const ValueKey('council.protected'),
               id: 'council.protected',
               title: 'What stays protected',
+              help: 'Fixed tasks and protected recovery that no plan will move.',
               tone: RpgTone.calm,
               summary: _protectedSummary(viewModel),
               child: _ProtectedItems(viewModel: viewModel, showHeader: false),
@@ -188,7 +189,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                   key: const ValueKey('council.plans'),
                   id: 'council.plans',
                   title: 'Choose a plan',
-                  subtitle: 'Suggestions only. Nothing moves until confirmed.',
+                  help: 'Suggestions only. Nothing moves until confirmed.',
                   initiallyExpanded: true,
                   summary: viewModel.options.isEmpty
                       ? 'No safe plan found'

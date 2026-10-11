@@ -61,6 +61,9 @@ class _TodayContent extends StatelessWidget {
     builder: (context, viewModel, _) => BalanceScaffold(
       title: 'World Status',
       headline: 'Today',
+      help:
+          'Check whether today\'s work fits your free time, then add '
+          'details. Use the arrows to look at other days.',
       subtitle: DateFormat('EEEE, d MMMM').format(viewModel.selectedDay),
       headerTrailing: _StatusBadge(label: viewModel.worldStatus.label),
       currentIndex: 0,
@@ -135,6 +138,10 @@ class _TodayContent extends StatelessWidget {
             key: const ValueKey('today.capacity'),
             id: 'today.capacity',
             title: 'Capacity',
+            help:
+                'Compares the work planned for this day with the free time '
+                'you added. If the work needs more time than you have, the '
+                'day is over capacity and Council can suggest safe fixes.',
             initiallyExpanded: true,
             summary:
                 '${formatShortDuration(viewModel.plannedMinutes)} planned · '
@@ -164,6 +171,9 @@ class _TodayContent extends StatelessWidget {
             key: const ValueKey('today.availability'),
             id: 'today.availability',
             title: 'Availability',
+            help:
+                'The free time you have on this day. Tap Add to enter a time '
+                'block. Balance only counts work inside these times.',
             summary: viewModel.availabilityForDay.isEmpty
                 ? 'None added for this day'
                 : '${viewModel.availabilityForDay.length} '
@@ -228,6 +238,10 @@ class _TodayContent extends StatelessWidget {
             key: const ValueKey('today.tasks'),
             id: 'today.tasks',
             title: 'Planned tasks',
+            help:
+                'Work that counts on this day, with its minutes and why it is '
+                'here (scheduled, due, or moved by a plan). Tap a task for '
+                'details.',
             summary: viewModel.tasksForDay.isEmpty
                 ? 'None due on this day'
                 : '${viewModel.tasksForDay.length} '
@@ -278,6 +292,10 @@ class _TodayContent extends StatelessWidget {
             key: const ValueKey('today.workload'),
             id: 'today.workload',
             title: 'Workload',
+            help:
+                'Your planning pressure in five areas (Mental, Time, '
+                'Physical, Social, Errands), scored 0-100, plus the 7-day '
+                'trend. Missing data shows as Unknown, never zero.',
             summary:
                 'Five dimensions and 7-day trend · '
                 'Load: ${viewModel.worldStatus.label}',
@@ -297,15 +315,11 @@ class _TodayContent extends StatelessWidget {
             key: const ValueKey('today.optional'),
             id: 'today.optional',
             title: 'Optional updates',
-            summary: 'Daily review, movement and social. Skipping is fine.',
+            summary: 'Daily review, movement and social',
+            help: 'Add detail to your Workload Overview. Skipping is fine.',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Add detail to your Workload Overview. Skipping is fine.',
-                  style: TextStyle(color: BalanceColors.textMuted),
-                ),
-                const SizedBox(height: 10),
                 DailyReviewCard(
                   review: viewModel.checkIn,
                   isSaving: viewModel.isSavingReview,

@@ -69,7 +69,7 @@ class _RecoveryContent extends StatelessWidget {
     return BalanceScaffold(
       title: 'Sanctuary',
       headline: 'Recovery time',
-      subtitle: 'Protected time for rest. Activities are optional.',
+      help: 'Protected time for rest. Activities are optional.',
       eyebrowTone: RpgTone.calm,
       currentIndex: 3,
       actions: [
@@ -148,6 +148,9 @@ class _RecoveryContent extends StatelessWidget {
                 key: const ValueKey('sanctuary.next'),
                 id: 'sanctuary.next',
                 title: 'Next rest',
+                help:
+                    'Your next protected rest. The time is held clear and '
+                    'nothing will be scheduled into it.',
                 tone: RpgTone.calm,
                 initiallyExpanded: true,
                 summary:
@@ -204,6 +207,9 @@ class _RecoveryContent extends StatelessWidget {
                 key: const ValueKey('sanctuary.all'),
                 id: 'sanctuary.all',
                 title: 'All recovery slots',
+                help:
+                    'Every rest slot you protected. Mark an activity done or '
+                    'remove a slot with ⋮. Rest never changes your scores.',
                 tone: RpgTone.calm,
                 summary:
                     '${model.slots.length} '
