@@ -106,7 +106,7 @@ class WorldTrendPanel extends StatelessWidget {
           Text(
             '${_date(report.windowStart)} – ${_date(report.windowEnd)} · '
             'score 0–100, higher means more planning pressure',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               color: BalanceColors.textMuted,
             ),
@@ -117,7 +117,7 @@ class WorldTrendPanel extends StatelessWidget {
             Text(
               'The chart appears after $_barsAfterDays days of records '
               '(${trend.observedDays} of $_barsAfterDays so far).',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 color: BalanceColors.textMuted,
               ),
@@ -149,7 +149,7 @@ class WorldTrendPanel extends StatelessWidget {
               gaps == 1
                   ? '1 day has no data and is left out of the average.'
                   : '$gaps days have no data and are left out of the average.',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 color: BalanceColors.textMuted,
               ),
@@ -193,7 +193,7 @@ class _DayBar extends StatelessWidget {
             child: Align(
               alignment: Alignment.bottomCenter,
               child: score == null
-                  ? const Text(
+                  ? Text(
                       '—',
                       style: TextStyle(color: BalanceColors.textMuted),
                     )

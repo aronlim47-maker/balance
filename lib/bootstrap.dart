@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/config/environment.dart';
+import 'core/theme/theme_controller.dart';
 
 Future<void> bootstrap() async {
   if (Environment.sentryDsn.isEmpty) return _start();
@@ -47,7 +48,15 @@ Future<void> _start() async {
       return;
     }
   }
-  runApp(BalanceApp(supabaseConfigured: isSupabaseConfigured));
+  // Read the saved light/dark choice before the first frame so the app
+  // opens in the right look without a flash.
+  final themeController = await ThemeController.load();
+  runApp(
+    BalanceApp(
+      supabaseConfigured: isSupabaseConfigured,
+      themeController: themeController,
+    ),
+  );
 }
 
 class _StartupMessage extends StatelessWidget {

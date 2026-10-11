@@ -38,7 +38,7 @@ class NoPlanExplanationCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'Council keeps protected work in place and only moves flexible '
               'work that already has a time.',
               style: TextStyle(color: BalanceColors.textMuted),
@@ -88,7 +88,7 @@ class NoPlanExplanationCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Or keep your current plan. Nothing changes unless you confirm.',
               style: TextStyle(fontSize: 13, color: BalanceColors.textMuted),
             ),

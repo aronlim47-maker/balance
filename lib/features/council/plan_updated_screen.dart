@@ -143,7 +143,7 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                           Icons.receipt_long_outlined,
                           size: 20,
                         ),
-                        title: const Text(
+                        title: Text(
                           'Change reference',
                           style: TextStyle(
                             fontSize: 14,
@@ -152,7 +152,7 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                         ),
                         subtitle: Text(
                           widget.changeId,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             color: BalanceColors.textFaint,
                           ),

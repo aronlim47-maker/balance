@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -9,6 +10,8 @@ import 'core/audio/sound_service.dart';
 import 'core/router/app_router.dart';
 import 'core/state/planning_day_controller.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_controller.dart';
+import 'core/theme/theme_scope.dart';
 import 'data/repositories/availability_repository.dart';
 import 'data/repositories/achievement_repository.dart';
 import 'data/repositories/local_achievement_repository.dart';
@@ -40,9 +43,17 @@ import 'data/repositories/reminding_task_repository.dart';
 import 'features/reminders/reminder_controller.dart';
 
 class BalanceApp extends StatefulWidget {
-  const BalanceApp({super.key, this.supabaseConfigured = false});
+  const BalanceApp({
+    super.key,
+    this.supabaseConfigured = false,
+    this.themeController,
+  });
 
   final bool supabaseConfigured;
+
+  /// The saved light/dark choice, loaded in `bootstrap()` before the first
+  /// frame. When null (widget tests) the app starts in dark mode.
+  final ThemeController? themeController;
 
   @override
   State<BalanceApp> createState() => _BalanceAppState();
@@ -64,10 +75,12 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
   String? _sessionUserId;
   late final ReminderController _reminders;
   final SoundService _sound = SoundService()..load();
+  late final ThemeController _theme;
 
   @override
   void initState() {
     super.initState();
+    _theme = widget.themeController ?? ThemeController();
     _authViewModel = AuthViewModel(
       widget.supabaseConfigured
           ? SupabaseAuthService(Supabase.instance.client)
@@ -144,6 +157,7 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
     _authViewModel.removeListener(_handleAccountChange);
     _authViewModel.dispose();
     _planningDayController.dispose();
+    if (widget.themeController == null) _theme.dispose();
     super.dispose();
   }
 
@@ -185,11 +199,28 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
               : null,
         ),
       ],
-      child: MaterialApp.router(
-        title: 'Balance',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        routerConfig: _router,
+      child: ThemeScope(
+        controller: _theme,
+        child: ListenableBuilder(
+          listenable: _theme,
+          builder: (context, _) => MaterialApp.router(
+            title: 'Balance',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: _theme.mode,
+            // Switch instantly so every widget changes in the same frame.
+            themeAnimationDuration: Duration.zero,
+            routerConfig: _router,
+            builder: (context, child) => ThemeRefresh(
+              controller: _theme,
+              child: AnnotatedRegion<SystemUiOverlayStyle>(
+                value: AppTheme.overlayStyle(_theme.palette),
+                child: child ?? const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

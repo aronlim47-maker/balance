@@ -1,50 +1,73 @@
 import 'package:flutter/material.dart';
 
-/// Colour tokens for Balance's dark RPG look.
+import 'balance_palette.dart';
+
+/// Colour tokens for Balance, for whichever look (dark or light) is active.
 ///
 /// Use these instead of hard-coded colours so every screen stays consistent.
+/// The values live in [BalancePalette]; `ThemeController` switches
+/// [active] and rebuilds the app, so these getters always return the colour
+/// for the current look. Because they can change, they cannot be used inside
+/// `const` expressions.
 abstract final class BalanceColors {
+  static BalancePalette _active = BalancePalette.dark;
+
+  /// The palette every getter below reads from.
+  static BalancePalette get active => _active;
+
+  /// Called by `ThemeController` only.
+  static void use(BalancePalette palette) => _active = palette;
+
+  static bool get isDark => _active.isDark;
+
   // Surfaces
-  static const background = Color(0xFF0E1014);
-  static const surface = Color(0xFF151820);
-  static const surfaceRaised = Color(0xFF1B1F29);
-  static const surfaceSunken = Color(0xFF11141A);
+  static Color get background => _active.background;
+  static Color get surface => _active.surface;
+  static Color get surfaceRaised => _active.surfaceRaised;
+  static Color get surfaceSunken => _active.surfaceSunken;
 
   // Lines
-  /// Bright outline used on primary panels (the white-ish card borders).
-  static const outlineStrong = Color(0xFFC9CCE0);
+  /// Strong outline used on primary panels.
+  static Color get outlineStrong => _active.outlineStrong;
 
   /// Dim outline for inner rows, tags and inputs.
-  static const outline = Color(0xFF343A4A);
+  static Color get outline => _active.outline;
 
   // Text
-  static const text = Color(0xFFEDEEF4);
-  static const textMuted = Color(0xFF9CA2B6);
-  // Lightest grey that still meets WCAG AA (4.5:1) for small text on surface.
-  static const textFaint = Color(0xFF7C8297);
+  static Color get text => _active.text;
+  static Color get textMuted => _active.textMuted;
 
-  // Accent (periwinkle) — buttons, meters, selected states
-  static const accent = Color(0xFF7B83D4);
-  static const accentBright = Color(0xFFA3A9EE);
-  static const accentDim = Color(0xFF2A2E4A);
+  /// Lightest grey that still meets WCAG AA (4.5:1) for small text.
+  static Color get textFaint => _active.textFaint;
 
-  // Danger — over capacity
-  static const danger = Color(0xFFE47F72);
-  static const dangerFill = Color(0xFF9C4E4B);
-  static const dangerBg = Color(0xFF261618);
-  static const dangerBorder = Color(0xFFD07A72);
+  // Accent (periwinkle): buttons, meters, selected states
+  static Color get accent => _active.accent;
+  static Color get accentBright => _active.accentBright;
+  static Color get accentDim => _active.accentDim;
 
-  // Warning — "building up"
-  static const warning = Color(0xFFE59A57);
-  static const warningBg = Color(0xFF2A1D13);
-  static const warningBorder = Color(0xFF8A5A35);
+  // Danger: over capacity
+  static Color get danger => _active.danger;
+  static Color get dangerFill => _active.dangerFill;
+  static Color get dangerBg => _active.dangerBg;
+  static Color get dangerBorder => _active.dangerBorder;
 
-  // Calm green — protected time, Sanctuary
-  static const calm = Color(0xFF80D3A2);
-  static const calmFill = Color(0xFF3F8A60);
-  static const calmBg = Color(0xFF12211A);
-  static const calmBorder = Color(0xFF4E9A70);
+  // Warning: "building up"
+  static Color get warning => _active.warning;
+  static Color get warningBg => _active.warningBg;
+  static Color get warningBorder => _active.warningBorder;
+
+  // Calm green: protected time, Sanctuary
+  static Color get calm => _active.calm;
+  static Color get calmFill => _active.calmFill;
+  static Color get calmBg => _active.calmBg;
+  static Color get calmBorder => _active.calmBorder;
 
   // Ornament gold: headline flourishes, panel corners and earned badges.
-  static const gold = Color(0xFFE8C46A);
+  static Color get gold => _active.gold;
+  static Color get goldSurface => _active.goldSurface;
+  static Color get goldGlow => _active.goldGlow;
+  static Color get goldDialog => _active.goldDialog;
+
+  /// Shadow for raised panels (transparent in dark mode).
+  static Color get shadow => _active.shadow;
 }

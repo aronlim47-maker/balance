@@ -366,7 +366,7 @@ class _CapacitySummary extends StatelessWidget {
                   color: over ? BalanceColors.danger : BalanceColors.text,
                 ),
               ),
-              const Icon(Icons.arrow_forward, color: BalanceColors.textFaint),
+              Icon(Icons.arrow_forward, color: BalanceColors.textFaint),
               const SizedBox(width: 12),
               Expanded(
                 child: _Metric(
@@ -403,7 +403,7 @@ class _CapacitySummary extends StatelessWidget {
                             '$extraWork min more work than free time',
                           '$dueBeforeFreeTime min due before free time starts',
                         ].join(' · '),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           color: BalanceColors.textMuted,
                         ),
@@ -437,14 +437,14 @@ class _ProtectedItems extends StatelessWidget {
           const RpgLabel('What stays protected', tone: RpgTone.calm, size: 13),
           const SizedBox(height: 8),
           if (tasks.isEmpty && recovery.isEmpty)
-            const Text(
+            Text(
               'No fixed tasks or protected recovery on this day.',
               style: TextStyle(color: BalanceColors.textMuted),
             ),
           for (final task in tasks)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(
+              leading: Icon(
                 Icons.shield_outlined,
                 color: BalanceColors.calm,
               ),
@@ -456,7 +456,7 @@ class _ProtectedItems extends StatelessWidget {
           for (final slot in recovery)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(
+              leading: Icon(
                 Icons.eco_outlined,
                 color: BalanceColors.calm,
               ),

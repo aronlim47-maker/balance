@@ -85,7 +85,7 @@ class RecoverySlotCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       timeText,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: BalanceColors.textMuted,
                         fontSize: 13,
                       ),
@@ -94,7 +94,7 @@ class RecoverySlotCard extends StatelessWidget {
                 ),
               ),
               if (_fromCouncil)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(12),
                   child: Icon(
                     Icons.lock_outline,
@@ -144,7 +144,7 @@ class RecoverySlotCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 32, top: 6),
             child: _fromCouncil
-                ? const Text(
+                ? Text(
                     'This time was freed by a confirmed plan. '
                     'Undo the plan in Council to change it.',
                     style: TextStyle(
@@ -153,7 +153,7 @@ class RecoverySlotCard extends StatelessWidget {
                     ),
                   )
                 : slot.selectedActivity == null
-                ? const Text(
+                ? Text(
                     'No activity planned. Rest needs no proof.',
                     style: TextStyle(
                       fontSize: 13,

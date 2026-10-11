@@ -209,7 +209,7 @@ class RpgOrnament extends StatelessWidget {
       width: width,
       child: Row(
         children: [
-          const DiamondIcon(size: 8, filled: true, color: BalanceColors.gold),
+          DiamondIcon(size: 8, filled: true, color: BalanceColors.gold),
           const SizedBox(width: 6),
           Expanded(
             child: Container(
@@ -269,6 +269,9 @@ class RpgPanel extends StatelessWidget {
           )
         : Material(
             color: selected ? BalanceColors.accentDim : tone.background,
+            // Light mode: a soft shadow lifts panels off the page.
+            elevation: BalanceColors.isDark ? 0 : 1,
+            shadowColor: BalanceColors.shadow,
             shape: RoundedRectangleBorder(
               borderRadius: radius,
               side: BorderSide(color: borderColor, width: selected ? 1.6 : 1.2),
@@ -457,7 +460,7 @@ class SegmentMeter extends StatelessWidget {
     required this.filled,
     this.total = 5,
     this.over = 0,
-    this.color = BalanceColors.accent,
+    this.color,
     this.height = 8,
     this.gap = 4,
     this.semanticsLabel,
@@ -486,7 +489,9 @@ class SegmentMeter extends StatelessWidget {
   final int filled;
   final int total;
   final int over;
-  final Color color;
+
+  /// Colour of the filled segments. Defaults to the accent colour.
+  final Color? color;
   final double height;
   final double gap;
   final String? semanticsLabel;
@@ -496,7 +501,7 @@ class SegmentMeter extends StatelessWidget {
     final children = <Widget>[];
     for (var i = 0; i < total; i++) {
       final segmentColor = i < filled
-          ? color
+          ? color ?? BalanceColors.accent
           : i < filled + over
           ? BalanceColors.dangerFill
           : BalanceColors.surfaceRaised;
@@ -554,7 +559,7 @@ class SectionRule extends StatelessWidget {
         const SizedBox(height: 3),
         Text(
           subtitle!,
-          style: const TextStyle(fontSize: 12, color: BalanceColors.textMuted),
+          style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
         ),
       ],
     ],
@@ -621,7 +626,7 @@ class DiamondOptionRow extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       color: BalanceColors.textMuted,
                     ),

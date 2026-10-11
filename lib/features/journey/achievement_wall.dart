@@ -12,7 +12,7 @@ import '../../domain/models/achievement_models.dart';
 import '../auth/auth_view_model.dart';
 
 /// Badge colour for earned achievements.
-const _gold = BalanceColors.gold;
+Color get _gold => BalanceColors.gold;
 
 IconData _emblem(String key) => switch (key) {
   'protected_rest' => Icons.bedtime_outlined,
@@ -76,7 +76,9 @@ class _Emblem extends StatelessWidget {
     decoration: BoxDecoration(
       shape: BoxShape.circle,
       gradient: unlocked
-          ? const RadialGradient(colors: [Color(0xFF3A3220), Color(0xFF1B1F29)])
+          ? RadialGradient(
+              colors: [BalanceColors.goldGlow, BalanceColors.surfaceRaised],
+            )
           : null,
       color: unlocked ? null : BalanceColors.surfaceSunken,
       border: Border.all(
@@ -129,7 +131,7 @@ class _Badge extends StatelessWidget {
           '${definition.condition}',
       excludeSemantics: true,
       child: Material(
-        color: unlocked ? const Color(0xFF1E1C17) : BalanceColors.surface,
+        color: unlocked ? BalanceColors.goldSurface : BalanceColors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: BorderSide(
@@ -226,7 +228,7 @@ void _showDetails(
             const SizedBox(height: 14),
             Text(
               unlocked ? 'Earned by' : 'How to unlock',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 color: BalanceColors.textMuted,
               ),
@@ -354,7 +356,7 @@ class _UnlockDialogState extends State<_UnlockDialog>
       curve: const Interval(0, 0.55, curve: Curves.elasticOut),
     );
     return Dialog(
-      backgroundColor: const Color(0xFF16140F),
+      backgroundColor: BalanceColors.goldDialog,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: _gold.withValues(alpha: 0.7)),
@@ -364,7 +366,7 @@ class _UnlockDialogState extends State<_UnlockDialog>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'ACHIEVEMENT UNLOCKED',
               style: TextStyle(
                 fontFamily: AppTheme.displayFont,
@@ -409,18 +411,18 @@ class _UnlockDialogState extends State<_UnlockDialog>
                 fontSize: 24,
               ),
             ),
-            Text(first.rpgName, style: const TextStyle(color: _gold)),
+            Text(first.rpgName, style: TextStyle(color: _gold)),
             const SizedBox(height: 10),
             Text(
               first.condition,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: BalanceColors.textMuted),
+              style: TextStyle(color: BalanceColors.textMuted),
             ),
             if (more > 0) ...[
               const SizedBox(height: 8),
               Text(
                 '+ $more more unlocked',
-                style: const TextStyle(color: BalanceColors.calm),
+                style: TextStyle(color: BalanceColors.calm),
               ),
             ],
             const SizedBox(height: 18),

@@ -16,7 +16,7 @@ class SectionHeader extends StatelessWidget {
         header: true,
         child: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: AppTheme.displayFont,
             fontWeight: FontWeight.w700,
             fontSize: 26,
@@ -30,7 +30,7 @@ class SectionHeader extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           subtitle!,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             height: 1.35,
             color: BalanceColors.textMuted,

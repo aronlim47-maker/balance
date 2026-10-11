@@ -74,7 +74,7 @@ class WorldStatusCard extends StatelessWidget {
                     children: [
                       const RpgLabel('Load', tone: RpgTone.neutral, size: 13),
                       const SizedBox(width: 8),
-                      const Flexible(
+                      Flexible(
                         child: Text(
                           'five dimensions',
                           style: TextStyle(
@@ -126,7 +126,7 @@ class WorldStatusCard extends StatelessWidget {
               ],
               if (changes?.values.any((c) => c != null) ?? false) ...[
                 const SizedBox(height: 6),
-                const Align(
+                Align(
                   alignment: Alignment.centerRight,
                   child: Text(
                     '▲ ▼ change since yesterday',
@@ -142,7 +142,7 @@ class WorldStatusCard extends StatelessWidget {
                 children: [
                   const RpgLabel('Calamity', tone: RpgTone.neutral, size: 13),
                   const SizedBox(width: 8),
-                  const Flexible(
+                  Flexible(
                     child: Text(
                       'workload trend',
                       overflow: TextOverflow.ellipsis,
@@ -183,7 +183,7 @@ class WorldStatusCard extends StatelessWidget {
               ExpansionTile(
                 tilePadding: EdgeInsets.zero,
                 childrenPadding: const EdgeInsets.only(bottom: 4),
-                title: const Text(
+                title: Text(
                   'How is this calculated?',
                   style: TextStyle(
                     color: BalanceColors.accentBright,
@@ -207,7 +207,7 @@ class WorldStatusCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                   ],
-                  const Text(
+                  Text(
                     'Unknown means missing information, not zero pressure. This is a planning aid, not a health assessment.',
                     style: TextStyle(color: BalanceColors.textMuted),
                   ),
@@ -439,7 +439,7 @@ class _Legend extends StatelessWidget {
       const SizedBox(width: 6),
       Text(
         text,
-        style: const TextStyle(fontSize: 12, color: BalanceColors.textMuted),
+        style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
       ),
     ],
   );

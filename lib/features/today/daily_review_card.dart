@@ -36,12 +36,12 @@ class DailyReviewCard extends StatelessWidget {
               ? 'How are you today? Share only what you want.'
               : 'Mental: ${review!.mentalEnergyLevel?.label ?? 'Unknown'} · '
                     'Physical: ${review!.physicalEnergyLevel?.label ?? 'Unknown'}',
-          style: const TextStyle(color: BalanceColors.textMuted),
+          style: TextStyle(color: BalanceColors.textMuted),
         ),
         if (review?.sleepHours != null)
           Text(
             'Rest recorded: ${review!.sleepHours} hours',
-            style: const TextStyle(color: BalanceColors.textMuted),
+            style: TextStyle(color: BalanceColors.textMuted),
           ),
         const SizedBox(height: 4),
         TextButton.icon(
@@ -115,7 +115,7 @@ class _DailyReviewSheetState extends State<DailyReviewSheet> {
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'Share only what you want. Skipping does not count as low energy.',
               style: TextStyle(color: BalanceColors.textMuted, height: 1.35),
             ),
@@ -177,7 +177,7 @@ class _DailyReviewSheetState extends State<DailyReviewSheet> {
                     _sleepController.text.trim().isEmpty
                         ? 'Nothing recorded for last night.'
                         : 'Exact hours can be typed above.',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       color: BalanceColors.textMuted,
                     ),
@@ -266,7 +266,7 @@ class _EnergyChoice extends StatelessWidget {
           label,
           trailing: Text(
             value == null ? 'Not shared' : hint,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               color: BalanceColors.textMuted,
             ),
