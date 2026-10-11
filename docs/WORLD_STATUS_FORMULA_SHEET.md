@@ -18,7 +18,7 @@ Rules shared by all dimensions
 | time | Time | Whether planned work fits the time available | Measured (planned and available minutes, deadlines) | Unknown when availability is missing; needs ≥ 50% known weight |
 | physical | Physical | How long since recorded movement, plus reported physical energy | Mixed: confirmed exercise date is recorded; physical energy is self-reported | Unknown unless movement tracking is on and an exercise date exists; needs ≥ 70% known weight (the days-since component alone, 70%, is enough) |
 | social | Social | Pressure from social events this week and their clashes with other commitments | Self-reported (event pressure) + measured (overlap minutes) | Unknown until an event is added or "no social commitments" is confirmed |
-| errands | Errands | Remaining Errand-category work relative to time available | Measured from task categories and minutes | Unknown if tasks are not loaded or any unfinished task has no category; needs ≥ 60% known weight |
+| errands | Errands | Remaining Errand-category work relative to time available | Measured from task categories and minutes | Unknown if tasks are not loaded, there are no unfinished tasks at all, or any unfinished task has no category (a recorded 0 needs at least one categorised task and none of them an Errand); needs ≥ 60% known weight |
 
 ## Components (weights are relative; unknown ones are dropped and the rest are re-normalised)
 
