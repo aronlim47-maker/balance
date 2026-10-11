@@ -136,52 +136,65 @@ class BalanceScaffold extends StatelessWidget {
       },
       child: Scaffold(
         backgroundColor: BalanceColors.background,
-        body: SafeArea(
-          bottom: wide,
-          child: wide
-              ? Row(
-                  children: [
-                    NavigationRailTheme(
-                      data: NavigationRailThemeData(
-                        backgroundColor: BalanceColors.surfaceSunken,
-                        indicatorColor: BalanceColors.accentDim,
-                        indicatorShape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
+        body: DecoratedBox(
+          // Faint torchlight glow from the top of the page.
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              center: const Alignment(0, -1.15),
+              radius: 1.1,
+              colors: [
+                BalanceColors.accentDim.withValues(alpha: 0.55),
+                BalanceColors.background.withValues(alpha: 0),
+              ],
+            ),
+          ),
+          child: SafeArea(
+            bottom: wide,
+            child: wide
+                ? Row(
+                    children: [
+                      NavigationRailTheme(
+                        data: NavigationRailThemeData(
+                          backgroundColor: BalanceColors.surfaceSunken,
+                          indicatorColor: BalanceColors.accentDim,
+                          indicatorShape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          selectedLabelTextStyle: _navLabelStyle.copyWith(
+                            color: BalanceColors.text,
+                          ),
+                          unselectedLabelTextStyle: _navLabelStyle.copyWith(
+                            color: BalanceColors.textMuted,
+                          ),
                         ),
-                        selectedLabelTextStyle: _navLabelStyle.copyWith(
-                          color: BalanceColors.text,
-                        ),
-                        unselectedLabelTextStyle: _navLabelStyle.copyWith(
-                          color: BalanceColors.textMuted,
+                        child: NavigationRail(
+                          selectedIndex: currentIndex,
+                          labelType: NavigationRailLabelType.all,
+                          onDestinationSelected: (index) =>
+                              context.go(_routes[index]),
+                          destinations: [
+                            for (var i = 0; i < _labels.length; i++)
+                              NavigationRailDestination(
+                                icon: _icon(i, selected: false),
+                                selectedIcon: _icon(i, selected: true),
+                                label: Text(_labels[i]),
+                              ),
+                          ],
                         ),
                       ),
-                      child: NavigationRail(
-                        selectedIndex: currentIndex,
-                        labelType: NavigationRailLabelType.all,
-                        onDestinationSelected: (index) =>
-                            context.go(_routes[index]),
-                        destinations: [
-                          for (var i = 0; i < _labels.length; i++)
-                            NavigationRailDestination(
-                              icon: _icon(i, selected: false),
-                              selectedIcon: _icon(i, selected: true),
-                              label: Text(_labels[i]),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const VerticalDivider(width: 1),
-                    Expanded(
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 1100),
-                          child: content,
+                      const VerticalDivider(width: 1),
+                      Expanded(
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1100),
+                            child: content,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                )
-              : content,
+                    ],
+                  )
+                : content,
+          ),
         ),
         bottomNavigationBar: wide
             ? null

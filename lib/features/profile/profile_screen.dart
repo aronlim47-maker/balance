@@ -231,10 +231,14 @@ class _ProfileContent extends StatelessWidget {
               const SizedBox(height: 24),
               Card(
                 child: ListTile(
-                  leading: const Icon(Icons.help_outline),
-                  title: const Text('How Balance works'),
+                  leading: const Icon(Icons.school_outlined),
+                  title: const Text('Beginner guide'),
+                  subtitle: const Text('Learn Balance in 5 simple steps'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => showOnboarding(context),
+                  onTap: () async {
+                    final route = await showOnboarding(context);
+                    if (route != null && context.mounted) context.go(route);
+                  },
                 ),
               ),
               const SizedBox(height: 12),

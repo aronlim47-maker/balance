@@ -24,7 +24,7 @@ This guide has three parts:
 
 | Step | Page | What you will do | Time |
 | --- | --- | --- | --- |
-| 1 | — | Install, sign in, read the three-page introduction | 2 min |
+| 1 | — | Install, sign in, go through the five-step beginner guide | 2 min |
 | 2 | TODAY | See a 2-hour overload, the day's free time and tasks, and five workload bars | 3 min |
 | 3 | QUESTS | Open the two tasks behind the overload | 1 min |
 | 4 | COUNCIL | Read the suggested fix and confirm it | 2 min |
@@ -46,18 +46,26 @@ This guide has three parts:
 **Shared account.** All judges use the same account. Please undo any plan you confirm and
 remove any recovery time you add (steps 5 and 6), so the next judge sees the same day.
 
-## Step 1 — Install, sign in and read the introduction
+## Step 1 — Install, sign in and follow the beginner guide
 
 1. On the phone, open the release link and download `app-release.apk`.
 2. Open the downloaded file. If Android asks, allow installing apps from this source, then
    tap **Install**. If an older Balance build is installed, uninstall it first.
 3. Open **Balance**. Enter the judge **Email** and **Password** and tap **Sign in**.
    *Forgot password or need verification?* and *Create an account* are not needed.
-4. The first time, a three-page introduction appears: **Detect**, **Decide** and **Recover
-   and reflect**. Read each page and tap **Next**, then **Get started**. **Skip** closes it at
-   any time. You can reopen it later from **Profile → How Balance works**.
+4. The first time, the **Beginner guide** appears: five short steps, each with one sentence
+   and a small animation: **Add your free time**, **Add your tasks**, **See if your day
+   fits**, **Fix it safely** and **Rest and look back**.
+   - **Next** and **Back** move between steps; **Get started** on the last step closes it.
+   - Tap an animation to play it again. With *Remove animations* turned on in Android's
+     accessibility settings, each step shows its finished picture instead.
+   - **Show me on …** closes the guide and opens that page.
+   - **Skip** closes it at any time. You can reopen it later from **Profile → Beginner
+     guide**.
 
-<img src="images/guide/01_sign_in.png" width="200" alt="Sign-in screen"> <img src="images/guide/00_intro_1.png" width="200" alt="Introduction, page 1 of 3"> <img src="images/guide/00_intro_2.png" width="200" alt="Introduction, page 2 of 3"> <img src="images/guide/00_intro_3.png" width="200" alt="Introduction, page 3 of 3">
+<img src="images/guide/01_sign_in.png" width="200" alt="Sign-in screen"> <img src="images/guide/00_intro_1.png" width="200" alt="Beginner guide, step 1 of 5"> <img src="images/guide/00_intro_2.png" width="200" alt="Beginner guide, step 2 of 5">
+
+<img src="images/guide/00_intro_3.png" width="200" alt="Beginner guide, step 3 of 5"> <img src="images/guide/00_intro_4.png" width="200" alt="Beginner guide, step 4 of 5"> <img src="images/guide/00_intro_5.png" width="200" alt="Beginner guide, step 5 of 5">
 
 You now see the **TODAY** page. If a yellow "Local preview" banner appears, this is not the
 release build; reinstall from the release link.
@@ -236,7 +244,7 @@ There are no streaks, rankings or penalties for skipping.
 2. **Profile** shows the signed-in account, *Signed in · Changes are saved to your account*,
    the **Planning time zone** (*Asia/Kuala_Lumpur*), a **Plan summary** and the same **World
    Status** score as Today.
-3. **How Balance works** reopens the introduction.
+3. **Beginner guide** reopens the five-step guide with animations.
 4. **Sound effects** (on by default) plays chimes for confirmed plans and new achievements.
    **Relaxing background music** (off by default) plays a calm ambient loop and pauses when
    the app is in the background. All audio is original to Balance.
@@ -366,7 +374,7 @@ There are no streaks, rankings or penalties for skipping.
 | The sample day is not 2h over | Check that you are on the sample day. If a plan is still confirmed, undo it in **COUNCIL → Plan history**. |
 | Times look several hours off (for example availability at 1:00 AM) | Set the phone to Malaysia time (Settings → System → Date & time → automatic time zone), then reopen Balance. |
 | Council shows **No Feasible Plan** on the sample day | A recovery slot is using the next day's free time; the explanation names it. Remove it in **SANCTUARY** (step 6.5). |
-| The introduction does not appear | It shows once per phone. Open **Profile → How Balance works**. |
+| The beginner guide does not appear | It shows once per phone. Open **Profile → Beginner guide**. |
 | No sound | Check **Profile → Sound effects** and the phone's media volume. |
 | Sign-in fails | Check the email and password from the submission form for typing errors. |
 | "Can't install app" | Uninstall any earlier Balance build first, then install again. |
