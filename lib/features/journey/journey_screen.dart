@@ -221,33 +221,10 @@ class _JourneyContent extends StatelessWidget {
   ) async {
     final service = context.read<VerifiedProgressService?>();
     if (service == null) return;
-    final controller = TextEditingController();
     final content = await showDialog<String>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Weekly reflection'),
-        content: TextField(
-          controller: controller,
-          maxLines: 4,
-          maxLength: 500,
-          decoration: const InputDecoration(
-            hintText: 'What worked for you this week?',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () =>
-                Navigator.pop(dialogContext, controller.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+      builder: (_) => const _ReflectionDialog(),
     );
-    controller.dispose();
     if (!context.mounted || content == null) return;
     if (content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -278,6 +255,48 @@ class _JourneyContent extends StatelessWidget {
       }
     }
   }
+}
+
+/// Owns its text controller so it is disposed only after the dialog's exit
+/// animation, not while the closing TextField still uses it.
+class _ReflectionDialog extends StatefulWidget {
+  const _ReflectionDialog();
+
+  @override
+  State<_ReflectionDialog> createState() => _ReflectionDialogState();
+}
+
+class _ReflectionDialogState extends State<_ReflectionDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Weekly reflection'),
+    content: TextField(
+      controller: _controller,
+      maxLines: 4,
+      maxLength: 500,
+      decoration: const InputDecoration(
+        hintText: 'What worked for you this week?',
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('Cancel'),
+      ),
+      FilledButton(
+        onPressed: () => Navigator.pop(context, _controller.text.trim()),
+        child: const Text('Save'),
+      ),
+    ],
+  );
 }
 
 class _WeekBars extends StatelessWidget {

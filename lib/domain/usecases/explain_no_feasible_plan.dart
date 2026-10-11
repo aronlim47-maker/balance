@@ -242,9 +242,11 @@ DateTime? _firstFreeStart(
 }
 
 String _clock(DateTime time) {
-  final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;
-  final minute = time.minute.toString().padLeft(2, '0');
-  return '$hour:$minute ${time.hour < 12 ? 'AM' : 'PM'}';
+  // Rows from the server are UTC; show the phone's local time.
+  final local = time.toLocal();
+  final hour = local.hour % 12 == 0 ? 12 : local.hour % 12;
+  final minute = local.minute.toString().padLeft(2, '0');
+  return '$hour:$minute ${local.hour < 12 ? 'AM' : 'PM'}';
 }
 
 String _day(DateTime time) {

@@ -299,6 +299,14 @@ void main() {
     expect(result.dimensions[WorldDimension.errands]!.score, isNull);
   });
 
+  test('WS06 an empty task list is Unknown for Errands, never a zero', () {
+    final result = calculator.calculate(fixture(tasks: const []));
+    final errands = result.dimensions[WorldDimension.errands]!;
+    expect(errands.score, isNull);
+    expect(errands.reason, isNotNull);
+    expect(errands.reason, contains('Add a task'));
+  });
+
   test('WS06 fully classified tasks without errands give a real zero', () {
     final result = calculator.calculate(
       fixture(

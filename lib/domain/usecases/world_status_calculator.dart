@@ -197,6 +197,12 @@ class WorldStatusCalculator {
       errands = const DimensionResult.unknown(
         'Load tasks to calculate Errands.',
       );
+    } else if (tasks.isEmpty) {
+      // No unfinished tasks at all is "nothing to measure yet", not a recorded
+      // zero: an empty account must show Unknown, never a green 0/100.
+      errands = const DimensionResult.unknown(
+        'Add a task and choose its category to calculate Errands.',
+      );
     } else if (tasks.any((task) => task.category == null)) {
       errands = const DimensionResult.unknown(
         'Review the categories of unfinished tasks.',

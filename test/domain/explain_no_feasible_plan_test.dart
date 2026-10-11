@@ -200,17 +200,21 @@ void main() {
         availability: availability,
       ),
       recoverySlots: [
+        // As loaded from the server: UTC, shown in local time.
         RecoverySlot(
           id: 'walk',
-          startAt: DateTime(2026, 10, 10, 9),
-          endAt: DateTime(2026, 10, 10, 9, 30),
+          startAt: DateTime(2026, 10, 10, 9).toUtc(),
+          endAt: DateTime(2026, 10, 10, 9, 30).toUtc(),
         ),
       ],
     );
     final reason = explanation.reasons.firstWhere(
       (r) => r.kind == NoPlanReasonKind.noLaterFreeTime,
     );
-    expect(reason.message, contains('protected recovery time (Sat 10 Oct, '));
+    expect(
+      reason.message,
+      contains('protected recovery time (Sat 10 Oct, 9:00 AM)'),
+    );
     expect(reason.message, contains('Sanctuary'));
   });
 }
