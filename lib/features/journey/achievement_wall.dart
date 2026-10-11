@@ -78,10 +78,10 @@ class _Emblem extends StatelessWidget {
       shape: BoxShape.circle,
       gradient: unlocked
           ? RadialGradient(
-              colors: [BalanceColors.goldGlow, BalanceColors.surfaceRaised],
+              colors: [BalanceColors.goldSurface, BalanceColors.goldGlow],
             )
           : null,
-      color: unlocked ? null : BalanceColors.surfaceSunken,
+      color: unlocked ? null : BalanceColors.surfaceRaised,
       border: Border.all(
         color: unlocked ? _gold : BalanceColors.outline,
         width: unlocked ? 2 : 1.5,
@@ -131,61 +131,82 @@ class _Badge extends StatelessWidget {
           '${definition.practicalName}, ${definition.rpgName}. $status. '
           '${definition.condition}',
       excludeSemantics: true,
+      // Earned badges glow like treasure; locked ones sit recessed and dim,
+      // so the earned ones always stand out (in dark and parchment looks).
       child: Material(
-        color: unlocked ? BalanceColors.goldSurface : BalanceColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide(
-            color: unlocked
-                ? _gold.withValues(alpha: 0.6)
-                : BalanceColors.outline,
+        type: MaterialType.transparency,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: unlocked ? null : BalanceColors.surfaceSunken,
+            gradient: unlocked
+                ? LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [BalanceColors.goldGlow, BalanceColors.goldSurface],
+                  )
+                : null,
+            border: Border.all(
+              color: unlocked
+                  ? _gold
+                  : BalanceColors.outline.withValues(alpha: 0.6),
+              width: unlocked ? 1.6 : 1,
+            ),
+            boxShadow: unlocked
+                ? [
+                    BoxShadow(
+                      color: _gold.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                    ),
+                  ]
+                : null,
           ),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () => _showDetails(context, definition, award),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 14, 10, 12),
-            child: Column(
-              children: [
-                _Emblem(keyName: definition.key, unlocked: unlocked),
-                const SizedBox(height: 10),
-                Text(
-                  definition.practicalName,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: AppTheme.displayFont,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    letterSpacing: 0.4,
-                    color: unlocked
-                        ? BalanceColors.text
-                        : BalanceColors.textMuted,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () => _showDetails(context, definition, award),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 14, 10, 12),
+              child: Column(
+                children: [
+                  _Emblem(keyName: definition.key, unlocked: unlocked),
+                  const SizedBox(height: 10),
+                  Text(
+                    definition.practicalName,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: AppTheme.displayFont,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      letterSpacing: 0.4,
+                      color: unlocked
+                          ? BalanceColors.text
+                          : BalanceColors.textMuted,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  definition.rpgName,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: unlocked ? _gold : BalanceColors.textFaint,
+                  const SizedBox(height: 2),
+                  Text(
+                    definition.rpgName,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: unlocked ? _gold : BalanceColors.textFaint,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  status.toUpperCase(),
-                  style: TextStyle(
-                    fontFamily: AppTheme.displayFont,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 11,
-                    letterSpacing: 1.2,
-                    color: unlocked
-                        ? BalanceColors.calm
-                        : BalanceColors.textMuted,
+                  const SizedBox(height: 8),
+                  Text(
+                    status.toUpperCase(),
+                    style: TextStyle(
+                      fontFamily: AppTheme.displayFont,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 11,
+                      letterSpacing: 1.2,
+                      color: unlocked
+                          ? BalanceColors.calm
+                          : BalanceColors.textMuted,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
