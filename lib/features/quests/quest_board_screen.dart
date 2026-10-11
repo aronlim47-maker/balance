@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/shared_widgets/balance_scaffold.dart';
+import '../../core/shared_widgets/collapsible_section.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../core/utils/app_error_message.dart';
@@ -212,32 +213,49 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
         ),
       ),
     );
+    String count(List<TaskItem> list) =>
+        '${list.length} ${list.length == 1 ? 'task' : 'tasks'}';
+    Widget cards(List<TaskItem> list) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: list.map(card).toList(),
+    );
+    // Active groups start open; Finished starts closed. The + / − button on
+    // each group shows or hides its tasks, and the choice is remembered.
     return [
       if (protectedTasks.isNotEmpty) ...[
-        const SectionRule(
-          'Sacred contracts',
+        CollapsibleSection(
+          key: const ValueKey('quests.protected'),
+          id: 'quests.protected',
+          title: 'Sacred contracts',
           subtitle: 'Protected',
+          summary: count(protectedTasks),
           tone: RpgTone.calm,
+          initiallyExpanded: true,
+          child: cards(protectedTasks),
         ),
-        const SizedBox(height: 10),
-        ...protectedTasks.map(card),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
       ],
       if (otherTasks.isNotEmpty) ...[
-        const SectionRule('Quests'),
-        const SizedBox(height: 10),
-        ...otherTasks.map(card),
-        const SizedBox(height: 8),
-      ],
-      if (finishedTasks.isNotEmpty) ...[
-        const SectionRule(
-          'Finished',
-          subtitle: 'Completed or cancelled',
-          tone: RpgTone.muted,
+        CollapsibleSection(
+          key: const ValueKey('quests.active'),
+          id: 'quests.active',
+          title: 'Quests',
+          summary: count(otherTasks),
+          initiallyExpanded: true,
+          child: cards(otherTasks),
         ),
-        const SizedBox(height: 10),
-        ...finishedTasks.map(card),
+        const SizedBox(height: 16),
       ],
+      if (finishedTasks.isNotEmpty)
+        CollapsibleSection(
+          key: const ValueKey('quests.finished'),
+          id: 'quests.finished',
+          title: 'Finished',
+          subtitle: 'Completed or cancelled',
+          summary: count(finishedTasks),
+          tone: RpgTone.muted,
+          child: cards(finishedTasks),
+        ),
     ];
   }
 
