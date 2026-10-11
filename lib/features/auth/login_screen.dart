@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
 import '../../core/shared_widgets/password_field.dart';
 import 'auth_view_model.dart';
 
@@ -56,22 +57,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 28),
-                    PasswordField(
-                      controller: _passwordController,
-                      autofillHints: const [AutofillHints.password],
-                      validator: (value) => value == null || value.length < 6
-                          ? 'Password must be at least 6 characters.'
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [AutofillHints.email],
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        prefixIcon: Icon(Icons.email_outlined),
+                      ),
+                      validator: (value) =>
+                          value == null || !value.contains('@')
+                          ? 'Enter a valid email address.'
                           : null,
                     ),
                     const SizedBox(height: 14),
-                    TextFormField(
+                    PasswordField(
                       controller: _passwordController,
-                      obscureText: true,
                       autofillHints: const [AutofillHints.password],
-                      decoration: const InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: Icon(Icons.lock_outline),
-                      ),
                       validator: (value) => value == null || value.length < 6
                           ? 'Password must be at least 6 characters.'
                           : null,
