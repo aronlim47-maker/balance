@@ -246,8 +246,10 @@ There are no streaks, rankings or penalties for skipping.
    Status** score as Today.
 3. **Beginner guide** reopens the five-step guide with animations.
 4. **Sound effects** (on by default) plays chimes for confirmed plans and new achievements.
-   **Relaxing background music** (off by default) plays a calm ambient loop and pauses when
-   the app is in the background. All audio is original to Balance.
+   **Relaxing background music** (on by default) plays a calm ambient loop and pauses when
+   the app is in the background. To silence it at once, tap the gold **music note** button at
+   the top of any main page; it turns grey with a crossed-out note when the music is off.
+   All audio is original to Balance.
 5. **Reminders and alerts**:
    - **Deadline reminders** — a reminder a set time before each task deadline.
    - **Overload alerts** — a notification the evening before a day with more planned work
@@ -268,6 +270,8 @@ There are no streaks, rankings or penalties for skipping.
 | --- | --- |
 | **TODAY** (globe), **QUESTS** (quest book), **COUNCIL** (castle), **SANCTUARY** (campfire), **JOURNEY** (compass) | The five main pages. The phone's Back gesture returns to Today, then leaves the app. |
 | Eyebrow label (e.g. *WORLD STATUS*) and title (e.g. *TODAY*) | The game-style label and the practical page name. |
+| Gold music note | Turns the background music off or on (gold = playing, grey = off). |
+| Sun / moon | Switches between the dark look and the light parchment look; the choice is remembered. |
 | Round profile icon | Opens Profile. |
 | Clock icon | *Plan history* on Council; *My reflections* on Journey. |
 | **+** | Today: add a time block. Quests: add a task. Sanctuary: add recovery time. |
@@ -375,7 +379,8 @@ There are no streaks, rankings or penalties for skipping.
 | Times look several hours off (for example availability at 1:00 AM) | Set the phone to Malaysia time (Settings → System → Date & time → automatic time zone), then reopen Balance. |
 | Council shows **No Feasible Plan** on the sample day | A recovery slot is using the next day's free time; the explanation names it. Remove it in **SANCTUARY** (step 6.5). |
 | The beginner guide does not appear | It shows once per phone. Open **Profile → Beginner guide**. |
-| No sound | Check **Profile → Sound effects** and the phone's media volume. |
+| No sound | Check that the music note at the top of the page is gold, **Profile → Sound effects**, and the phone's media volume. |
+| Music is playing and you want quiet | Tap the gold music note at the top of any main page. |
 | Sign-in fails | Check the email and password from the submission form for typing errors. |
 | "Can't install app" | Uninstall any earlier Balance build first, then install again. |
 

@@ -7,6 +7,7 @@ import '../theme/app_theme.dart';
 import '../theme/balance_colors.dart';
 import '../../features/auth/auth_view_model.dart';
 import 'rpg_widgets.dart';
+import 'sound_toggle_button.dart';
 import 'theme_toggle_button.dart';
 
 /// Shared page shell: RPG header + responsive navigation.
@@ -92,6 +93,7 @@ class BalanceScaffold extends StatelessWidget {
           actions: [
             ...?actions,
             // Same place on every page: just left of Profile.
+            const SoundToggleButton(),
             const ThemeToggleButton(),
             IconButton(
               tooltip: 'Profile',
@@ -146,7 +148,10 @@ class BalanceScaffold extends StatelessWidget {
               center: const Alignment(0, -1.15),
               radius: 1.1,
               colors: [
-                BalanceColors.accentDim.withValues(alpha: 0.55),
+                // Violet torchlight at night, warm candlelight on parchment.
+                BalanceColors.isDark
+                    ? BalanceColors.accentDim.withValues(alpha: 0.55)
+                    : BalanceColors.goldGlow.withValues(alpha: 0.3),
                 BalanceColors.background.withValues(alpha: 0),
               ],
             ),
