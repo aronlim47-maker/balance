@@ -2,8 +2,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Optional RPG sound: short effects (on by default) and a relaxing ambient
-/// loop (off by default, so nothing plays unexpectedly in a quiet place).
+/// Optional RPG sound: short effects and a relaxing ambient loop, both on by
+/// default. The gold music button in every page header turns the loop off
+/// in one tap, and the choice is remembered.
 ///
 /// Sound is never essential: every failure is ignored, players are created
 /// only when something actually plays, and the loop pauses when the app goes
@@ -23,13 +24,13 @@ class SoundService extends ChangeNotifier with WidgetsBindingObserver {
   bool _disposed = false;
 
   bool effectsOn = true;
-  bool musicOn = false;
+  bool musicOn = true;
 
   Future<void> load() async {
     try {
       final prefs = _prefs ?? SharedPreferencesAsync();
       effectsOn = await prefs.getBool(_effectsKey) ?? true;
-      musicOn = await prefs.getBool(_musicKey) ?? false;
+      musicOn = await prefs.getBool(_musicKey) ?? true;
       if (_disposed) return;
       notifyListeners();
       if (musicOn) await _startMusic();
@@ -55,7 +56,16 @@ class SoundService extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> _effect(String asset) async {
     if (!effectsOn || _disposed) return;
     try {
-      final player = _effects ??= AudioPlayer();
+      var player = _effects;
+      if (player == null) {
+        player = _effects = AudioPlayer();
+        // Chimes mix over the music instead of taking audio focus, which
+        // would make Android pause the background loop after every chime.
+        await player.setAudioContext(
+          AudioContextConfig(focus: AudioContextConfigFocus.mixWithOthers)
+              .build(),
+        );
+      }
       await player.stop();
       await player.play(AssetSource(asset), volume: 0.7);
     } catch (_) {}
@@ -66,7 +76,10 @@ class SoundService extends ChangeNotifier with WidgetsBindingObserver {
     try {
       final player = _music ??= AudioPlayer();
       await player.setReleaseMode(ReleaseMode.loop);
-      await player.play(AssetSource('audio/sanctuary_ambient.wav'), volume: 0.35);
+      await player.play(
+        AssetSource('audio/sanctuary_ambient.wav'),
+        volume: 0.35,
+      );
     } catch (_) {}
   }
 

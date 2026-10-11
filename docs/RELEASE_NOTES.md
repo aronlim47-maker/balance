@@ -39,8 +39,10 @@ every confirmed change. Android 8.0 or later. Judges: start with the
 - Per-dimension change since yesterday (▲/▼) on the workload bars.
 - Free-time suggestions when protecting recovery time.
 - Optional overload alerts the evening before an over-capacity day (off by default).
-- RPG achievement wall with an unlock animation; optional original sound effects and
-  relaxing background music (music off by default).
+- RPG achievement wall with an unlock celebration (flash, gold sparks and a short
+  vibration); original sound effects and relaxing background music, both on by default.
+  A gold music button on every page turns the music off in one tap.
+- Dark look by default, plus a warm parchment light look (sun/moon button).
 - Simpler pages: decision first on Today, one-line score explanations, compact trend,
   shorter Council, Journey and Sanctuary text, plain wording without technical terms.
 
@@ -54,7 +56,7 @@ every confirmed change. Android 8.0 or later. Judges: start with the
 
 ### Quality and monitoring
 
-- 381 automated tests; critical code 92.4% line coverage, enforced by CI on every push.
+- 398 automated tests; critical code 92.4% line coverage, enforced by CI on every push.
 - Accessibility tests on every main page: tap targets, labels, contrast, 200% text.
 - Hourly health check of the backend and the APK download link; crash reporting with
   Sentry (errors only; no screenshots, IP address or user email).

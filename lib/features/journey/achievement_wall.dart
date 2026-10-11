@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -77,10 +78,10 @@ class _Emblem extends StatelessWidget {
       shape: BoxShape.circle,
       gradient: unlocked
           ? RadialGradient(
-              colors: [BalanceColors.goldGlow, BalanceColors.surfaceRaised],
+              colors: [BalanceColors.goldSurface, BalanceColors.goldGlow],
             )
           : null,
-      color: unlocked ? null : BalanceColors.surfaceSunken,
+      color: unlocked ? null : BalanceColors.surfaceRaised,
       border: Border.all(
         color: unlocked ? _gold : BalanceColors.outline,
         width: unlocked ? 2 : 1.5,
@@ -130,61 +131,82 @@ class _Badge extends StatelessWidget {
           '${definition.practicalName}, ${definition.rpgName}. $status. '
           '${definition.condition}',
       excludeSemantics: true,
+      // Earned badges glow like treasure; locked ones sit recessed and dim,
+      // so the earned ones always stand out (in dark and parchment looks).
       child: Material(
-        color: unlocked ? BalanceColors.goldSurface : BalanceColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide(
-            color: unlocked
-                ? _gold.withValues(alpha: 0.6)
-                : BalanceColors.outline,
+        type: MaterialType.transparency,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: unlocked ? null : BalanceColors.surfaceSunken,
+            gradient: unlocked
+                ? LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [BalanceColors.goldGlow, BalanceColors.goldSurface],
+                  )
+                : null,
+            border: Border.all(
+              color: unlocked
+                  ? _gold
+                  : BalanceColors.outline.withValues(alpha: 0.6),
+              width: unlocked ? 1.6 : 1,
+            ),
+            boxShadow: unlocked
+                ? [
+                    BoxShadow(
+                      color: _gold.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                    ),
+                  ]
+                : null,
           ),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () => _showDetails(context, definition, award),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 14, 10, 12),
-            child: Column(
-              children: [
-                _Emblem(keyName: definition.key, unlocked: unlocked),
-                const SizedBox(height: 10),
-                Text(
-                  definition.practicalName,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: AppTheme.displayFont,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    letterSpacing: 0.4,
-                    color: unlocked
-                        ? BalanceColors.text
-                        : BalanceColors.textMuted,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () => _showDetails(context, definition, award),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 14, 10, 12),
+              child: Column(
+                children: [
+                  _Emblem(keyName: definition.key, unlocked: unlocked),
+                  const SizedBox(height: 10),
+                  Text(
+                    definition.practicalName,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: AppTheme.displayFont,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      letterSpacing: 0.4,
+                      color: unlocked
+                          ? BalanceColors.text
+                          : BalanceColors.textMuted,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  definition.rpgName,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: unlocked ? _gold : BalanceColors.textFaint,
+                  const SizedBox(height: 2),
+                  Text(
+                    definition.rpgName,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: unlocked ? _gold : BalanceColors.textFaint,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  status.toUpperCase(),
-                  style: TextStyle(
-                    fontFamily: AppTheme.displayFont,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 11,
-                    letterSpacing: 1.2,
-                    color: unlocked
-                        ? BalanceColors.calm
-                        : BalanceColors.textMuted,
+                  const SizedBox(height: 8),
+                  Text(
+                    status.toUpperCase(),
+                    style: TextStyle(
+                      fontFamily: AppTheme.displayFont,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 11,
+                      letterSpacing: 1.2,
+                      color: unlocked
+                          ? BalanceColors.calm
+                          : BalanceColors.textMuted,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -228,10 +250,7 @@ void _showDetails(
             const SizedBox(height: 14),
             Text(
               unlocked ? 'Earned by' : 'How to unlock',
-              style: TextStyle(
-                fontSize: 12,
-                color: BalanceColors.textMuted,
-              ),
+              style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
             ),
             const SizedBox(height: 2),
             Text(definition.condition, textAlign: TextAlign.center),
@@ -337,8 +356,15 @@ class _UnlockDialogState extends State<_UnlockDialog>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1400),
+    duration: const Duration(milliseconds: 1800),
   )..forward();
+
+  @override
+  void initState() {
+    super.initState();
+    // A short buzz with the chime, like a game reward.
+    HapticFeedback.mediumImpact();
+  }
 
   @override
   void dispose() {
@@ -386,6 +412,11 @@ class _UnlockDialogState extends State<_UnlockDialog>
                   painter: reduceMotion
                       ? null
                       : _RaysPainter(_controller.value),
+                  // Flash ring and sparks fly out over the badge, past the
+                  // edge of this box.
+                  foregroundPainter: reduceMotion
+                      ? null
+                      : _BurstPainter(_controller.value),
                   child: Center(
                     child: ScaleTransition(
                       scale: reduceMotion
@@ -435,6 +466,68 @@ class _UnlockDialogState extends State<_UnlockDialog>
       ),
     );
   }
+}
+
+/// One-shot reward burst: a bright ring flashes out from the badge, then
+/// gold and white sparks fly outwards, fall a little and fade.
+class _BurstPainter extends CustomPainter {
+  _BurstPainter(this.t);
+  final double t;
+
+  static const _sparks = 30;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+
+    // Flash ring in the first third.
+    if (t < 0.35) {
+      final p = t / 0.35;
+      canvas.drawCircle(
+        center,
+        30 + 70 * p,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 6 * (1 - p)
+          ..color = _gold.withValues(alpha: 0.8 * (1 - p)),
+      );
+    }
+
+    // Sparks start just after the badge pops.
+    final s = ((t - 0.08) / 0.92).clamp(0.0, 1.0);
+    if (s == 0 || s == 1) return;
+    final ease = Curves.easeOutCubic.transform(s);
+    final fade = s < 0.7 ? 1.0 : (1 - s) / 0.3;
+    for (var i = 0; i < _sparks; i++) {
+      // Fixed pseudo-random spread so every unlock looks the same.
+      final angle = i * 2 * math.pi / _sparks + (i % 3) * 0.17;
+      final distance = 55 + (i * 37 % 60) + 20.0;
+      final offset = Offset(
+        center.dx + math.cos(angle) * distance * ease,
+        center.dy + math.sin(angle) * distance * ease + 28 * s * s,
+      );
+      final radius = (i.isEven ? 3.2 : 2.2) * (1 - 0.5 * s);
+      final color = i % 4 == 0 ? Colors.white : _gold;
+      canvas.drawCircle(
+        offset,
+        radius,
+        Paint()..color = color.withValues(alpha: 0.95 * fade),
+      );
+      // A four-point twinkle on every fifth spark.
+      if (i % 5 == 0) {
+        final arm = 6 * (1 - s);
+        final line = Paint()
+          ..color = color.withValues(alpha: 0.8 * fade)
+          ..strokeWidth = 1.4;
+        canvas
+          ..drawLine(offset.translate(-arm, 0), offset.translate(arm, 0), line)
+          ..drawLine(offset.translate(0, -arm), offset.translate(0, arm), line);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BurstPainter old) => old.t != t;
 }
 
 /// Soft golden rays that fade in and slowly turn behind the badge.
