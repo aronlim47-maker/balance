@@ -7,6 +7,7 @@ import '../theme/app_theme.dart';
 import '../theme/balance_colors.dart';
 import '../../features/auth/auth_view_model.dart';
 import 'rpg_widgets.dart';
+import 'theme_toggle_button.dart';
 
 /// Shared page shell: RPG header + responsive navigation.
 ///
@@ -90,6 +91,8 @@ class BalanceScaffold extends StatelessWidget {
           tone: eyebrowTone,
           actions: [
             ...?actions,
+            // Same place on every page: just left of Profile.
+            const ThemeToggleButton(),
             IconButton(
               tooltip: 'Profile',
               onPressed: () => context.push(AppRoutes.profile),
@@ -112,7 +115,7 @@ class BalanceScaffold extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(color: BalanceColors.warningBorder),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Local preview · Changes are not saved to Supabase',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -216,7 +219,7 @@ class BalanceScaffold extends StatelessWidget {
                   ),
                 ),
                 child: DecoratedBox(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(color: BalanceColors.outline),
                     ),
@@ -303,7 +306,7 @@ class _Header extends StatelessWidget {
             padding: const EdgeInsets.only(right: 12),
             child: Text(
               subtitle!,
-              style: const TextStyle(
+              style: TextStyle(
                 color: BalanceColors.textMuted,
                 fontSize: 15,
                 height: 1.35,

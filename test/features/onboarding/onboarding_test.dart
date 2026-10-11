@@ -13,8 +13,8 @@ void main() {
       MediaQuery(
         data: MediaQueryData(disableAnimations: reduceMotion),
         child: MaterialApp(
-          // The real app theme, as the screen is seen in Balance.
-          theme: AppTheme.light,
+          // The default (dark) app theme, as the screen is seen in Balance.
+          theme: AppTheme.dark,
           home: Builder(
             builder: (context) => Scaffold(
               body: Center(
@@ -105,7 +105,7 @@ void main() {
           textScaler: TextScaler.linear(2),
         ),
         child: MaterialApp(
-          theme: AppTheme.light,
+          theme: AppTheme.dark,
           home: const OnboardingScreen(),
         ),
       ),

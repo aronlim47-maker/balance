@@ -124,7 +124,7 @@ class _TodayContent extends StatelessWidget {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 viewModel.historyNotice!,
-                style: const TextStyle(color: BalanceColors.textMuted),
+                style: TextStyle(color: BalanceColors.textMuted),
               ),
             ),
           const SizedBox(height: 16),
@@ -240,7 +240,7 @@ class _TodayContent extends StatelessWidget {
           // Optional inputs that only refine World Status.
           const _SectionTitle(title: 'Optional updates'),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Add detail to your Workload Overview. Skipping is fine.',
             style: TextStyle(color: BalanceColors.textMuted),
           ),
@@ -869,7 +869,7 @@ class _EmptyCard extends StatelessWidget {
     padding: const EdgeInsets.all(18),
     child: Text(
       message,
-      style: const TextStyle(color: BalanceColors.textMuted),
+      style: TextStyle(color: BalanceColors.textMuted),
     ),
   );
 }

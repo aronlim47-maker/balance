@@ -118,7 +118,7 @@ class TradeOffOptionCard extends StatelessWidget {
         ),
         ExpansionTile(
           tilePadding: const EdgeInsets.fromLTRB(44, 0, 12, 0),
-          title: const Text(
+          title: Text(
             'See trade-offs',
             style: TextStyle(color: BalanceColors.accentBright, fontSize: 14),
           ),
@@ -151,12 +151,12 @@ class _EffectLine extends StatelessWidget {
   const _EffectLine({
     required this.label,
     required this.value,
-    this.valueColor = BalanceColors.text,
+    this.valueColor,
   });
 
   final String label;
   final String value;
-  final Color valueColor;
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -165,7 +165,7 @@ class _EffectLine extends StatelessWidget {
       // Wording kept as-is (not uppercased) so labels stay stable.
       Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: AppTheme.displayFont,
           fontWeight: FontWeight.w700,
           fontSize: 12,
@@ -174,7 +174,10 @@ class _EffectLine extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 2),
-      Text(value, style: TextStyle(color: valueColor, height: 1.35)),
+      Text(
+        value,
+        style: TextStyle(color: valueColor ?? BalanceColors.text, height: 1.35),
+      ),
     ],
   );
 }

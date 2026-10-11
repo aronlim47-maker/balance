@@ -326,7 +326,7 @@ class _StepPageState extends State<_StepPage>
           Text(
             step.title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: AppTheme.displayFont,
               fontWeight: FontWeight.w700,
               fontSize: 26,
@@ -338,7 +338,7 @@ class _StepPageState extends State<_StepPage>
           Text(
             step.body,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               height: 1.45,
               color: BalanceColors.textMuted,
@@ -379,7 +379,7 @@ class _StepArt extends StatelessWidget {
   };
 }
 
-const _small = TextStyle(fontSize: 13, color: BalanceColors.textMuted);
+TextStyle get _small => TextStyle(fontSize: 13, color: BalanceColors.textMuted);
 
 /// A rounded bar: blue up to [blue], red from [blue] to [red] (fractions).
 class _Bar extends StatelessWidget {
@@ -454,13 +454,13 @@ class _TaskChip extends StatelessWidget {
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const DiamondIcon(size: 12, color: BalanceColors.accentBright),
+        DiamondIcon(size: 12, color: BalanceColors.accentBright),
         const SizedBox(width: 8),
         Flexible(
           child: Text(
             label,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: AppTheme.displayFont,
               fontWeight: FontWeight.w700,
               fontSize: 15,
@@ -486,12 +486,12 @@ class _TimeArt extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.event_available, color: BalanceColors.calm),
+            Icon(Icons.event_available, color: BalanceColors.calm),
             const SizedBox(width: 8),
-            const Expanded(child: Text('Availability', style: _small)),
+            Expanded(child: Text('Availability', style: _small)),
             Text(
               '${(3 * fill).round()}h free',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: AppTheme.displayFont,
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
@@ -505,7 +505,7 @@ class _TimeArt extends StatelessWidget {
         const SizedBox(height: 14),
         Opacity(
           opacity: _part(t, 0.7, 1),
-          child: const Text('9:00 AM – 12:00 PM', style: _small),
+          child: Text('9:00 AM – 12:00 PM', style: _small),
         ),
       ],
     );
@@ -541,7 +541,7 @@ class _TasksArt extends StatelessWidget {
         const SizedBox(height: 12),
         Opacity(
           opacity: _part(t, 0.75, 1),
-          child: const Align(
+          child: Align(
             alignment: Alignment.centerLeft,
             child: Text('5h of work planned', style: _small),
           ),
@@ -566,7 +566,7 @@ class _OverloadArt extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text('Planned 5h  ·  Free 3h', style: _small),
             ),
             Transform.scale(
@@ -578,7 +578,7 @@ class _OverloadArt extends StatelessWidget {
         const SizedBox(height: 18),
         _Bar(blue: blue, red: red, marker: 0.6),
         const SizedBox(height: 10),
-        const Row(
+        Row(
           children: [
             Expanded(flex: 6, child: Text('Fits', style: _small)),
             Expanded(
@@ -686,7 +686,7 @@ class _RestArt extends StatelessWidget {
               ),
               child: Transform.scale(
                 scale: 0.6 + 0.4 * fire,
-                child: const Icon(
+                child: Icon(
                   Icons.local_fire_department,
                   size: 44,
                   color: BalanceColors.warning,
@@ -694,7 +694,7 @@ class _RestArt extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            const Text('Rest time', style: _small),
+            Text('Rest time', style: _small),
           ],
         ),
         Column(
@@ -716,7 +716,7 @@ class _RestArt extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.workspace_premium,
                   size: 40,
                   color: BalanceColors.gold,
@@ -726,7 +726,7 @@ class _RestArt extends StatelessWidget {
             const SizedBox(height: 10),
             Opacity(
               opacity: _part(t, 0.6, 1),
-              child: const Text('Badge earned', style: _small),
+              child: Text('Badge earned', style: _small),
             ),
           ],
         ),

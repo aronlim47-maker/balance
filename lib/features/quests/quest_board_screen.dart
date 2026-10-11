@@ -649,14 +649,14 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const DiamondIcon(size: 48, color: BalanceColors.accentBright),
+          DiamondIcon(size: 48, color: BalanceColors.accentBright),
           const SizedBox(height: 16),
           Text(
             'No tasks yet',
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Add your first task to start comparing planned work with available time.',
             textAlign: TextAlign.center,
             style: TextStyle(color: BalanceColors.textMuted),

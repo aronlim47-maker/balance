@@ -108,7 +108,7 @@ class _JourneyContent extends StatelessWidget {
                   children: [
                     const PanelHeader('Weekly pattern'),
                     const SizedBox(height: 2),
-                    const Text(
+                    Text(
                       'World Status score per day',
                       style: TextStyle(
                         fontSize: 12,
@@ -121,7 +121,7 @@ class _JourneyContent extends StatelessWidget {
                       scores: viewModel.week!.dailyScores,
                     ),
                     const SizedBox(height: 12),
-                    const Text(
+                    Text(
                       'Only days captured at the time have a score.',
                       style: TextStyle(
                         fontSize: 13,
@@ -135,7 +135,7 @@ class _JourneyContent extends StatelessWidget {
               _RecoveryKept(week: viewModel.week!),
             ],
             if (viewModel.week == null && viewModel.weekError == null)
-              const RpgPanel(
+              RpgPanel(
                 tone: RpgTone.muted,
                 dashed: true,
                 child: Text(
@@ -161,7 +161,7 @@ class _JourneyContent extends StatelessWidget {
                 Expanded(
                   child: Text(
                     '${viewModel.unlockedCount} of 7 unlocked',
-                    style: const TextStyle(color: BalanceColors.textMuted),
+                    style: TextStyle(color: BalanceColors.textMuted),
                   ),
                 ),
                 SizedBox(
@@ -179,7 +179,7 @@ class _JourneyContent extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'Only verified actions unlock achievements. Rest never removes progress.',
               style: TextStyle(fontSize: 13, color: BalanceColors.textMuted),
             ),
@@ -328,7 +328,7 @@ class _WeekBars extends StatelessWidget {
                       children: [
                         Text(
                           score == null ? '–' : '$score',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             color: BalanceColors.textMuted,
                           ),
@@ -396,7 +396,7 @@ class _RecoveryKept extends StatelessWidget {
           week.recoveryRecordedDays == 0
               ? 'No recorded recovery history for this week.'
               : 'Protected recovery on ${week.protectedRecoveryDays} of ${week.recoveryRecordedDays} recorded days',
-          style: const TextStyle(color: BalanceColors.textMuted),
+          style: TextStyle(color: BalanceColors.textMuted),
         ),
         if (week.recoveryRecordedDays > 0) ...[
           const SizedBox(height: 10),

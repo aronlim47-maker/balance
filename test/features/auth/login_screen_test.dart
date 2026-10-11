@@ -13,7 +13,7 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider<AuthViewModel>.value(
         value: auth,
-        child: MaterialApp(theme: AppTheme.light, home: const LoginScreen()),
+        child: MaterialApp(theme: AppTheme.dark, home: const LoginScreen()),
       ),
     );
 
@@ -43,7 +43,7 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider<AuthViewModel>.value(
         value: auth,
-        child: MaterialApp(theme: AppTheme.light, home: const LoginScreen()),
+        child: MaterialApp(theme: AppTheme.dark, home: const LoginScreen()),
       ),
     );
     final fields = find.byType(TextFormField);

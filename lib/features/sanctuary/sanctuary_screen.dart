@@ -108,7 +108,7 @@ class _RecoveryContent extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.error_outline,
                           color: BalanceColors.danger,
                         ),
@@ -159,7 +159,7 @@ class _RecoveryContent extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.eco_outlined,
                       size: 40,
                       color: BalanceColors.calm,
@@ -176,7 +176,7 @@ class _RecoveryContent extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'Add a slot inside your available time, or confirm a '
                       'Council plan that frees time.',
                       textAlign: TextAlign.center,
@@ -208,7 +208,7 @@ class _RecoveryContent extends StatelessWidget {
                 ),
             ],
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Skipping has no penalty, and rest does not change your scores. '
               'Not a medical or therapy service.',
               style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
@@ -342,13 +342,13 @@ class _FeaturedSlot extends StatelessWidget {
           Text(
             '${formatShortDuration(minutes)} held clear. '
             'Nothing will be scheduled into it.',
-            style: const TextStyle(color: BalanceColors.textMuted),
+            style: TextStyle(color: BalanceColors.textMuted),
           ),
           if (slot.selectedActivity != null) ...[
             const SizedBox(height: 10),
             Row(
               children: [
-                const DiamondIcon(
+                DiamondIcon(
                   size: 12,
                   filled: true,
                   color: BalanceColors.calm,
@@ -470,7 +470,7 @@ class _RecoveryFormState extends State<_RecoveryForm> {
         ),
         const SizedBox(height: 8),
         if (windows.isEmpty)
-          const Text(
+          Text(
             'No free time this week. Add availability on Today first.',
             style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
           )
@@ -480,7 +480,7 @@ class _RecoveryFormState extends State<_RecoveryForm> {
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
                 'Nothing free on ${date.format(start)}. Tap a time to use it.',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   color: BalanceColors.textMuted,
                 ),
@@ -571,7 +571,7 @@ class _RecoveryFormState extends State<_RecoveryForm> {
                 ),
               ),
             ),
-            const Icon(
+            Icon(
               Icons.schedule,
               size: 18,
               color: BalanceColors.textMuted,
@@ -655,7 +655,7 @@ class _RecoveryFormState extends State<_RecoveryForm> {
                 padding: const EdgeInsets.only(top: 10),
                 child: Text(
                   error!,
-                  style: const TextStyle(color: BalanceColors.danger),
+                  style: TextStyle(color: BalanceColors.danger),
                 ),
               ),
           ],
