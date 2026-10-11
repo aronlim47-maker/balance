@@ -93,6 +93,7 @@ class WarCouncilViewModel extends LifecycleNotifier {
     tasks: _tasks,
     availability: _availability,
     capacity: capacity,
+    recoverySlots: _recoverySlots,
   );
 
   bool get allDayTasksProtected {

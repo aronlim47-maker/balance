@@ -12,7 +12,7 @@ import '../../domain/models/achievement_models.dart';
 import '../auth/auth_view_model.dart';
 
 /// Badge colour for earned achievements.
-const _gold = Color(0xFFE8C46A);
+const _gold = BalanceColors.gold;
 
 IconData _emblem(String key) => switch (key) {
   'protected_rest' => Icons.bedtime_outlined,

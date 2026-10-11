@@ -44,4 +44,7 @@ abstract final class BalanceColors {
   static const calmFill = Color(0xFF3F8A60);
   static const calmBg = Color(0xFF12211A);
   static const calmBorder = Color(0xFF4E9A70);
+
+  // Ornament gold: headline flourishes, panel corners and earned badges.
+  static const gold = Color(0xFFE8C46A);
 }

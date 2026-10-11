@@ -777,6 +777,45 @@ class TodayViewModel extends LifecycleNotifier {
       )
       .toList(growable: false);
 
+  /// Minutes of [task] that count on the selected day, matching
+  /// [DailyCapacity]: its scheduled time on this day (or its remaining time
+  /// when unscheduled and due this day) plus any plan-moved time here.
+  int minutesOnSelectedDay(TaskItem task) {
+    final reserved = reservationsForTask(task).fold<int>(
+      0,
+      (total, item) =>
+          total +
+          DailyCapacity.overlapMinutes(item.startAt, item.endAt, _selectedDay),
+    );
+    if (task.scheduledStart != null && task.scheduledEnd != null) {
+      return reserved +
+          DailyCapacity.overlapMinutes(
+            task.scheduledStart!,
+            task.scheduledEnd!,
+            _selectedDay,
+          );
+    }
+    return reserved +
+        (DailyCapacity.sameDay(task.dueAt.toLocal(), _selectedDay)
+            ? task.effectiveRemainingMinutes
+            : 0);
+  }
+
+  /// Why [task] is listed on the selected day.
+  String reasonOnSelectedDay(TaskItem task) {
+    final scheduledHere =
+        task.scheduledStart != null &&
+        task.scheduledEnd != null &&
+        DailyCapacity.overlapsDay(
+          task.scheduledStart!,
+          task.scheduledEnd!,
+          _selectedDay,
+        );
+    if (scheduledHere) return 'Scheduled this day';
+    if (reservationsForTask(task).isNotEmpty) return 'Moved here by a plan';
+    return 'Due this day';
+  }
+
   Future<void> _refreshHistoryAfterSave() async {
     final history = _historyRepository;
     if (history == null || isDisposed) return;

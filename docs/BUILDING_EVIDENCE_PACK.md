@@ -26,6 +26,7 @@ defect list (section D) with the same step ID.
 | ID | Step | Expected result | Result | Note |
 | --- | --- | --- | --- | --- |
 | S01 | Install the APK; open the app | Sign-in screen in English; no "Local preview" banner | | |
+| S01b | Sign in the first time | Three-page introduction; **Skip** and **Get started** both close it; it does not return | | |
 | S02 | Register a new account | Clear English message; verification email arrives (if enabled) | | |
 | S03 | Sign in; open Profile | Shows the cloud account and time zone `Asia/Kuala_Lumpur` (set it if not) | | |
 | S04 | Quests → + → create a task with a category | Task appears; category chip shown | | |
@@ -35,12 +36,19 @@ defect list (section D) with the same step ID.
 | S08 | Council → compare options | Each option shows what moves, what stays protected, and the cost | | |
 | S09 | Confirm a plan | Plan updated screen; Today shows the moved task on its new day | | |
 | S10 | Undo the plan | Original overload returns; plan history shows Undone | | |
-| S11 | Sanctuary → add recovery time inside availability | Slot saved and shown as protected | | |
-| S12 | Sanctuary → add recovery time with no availability that day | English guidance to add availability on Today first | | |
-| S13 | Journey → weekly summary and achievements | Seven cards; only earned ones Unlocked; Team Coordination Locked | | |
+| S11 | Sanctuary → add recovery time | Free-time suggestions shown and one pre-selected; **Save** works first time; slot shown as protected | | |
+| S12 | Sanctuary → pick a time on a day with no availability | English guidance with **Go to Today** and **Choose another time** | | |
+| S13 | Journey → weekly summary and achievements | Wall of seven badges; earned ones gold with date; Team Coordination Locked; tapping a badge shows how to unlock it | | |
+| S13b | Earn a new achievement (e.g. confirm a plan), then open Journey | "Achievement unlocked" animation and chime once; not shown again on the next visit | | |
 | S14 | Turn on airplane mode → pull to refresh on Today | Friendly "Could not connect" message and Try again; old data stays | | |
 | S15 | Airplane mode off → Try again | Data reloads | | |
 | S16 | Sign out → sign in with a second account | No data from the first account is visible | | |
+| S17 | Today → empty day after a day with time → **Copy from …** | The previous day's blocks appear with the same times | | |
+| S18 | Today → **Repeat for the next 6 days** → Repeat | Copies to days without time; days that already have time are unchanged | | |
+| S19 | Quests → tap a task | Details sheet with **Edit task** | | |
+| S20 | Profile → Reminders and alerts → Overload alerts on (allow permission) | "N overload alerts scheduled" when a coming day is over capacity | | |
+| S21 | Profile → Sound effects on, background music on, then off | Chime on confirm and unlock; calm loop plays and stops; music pauses when the app is backgrounded | | |
+| S22 | Next day after S06: Today → five bars | ▲/▼ change since yesterday next to bars with a score on both days | | |
 
 ## B. Full-journey regression (judge self-service flow, Rev7 13.6)
 
@@ -146,10 +154,12 @@ check is still required.
 
 ## H. English screenshots for the judges
 
-Capture on a phone at default font size, judge account, after the sample data:
-Today (top and five bars), Quest Board with filters, task form, Council comparison,
-Plan updated, Sanctuary, Journey summary, Journey achievements, an error state with
-Try again, Profile. Name files `01_today.png`, `02_today_bars.png`, …
+Capture on a phone at default font size and **Malaysia time**, using the test account
+with the same sample data (keep the judge account untouched): introduction, Today (top
+and five bars), Quest Board with filters, task details, task form, Council comparison,
+Plan updated, Sanctuary with free-time suggestions, Journey summary, achievement wall,
+an error state with Try again, Profile with sound and alerts. Name files
+`00_intro.png`, `01_today.png`, `02_today_bars.png`, …
 
 ## I. Problem-statement mapping (Effectiveness)
 

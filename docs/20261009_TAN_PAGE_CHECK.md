@@ -1,6 +1,7 @@
 # Quests and Sanctuary sign-off (Tan Yi Ming, 9 October 2026)
 
-Fill this in on the emulator or a phone after `flutter test` passes. Mark each row
+Fill this in on the emulator or a phone after `flutter test` passes. Set the device to
+Malaysia time first (an Android emulator defaults to GMT and shows times 8 hours early). Mark each row
 Pass or Fail and add a short note. A Fail goes into the defect list in
 `docs/BUILDING_EVIDENCE_PACK.md` (section D). Do not write passwords or emails here.
 
@@ -27,17 +28,20 @@ Pass or Fail and add a short note. A Fail goes into the defect list in
 | Q9 | + → create a task with a category | "Task created." and it appears in the list | | |
 | Q10 | Airplane mode on → pull down to refresh | Tasks stay visible; "Could not connect …" with **Try again** | | |
 | Q11 | Airplane mode off → **Try again** | Error disappears | | |
+| Q12 | Tap a task card (not the ⋮ menu) | Details sheet: remaining time, due, category, flexibility, status and **Edit task** | | |
+| Q13 | In the details sheet, tap **Edit task** | The task form opens with the task filled in | | |
 
 ## 2. Sanctuary (about 5 minutes)
 
 | ID | Step | Expected | Result | Note |
 | --- | --- | --- | --- | --- |
 | R1 | On **Today**, add availability for today (e.g. 8–10 PM) | Block appears on Today | | |
-| R2 | Sanctuary → + → choose a time inside that block → save | Slot shows **TIME RESERVED** / protected | | |
-| R3 | + → choose a time on a day with **no** availability → save | "Recovery time must be inside your available time. Add availability on Today first, then try again." plus **Go to Today** | | |
+| R2 | Sanctuary → + | Form shows **Free on …** with a suggestion such as "8:00 PM – 10:00 PM · 2h free", already selected | | |
+| R2b | Tap a suggestion → **Save** | Slot shows **TIME RESERVED** / protected; no error | | |
+| R3 | + → pick a start on a day with **no** availability (date picker) → save | "Recovery time must be inside your available time. Add availability on Today first, then try again." with **Go to Today** and **Choose another time** | | |
 | R4 | Tap **Go to Today** | Today opens | | |
 | R5 | + → overlap an existing slot | "This overlaps another recovery slot." | | |
-| R6 | On a slot that has already started, tap **Activity done**, then **Undo activity done** | Both work; the page says marking done does not change workload scores | | |
+| R6 | On a slot that has already started, tap **Activity done**, then **Undo activity done** | Both work; the footer says rest does not change your scores | | |
 | R7 | Remove a manual slot | Slot disappears | | |
 | R8 | Airplane mode on → pull to refresh | Friendly error with Try again; no raw database text | | |
 
@@ -68,9 +72,10 @@ icon in the side toolbar saves a PNG. Phone: Power + Volume down.
 | `q01_tasks_list.png` | Quests list with an OVERDUE task and the FINISHED group |
 | `q02_task_menu.png` | ⋮ menu open showing Mark as done |
 | `q03_task_form.png` | New task form with the category choices |
+| `q05_task_details.png` | Task details sheet with Edit task |
 | `q04_filters.png` | Status filter menu showing Overdue |
 | `s01_sanctuary.png` | Sanctuary with a protected slot |
-| `s02_add_recovery.png` | Protect recovery time dialog |
+| `s02_add_recovery.png` | Protect recovery time dialog showing the free-time suggestions |
 | `s03_no_availability.png` | The "Add availability on Today first" message with Go to Today |
 | `s04_empty.png` | Sanctuary empty state (fresh account) |
 

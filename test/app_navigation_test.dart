@@ -72,6 +72,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Confirm selected plan'), findsNothing);
+    await tester.ensureVisible(returnButton);
+    await tester.pumpAndSettle();
     await tester.tap(returnButton);
     await tester.pumpAndSettle();
     expect(find.byType(TodayScreen), findsOneWidget);

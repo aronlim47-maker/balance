@@ -52,6 +52,13 @@ class _JourneyContent extends StatelessWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
           children: [
+            // First in the list: ListView builds lazily, so a watcher at the
+            // bottom would only celebrate after scrolling down.
+            AchievementUnlockWatcher(
+              definitions: viewModel.definitions,
+              awardFor: viewModel.awardFor,
+              ready: !viewModel.isLoading && viewModel.errorMessage == null,
+            ),
             Row(
               children: [
                 RpgSquareButton(
@@ -200,11 +207,6 @@ class _JourneyContent extends StatelessWidget {
             AchievementWall(
               definitions: viewModel.definitions,
               awardFor: viewModel.awardFor,
-            ),
-            AchievementUnlockWatcher(
-              definitions: viewModel.definitions,
-              awardFor: viewModel.awardFor,
-              ready: !viewModel.isLoading && viewModel.errorMessage == null,
             ),
             const SizedBox(height: 12),
           ],

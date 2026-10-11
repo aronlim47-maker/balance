@@ -44,6 +44,15 @@ void main() {
       expect(model.tasksForDay.single.id, task.id);
       expect(model.reservationsForTask(task), hasLength(1));
       expect(model.plannedMinutes, 120);
+      // The card shows the moved 120 minutes, not the 60 left on the
+      // original day.
+      final moved = model.tasksForDay.single;
+      expect(model.minutesOnSelectedDay(moved), 120);
+      expect(model.reasonOnSelectedDay(moved), 'Moved here by a plan');
+      model.selectDay(day.subtract(const Duration(days: 1)), reload: false);
+      expect(model.minutesOnSelectedDay(moved), 60);
+      expect(model.reasonOnSelectedDay(moved), 'Scheduled this day');
+      model.selectDay(day, reload: false);
       await tasks.updateTask(
         TaskItem(
           id: task.id,

@@ -24,6 +24,8 @@ Existing authentication and repository ownership rules are unchanged.
 - [x] Local deadline reminder settings, explicit permission request, scheduling,
   cancellation and quiet hours implemented; domain/controller tests pass.
   Native permission and delivery acceptance remains unchecked below.
+- [x] 10 Oct: local overload alerts (evening before an overloaded day; off by default;
+  quiet hours respected); domain/controller tests pass. Native delivery unchecked.
 - [ ] Device notification verification, including denied permissions and changed tasks.
 - [ ] Remote push delivery: select/configure a provider; coordinate owner-bound device
   token storage with Chong. No credentials or server endpoints are assumed to exist.

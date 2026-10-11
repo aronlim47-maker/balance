@@ -608,11 +608,32 @@ DateTime? _firstFreeStart({
 DateTime _dateOnly(DateTime time) => DateTime(time.year, time.month, time.day);
 DateTime _later(DateTime a, DateTime b) => a.isAfter(b) ? a : b;
 DateTime _earlier(DateTime a, DateTime b) => a.isBefore(b) ? a : b;
+const _weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const _months = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+/// "Mon 12 Oct", matching the dates shown elsewhere in the app.
 String _dateLabel(DateTime date) =>
-    '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    '${_weekdays[date.weekday - 1]} ${date.day} ${_months[date.month - 1]}';
+
+/// "9:00 AM", matching the app's 12-hour times.
 String _timeLabel(DateTime time) {
   final local = time.toLocal();
-  return '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
+  final hour = local.hour % 12 == 0 ? 12 : local.hour % 12;
+  final suffix = local.hour < 12 ? 'AM' : 'PM';
+  return '$hour:${local.minute.toString().padLeft(2, '0')} $suffix';
 }
 
 class _Interval {
