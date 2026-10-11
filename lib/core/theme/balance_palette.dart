@@ -147,34 +147,36 @@ class BalancePalette extends ThemeExtension<BalancePalette> {
   /// text colour keeps at least 5:1 on the surfaces it sits on.
   static const light = BalancePalette(
     brightness: Brightness.light,
-    background: Color(0xFFF2E8D0),
-    surface: Color(0xFFFAF4E4),
-    surfaceRaised: Color(0xFFE9DDC0),
-    surfaceSunken: Color(0xFFEEE3C8),
-    outlineStrong: Color(0xFF9C8760),
-    outline: Color(0xFFD6C59E),
-    text: Color(0xFF2B2114), // 13.0:1 on background
-    textMuted: Color(0xFF574629), // 6.7:1 on raised
-    textFaint: Color(0xFF5E4C2F), // 6.0:1 on selected rows
-    accent: Color(0xFF574B9E), // 7.2:1 with white text on it
-    accentBright: Color(0xFF483D8C), // 6.6:1 as text on selected rows
-    accentDim: Color(0xFFE2D9EC),
-    danger: Color(0xFF9E3127), // 5.5:1 on its background
-    dangerFill: Color(0xFFC9604F),
-    dangerBg: Color(0xFFF5DDD2),
-    dangerBorder: Color(0xFFC98676),
-    warning: Color(0xFF7E4A0C), // 5.9:1
-    warningBg: Color(0xFFF6E4C8),
-    warningBorder: Color(0xFFC99A5E),
-    calm: Color(0xFF275F3D), // 6.0:1
-    calmFill: Color(0xFF4E9369),
-    calmBg: Color(0xFFDEEAD3),
-    calmBorder: Color(0xFF79A786),
-    gold: Color(0xFF735610), // 5.1:1 even on raised parchment
-    goldSurface: Color(0xFFF6EBCD),
+    // Darker page, brighter cards and firmer lines so panels, tags and
+    // empty meter cells stand apart (lines at least 3:1 on cards).
+    background: Color(0xFFEAE0C8),
+    surface: Color(0xFFFFFAEF),
+    surfaceRaised: Color(0xFFDCCCA8),
+    surfaceSunken: Color(0xFFE3D7BA),
+    outlineStrong: Color(0xFF6F5A36), // 6.3:1 on cards
+    outline: Color(0xFF967D4C), // 3.8:1 on cards, 3.0:1 on the page
+    text: Color(0xFF241B10), // 16.3:1 on cards, 12.9:1 on the page
+    textMuted: Color(0xFF4F3F25), // 6.4:1 on raised
+    textFaint: Color(0xFF554429), // 5.9:1 on raised
+    accent: Color(0xFF4F4396), // 8.2:1 with white text on it
+    accentBright: Color(0xFF42378A), // 6.2:1 as text on raised
+    accentDim: Color(0xFFDDD3EE),
+    danger: Color(0xFF952D24), // 6.0:1 on its background
+    dangerFill: Color(0xFFC25848),
+    dangerBg: Color(0xFFF6DCD1),
+    dangerBorder: Color(0xFFB0675A),
+    warning: Color(0xFF77450B), // 6.3:1
+    warningBg: Color(0xFFF7E3C3),
+    warningBorder: Color(0xFFB3843F),
+    calm: Color(0xFF245A39), // 6.3:1
+    calmFill: Color(0xFF468A60),
+    calmBg: Color(0xFFDAE8CF),
+    calmBorder: Color(0xFF5F9470),
+    gold: Color(0xFF6B500E), // 4.8:1 even on raised parchment
+    goldSurface: Color(0xFFF7EBCB),
     goldGlow: Color(0xFFEBD49A),
-    goldDialog: Color(0xFFFBF3DF),
-    shadow: Color(0x1F3A2A10),
+    goldDialog: Color(0xFFFFF8E8),
+    shadow: Color(0x263A2A10),
   );
 
   static BalancePalette of(Brightness brightness) =>

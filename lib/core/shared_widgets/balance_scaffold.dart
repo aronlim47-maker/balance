@@ -151,7 +151,7 @@ class BalanceScaffold extends StatelessWidget {
                 // Violet torchlight at night, warm candlelight on parchment.
                 BalanceColors.isDark
                     ? BalanceColors.accentDim.withValues(alpha: 0.55)
-                    : BalanceColors.goldGlow.withValues(alpha: 0.6),
+                    : BalanceColors.goldGlow.withValues(alpha: 0.3),
                 BalanceColors.background.withValues(alpha: 0),
               ],
             ),
