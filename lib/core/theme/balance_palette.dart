@@ -142,37 +142,39 @@ class BalancePalette extends ThemeExtension<BalancePalette> {
     shadow: Color(0x00000000),
   );
 
-  /// Light look: soft white page, white cards, grey sunken areas, dark text.
+  /// Light look: warm parchment pages, cream cards and dark ink-brown text,
+  /// like an RPG quest scroll. Softer on the eyes than pure white; every
+  /// text colour keeps at least 5:1 on the surfaces it sits on.
   static const light = BalancePalette(
     brightness: Brightness.light,
-    background: Color(0xFFF5F6FA),
-    surface: Color(0xFFFFFFFF),
-    surfaceRaised: Color(0xFFE4E7EF),
-    surfaceSunken: Color(0xFFEDEFF5),
-    outlineStrong: Color(0xFF9AA0B6),
-    outline: Color(0xFFD3D7E2),
-    text: Color(0xFF1B1E27), // 15.4:1 on background
-    textMuted: Color(0xFF4F566A), // 6.8:1
-    textFaint: Color(0xFF5A6175), // 5.4:1 on inputs, 4.9:1 on selected rows
-    accent: Color(0xFF5A62C4), // 5.3:1 with white text on it
-    accentBright: Color(0xFF4950AE), // 6.4:1 as text
-    accentDim: Color(0xFFE2E4F7),
-    danger: Color(0xFFB23A2E), // 5.9:1
-    dangerFill: Color(0xFFD9695B),
-    dangerBg: Color(0xFFFCECEA),
-    dangerBorder: Color(0xFFD98B81),
-    warning: Color(0xFF94570F), // 5.8:1
-    warningBg: Color(0xFFFDF1E2),
-    warningBorder: Color(0xFFDDAE78),
-    calm: Color(0xFF25744A), // 5.7:1
-    calmFill: Color(0xFF4FA675),
-    calmBg: Color(0xFFE8F5EE),
-    calmBorder: Color(0xFF6DB48D),
-    gold: Color(0xFF8A6914), // 5.1:1, readable as badge text
-    goldSurface: Color(0xFFFBF6E9),
-    goldGlow: Color(0xFFF4E4B8),
-    goldDialog: Color(0xFFFFFBF0),
-    shadow: Color(0x1A1B1E27),
+    background: Color(0xFFF2E8D0),
+    surface: Color(0xFFFAF4E4),
+    surfaceRaised: Color(0xFFE9DDC0),
+    surfaceSunken: Color(0xFFEEE3C8),
+    outlineStrong: Color(0xFF9C8760),
+    outline: Color(0xFFD6C59E),
+    text: Color(0xFF2B2114), // 13.0:1 on background
+    textMuted: Color(0xFF574629), // 6.7:1 on raised
+    textFaint: Color(0xFF5E4C2F), // 6.0:1 on selected rows
+    accent: Color(0xFF574B9E), // 7.2:1 with white text on it
+    accentBright: Color(0xFF483D8C), // 6.6:1 as text on selected rows
+    accentDim: Color(0xFFE2D9EC),
+    danger: Color(0xFF9E3127), // 5.5:1 on its background
+    dangerFill: Color(0xFFC9604F),
+    dangerBg: Color(0xFFF5DDD2),
+    dangerBorder: Color(0xFFC98676),
+    warning: Color(0xFF7E4A0C), // 5.9:1
+    warningBg: Color(0xFFF6E4C8),
+    warningBorder: Color(0xFFC99A5E),
+    calm: Color(0xFF275F3D), // 6.0:1
+    calmFill: Color(0xFF4E9369),
+    calmBg: Color(0xFFDEEAD3),
+    calmBorder: Color(0xFF79A786),
+    gold: Color(0xFF735610), // 5.1:1 even on raised parchment
+    goldSurface: Color(0xFFF6EBCD),
+    goldGlow: Color(0xFFEBD49A),
+    goldDialog: Color(0xFFFBF3DF),
+    shadow: Color(0x1F3A2A10),
   );
 
   static BalancePalette of(Brightness brightness) =>
