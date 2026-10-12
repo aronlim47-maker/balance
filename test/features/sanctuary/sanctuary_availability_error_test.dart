@@ -168,7 +168,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Add recovery time'));
+    // No slots yet: the empty card's Add recovery time button opens the form.
+    await tester.tap(find.text('Add recovery time'));
     await tester.pumpAndSettle();
 
     // Today has no availability, so the next free day is suggested and used.
@@ -185,9 +186,46 @@ void main() {
       tomorrow.add(const Duration(hours: 9, minutes: 30)),
     );
   });
+
+  testWidgets('with slots, a full-width Add recovery time button is shown', (
+    tester,
+  ) async {
+    final start = DateTime.now().add(const Duration(days: 1));
+    final recovery = _Recovery([
+      RecoverySlot(
+        id: 'slot-1',
+        startAt: start,
+        endAt: start.add(const Duration(minutes: 30)),
+      ),
+    ]);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthViewModel()),
+          Provider<RecoveryRepository?>.value(value: recovery),
+          Provider<AvailabilityRepository>.value(
+            value: LocalAvailabilityRepository(),
+          ),
+          Provider<TaskRepository>.value(value: LocalTaskRepository()),
+        ],
+        child: const MaterialApp(home: SanctuaryScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final button = find.widgetWithText(FilledButton, 'Add recovery time');
+    expect(button, findsOneWidget);
+    expect(tester.getSize(button).width, greaterThan(300));
+    // The small + is gone from the header.
+    expect(find.byTooltip('Add recovery time'), findsNothing);
+  });
 }
 
 class _Recovery implements RecoveryRepository {
+  _Recovery([List<RecoverySlot> initial = const []]) {
+    slots.addAll(initial);
+  }
+
   final slots = <RecoverySlot>[];
   Object? readError;
   Object? writeError;
