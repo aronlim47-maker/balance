@@ -72,17 +72,6 @@ class _RecoveryContent extends StatelessWidget {
       help: 'Protected time for rest. Activities are optional.',
       eyebrowTone: RpgTone.calm,
       currentIndex: 3,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: RpgSquareButton(
-            tooltip: 'Add recovery time',
-            filled: true,
-            onPressed: canEdit ? () => _edit(context, model) : null,
-            icon: Icons.add,
-          ),
-        ),
-      ],
       body: RefreshIndicator(
         onRefresh: model.load,
         child: ListView(
@@ -142,6 +131,20 @@ class _RecoveryContent extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
+            ],
+            // A clear, full-width button instead of a small + in the header
+            // (same as Add task on Quests). With no slots yet, the empty
+            // card below has its own Add recovery time button.
+            if (model.slots.isNotEmpty) ...[
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: canEdit ? () => _edit(context, model) : null,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add recovery time'),
+                ),
+              ),
+              const SizedBox(height: 16),
             ],
             if (featured != null) ...[
               CollapsibleSection(
