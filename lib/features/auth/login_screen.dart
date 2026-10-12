@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Center(child: BalanceCrest(size: 88)),
+                    const Center(child: BalanceCrest(size: 88, shine: true)),
                     const SizedBox(height: 20),
                     Text(
                       'Welcome back to Balance',

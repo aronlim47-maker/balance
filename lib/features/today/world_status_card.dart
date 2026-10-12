@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/shared_widgets/one_shot.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
@@ -120,6 +121,7 @@ class WorldStatusCard extends StatelessWidget {
                   name: _name(dimension),
                   result: status.dimensions[dimension]!,
                   change: changes?[dimension],
+                  order: dimension.index,
                 ),
                 if (dimension != WorldDimension.errands)
                   const SizedBox(height: 9),
@@ -339,20 +341,53 @@ class TimeCapacityPanel extends StatelessWidget {
       fitSegments = segments - overSegments;
     }
 
+    // The bar fills left to right (fitting time first, then the red overflow)
+    // and the verdict tag pops in last. Replays when the day's numbers change.
+    return OneShot(
+      duration: const Duration(milliseconds: 1100),
+      replayKey: '$plannedMinutes/$availableMinutes',
+      builder: (context, t) {
+        final shown = ((fitSegments + overSegments) * phase(t, 0, 0.75))
+            .round();
+        final shownFit = shown < fitSegments ? shown : fitSegments;
+        final shownOver = shown - shownFit;
+        final pop = phase(t, 0.7, 1, Curves.elasticOut);
+        return _panel(
+          fits: fits,
+          over: over,
+          fitSegments: shownFit,
+          overSegments: shownOver,
+          tagScale: pop,
+        );
+      },
+    );
+  }
+
+  Widget _panel({
+    required int fits,
+    required int over,
+    required int fitSegments,
+    required int overSegments,
+    required double tagScale,
+  }) {
+    const segments = 10;
     return RpgPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           PanelHeader(
             'Time capacity',
-            trailing: over > 0
-                ? RpgTag(
-                    '${formatShortDuration(over)} over',
-                    tone: RpgTone.danger,
-                  )
-                : availableMinutes == 0
-                ? const RpgTag('No time added', tone: RpgTone.muted)
-                : const RpgTag('Fits', tone: RpgTone.calm),
+            trailing: Transform.scale(
+              scale: tagScale,
+              child: over > 0
+                  ? RpgTag(
+                      '${formatShortDuration(over)} over',
+                      tone: RpgTone.danger,
+                    )
+                  : availableMinutes == 0
+                  ? const RpgTag('No time added', tone: RpgTone.muted)
+                  : const RpgTag('Fits', tone: RpgTone.calm),
+            ),
           ),
           const SizedBox(height: 12),
           if (availableMinutes == 0 && plannedMinutes == 0)
@@ -446,7 +481,12 @@ class _Legend extends StatelessWidget {
 }
 
 class _DimensionRow extends StatelessWidget {
-  const _DimensionRow({required this.name, required this.result, this.change});
+  const _DimensionRow({
+    required this.name,
+    required this.result,
+    this.change,
+    this.order = 0,
+  });
 
   final String name;
   final DimensionResult result;
@@ -454,9 +494,24 @@ class _DimensionRow extends StatelessWidget {
   /// Points since yesterday; higher means more planning pressure.
   final int? change;
 
+  /// Position in the list; each bar starts a little after the one above,
+  /// like stats filling in on a character sheet.
+  final int order;
+
   @override
   Widget build(BuildContext context) {
-    final score = result.score;
+    final finalScore = result.score;
+    if (finalScore == null) return _row(null);
+    return OneShot(
+      duration: const Duration(milliseconds: 650),
+      delay: Duration(milliseconds: 90 * order),
+      replayKey: finalScore,
+      builder: (context, t) =>
+          _row((finalScore * Curves.easeOutCubic.transform(t)).round()),
+    );
+  }
+
+  Widget _row(int? score) {
     final tone = toneForScore(score);
     return Row(
       children: [
