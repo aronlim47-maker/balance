@@ -16,6 +16,13 @@ Before any device run, write down:
 | Test account alias | e.g. `judge-1`, `tester-2` (not the email) |
 | Date and tester | |
 
+Runs recorded so far:
+
+| Run | Commit | Build | APK size | Supabase project | Account alias | Date and tester |
+| --- | --- | --- | --- | --- | --- | --- |
+| R1 judge read-only regression (section B) | `cb135c1` | Debug, run from Android Studio (same code as the release build of this commit) | n/a (debug) | (fill in project name) | `judge-1` | 12 Oct 2026, Lim |
+| R2 release APK for the smoke test | `5d35cb4` | `flutter build apk --release --dart-define-from-file=.env`, signed with the release key | 67.0 MB (70,224,683 bytes) | (fill in project name) | (fill in) | (fill in when section A runs) |
+
 ---
 
 ## A. Release smoke test (Rev7 13.4) — about 15 minutes per device
@@ -56,20 +63,22 @@ Run once per device on the prepared judge account. Time each step.
 
 | Step | Action | Expected | Time (mm:ss) | Pass/Fail |
 | --- | --- | --- | --- | --- |
-| J1 | Open app / install APK | Sign-in in English | | |
-| J2 | Sign in with judge account | Today opens | | |
-| J3 | Review the sample day (300 planned, 180 available) | Overload of 120 minutes is visible and explained | | |
-| J4 | Open Council and compare options | At least one feasible option, or a clear No Feasible Plan reason | | |
-| J5 | Confirm a valid plan | Task placement and recovery time change together | | |
-| J6 | Undo | Both changes restored | | |
-| J7 | Open Sanctuary | Protected recovery slot shown | | |
-| J8 | Open Journey | Weekly summary shown; no invented past scores | | |
+| J1 | Open app / install APK | Sign-in in English | n/r | Pass (R1) |
+| J2 | Sign in with judge account | Today opens | n/r | Pass (R1) |
+| J3 | Review the sample day (300 planned, 180 available) | Overload of 120 minutes is visible and explained | n/r | Pass (R1): Sun 1 Nov shows 2H OVER, 3h available, 5h planned, gap 120 min; availability 9:00 AM–12:00 PM; both Judge demo tasks listed |
+| J4 | Open Council and compare options | At least one feasible option, or a clear No Feasible Plan reason | n/r | Pass (R1): FEASIBLE; move report 120 min to Mon 2 Nov 9:00–11:00 AM; trade-offs open |
+| J5 | Confirm a valid plan | Task placement and recovery time change together | | Not run on the judge account (R1), so its achievements stay locked for the judges; confirm/undo passed on the test account on 11 Oct |
+| J6 | Undo | Both changes restored | | As J5 |
+| J7 | Open Sanctuary | Protected recovery slot shown | n/r | Pass (R1): no slots, empty state shown (none added, by design) |
+| J8 | Open Journey | Weekly summary shown; no invented past scores | n/r | Pass (R1): 0 of 7 achievements, judge account untouched; Profile shows Asia/Kuala_Lumpur and 0 confirmed plans |
+
+R1 notes: emulator at Malaysia time; no Flutter errors in the log. "n/r" = time not recorded.
 
 ## C. Device matrix (need at least two Android devices)
 
 | Device | Android version | Screen size / density | Font size setting | Install OK | Smoke A | Journey B | Defects |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Emulator Pixel 8 API 35 (`-gpu swiftshader_indirect`) | 15 | 1080×2400 | Default | | | | |
+| Emulator Pixel 8 API 35 (`-gpu swiftshader_indirect`) | 15 | 1080×2400 | Default | Yes (debug, R1) | Not yet (needs R2 release APK) | Pass except J5/J6 (R1) | None |
 | Physical phone 1: | | | | | | | |
 | Physical phone 2: | | | | | | | |
 
