@@ -73,8 +73,11 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
             CollapsibleSection(
               key: const ValueKey('council.protected'),
               id: 'council.protected',
+              // Core section: open until the user closes it.
+              initiallyExpanded: true,
               title: 'What stays protected',
-              help: 'Fixed tasks and protected recovery that no plan will move.',
+              help:
+                  'Fixed tasks and protected recovery that no plan will move.',
               tone: RpgTone.calm,
               summary: _protectedSummary(viewModel),
               child: _ProtectedItems(viewModel: viewModel, showHeader: false),

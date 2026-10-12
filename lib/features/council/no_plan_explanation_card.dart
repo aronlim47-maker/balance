@@ -66,27 +66,29 @@ class NoPlanExplanationCard extends StatelessWidget {
                   ],
                 ),
               ),
-            const SizedBox(height: 6),
-            const RpgLabel('What you can do', size: 12),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                if (explanation.suggestsTasks)
-                  OutlinedButton.icon(
-                    onPressed: onOpenTasks,
-                    icon: const Icon(Icons.notes_rounded),
-                    label: const Text('Review tasks'),
-                  ),
-                if (explanation.suggestsFreeTime)
-                  OutlinedButton.icon(
-                    onPressed: onOpenToday,
-                    icon: const Icon(Icons.event_available_outlined),
-                    label: const Text('Add free time on Today'),
-                  ),
-              ],
-            ),
+            if (explanation.suggestsTasks || explanation.suggestsFreeTime) ...[
+              const SizedBox(height: 6),
+              const RpgLabel('What you can do', size: 12),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (explanation.suggestsTasks)
+                    OutlinedButton.icon(
+                      onPressed: onOpenTasks,
+                      icon: const Icon(Icons.notes_rounded),
+                      label: const Text('Review tasks'),
+                    ),
+                  if (explanation.suggestsFreeTime)
+                    OutlinedButton.icon(
+                      onPressed: onOpenToday,
+                      icon: const Icon(Icons.event_available_outlined),
+                      label: const Text('Add free time on Today'),
+                    ),
+                ],
+              ),
+            ],
             const SizedBox(height: 10),
             Text(
               'Or keep your current plan. Nothing changes unless you confirm.',
@@ -99,6 +101,7 @@ class NoPlanExplanationCard extends StatelessWidget {
   }
 
   static IconData _icon(NoPlanReasonKind kind) => switch (kind) {
+    NoPlanReasonKind.dayPassed => Icons.history,
     NoPlanReasonKind.noFreeTime => Icons.event_busy_outlined,
     NoPlanReasonKind.dueBeforeFreeTime => Icons.schedule,
     NoPlanReasonKind.flexibleUnscheduled => Icons.edit_calendar_outlined,

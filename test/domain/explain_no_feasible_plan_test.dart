@@ -164,6 +164,40 @@ void main() {
     );
   });
 
+  test('a past day says it has passed instead of listing reasons', () {
+    final tasks = [
+      TaskItem(
+        id: 'essay',
+        title: 'Essay',
+        estimatedMinutes: 300,
+        dueAt: DateTime(2026, 10, 9, 23),
+      ),
+    ];
+    final availability = [free(9, 12)];
+    NoPlanExplanation at(DateTime now) => explainNoFeasiblePlan(
+      day: day,
+      tasks: tasks,
+      availability: availability,
+      capacity: DailyCapacity.forDay(
+        day: day,
+        tasks: tasks,
+        availability: availability,
+      ),
+      now: now,
+    );
+
+    final past = at(DateTime(2026, 10, 10, 9));
+    expect(kinds(past), [NoPlanReasonKind.dayPassed]);
+    expect(past.reasons.single.message, contains('already passed'));
+    expect(past.suggestsTasks, isFalse);
+    expect(past.suggestsFreeTime, isFalse);
+
+    // Later the same day it is still today, so the usual reasons show.
+    final sameDay = at(DateTime(2026, 10, 9, 20));
+    expect(kinds(sameDay), isNot(contains(NoPlanReasonKind.dayPassed)));
+    expect(sameDay.reasons, isNotEmpty);
+  });
+
   test('protected rest in the only later free time is named', () {
     final tasks = [
       TaskItem(

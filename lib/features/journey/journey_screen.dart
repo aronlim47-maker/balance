@@ -128,6 +128,8 @@ class _JourneyContent extends StatelessWidget {
               CollapsibleSection(
                 key: const ValueKey('journey.recovery'),
                 id: 'journey.recovery',
+                // Core section: open until the user closes it.
+                initiallyExpanded: true,
                 title: 'Recovery kept',
                 help: 'Days this week that kept their protected rest.',
                 tone: RpgTone.calm,
@@ -180,6 +182,8 @@ class _JourneyContent extends StatelessWidget {
             CollapsibleSection(
               key: const ValueKey('journey.achievements'),
               id: 'journey.achievements',
+              // Core section: open until the user closes it.
+              initiallyExpanded: true,
               title: 'Achievements',
               help:
                   'Journey milestones. Only verified actions unlock '
