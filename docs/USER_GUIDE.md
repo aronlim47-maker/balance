@@ -164,7 +164,9 @@ release build; reinstall from the release link.
 4. Tap the option to select it (it shows **SELECTED**), then tap **Confirm selected plan**.
    The plan is saved at once; the server checks every rule again before saving. A soft chime
    plays if sound effects are on.
-5. **Plan confirmed** lists what moved and offers **Undo this plan** and **Return to Today**.
+5. **Plan confirmed** draws a tick, and a card slides from *Overloaded day* to *Day with
+   room* to show the move. Below, it lists what moved and offers **Undo this plan** and
+   **Return to Today**.
 
 <img src="images/guide/10_council_top.png" width="200" alt="Council: the problem"> <img src="images/guide/11_council_option.png" width="200" alt="Council: the suggested option"> <img src="images/guide/12_plan_confirmed.png" width="200" alt="Plan confirmed">
 
@@ -180,7 +182,7 @@ Any confirmed plan can be undone, even after leaving the result screen.
 
 1. Open **COUNCIL** and tap the **Plan history** icon (clock) at the top right.
 2. Tap the plan marked **Confirmed**. Its screen shows what moved; tap **Undo this plan**.
-3. **Changes were undone** confirms the task was restored. On **TODAY**, the sample day is
+3. **Changes were undone** confirms the task was restored (the card slides back). On **TODAY**, the sample day is
    **2H OVER** again and the next day is free.
 
 If the task was edited after the plan was confirmed, Undo is refused with an explanation
