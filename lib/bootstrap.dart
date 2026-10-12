@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/config/environment.dart';
+import 'core/state/section_memory.dart';
 import 'core/theme/theme_controller.dart';
 
 Future<void> bootstrap() async {
@@ -51,10 +52,12 @@ Future<void> _start() async {
   // Read the saved light/dark choice before the first frame so the app
   // opens in the right look without a flash.
   final themeController = await ThemeController.load();
+  final sectionMemory = await SectionMemory.load();
   runApp(
     BalanceApp(
       supabaseConfigured: isSupabaseConfigured,
       themeController: themeController,
+      sectionMemory: sectionMemory,
     ),
   );
 }

@@ -14,8 +14,13 @@ void main() {
     await tester.pumpWidget(const BalanceApp());
     await tester.pumpAndSettle();
     expect(find.byType(TodayScreen), findsOneWidget);
-    // Capacity and the plan verdict come first; the overview follows below.
+    // Capacity and the plan verdict come first and start open; the overview
+    // follows below in a section that opens with its + button.
     expect(find.text('TIME CAPACITY'), findsOneWidget);
+    expect(find.text('WORKLOAD OVERVIEW'), findsNothing);
+    await tester.scrollUntilVisible(find.byTooltip('Show Workload'), 300);
+    await tester.tap(find.byTooltip('Show Workload'));
+    await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('WORKLOAD OVERVIEW'), 300);
     expect(find.text('WORKLOAD OVERVIEW'), findsOneWidget);
   });

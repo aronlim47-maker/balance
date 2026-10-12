@@ -45,6 +45,8 @@ dependencies:
   shared_preferences: ^2.5.6
   sentry_flutter: ^10.0.0
   audioplayers: ^6.8.1
+  # Profile picture: pick a photo from the gallery (stored on the phone only).
+  image_picker: ^1.1.2
 
 dev_dependencies:
   http: ^1.6.0

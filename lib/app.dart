@@ -9,6 +9,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/audio/sound_service.dart';
 import 'core/router/app_router.dart';
 import 'core/state/planning_day_controller.dart';
+import 'core/state/section_memory.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
 import 'core/theme/theme_scope.dart';
@@ -47,6 +48,7 @@ class BalanceApp extends StatefulWidget {
     super.key,
     this.supabaseConfigured = false,
     this.themeController,
+    this.sectionMemory,
   });
 
   final bool supabaseConfigured;
@@ -54,6 +56,10 @@ class BalanceApp extends StatefulWidget {
   /// The saved light/dark choice, loaded in `bootstrap()` before the first
   /// frame. When null (widget tests) the app starts in dark mode.
   final ThemeController? themeController;
+
+  /// Which page sections the user opened or closed, loaded in `bootstrap()`.
+  /// When null (widget tests) every section starts in its default state.
+  final SectionMemory? sectionMemory;
 
   @override
   State<BalanceApp> createState() => _BalanceAppState();
@@ -76,11 +82,13 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
   late final ReminderController _reminders;
   final SoundService _sound = SoundService()..load();
   late final ThemeController _theme;
+  late final SectionMemory _sections;
 
   @override
   void initState() {
     super.initState();
     _theme = widget.themeController ?? ThemeController();
+    _sections = widget.sectionMemory ?? SectionMemory();
     _authViewModel = AuthViewModel(
       widget.supabaseConfigured
           ? SupabaseAuthService(Supabase.instance.client)
@@ -201,22 +209,25 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
       ],
       child: ThemeScope(
         controller: _theme,
-        child: ListenableBuilder(
-          listenable: _theme,
-          builder: (context, _) => MaterialApp.router(
-            title: 'Balance',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
-            themeMode: _theme.mode,
-            // Switch instantly so every widget changes in the same frame.
-            themeAnimationDuration: Duration.zero,
-            routerConfig: _router,
-            builder: (context, child) => ThemeRefresh(
-              controller: _theme,
-              child: AnnotatedRegion<SystemUiOverlayStyle>(
-                value: AppTheme.overlayStyle(_theme.palette),
-                child: child ?? const SizedBox.shrink(),
+        child: SectionMemoryScope(
+          memory: _sections,
+          child: ListenableBuilder(
+            listenable: _theme,
+            builder: (context, _) => MaterialApp.router(
+              title: 'Balance',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.light,
+              darkTheme: AppTheme.dark,
+              themeMode: _theme.mode,
+              // Switch instantly so every widget changes in the same frame.
+              themeAnimationDuration: Duration.zero,
+              routerConfig: _router,
+              builder: (context, child) => ThemeRefresh(
+                controller: _theme,
+                child: AnnotatedRegion<SystemUiOverlayStyle>(
+                  value: AppTheme.overlayStyle(_theme.palette),
+                  child: child ?? const SizedBox.shrink(),
+                ),
               ),
             ),
           ),

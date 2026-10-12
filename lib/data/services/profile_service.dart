@@ -34,6 +34,19 @@ class ProfileService implements ProfileRepository {
     return _fromJson(row);
   }
 
+  @override
+  Future<AppProfile> updateDisplayName(String displayName) async {
+    final userId = requireAuthenticatedUserId(_client);
+    final row = await _client
+        .from('profiles')
+        .update({'display_name': displayName.trim()})
+        .eq('id', userId)
+        .select('display_name,time_zone')
+        .single();
+    ensureAuthenticatedUserUnchanged(_client, userId);
+    return _fromJson(row);
+  }
+
   static AppProfile _fromJson(Map<String, dynamic> row) => AppProfile(
     displayName: row['display_name'] as String? ?? '',
     timeZone: row['time_zone'] as String? ?? 'UTC',

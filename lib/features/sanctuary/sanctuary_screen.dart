@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/router/app_router.dart';
 import '../../core/shared_widgets/balance_scaffold.dart';
+import '../../core/shared_widgets/collapsible_section.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
@@ -68,7 +69,7 @@ class _RecoveryContent extends StatelessWidget {
     return BalanceScaffold(
       title: 'Sanctuary',
       headline: 'Recovery time',
-      subtitle: 'Protected time for rest. Activities are optional.',
+      help: 'Protected time for rest. Activities are optional.',
       eyebrowTone: RpgTone.calm,
       currentIndex: 3,
       actions: [
@@ -108,10 +109,7 @@ class _RecoveryContent extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          Icons.error_outline,
-                          color: BalanceColors.danger,
-                        ),
+                        Icon(Icons.error_outline, color: BalanceColors.danger),
                         const SizedBox(width: 8),
                         Expanded(child: Text(model.error!)),
                       ],
@@ -146,7 +144,20 @@ class _RecoveryContent extends StatelessWidget {
               const SizedBox(height: 12),
             ],
             if (featured != null) ...[
-              _FeaturedSlot(slot: featured),
+              CollapsibleSection(
+                key: const ValueKey('sanctuary.next'),
+                id: 'sanctuary.next',
+                title: 'Next rest',
+                help:
+                    'Your next protected rest. The time is held clear and '
+                    'nothing will be scheduled into it.',
+                tone: RpgTone.calm,
+                initiallyExpanded: true,
+                summary:
+                    '${DateFormat.Hm().format(featured.startAt.toLocal())} – '
+                    '${DateFormat.Hm().format(featured.endAt.toLocal())}',
+                child: _FeaturedSlot(slot: featured),
+              ),
               const SizedBox(height: 20),
             ],
             if (!model.busy &&
@@ -192,20 +203,36 @@ class _RecoveryContent extends StatelessWidget {
                 ),
               ),
             if (model.slots.isNotEmpty) ...[
-              const SectionRule('All recovery slots', tone: RpgTone.calm),
-              const SizedBox(height: 10),
-              for (final slot in model.slots)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: RecoverySlotCard(
-                    slot: slot,
-                    busy: model.busy,
-                    onEdit: () => _edit(context, model, slot),
-                    onRemove: () => _remove(context, model, slot),
-                    onDoneChanged: (done) =>
-                        _setDone(context, model, slot, done),
-                  ),
+              CollapsibleSection(
+                key: const ValueKey('sanctuary.all'),
+                id: 'sanctuary.all',
+                title: 'All recovery slots',
+                help:
+                    'Every rest slot you protected. Mark an activity done or '
+                    'remove a slot with ⋮. Rest never changes your scores.',
+                tone: RpgTone.calm,
+                summary:
+                    '${model.slots.length} '
+                    '${model.slots.length == 1 ? 'slot' : 'slots'} protected',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final slot in model.slots)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: RecoverySlotCard(
+                          slot: slot,
+                          busy: model.busy,
+                          onEdit: () => _edit(context, model, slot),
+                          onRemove: () => _remove(context, model, slot),
+                          onDoneChanged: (done) =>
+                              _setDone(context, model, slot, done),
+                        ),
+                      ),
+                  ],
                 ),
+              ),
+              const SizedBox(height: 4),
             ],
             const SizedBox(height: 8),
             Text(
@@ -348,11 +375,7 @@ class _FeaturedSlot extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                DiamondIcon(
-                  size: 12,
-                  filled: true,
-                  color: BalanceColors.calm,
-                ),
+                DiamondIcon(size: 12, filled: true, color: BalanceColors.calm),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -480,10 +503,7 @@ class _RecoveryFormState extends State<_RecoveryForm> {
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
                 'Nothing free on ${date.format(start)}. Tap a time to use it.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: BalanceColors.textMuted,
-                ),
+                style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
               ),
             ),
           Wrap(
@@ -571,11 +591,7 @@ class _RecoveryFormState extends State<_RecoveryForm> {
                 ),
               ),
             ),
-            Icon(
-              Icons.schedule,
-              size: 18,
-              color: BalanceColors.textMuted,
-            ),
+            Icon(Icons.schedule, size: 18, color: BalanceColors.textMuted),
           ],
         ),
       );
