@@ -78,8 +78,9 @@ void main() {
     await tester.tap(find.text('QUESTS').last);
     await tester.pumpAndSettle();
 
-    // Open the New task form on top of Quests and type a title.
-    await tester.tap(find.byTooltip('Add task'));
+    // Open the New task form on top of Quests and type a title. With no
+    // tasks yet, Quests shows its Create task button.
+    await tester.tap(find.text('Create task'));
     await tester.pumpAndSettle();
     expect(find.byType(TaskFormScreen), findsOneWidget);
     await tester.enterText(find.byType(TextField).first, 'Revise finals');
