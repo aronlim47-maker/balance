@@ -158,4 +158,10 @@ class _FakeProfileRepository implements ProfileRepository {
     lastSaved = timeZone;
     return AppProfile(displayName: 'Tester', timeZone: timeZone);
   }
+
+  @override
+  Future<AppProfile> updateDisplayName(String displayName) async {
+    lastSaved = displayName;
+    return AppProfile(displayName: displayName, timeZone: 'UTC');
+  }
 }

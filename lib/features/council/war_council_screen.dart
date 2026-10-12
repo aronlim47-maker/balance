@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/shared_widgets/balance_scaffold.dart';
+import '../../core/shared_widgets/collapsible_section.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/shared_widgets/section_header.dart';
 import '../../core/theme/app_theme.dart';
@@ -40,7 +41,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
     return BalanceScaffold(
       title: 'War Council',
       headline: 'Compare plans',
-      subtitle: 'Safe ways to fix an overloaded day.',
+      help: 'Safe ways to fix an overloaded day.',
       currentIndex: 2,
       actions: [
         // Only entry to confirmed plans, so a plan can still be undone after
@@ -68,11 +69,26 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
             ),
             const SizedBox(height: 18),
             _CapacitySummary(viewModel: viewModel),
-            const SizedBox(height: 12),
-            _ProtectedItems(viewModel: viewModel),
-            // A day that already fits needs no status badge.
-            if (viewModel.capacity.overloadMinutes > 0 ||
-                viewModel.validationStatus != ValidationStatus.feasible) ...[
+            const SizedBox(height: 20),
+            CollapsibleSection(
+              key: const ValueKey('council.protected'),
+              id: 'council.protected',
+              // Core section: open until the user closes it.
+              initiallyExpanded: true,
+              title: 'What stays protected',
+              help:
+                  'Fixed tasks and protected recovery that no plan will move.',
+              tone: RpgTone.calm,
+              summary: _protectedSummary(viewModel),
+              child: _ProtectedItems(viewModel: viewModel, showHeader: false),
+            ),
+            // A day that already fits needs no status badge, and none is shown
+            // while options are still loading (it would briefly read "Needs
+            // Review" before the real status arrives).
+            if (!viewModel.isLoading &&
+                (viewModel.capacity.overloadMinutes > 0 ||
+                    viewModel.validationStatus !=
+                        ValidationStatus.feasible)) ...[
               const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerLeft,
@@ -176,60 +192,73 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                 ),
               ] else ...[
                 const SizedBox(height: 26),
-                const SectionHeader(
+                CollapsibleSection(
+                  key: const ValueKey('council.plans'),
+                  id: 'council.plans',
                   title: 'Choose a plan',
-                  subtitle: 'Suggestions only. Nothing moves until confirmed.',
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () => context.go(AppRoutes.today),
-                  icon: const Icon(Icons.today_outlined),
-                  label: const Text('Back to Today'),
-                ),
-                const SizedBox(height: 12),
-                if (viewModel.options.isEmpty)
-                  _NoPlanGuidance(viewModel: viewModel)
-                else
-                  for (final option in viewModel.options) ...[
-                    TradeOffOptionCard(
-                      title: option.title,
-                      description: option.description,
-                      movedMinutes: option.movedMinutes,
-                      recoveryMinutes: 0,
-                      protectedSummary: 'Existing protected tasks and recovery stay unchanged.',
-                      costSummary:
-                          '${option.allMoves.length} task moves to new times before their deadlines.',
-                      roomSummary:
-                          '${option.movedMinutes} min moved from this day. Recovery time is not reserved by this suggestion.',
-                      reviewSummary: option.needsAgreement
-                          ? 'Get agreement before this change can be confirmed.'
-                          : 'Check the proposed time and deadline before confirming.',
-                      needsAgreement: option.needsAgreement,
-                      isSelected: viewModel.selectedOptionId == option.id,
-                      onTap: () => viewModel.selectOption(option.id),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                // No options means nothing to confirm; hide the dead button.
-                if (viewModel.options.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  FilledButton.icon(
-                    onPressed: viewModel.canConfirm
-                        ? () => _confirm(context, viewModel)
-                        : null,
-                    icon: viewModel.isSaving
-                        ? const SizedBox.square(
-                            dimension: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.play_arrow_rounded),
-                    label: Text(
-                      viewModel.isSaving
-                          ? 'Saving plan…'
-                          : 'Confirm selected plan',
-                    ),
+                  help: 'Suggestions only. Nothing moves until confirmed.',
+                  initiallyExpanded: true,
+                  summary: viewModel.options.isEmpty
+                      ? 'No safe plan found'
+                      : '${viewModel.options.length} '
+                            '${viewModel.options.length == 1 ? 'plan' : 'plans'} to compare',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: () => context.go(AppRoutes.today),
+                        icon: const Icon(Icons.today_outlined),
+                        label: const Text('Back to Today'),
+                      ),
+                      const SizedBox(height: 12),
+                      if (viewModel.options.isEmpty)
+                        _NoPlanGuidance(viewModel: viewModel)
+                      else
+                        for (final option in viewModel.options) ...[
+                          TradeOffOptionCard(
+                            title: option.title,
+                            description: option.description,
+                            movedMinutes: option.movedMinutes,
+                            recoveryMinutes: 0,
+                            protectedSummary: 'Existing protected tasks and recovery stay unchanged.',
+                            costSummary:
+                                '${option.allMoves.length} task moves to new times before their deadlines.',
+                            roomSummary:
+                                '${option.movedMinutes} min moved from this day. Recovery time is not reserved by this suggestion.',
+                            reviewSummary: option.needsAgreement
+                                ? 'Get agreement before this change can be confirmed.'
+                                : 'Check the proposed time and deadline before confirming.',
+                            needsAgreement: option.needsAgreement,
+                            isSelected: viewModel.selectedOptionId == option.id,
+                            onTap: () => viewModel.selectOption(option.id),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                      // No options means nothing to confirm; hide the dead button.
+                      if (viewModel.options.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        FilledButton.icon(
+                          onPressed: viewModel.canConfirm
+                              ? () => _confirm(context, viewModel)
+                              : null,
+                          icon: viewModel.isSaving
+                              ? const SizedBox.square(
+                                  dimension: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.play_arrow_rounded),
+                          label: Text(
+                            viewModel.isSaving
+                                ? 'Saving plan…'
+                                : 'Confirm selected plan',
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
+                ),
               ],
             ],
           ],
@@ -257,6 +286,13 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
     unawaited(_maybeSound(context)?.playConfirm());
     context.push('/council/updated/$changeId');
   }
+}
+
+String _protectedSummary(WarCouncilViewModel viewModel) {
+  final count =
+      viewModel.protectedTasks.length + viewModel.protectedRecoverySlots.length;
+  if (count == 0) return 'Nothing fixed or protected on this day';
+  return '$count ${count == 1 ? 'item stays' : 'items stay'} in place';
 }
 
 class _NoPlanGuidance extends StatelessWidget {
@@ -421,9 +457,12 @@ class _CapacitySummary extends StatelessWidget {
 }
 
 class _ProtectedItems extends StatelessWidget {
-  const _ProtectedItems({required this.viewModel});
+  const _ProtectedItems({required this.viewModel, this.showHeader = true});
 
   final WarCouncilViewModel viewModel;
+
+  /// False inside the collapsible section, which already shows the title.
+  final bool showHeader;
 
   @override
   Widget build(BuildContext context) {
@@ -434,8 +473,14 @@ class _ProtectedItems extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const RpgLabel('What stays protected', tone: RpgTone.calm, size: 13),
-          const SizedBox(height: 8),
+          if (showHeader) ...[
+            const RpgLabel(
+              'What stays protected',
+              tone: RpgTone.calm,
+              size: 13,
+            ),
+            const SizedBox(height: 8),
+          ],
           if (tasks.isEmpty && recovery.isEmpty)
             Text(
               'No fixed tasks or protected recovery on this day.',
@@ -444,10 +489,7 @@ class _ProtectedItems extends StatelessWidget {
           for (final task in tasks)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                Icons.shield_outlined,
-                color: BalanceColors.calm,
-              ),
+              leading: Icon(Icons.shield_outlined, color: BalanceColors.calm),
               title: Text(task.title),
               subtitle: Text(
                 task.isProtected ? 'Protected task' : 'Fixed task',
@@ -456,10 +498,7 @@ class _ProtectedItems extends StatelessWidget {
           for (final slot in recovery)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                Icons.eco_outlined,
-                color: BalanceColors.calm,
-              ),
+              leading: Icon(Icons.eco_outlined, color: BalanceColors.calm),
               title: const Text('Protected recovery'),
               subtitle: Text(
                 '${DateFormat.jm().format(slot.startAt.toLocal())}–${DateFormat.jm().format(slot.endAt.toLocal())}',

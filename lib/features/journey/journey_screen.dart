@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/router/app_router.dart';
 import '../../core/shared_widgets/balance_scaffold.dart';
+import '../../core/shared_widgets/collapsible_section.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
@@ -36,7 +37,7 @@ class _JourneyContent extends StatelessWidget {
     builder: (context, viewModel, _) => BalanceScaffold(
       title: 'Journey',
       headline: 'Weekly reflection',
-      subtitle: 'A private look at the week\'s patterns.',
+      help: 'A private look at the week\'s patterns.',
       currentIndex: 4,
       actions: [
         // Only entry to saved reflections from earlier weeks.
@@ -102,37 +103,42 @@ class _JourneyContent extends StatelessWidget {
                 ),
               ),
             if (viewModel.week != null) ...[
-              RpgPanel(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const PanelHeader('Weekly pattern'),
-                    const SizedBox(height: 2),
-                    Text(
-                      'World Status score per day',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: BalanceColors.textMuted,
+              CollapsibleSection(
+                key: const ValueKey('journey.pattern'),
+                id: 'journey.pattern',
+                title: 'Weekly pattern',
+                help:
+                    'World Status score per day. Only days captured at the '
+                    'time have a score.',
+                initiallyExpanded: true,
+                summary: 'Score for each day of this week',
+                child: RpgPanel(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _WeekBars(
+                        weekStart: viewModel.weekStart,
+                        scores: viewModel.week!.dailyScores,
                       ),
-                    ),
-                    const SizedBox(height: 14),
-                    _WeekBars(
-                      weekStart: viewModel.weekStart,
-                      scores: viewModel.week!.dailyScores,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Only days captured at the time have a score.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: BalanceColors.textMuted,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 12),
-              _RecoveryKept(week: viewModel.week!),
+              const SizedBox(height: 20),
+              CollapsibleSection(
+                key: const ValueKey('journey.recovery'),
+                id: 'journey.recovery',
+                // Core section: open until the user closes it.
+                initiallyExpanded: true,
+                title: 'Recovery kept',
+                help: 'Days this week that kept their protected rest.',
+                tone: RpgTone.calm,
+                summary: viewModel.week!.recoveryRecordedDays == 0
+                    ? 'No recorded recovery this week'
+                    : 'Protected on ${viewModel.week!.protectedRecoveryDays} '
+                          'of ${viewModel.week!.recoveryRecordedDays} recorded days',
+                child: _RecoveryKept(week: viewModel.week!, showHeader: false),
+              ),
             ],
             if (viewModel.week == null && viewModel.weekError == null)
               RpgPanel(
@@ -151,38 +157,7 @@ class _JourneyContent extends StatelessWidget {
               icon: const Icon(Icons.edit_note),
               label: const Text('Add optional reflection'),
             ),
-            const SizedBox(height: 28),
-            const Eyebrow('Journey milestones'),
             const SizedBox(height: 8),
-            const RpgHeadline('Achievements', size: 26),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${viewModel.unlockedCount} of 7 unlocked',
-                    style: TextStyle(color: BalanceColors.textMuted),
-                  ),
-                ),
-                SizedBox(
-                  width: 120,
-                  child: SegmentMeter(
-                    total: 7,
-                    filled: viewModel.unlockedCount > 7
-                        ? 7
-                        : viewModel.unlockedCount,
-                    color: BalanceColors.calmFill,
-                    height: 6,
-                    gap: 3,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Only verified actions unlock achievements. Rest never removes progress.',
-              style: TextStyle(fontSize: 13, color: BalanceColors.textMuted),
-            ),
             if (viewModel.isLoading) ...[
               const SizedBox(height: 12),
               const LinearProgressIndicator(),
@@ -204,9 +179,48 @@ class _JourneyContent extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 12),
-            AchievementWall(
-              definitions: viewModel.definitions,
-              awardFor: viewModel.awardFor,
+            CollapsibleSection(
+              key: const ValueKey('journey.achievements'),
+              id: 'journey.achievements',
+              // Core section: open until the user closes it.
+              initiallyExpanded: true,
+              title: 'Achievements',
+              help:
+                  'Journey milestones. Only verified actions unlock '
+                  'achievements. Rest never removes progress.',
+              summary: '${viewModel.unlockedCount} of 7 unlocked',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${viewModel.unlockedCount} of 7 unlocked',
+                          style: TextStyle(color: BalanceColors.textMuted),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 120,
+                        child: SegmentMeter(
+                          total: 7,
+                          filled: viewModel.unlockedCount > 7
+                              ? 7
+                              : viewModel.unlockedCount,
+                          color: BalanceColors.calmFill,
+                          height: 6,
+                          gap: 3,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  AchievementWall(
+                    definitions: viewModel.definitions,
+                    awardFor: viewModel.awardFor,
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 12),
           ],
@@ -372,26 +386,31 @@ class _WeekBars extends StatelessWidget {
 }
 
 class _RecoveryKept extends StatelessWidget {
-  const _RecoveryKept({required this.week});
+  const _RecoveryKept({required this.week, this.showHeader = true});
   final WeeklyJourney week;
+
+  /// False inside the collapsible section, which already shows the title.
+  final bool showHeader;
 
   @override
   Widget build(BuildContext context) => RpgPanel(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PanelHeader(
-          'Recovery kept',
-          tone: RpgTone.calm,
-          trailing: week.recoveryRecordedDays == 0
-              ? null
-              : RpgLabel(
-                  '${week.protectedRecoveryDays} / ${week.recoveryRecordedDays}',
-                  tone: RpgTone.neutral,
-                  size: 15,
-                ),
-        ),
-        const SizedBox(height: 6),
+        if (showHeader) ...[
+          PanelHeader(
+            'Recovery kept',
+            tone: RpgTone.calm,
+            trailing: week.recoveryRecordedDays == 0
+                ? null
+                : RpgLabel(
+                    '${week.protectedRecoveryDays} / ${week.recoveryRecordedDays}',
+                    tone: RpgTone.neutral,
+                    size: 15,
+                  ),
+          ),
+          const SizedBox(height: 6),
+        ],
         Text(
           week.recoveryRecordedDays == 0
               ? 'No recorded recovery history for this week.'

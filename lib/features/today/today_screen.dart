@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/shared_widgets/balance_scaffold.dart';
+import '../../core/shared_widgets/collapsible_section.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
@@ -60,6 +61,9 @@ class _TodayContent extends StatelessWidget {
     builder: (context, viewModel, _) => BalanceScaffold(
       title: 'World Status',
       headline: 'Today',
+      help:
+          'Check whether today\'s work fits your free time, then add '
+          'details. Use the arrows to look at other days.',
       subtitle: DateFormat('EEEE, d MMMM').format(viewModel.selectedDay),
       headerTrailing: _StatusBadge(label: viewModel.worldStatus.label),
       currentIndex: 0,
@@ -128,179 +132,264 @@ class _TodayContent extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 16),
-          // Decide first: capacity, the verdict, then the day's time and work.
-          TimeCapacityPanel(
-            plannedMinutes: viewModel.plannedMinutes,
-            availableMinutes: viewModel.availableMinutes,
-          ),
-          const SizedBox(height: 12),
-          CapacityGapCard(overloadMinutes: viewModel.overloadMinutes),
-          if (viewModel.overloadMinutes > 0 &&
-              viewModel.earlyReviewCandidate != null &&
-              context.read<VerifiedProgressService?>() != null)
-            TextButton.icon(
-              onPressed: () => _acknowledgeOverload(context, viewModel),
-              icon: const Icon(Icons.fact_check_outlined),
-              label: const Text('I reviewed this overload'),
-            ),
-          const SizedBox(height: 24),
-          _SectionTitle(
-            title: 'Availability',
-            actionLabel: 'Add',
-            onAction: () => _openAvailabilityForm(context, viewModel),
-          ),
-          const SizedBox(height: 10),
-          if (viewModel.availabilityForDay.isEmpty) ...[
-            const _EmptyCard(
-              message: 'No availability has been added for this day.',
-            ),
-            if (viewModel.previousDayAvailability.isNotEmpty)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: viewModel.isSavingAvailability
-                      ? null
-                      : () => _copyFromPreviousDay(context, viewModel),
-                  icon: const Icon(Icons.content_copy_outlined),
-                  label: Text(
-                    'Copy from ${DateFormat('EEE d MMM').format(viewModel.selectedDay.subtract(const Duration(days: 1)))}',
-                  ),
-                ),
-              ),
-          ] else ...[
-            ...viewModel.availabilityForDay.map(
-              (block) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _AvailabilityCard(
-                  block: block,
-                  onEdit: () =>
-                      _openAvailabilityForm(context, viewModel, block: block),
-                  onDelete: () =>
-                      _deleteAvailability(context, viewModel, block),
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: viewModel.isSavingAvailability
-                    ? null
-                    : () => _repeatForWeek(context, viewModel),
-                icon: const Icon(Icons.repeat),
-                label: const Text('Repeat for the next 6 days'),
-              ),
-            ),
-          ],
-          const SizedBox(height: 14),
-          const _SectionTitle(title: 'Planned tasks'),
-          const SizedBox(height: 10),
-          if (viewModel.tasksForDay.isEmpty)
-            const _EmptyCard(message: 'No planned tasks are due on this day.')
-          else
-            ...viewModel.tasksForDay.map(
-              (task) => RpgPanel(
-                tone: RpgTone.muted,
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: EdgeInsets.zero,
-                onTap: () => _showTaskDetails(context, task),
-                child: ListTile(
-                  leading: DiamondIcon(
-                    size: 16,
-                    color: task.isProtected
-                        ? BalanceColors.calm
-                        : BalanceColors.textFaint,
-                  ),
-                  title: Text(
-                    task.title,
-                    style: const TextStyle(
-                      fontFamily: AppTheme.displayFont,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                      letterSpacing: 0.6,
-                    ),
-                  ),
-                  subtitle: Text(
-                    '${viewModel.minutesOnSelectedDay(task)} min · ${viewModel.reasonOnSelectedDay(task)}',
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                ),
-              ),
-            ),
-          const SizedBox(height: 24),
-          WorldStatusCard(
-            plannedMinutes: viewModel.plannedMinutes,
-            availableMinutes: viewModel.availableMinutes,
-            status: viewModel.worldStatus,
-            selectedDay: viewModel.selectedDay,
-            previousTotals: viewModel.previousTotals,
-            showCapacity: false,
-            changes: viewModel.dimensionChanges,
-          ),
-          const SizedBox(height: 24),
-          // Optional inputs that only refine World Status.
-          const _SectionTitle(title: 'Optional updates'),
-          const SizedBox(height: 4),
-          Text(
-            'Add detail to your Workload Overview. Skipping is fine.',
-            style: TextStyle(color: BalanceColors.textMuted),
-          ),
-          const SizedBox(height: 10),
-          DailyReviewCard(
-            review: viewModel.checkIn,
-            isSaving: viewModel.isSavingReview,
-            onEdit: () => _openDailyReview(context, viewModel),
-          ),
-          const SizedBox(height: 12),
-          Card(
+          // Decide first: capacity and the verdict stay open; the day's
+          // details and optional inputs open with the + button.
+          CollapsibleSection(
+            key: const ValueKey('today.capacity'),
+            id: 'today.capacity',
+            title: 'Capacity',
+            help:
+                'Compares the work planned for this day with the free time '
+                'you added. If the work needs more time than you have, the '
+                'day is over capacity and Council can suggest safe fixes.',
+            initiallyExpanded: true,
+            summary:
+                '${formatShortDuration(viewModel.plannedMinutes)} planned · '
+                '${formatShortDuration(viewModel.availableMinutes)} free',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                MovementCard(
-                  embedded: true,
-                  selectedDay: viewModel.selectedDay,
-                  settings: viewModel.movementSettings,
-                  latestExercise: viewModel.latestExercise,
-                  dayLogs: viewModel.exerciseLogsForDay,
-                  isSaving: viewModel.isSavingMovement,
-                  onTrackingChanged: (enabled) => _saveMovementSettings(
-                    context,
-                    viewModel,
-                    MovementSettings(
-                      trackingEnabled: enabled,
-                      targetDays: viewModel.movementSettings.targetDays,
-                      targetRecoveryMinutes:
-                          viewModel.movementSettings.targetRecoveryMinutes,
-                      targetSocialMinutesWeek:
-                          viewModel.movementSettings.targetSocialMinutesWeek,
-                    ),
-                  ),
-                  onTargetDaysChanged: (days) => _saveMovementSettings(
-                    context,
-                    viewModel,
-                    MovementSettings(
-                      trackingEnabled:
-                          viewModel.movementSettings.trackingEnabled,
-                      targetDays: days,
-                      targetRecoveryMinutes:
-                          viewModel.movementSettings.targetRecoveryMinutes,
-                      targetSocialMinutesWeek:
-                          viewModel.movementSettings.targetSocialMinutesWeek,
-                    ),
-                  ),
-                  onAdd: () => _openExercise(context, viewModel),
-                  onDelete: (log) => _deleteExercise(context, viewModel, log),
+                TimeCapacityPanel(
+                  plannedMinutes: viewModel.plannedMinutes,
+                  availableMinutes: viewModel.availableMinutes,
                 ),
-                const Divider(height: 1),
-                SocialCard(
-                  embedded: true,
-                  events: viewModel.socialEvents,
-                  noCommitments: viewModel.noSocialCommitments,
-                  isSaving: viewModel.isSavingSocial,
-                  onAdd: () => _openSocialEvent(context, viewModel),
-                  onDelete: (event) =>
-                      _deleteSocialEvent(context, viewModel, event),
-                  onNoCommitmentsChanged: (value) =>
-                      _setNoSocialCommitments(context, viewModel, value),
+                const SizedBox(height: 12),
+                CapacityGapCard(overloadMinutes: viewModel.overloadMinutes),
+                if (viewModel.overloadMinutes > 0 &&
+                    viewModel.earlyReviewCandidate != null &&
+                    context.read<VerifiedProgressService?>() != null)
+                  TextButton.icon(
+                    onPressed: () => _acknowledgeOverload(context, viewModel),
+                    icon: const Icon(Icons.fact_check_outlined),
+                    label: const Text('I reviewed this overload'),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          CollapsibleSection(
+            key: const ValueKey('today.availability'),
+            id: 'today.availability',
+            // Core section: open until the user closes it.
+            initiallyExpanded: true,
+            title: 'Availability',
+            help:
+                'The free time you have on this day. Tap Add to enter a time '
+                'block. Balance only counts work inside these times.',
+            summary: viewModel.availabilityForDay.isEmpty
+                ? 'None added for this day'
+                : '${viewModel.availabilityForDay.length} '
+                      '${viewModel.availabilityForDay.length == 1 ? 'block' : 'blocks'} · '
+                      '${formatShortDuration(viewModel.availableMinutes)} free',
+            action: TextButton(
+              onPressed: () => _openAvailabilityForm(context, viewModel),
+              child: const Text('Add'),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (viewModel.availabilityForDay.isEmpty) ...[
+                  const _EmptyCard(
+                    message: 'No availability has been added for this day.',
+                  ),
+                  if (viewModel.previousDayAvailability.isNotEmpty)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: viewModel.isSavingAvailability
+                            ? null
+                            : () => _copyFromPreviousDay(context, viewModel),
+                        icon: const Icon(Icons.content_copy_outlined),
+                        label: Text(
+                          'Copy from ${DateFormat('EEE d MMM').format(viewModel.selectedDay.subtract(const Duration(days: 1)))}',
+                        ),
+                      ),
+                    ),
+                ] else ...[
+                  ...viewModel.availabilityForDay.map(
+                    (block) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _AvailabilityCard(
+                        block: block,
+                        onEdit: () => _openAvailabilityForm(
+                          context,
+                          viewModel,
+                          block: block,
+                        ),
+                        onDelete: () =>
+                            _deleteAvailability(context, viewModel, block),
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      onPressed: viewModel.isSavingAvailability
+                          ? null
+                          : () => _repeatForWeek(context, viewModel),
+                      icon: const Icon(Icons.repeat),
+                      label: const Text('Repeat for the next 6 days'),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          CollapsibleSection(
+            key: const ValueKey('today.tasks'),
+            id: 'today.tasks',
+            // Core section: open until the user closes it.
+            initiallyExpanded: true,
+            title: 'Planned tasks',
+            help:
+                'Work that counts on this day, with its minutes and why it is '
+                'here (scheduled, due, or moved by a plan). Tap a task for '
+                'details.',
+            summary: viewModel.tasksForDay.isEmpty
+                ? 'None due on this day'
+                : '${viewModel.tasksForDay.length} '
+                      '${viewModel.tasksForDay.length == 1 ? 'task' : 'tasks'} · '
+                      '${formatShortDuration(viewModel.plannedMinutes)} planned',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (viewModel.tasksForDay.isEmpty)
+                  const _EmptyCard(
+                    message: 'No planned tasks are due on this day.',
+                  )
+                else
+                  ...viewModel.tasksForDay.map(
+                    (task) => RpgPanel(
+                      tone: RpgTone.muted,
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.zero,
+                      onTap: () => _showTaskDetails(context, task),
+                      child: ListTile(
+                        leading: DiamondIcon(
+                          size: 16,
+                          color: task.isProtected
+                              ? BalanceColors.calm
+                              : BalanceColors.textFaint,
+                        ),
+                        title: Text(
+                          task.title,
+                          style: const TextStyle(
+                            fontFamily: AppTheme.displayFont,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            letterSpacing: 0.6,
+                          ),
+                        ),
+                        subtitle: Text(
+                          '${viewModel.minutesOnSelectedDay(task)} min · ${viewModel.reasonOnSelectedDay(task)}',
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          CollapsibleSection(
+            key: const ValueKey('today.workload'),
+            id: 'today.workload',
+            // Core section: open until the user closes it.
+            initiallyExpanded: true,
+            title: 'Workload',
+            help:
+                'Your planning pressure in five areas (Mental, Time, '
+                'Physical, Social, Errands), scored 0-100, plus the 7-day '
+                'trend. Missing data shows as Unknown, never zero.',
+            summary:
+                'Five dimensions and 7-day trend · '
+                'Load: ${viewModel.worldStatus.label}',
+            child: WorldStatusCard(
+              plannedMinutes: viewModel.plannedMinutes,
+              availableMinutes: viewModel.availableMinutes,
+              status: viewModel.worldStatus,
+              selectedDay: viewModel.selectedDay,
+              previousTotals: viewModel.previousTotals,
+              showCapacity: false,
+              changes: viewModel.dimensionChanges,
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Optional inputs that only refine World Status.
+          CollapsibleSection(
+            key: const ValueKey('today.optional'),
+            id: 'today.optional',
+            title: 'Optional updates',
+            summary: 'Daily review, movement and social',
+            help: 'Add detail to your Workload Overview. Skipping is fine.',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                DailyReviewCard(
+                  review: viewModel.checkIn,
+                  isSaving: viewModel.isSavingReview,
+                  onEdit: () => _openDailyReview(context, viewModel),
+                ),
+                const SizedBox(height: 12),
+                Card(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      MovementCard(
+                        embedded: true,
+                        selectedDay: viewModel.selectedDay,
+                        settings: viewModel.movementSettings,
+                        latestExercise: viewModel.latestExercise,
+                        dayLogs: viewModel.exerciseLogsForDay,
+                        isSaving: viewModel.isSavingMovement,
+                        onTrackingChanged: (enabled) => _saveMovementSettings(
+                          context,
+                          viewModel,
+                          MovementSettings(
+                            trackingEnabled: enabled,
+                            targetDays: viewModel.movementSettings.targetDays,
+                            targetRecoveryMinutes: viewModel
+                                .movementSettings
+                                .targetRecoveryMinutes,
+                            targetSocialMinutesWeek: viewModel
+                                .movementSettings
+                                .targetSocialMinutesWeek,
+                          ),
+                        ),
+                        onTargetDaysChanged: (days) => _saveMovementSettings(
+                          context,
+                          viewModel,
+                          MovementSettings(
+                            trackingEnabled:
+                                viewModel.movementSettings.trackingEnabled,
+                            targetDays: days,
+                            targetRecoveryMinutes: viewModel
+                                .movementSettings
+                                .targetRecoveryMinutes,
+                            targetSocialMinutesWeek: viewModel
+                                .movementSettings
+                                .targetSocialMinutesWeek,
+                          ),
+                        ),
+                        onAdd: () => _openExercise(context, viewModel),
+                        onDelete: (log) =>
+                            _deleteExercise(context, viewModel, log),
+                      ),
+                      const Divider(height: 1),
+                      SocialCard(
+                        embedded: true,
+                        events: viewModel.socialEvents,
+                        noCommitments: viewModel.noSocialCommitments,
+                        isSaving: viewModel.isSavingSocial,
+                        onAdd: () => _openSocialEvent(context, viewModel),
+                        onDelete: (event) =>
+                            _deleteSocialEvent(context, viewModel, event),
+                        onNoCommitmentsChanged: (value) =>
+                            _setNoSocialCommitments(context, viewModel, value),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -841,22 +930,6 @@ class _AvailabilityCard extends StatelessWidget {
   );
 }
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({this.title = '', this.actionLabel, this.onAction});
-
-  final String title;
-  final String? actionLabel;
-  final VoidCallback? onAction;
-
-  @override
-  Widget build(BuildContext context) => SectionRule(
-    title,
-    trailing: actionLabel == null
-        ? null
-        : TextButton(onPressed: onAction, child: Text(actionLabel!)),
-  );
-}
-
 class _EmptyCard extends StatelessWidget {
   const _EmptyCard({required this.message});
 
@@ -867,9 +940,6 @@ class _EmptyCard extends StatelessWidget {
     tone: RpgTone.muted,
     dashed: true,
     padding: const EdgeInsets.all(18),
-    child: Text(
-      message,
-      style: TextStyle(color: BalanceColors.textMuted),
-    ),
+    child: Text(message, style: TextStyle(color: BalanceColors.textMuted)),
   );
 }

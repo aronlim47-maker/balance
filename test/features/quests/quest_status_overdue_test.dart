@@ -203,6 +203,15 @@ void main() {
       expect(find.text('FINISHED'), findsOneWidget);
       expect(find.text('OVERDUE'), findsNothing);
 
+      // Finished starts closed; open it to reach the task again.
+      await tester.tap(find.byTooltip('Show Finished'));
+      await tester.pumpAndSettle();
+      // The "Marked as done." message floats over the bottom of the small
+      // test screen; close it so the task's ⋮ button can be tapped.
+      tester
+          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+          .hideCurrentSnackBar();
+      await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Task actions'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Mark as not done'));

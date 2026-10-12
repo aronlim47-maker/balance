@@ -120,6 +120,7 @@ release build; reinstall from the release link.
 9. **7-day workload trend** shows each day's total once at least three days are recorded;
    before that it says how many days are recorded so far. Missing days are never invented.
 10. **Optional updates** add detail to the workload bars. Skipping them has no penalty.
+    This section starts folded: tap its chevron (⌄) to open it.
     - **Daily Review** — *Add review* asks for mental energy, physical energy and hours of
       rest; **Skip for now** is always available.
     - **Movement** — *Track movement* turns on the Physical bar, with a preferred interval
@@ -142,7 +143,7 @@ release build; reinstall from the release link.
 
 3. **Tap a task card** to open its details: remaining time, due date, scheduled time,
    category, flexibility and status, with an **Edit task** button.
-4. Optional: tap **+** to see the new task form, then close it without saving. A task needs a
+4. Optional: tap the full-width **Add task** button above the search box to see the new task form, then close it without saving. A task needs a
    **Title**, **Estimated minutes**, **Due date and time** and a **Task category**; the form
    explains each category. **Flexibility** (Flexible, Fixed, Needs agreement), **Protected
    task**, **Optional task** and **Schedule work time** are set here too.
@@ -199,7 +200,7 @@ Your plan fits this day.*
 Recovery time is optional, and Balance only lets you protect time that is genuinely free.
 
 1. Tap **SANCTUARY**. The page is **RECOVERY TIME**. With no slots yet it says *No recovery
-   time yet* and offers **Add recovery time** (also the **+** at the top).
+   time yet* and offers **Add recovery time**. Once you have slots, the same full-width button sits above the list.
 2. Tap **Add recovery time**. The form **Protect recovery time** finds free time for you:
    the sample day is fully booked, so it shows **Free on** *(the next day)* with the
    suggestion **9:00 AM – 11:00 AM · 2h free**, already selected as **Start 9:00 AM** and
@@ -243,11 +244,15 @@ There are no streaks, rankings or penalties for skipping.
 1. Tap the round **profile icon** at the top right of any main page.
 2. **Profile** shows the signed-in account, *Signed in · Changes are saved to your account*,
    the **Planning time zone** (*Asia/Kuala_Lumpur*), a **Plan summary** and the same **World
-   Status** score as Today.
+   Status** score as Today. **Edit name** changes the display name, and the camera badge on
+   the round picture lets you choose a profile photo (kept on this phone only). On the
+   shared judge account, please leave the name and photo as they are.
 3. **Beginner guide** reopens the five-step guide with animations.
 4. **Sound effects** (on by default) plays chimes for confirmed plans and new achievements.
-   **Relaxing background music** (off by default) plays a calm ambient loop and pauses when
-   the app is in the background. All audio is original to Balance.
+   **Relaxing background music** (on by default) plays a calm ambient loop and pauses when
+   the app is in the background. To silence it at once, tap the gold **music note** button at
+   the top of any main page; it turns grey with a crossed-out note when the music is off.
+   All audio is original to Balance.
 5. **Reminders and alerts**:
    - **Deadline reminders** — a reminder a set time before each task deadline.
    - **Overload alerts** — a notification the evening before a day with more planned work
@@ -268,9 +273,13 @@ There are no streaks, rankings or penalties for skipping.
 | --- | --- |
 | **TODAY** (globe), **QUESTS** (quest book), **COUNCIL** (castle), **SANCTUARY** (campfire), **JOURNEY** (compass) | The five main pages. The phone's Back gesture returns to Today, then leaves the app. |
 | Eyebrow label (e.g. *WORLD STATUS*) and title (e.g. *TODAY*) | The game-style label and the practical page name. |
+| Gold music note | Turns the background music off or on (gold = playing, grey = off). |
+| Sun / moon | Switches between the dark look and the light parchment look; the choice is remembered. |
 | Round profile icon | Opens Profile. |
 | Clock icon | *Plan history* on Council; *My reflections* on Journey. |
-| **+** | Today: add a time block. Quests: add a task. Sanctuary: add recovery time. |
+| **?** next to a title | Shows a one-line description of the page or section; tap again to hide it. |
+| Chevron (⌄ / ⌃) on a section | Folds or unfolds that section. The main sections start open; *Optional updates* and *Finished* start folded. Your choice is remembered on this phone. |
+| **+** | Today: add a time block. (Quests and Sanctuary use the full-width **Add task** and **Add recovery time** buttons.) |
 
 ## TODAY (World Status)
 
@@ -375,7 +384,8 @@ There are no streaks, rankings or penalties for skipping.
 | Times look several hours off (for example availability at 1:00 AM) | Set the phone to Malaysia time (Settings → System → Date & time → automatic time zone), then reopen Balance. |
 | Council shows **No Feasible Plan** on the sample day | A recovery slot is using the next day's free time; the explanation names it. Remove it in **SANCTUARY** (step 6.5). |
 | The beginner guide does not appear | It shows once per phone. Open **Profile → Beginner guide**. |
-| No sound | Check **Profile → Sound effects** and the phone's media volume. |
+| No sound | Check that the music note at the top of the page is gold, **Profile → Sound effects**, and the phone's media volume. |
+| Music is playing and you want quiet | Tap the gold music note at the top of any main page. |
 | Sign-in fails | Check the email and password from the submission form for typing errors. |
 | "Can't install app" | Uninstall any earlier Balance build first, then install again. |
 

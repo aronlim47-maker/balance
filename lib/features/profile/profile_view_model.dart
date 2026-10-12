@@ -56,13 +56,19 @@ class ProfileViewModel extends LifecycleNotifier {
   bool _isLoading = false;
   int _loadVersion = 0;
   bool _isSavingTimeZone = false;
+  bool _isSavingName = false;
   String? _errorMessage;
 
   bool get isLoading => _isLoading;
   bool get isSavingTimeZone => _isSavingTimeZone;
+  bool get isSavingName => _isSavingName;
+
+  /// Longest display name accepted on Profile.
+  static const maxNameLength = 40;
   String? get errorMessage => _errorMessage;
   AppProfile? get userProfile => _userProfile;
   bool get canEditTimeZone => _profileRepository != null;
+  bool get canEditName => _profileRepository != null;
   bool get isCloudConnected => _planRepository != null;
   int get plannedTaskCount =>
       _tasks.where((task) => task.status == TaskStatus.planned).length;
@@ -157,6 +163,38 @@ class ProfileViewModel extends LifecycleNotifier {
       return false;
     } finally {
       _isSavingTimeZone = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> saveDisplayName(String name) async {
+    final repository = _profileRepository;
+    if (repository == null || _isSavingName) return false;
+    final value = name.trim();
+    if (value.isEmpty) {
+      _errorMessage = 'Enter a name.';
+      notifyListeners();
+      return false;
+    }
+    if (value.length > maxNameLength) {
+      _errorMessage = 'Use $maxNameLength characters or fewer.';
+      notifyListeners();
+      return false;
+    }
+    _isSavingName = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      _userProfile = await repository.updateDisplayName(value);
+      return true;
+    } catch (error) {
+      _errorMessage = AppErrorMessage.from(
+        error,
+        fallback: 'Could not update your name. Please try again.',
+      );
+      return false;
+    } finally {
+      _isSavingName = false;
       notifyListeners();
     }
   }

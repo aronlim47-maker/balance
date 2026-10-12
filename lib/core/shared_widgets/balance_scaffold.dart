@@ -6,7 +6,9 @@ import '../router/app_router.dart';
 import '../theme/app_theme.dart';
 import '../theme/balance_colors.dart';
 import '../../features/auth/auth_view_model.dart';
+import 'collapsible_section.dart';
 import 'rpg_widgets.dart';
+import 'sound_toggle_button.dart';
 import 'theme_toggle_button.dart';
 
 /// Shared page shell: RPG header + responsive navigation.
@@ -26,6 +28,7 @@ class BalanceScaffold extends StatelessWidget {
     this.actions,
     this.headline,
     this.subtitle,
+    this.help,
     this.headerTrailing,
     this.eyebrowTone = RpgTone.accent,
   });
@@ -36,6 +39,10 @@ class BalanceScaffold extends StatelessWidget {
   final List<Widget>? actions;
   final String? headline;
   final String? subtitle;
+
+  /// What the page is for, in grey. Hidden behind a ? button next to the
+  /// headline until the user taps it.
+  final String? help;
 
   /// Optional widget shown to the right of the headline (e.g. a status tag).
   final Widget? headerTrailing;
@@ -87,11 +94,13 @@ class BalanceScaffold extends StatelessWidget {
           eyebrow: headline == null ? null : title,
           headline: headline ?? title,
           subtitle: subtitle,
+          help: help,
           trailing: headerTrailing,
           tone: eyebrowTone,
           actions: [
             ...?actions,
             // Same place on every page: just left of Profile.
+            const SoundToggleButton(),
             const ThemeToggleButton(),
             IconButton(
               tooltip: 'Profile',
@@ -146,7 +155,10 @@ class BalanceScaffold extends StatelessWidget {
               center: const Alignment(0, -1.15),
               radius: 1.1,
               colors: [
-                BalanceColors.accentDim.withValues(alpha: 0.55),
+                // Violet torchlight at night, warm candlelight on parchment.
+                BalanceColors.isDark
+                    ? BalanceColors.accentDim.withValues(alpha: 0.55)
+                    : BalanceColors.goldGlow.withValues(alpha: 0.3),
                 BalanceColors.background.withValues(alpha: 0),
               ],
             ),
@@ -249,11 +261,12 @@ class BalanceScaffold extends StatelessWidget {
   }
 }
 
-class _Header extends StatelessWidget {
+class _Header extends StatefulWidget {
   const _Header({
     required this.eyebrow,
     required this.headline,
     required this.subtitle,
+    required this.help,
     required this.trailing,
     required this.tone,
     required this.actions,
@@ -262,59 +275,94 @@ class _Header extends StatelessWidget {
   final String? eyebrow;
   final String headline;
   final String? subtitle;
+  final String? help;
   final Widget? trailing;
   final RpgTone tone;
   final List<Widget> actions;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(20, 4, 8, 10),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: eyebrow == null
-                  ? const SizedBox.shrink()
-                  : Align(
-                      alignment: Alignment.centerLeft,
-                      child: Eyebrow(eyebrow!, tone: tone),
-                    ),
-            ),
-            ...actions,
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: Row(
+  State<_Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends State<_Header> {
+  bool _showHelp = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final grey = TextStyle(
+      color: BalanceColors.textMuted,
+      fontSize: 15,
+      height: 1.35,
+    );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 4, 8, 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
               Expanded(
-                child: Semantics(header: true, child: RpgHeadline(headline)),
+                child: widget.eyebrow == null
+                    ? const SizedBox.shrink()
+                    : Align(
+                        alignment: Alignment.centerLeft,
+                        child: Eyebrow(widget.eyebrow!, tone: widget.tone),
+                      ),
               ),
-              ?trailing,
+              ...widget.actions,
             ],
           ),
-        ),
-        const Padding(
-          padding: EdgeInsets.only(top: 6, right: 12),
-          child: RpgOrnament(),
-        ),
-        if (subtitle != null) ...[
-          const SizedBox(height: 6),
           Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: Text(
-              subtitle!,
-              style: TextStyle(
-                color: BalanceColors.textMuted,
-                fontSize: 15,
-                height: 1.35,
-              ),
+            // Wrap, not Row: at large text sizes the status badge moves
+            // below the headline instead of overflowing.
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runSpacing: 6,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Semantics(
+                        header: true,
+                        child: RpgHeadline(widget.headline),
+                      ),
+                    ),
+                    if (widget.help != null)
+                      HelpButton(
+                        topic: 'this page',
+                        showing: _showHelp,
+                        onPressed: () =>
+                            setState(() => _showHelp = !_showHelp),
+                      ),
+                  ],
+                ),
+                ?widget.trailing,
+              ],
             ),
           ),
+          const Padding(
+            padding: EdgeInsets.only(top: 6, right: 12),
+            child: RpgOrnament(),
+          ),
+          if (widget.subtitle != null) ...[
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Text(widget.subtitle!, style: grey),
+            ),
+          ],
+          if (widget.help != null && _showHelp) ...[
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Text(widget.help!, style: grey),
+            ),
+          ],
         ],
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }

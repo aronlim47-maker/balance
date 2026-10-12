@@ -14,6 +14,7 @@ import '../../data/repositories/profile_repository.dart';
 import '../../data/repositories/recovery_repository.dart';
 import '../../data/repositories/task_repository.dart';
 import '../auth/auth_view_model.dart';
+import 'profile_avatar.dart';
 import 'profile_view_model.dart';
 import '../../data/repositories/check_in_repository.dart';
 import '../../data/repositories/movement_repository.dart';
@@ -61,26 +62,53 @@ class _ProfileContent extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        radius: 28,
-                        child: Text(
-                          _initial(auth.currentUserName, auth.currentUserEmail),
+                      ProfileAvatar(
+                        owner: auth.currentUserId,
+                        initial: _initial(
+                          _displayName(profile, auth),
+                          auth.currentUserEmail,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              (profile.userProfile?.displayName.isNotEmpty ==
-                                          true
-                                      ? profile.userProfile!.displayName
-                                      : auth.currentUserName) ??
-                                  (auth.isConfigured
-                                      ? 'Balance member'
-                                      : 'Preview user'),
-                              style: Theme.of(context).textTheme.titleLarge,
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    _displayName(profile, auth) ??
+                                        (auth.isConfigured
+                                            ? 'Balance member'
+                                            : 'Preview user'),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge,
+                                  ),
+                                ),
+                                if (profile.canEditName &&
+                                    profile.userProfile != null)
+                                  profile.isSavingName
+                                      ? const Padding(
+                                          padding: EdgeInsets.all(14),
+                                          child: SizedBox.square(
+                                            dimension: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          ),
+                                        )
+                                      : IconButton(
+                                          tooltip: 'Edit name',
+                                          onPressed: () =>
+                                              _editName(context, profile),
+                                          icon: const Icon(
+                                            Icons.edit_outlined,
+                                            size: 20,
+                                          ),
+                                        ),
+                              ],
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -279,6 +307,55 @@ class _ProfileContent extends StatelessWidget {
               ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  static String? _displayName(ProfileViewModel profile, AuthViewModel auth) {
+    final saved = profile.userProfile?.displayName ?? '';
+    return saved.isNotEmpty ? saved : auth.currentUserName;
+  }
+
+  Future<void> _editName(BuildContext context, ProfileViewModel profile) async {
+    // Start from the name shown on the card, so a small change needs no
+    // retyping. Empty only when the generic placeholder is showing.
+    var name = _displayName(profile, context.read<AuthViewModel>()) ?? '';
+    final entered = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Edit name'),
+        content: TextFormField(
+          initialValue: name,
+          autofocus: true,
+          maxLength: ProfileViewModel.maxNameLength,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(labelText: 'Display name'),
+          onChanged: (value) => name = value,
+          onFieldSubmitted: (value) =>
+              Navigator.pop(dialogContext, value.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, name.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (entered == null || !context.mounted) return;
+    final saved = await profile.saveDisplayName(entered);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          saved
+              ? 'Name updated.'
+              : profile.errorMessage ?? 'Could not update your name.',
         ),
       ),
     );

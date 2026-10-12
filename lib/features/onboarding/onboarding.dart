@@ -42,7 +42,9 @@ const _steps = [
   _Step(
     page: 'Quests',
     title: 'Add your tasks',
-    body: 'List what you need to do and when it is due. On Quests, tap +.',
+    body:
+        'List what you need to do and when it is due. On Quests, tap Add '
+        'task.',
     showMe: 'Show me on Quests',
     route: AppRoutes.quests,
     art: _Art.tasks,
@@ -566,9 +568,7 @@ class _OverloadArt extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(
-              child: Text('Planned 5h  ·  Free 3h', style: _small),
-            ),
+            Expanded(child: Text('Planned 5h  ·  Free 3h', style: _small)),
             Transform.scale(
               scale: tag,
               child: const RpgTag('2h over', tone: RpgTone.danger),
