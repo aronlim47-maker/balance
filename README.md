@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/images/balance_icon_512.png" width="112" alt="Balance logo: a gold shield with a balance beam"></p>
+
 # Balance — workload planning for overloaded students
 
 **Team Gate of Steiner:** Lim Ze Heng, Tan Yi Ming, Chong Zhi Xuan, Matthew Thien Yung En

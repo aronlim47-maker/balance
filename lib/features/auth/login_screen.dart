@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/shared_widgets/balance_crest.dart';
 import '../../core/shared_widgets/password_field.dart';
 import 'auth_view_model.dart';
 
@@ -39,11 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(
-                      Icons.balance,
-                      size: 64,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                    const Center(child: BalanceCrest(size: 88)),
                     const SizedBox(height: 20),
                     Text(
                       'Welcome back to Balance',
