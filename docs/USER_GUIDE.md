@@ -264,7 +264,8 @@ There are no streaks, rankings or penalties for skipping.
    the top of any main page; it turns grey with a crossed-out note when the music is off.
    All audio is original to Balance.
 5. **Reminders and alerts**:
-   - **Deadline reminders** — a reminder a set time before each task deadline.
+   - **Deadline reminders** — a reminder a set time before each task deadline: 15 minutes,
+     30 minutes, 1 hour, 1 day, or **Custom minutes…** (1 to 10080 minutes).
    - **Overload alerts** — a notification the evening before a day with more planned work
      than available time; **Alert time** defaults to 8:00 PM.
    - **Quiet hours** — reminders and alerts are skipped between **Start** and **End**.

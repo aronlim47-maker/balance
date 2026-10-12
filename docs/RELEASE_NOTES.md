@@ -1,5 +1,22 @@
 # Balance release notes
 
+## v1.0.1 — 13 October 2026
+
+A small update to v1.0.0. Install it over v1.0.0; your sign-in and settings stay.
+Judges: the [user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+applies unchanged.
+
+### New
+
+- Deadline reminders can now use a custom lead time: besides 15 minutes, 30 minutes,
+  1 hour and 1 day, choose **Custom minutes…** and enter 1 to 10080 minutes (up to
+  7 days). Only whole numbers in that range are accepted.
+
+### Quality
+
+- 427 automated tests; critical code 92.5% line coverage.
+
 ## v1.0.0 — Building submission (October 2026)
 
 Balance helps a student whose plan no longer fits the day: it shows the overload,
