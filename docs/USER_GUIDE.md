@@ -200,7 +200,7 @@ Your plan fits this day.*
 Recovery time is optional, and Balance only lets you protect time that is genuinely free.
 
 1. Tap **SANCTUARY**. The page is **RECOVERY TIME**. With no slots yet it says *No recovery
-   time yet* and offers **Add recovery time** (also the **+** at the top).
+   time yet* and offers **Add recovery time**. Once you have slots, the same full-width button sits above the list.
 2. Tap **Add recovery time**. The form **Protect recovery time** finds free time for you:
    the sample day is fully booked, so it shows **Free on** *(the next day)* with the
    suggestion **9:00 AM – 11:00 AM · 2h free**, already selected as **Start 9:00 AM** and
@@ -279,7 +279,7 @@ There are no streaks, rankings or penalties for skipping.
 | Clock icon | *Plan history* on Council; *My reflections* on Journey. |
 | **?** next to a title | Shows a one-line description of the page or section; tap again to hide it. |
 | Chevron (⌄ / ⌃) on a section | Folds or unfolds that section. The main sections start open; *Optional updates* and *Finished* start folded. Your choice is remembered on this phone. |
-| **+** | Today: add a time block. Sanctuary: add recovery time. (Quests uses the full-width **Add task** button.) |
+| **+** | Today: add a time block. (Quests and Sanctuary use the full-width **Add task** and **Add recovery time** buttons.) |
 
 ## TODAY (World Status)
 
