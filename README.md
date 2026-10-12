@@ -249,7 +249,7 @@ python tools/check_coverage.py --min 70       # critical code: lib/domain + *_vi
 
 `tools/check_coverage.py` prints per-file line coverage for the critical code and exits 1 when
 the combined figure is below `--min`. CI enforces the 70% minimum; the 13 October 2026 local
-run measured 92.5% (2439/2636 lines) with 427 tests passing (13 October 2026).
+run measured 92.5% (2439/2636 lines) with 427 tests passing.
 The WS01-WS14 and achievement test map is `docs/WS_AND_ACHIEVEMENT_TEST_MAP.md`.
 `test/domain/full_scenario_test.dart` is the domain-level full-journey regression
 (300 minutes proposed for a 180-minute evening). SQL scripts in `supabase/tests` need a
