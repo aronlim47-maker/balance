@@ -14,6 +14,7 @@ import '../../data/repositories/recovery_repository.dart';
 import '../../data/repositories/task_repository.dart';
 import '../../domain/usecases/free_windows.dart';
 import '../../domain/models/recovery_slot.dart';
+import 'camp_scene.dart';
 import 'recovery_slot_card.dart';
 import 'sanctuary_view_model.dart';
 
@@ -78,6 +79,16 @@ class _RecoveryContent extends StatelessWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
+            // The rest camp: sky follows the clock, the fire crackles softly
+            // while music is on.
+            const CampScene(ambience: true),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: () => showBreathing(context),
+              icon: const Icon(Icons.air),
+              label: const Text('Breathe with the fire'),
+            ),
+            const SizedBox(height: 16),
             if (model.repository == null)
               const RpgPanel(
                 tone: RpgTone.warning,

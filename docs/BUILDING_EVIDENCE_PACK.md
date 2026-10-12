@@ -21,7 +21,8 @@ Runs recorded so far:
 | Run | Commit | Build | APK size | Supabase project | Account alias | Date and tester |
 | --- | --- | --- | --- | --- | --- | --- |
 | R1 judge read-only regression (section B) | `cb135c1` | Debug, run from Android Studio (same code as the release build of this commit) | n/a (debug) | (fill in project name) | `judge-1` | 12 Oct 2026, Lim |
-| R2 release APK for the smoke test | `5d35cb4` | `flutter build apk --release --dart-define-from-file=.env`, signed with the release key | 67.0 MB (70,224,683 bytes) | (fill in project name) | (fill in) | (fill in when section A runs) |
+| R2 release APK for the smoke test (superseded by R3) | `5d35cb4` | `flutter build apk --release --dart-define-from-file=.env`, signed with the release key | 67.0 MB (70,224,683 bytes) | (fill in project name) | (fill in) | — |
+| R3 release APK for the smoke test (icon, animations, rest camp) | `05e9d2c` | `flutter build apk --release --dart-define-from-file=.env`, signed with the release key | 68.1 MB (71,448,145 bytes) | (fill in project name) | (fill in) | (fill in when section A runs) |
 
 ---
 

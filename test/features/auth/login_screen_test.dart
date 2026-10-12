@@ -17,6 +17,8 @@ void main() {
       ),
     );
 
+    // The crest logo sits above the form.
+    expect(find.bySemanticsLabel('Balance logo'), findsOneWidget);
     // One email field and one password field, in that order.
     final fields = find.byType(TextFormField);
     expect(fields, findsNWidgets(2));

@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/images/balance_icon_512.png" width="112" alt="Balance logo: a gold shield with a balance beam"></p>
+
 # Balance — workload planning for overloaded students
 
 **Team Gate of Steiner:** Lim Ze Heng, Tan Yi Ming, Chong Zhi Xuan, Matthew Thien Yung En
@@ -24,12 +26,15 @@ cost.** Balance answers those questions in one flow:
 | Workload Overview | World Status | Planned vs available minutes first, then five load dimensions (Mental, Time, Physical, Social, Errands) with their change since yesterday and a 7-day trend. Missing data shows **Unknown**, never zero. Availability can be copied from the previous day or repeated for a week. |
 | Tasks and Protected Commitments | Quest Board | Tasks with category, duration, deadline, flexibility and protection; tap a task for its details. Protected work is never moved to make a plan look feasible. |
 | Plan Comparison | War Council | Compares safe moves and shows what changes, what stays protected and the cost on other days. Nothing changes until you **Confirm**; every confirmed plan can be **Undone** from Plan history. |
-| Recovery Time | Sanctuary | Protects genuinely freed time for optional rest and suggests free windows to choose from. Skipping has no penalty. |
+| Recovery Time | Sanctuary | A rest camp: a campfire scene whose sky follows the clock, a soft crackle while music is on, and an optional one-minute "Breathe with the fire" exercise. Protects genuinely freed time for optional rest and suggests free windows to choose from. Skipping has no penalty and rest is never scored. |
 | Weekly Reflection | Journey | Private weekly summary, optional reflection and an RPG achievement wall of seven sustainable-planning badges, celebrated once when earned. No streaks, rankings or rewards for overwork. |
 | Overload Alert | Calamity Alert | Optional notification the evening before a day with more planned work than available time. Off by default. |
 
 Also: a five-step animated beginner guide (Profile → Beginner guide), sound (effects and relaxing music on by default,
-one-tap music button on every page; all audio original), dark and parchment light looks,, and accessibility checks on every main page.
+one-tap music button on every page; all audio original), dark and parchment light looks,
+short one-shot animations on the core journey (capacity bar, workload bars, plan
+confirmed and undone), a gold guild-crest app icon, foldable page sections with ? help,
+and accessibility checks on every main page.
 
 Balance is a planning aid. Its scores describe recorded planning data; they are not a
 medical, diagnostic or mental-health assessment.
@@ -66,8 +71,8 @@ Step-by-step instructions with screenshots are in the [user guide](docs/USER_GUI
 
 Flutter and Dart (Android first) · Supabase Auth, PostgreSQL, Row Level Security and
 transactional RPCs · Provider + go_router. The [Architecture](#architecture) and
-[Testing and coverage](#testing-and-coverage) sections below give details: 376
-automated tests pass and critical code has 92.4% line coverage, enforced by CI.
+[Testing and coverage](#testing-and-coverage) sections below give details: 422
+automated tests pass and critical code has 92.5% line coverage, enforced by CI.
 
 **Monitoring.** An hourly GitHub Actions job
 ([Production health check](.github/workflows/health.yml)) verifies that Supabase Auth
@@ -243,8 +248,8 @@ python tools/check_coverage.py --min 70       # critical code: lib/domain + *_vi
 ```
 
 `tools/check_coverage.py` prints per-file line coverage for the critical code and exits 1 when
-the combined figure is below `--min`. CI enforces the 70% minimum; the 9 October 2026 local
-run measured 92.4% (2360/2554 lines) with 376 tests passing (10 October 2026).
+the combined figure is below `--min`. CI enforces the 70% minimum; the 12 October 2026 local
+run measured 92.5% (2438/2635 lines) with 422 tests passing.
 The WS01-WS14 and achievement test map is `docs/WS_AND_ACHIEVEMENT_TEST_MAP.md`.
 `test/domain/full_scenario_test.dart` is the domain-level full-journey regression
 (300 minutes proposed for a 180-minute evening). SQL scripts in `supabase/tests` need a

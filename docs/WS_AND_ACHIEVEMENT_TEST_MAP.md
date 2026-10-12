@@ -65,6 +65,8 @@ The user accounts must be new (the script refuses accounts that already hold awa
 | 8 Oct 2026 | Tan's Windows PC: `flutter analyze --no-pub` / `flutter test --no-pub` | Analysis clean; 225 tests passed after master merge. Later inline-retry changes have focused widget-test evidence; full-suite result is recorded in the current delivery note. |
 | 10 Oct 2026 | Lim's Windows PC on `7fdca8c` (master after PR #22): `flutter analyze` / `flutter test --coverage` / `tools/check_coverage.py --min 70` | Analysis clean; 376 tests passed; critical code 92.4% (2360/2554 lines). GitHub CI passed the same checks plus web compilation and SQL syntax. |
 | 10 Oct 2026 | Judge account on an Android 15 emulator set to Asia/Kuala_Lumpur (read-only check) | 1 Nov sample day: 300 planned / 180 available / 120 over; availability 9:00 AM – 12:00 PM; deadlines 5:00 PM. |
+| 12 Oct 2026 | Lim's Windows PC on `LZH` after the Sanctuary rest camp (`2e2c734`): `flutter analyze` / `flutter test --coverage` / `tools/check_coverage.py --min 70` | Analysis clean; 422 tests passed; critical code 92.5% (2438/2635 lines). |
+| 12 Oct 2026 | Judge account on the Android 15 emulator (read-only, run R1 in the evidence pack) | 1 Nov still shows 2H OVER and a FEASIBLE move to 2 Nov 9:00–11:00 AM; 0 of 7 achievements and 0 confirmed plans, so the account is untouched. |
 | | Disposable Supabase (Chong) | _fill in_ |
 
 ## Domain contract and regression files (added 9 October)

@@ -1,6 +1,13 @@
+<!-- Notification icon: white silhouette of the Balance crest (shield, beam and pivot). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp" android:height="24dp"
     android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8" android:strokeLineJoin="round"
+        android:pathData="M12,2.2L19.5,4.7L19.5,11.2Q19.5,17.4 12,21.2Q4.5,17.4 4.5,11.2L4.5,4.7Z" />
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.9" android:strokeLineCap="round"
+        android:pathData="M8,9.6L16,9.6" />
     <path android:fillColor="#FFFFFFFF"
-        android:pathData="M11,3h2v15h5v2H6v-2h5V3zM3,6h18v2H3V6zM5,8L1,15h8L5,8zM19,8l-4,7h8l-4,-7z" />
+        android:pathData="M12,11L14.3,14.8L9.7,14.8Z" />
 </vector>
