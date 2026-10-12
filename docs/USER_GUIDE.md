@@ -143,7 +143,7 @@ release build; reinstall from the release link.
 
 3. **Tap a task card** to open its details: remaining time, due date, scheduled time,
    category, flexibility and status, with an **Edit task** button.
-4. Optional: tap **+** to see the new task form, then close it without saving. A task needs a
+4. Optional: tap the full-width **Add task** button above the search box to see the new task form, then close it without saving. A task needs a
    **Title**, **Estimated minutes**, **Due date and time** and a **Task category**; the form
    explains each category. **Flexibility** (Flexible, Fixed, Needs agreement), **Protected
    task**, **Optional task** and **Schedule work time** are set here too.
@@ -279,7 +279,7 @@ There are no streaks, rankings or penalties for skipping.
 | Clock icon | *Plan history* on Council; *My reflections* on Journey. |
 | **?** next to a title | Shows a one-line description of the page or section; tap again to hide it. |
 | Chevron (⌄ / ⌃) on a section | Folds or unfolds that section. The main sections start open; *Optional updates* and *Finished* start folded. Your choice is remembered on this phone. |
-| **+** | Today: add a time block. Quests: add a task. Sanctuary: add recovery time. |
+| **+** | Today: add a time block. Sanctuary: add recovery time. (Quests uses the full-width **Add task** button.) |
 
 ## TODAY (World Status)
 
