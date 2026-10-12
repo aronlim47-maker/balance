@@ -9,12 +9,12 @@ Before any device run, write down:
 
 | Field | Value |
 | --- | --- |
-| Commit hash (`git rev-parse --short HEAD`) | |
-| Build command | `flutter build apk --release --dart-define-from-file=.env` |
-| APK size | |
-| Supabase project | (project name only, never the key) |
-| Test account alias | e.g. `judge-1`, `tester-2` (not the email) |
-| Date and tester | |
+| Commit hash (`git rev-parse --short HEAD`) | `dde5546` (tag `v1.0.0`, master after PR #36) |
+| Build command | `flutter clean`, then `flutter build apk --release --dart-define-from-file=.env` |
+| APK size | 68.1 MB (71,448,145 bytes); SHA-256 `40A1B0923F277C94E404366F0561D826C461FF287C92FA61EDEA8EE83092077C` |
+| Supabase project | Project ref `zuilqjrwpyilsbaitmwo` (the public project ID in the app URL; no key) |
+| Test account alias | `judge-1` (read-only checks); `tester-2` (new test account, sample day 13 Oct, for confirm/undo) |
+| Date and tester | 12–13 Oct 2026, Lim |
 
 Runs recorded so far:
 
@@ -22,7 +22,8 @@ Runs recorded so far:
 | --- | --- | --- | --- | --- | --- | --- |
 | R1 judge read-only regression (section B) | `cb135c1` | Debug, run from Android Studio (same code as the release build of this commit) | n/a (debug) | (fill in project name) | `judge-1` | 12 Oct 2026, Lim |
 | R2 release APK for the smoke test (superseded by R3) | `5d35cb4` | `flutter build apk --release --dart-define-from-file=.env`, signed with the release key | 67.0 MB (70,224,683 bytes) | (fill in project name) | (fill in) | — |
-| R3 release APK for the smoke test (icon, animations, rest camp) | `05e9d2c` | `flutter build apk --release --dart-define-from-file=.env`, signed with the release key | 68.1 MB (71,448,145 bytes) | (fill in project name) | (fill in) | (fill in when section A runs) |
+| R3 release APK for the smoke test (icon, animations, rest camp) | `05e9d2c` | `flutter build apk --release --dart-define-from-file=.env`, signed with the release key | 68.1 MB (71,448,145 bytes) | `zuilqjrwpyilsbaitmwo` | — | Same code as R4; superseded by R4 |
+| R4 **v1.0.0 release** (GitHub Release asset `app-release.apk`) | `dde5546` (tag `v1.0.0`) | Clean build: `flutter clean`, `flutter build apk --release --dart-define-from-file=.env`; release key verified with `apksigner` | 68.1 MB (71,448,145 bytes); SHA-256 `40A1B092…92077C` | `zuilqjrwpyilsbaitmwo` | `judge-1` (read-only), `tester-2` | 13 Oct 2026, Lim (section A on a physical phone) |
 
 ---
 
