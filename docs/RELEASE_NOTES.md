@@ -5,7 +5,8 @@
 Balance helps a student whose plan no longer fits the day: it shows the overload,
 compares safe ways to fix it, changes nothing until the student confirms, and can undo
 every confirmed change. Android 8.0 or later. Judges: start with the
-[user guide](USER_GUIDE.md).
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf)).
 
 ### Install
 
