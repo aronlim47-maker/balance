@@ -7,14 +7,14 @@ write passwords, tokens, keys or a tester's personal details in this file.
 
 Before any device run, write down:
 
-| Field | Value |
-| --- | --- |
-| Commit hash (`git rev-parse --short HEAD`) | |
+| Field | Value                                                      |
+| --- |------------------------------------------------------------|
+| Commit hash (`git rev-parse --short HEAD`) |                                                            |
 | Build command | `flutter build apk --release --dart-define-from-file=.env` |
-| APK size | |
-| Supabase project | (project name only, never the key) |
-| Test account alias | e.g. `judge-1`, `tester-2` (not the email) |
-| Date and tester | |
+| APK size | 69.11MB                                                    |
+| Supabase project | Balance                                                    |
+| Test account alias | tester-1                                                   |
+| Date and tester | 12/10/2026 Matthew , Galaxy A55 5G                         |
 
 ---
 
