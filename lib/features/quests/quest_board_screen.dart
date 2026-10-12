@@ -56,7 +56,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
       subtitle: viewModel.tasks.isEmpty ? null : _summary(viewModel),
       help:
           'Every commitment in one place. Search, filter or sort your '
-          'tasks, and tap + to add one.',
+          'tasks, and tap Add task to add one.',
       currentIndex: 1,
       actions: [
         PopupMenuButton<QuestSort>(
@@ -71,15 +71,6 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
                 child: Text(_sortLabel(sort)),
               ),
           ],
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: RpgSquareButton(
-            tooltip: 'Add task',
-            filled: true,
-            onPressed: () => _openTaskForm(context, viewModel),
-            icon: Icons.add,
-          ),
         ),
       ],
       body: _body(context, viewModel),
@@ -272,6 +263,16 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // A clear, full-width button instead of a small + in the header.
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => _openTaskForm(context, viewModel),
+              icon: const Icon(Icons.add),
+              label: const Text('Add task'),
+            ),
+          ),
+          const SizedBox(height: 12),
           TextField(
             controller: _searchController,
             onChanged: viewModel.setSearchQuery,

@@ -141,6 +141,31 @@ void main() {
     expect(find.text('Create task'), findsOneWidget);
   });
 
+  testWidgets('a full-width Add task button opens the task form', (
+    tester,
+  ) async {
+    final repository = _FakeTaskRepository([_task('math', 'Math assignment')]);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthViewModel()),
+          Provider<TaskRepository>.value(value: repository),
+        ],
+        child: const MaterialApp(home: QuestBoardScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final button = find.widgetWithText(FilledButton, 'Add task');
+    expect(button, findsOneWidget);
+    // Not a small icon: it spans the page width.
+    expect(tester.getSize(button).width, greaterThan(300));
+
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    expect(find.text('Title'), findsOneWidget);
+  });
+
   testWidgets('tapping a task opens its details with an Edit action', (
     tester,
   ) async {
