@@ -29,7 +29,8 @@ class ReminderPreferences {
   final int quietEnd;
 
   bool get isValid =>
-      [15, 30, 60, 1440].contains(leadMinutes) &&
+      leadMinutes >= 1 &&
+      leadMinutes <= 10080 &&
       quietStart >= 0 &&
       quietStart < 1440 &&
       quietEnd >= 0 &&
