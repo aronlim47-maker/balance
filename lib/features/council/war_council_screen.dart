@@ -82,9 +82,13 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
               summary: _protectedSummary(viewModel),
               child: _ProtectedItems(viewModel: viewModel, showHeader: false),
             ),
-            // A day that already fits needs no status badge.
-            if (viewModel.capacity.overloadMinutes > 0 ||
-                viewModel.validationStatus != ValidationStatus.feasible) ...[
+            // A day that already fits needs no status badge, and none is shown
+            // while options are still loading (it would briefly read "Needs
+            // Review" before the real status arrives).
+            if (!viewModel.isLoading &&
+                (viewModel.capacity.overloadMinutes > 0 ||
+                    viewModel.validationStatus !=
+                        ValidationStatus.feasible)) ...[
               const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerLeft,

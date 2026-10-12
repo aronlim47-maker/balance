@@ -488,7 +488,9 @@ class _RecoveryFormState extends State<_RecoveryForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RpgLabel(
-          windows.isEmpty || sameDay
+          windows.isEmpty
+              ? 'Free time'
+              : sameDay
               ? 'Free on ${date.format(start)}'
               : 'Next free time · ${date.format(day)}',
           size: 12,
