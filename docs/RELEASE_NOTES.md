@@ -43,6 +43,8 @@ every confirmed change. Android 8.0 or later. Judges: start with the
   vibration); original sound effects and relaxing background music, both on by default.
   A gold music button on every page turns the music off in one tap.
 - Dark look by default, plus a warm parchment light look (sun/moon button).
+- Sanctuary rest camp: a campfire scene whose sky follows the clock, a soft crackle while
+  music is on, and an optional one-minute 'Breathe with the fire' exercise (never scored).
 - Simpler pages: decision first on Today, one-line score explanations, compact trend,
   shorter Council, Journey and Sanctuary text, plain wording without technical terms.
 
@@ -56,7 +58,7 @@ every confirmed change. Android 8.0 or later. Judges: start with the
 
 ### Quality and monitoring
 
-- 416 automated tests; critical code 92.4% line coverage, enforced by CI on every push.
+- 422 automated tests; critical code 92.4% line coverage, enforced by CI on every push.
 - Accessibility tests on every main page: tap targets, labels, contrast, 200% text.
 - Hourly health check of the backend and the APK download link; crash reporting with
   Sentry (errors only; no screenshots, IP address or user email).

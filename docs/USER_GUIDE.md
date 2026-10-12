@@ -199,6 +199,14 @@ Your plan fits this day.*
 
 Recovery time is optional, and Balance only lets you protect time that is genuinely free.
 
+At the top is the **rest camp**: a tent beside a small campfire. The sky follows your
+phone's clock (dawn, day, dusk or night), the fire flickers gently, and while background
+music is on you hear a soft crackle that stops when you leave the page.
+
+- Optional: tap **Breathe with the fire** for one minute of slow breathing. Breathe in
+  for 4 seconds, hold for 4 and breathe out for 4 while the fire grows and settles with
+  you. **Stop** works at any time, and nothing is recorded or scored.
+
 1. Tap **SANCTUARY**. The page is **RECOVERY TIME**. With no slots yet it says *No recovery
    time yet* and offers **Add recovery time**. Once you have slots, the same full-width button sits above the list.
 2. Tap **Add recovery time**. The form **Protect recovery time** finds free time for you:
@@ -323,6 +331,8 @@ There are no streaks, rankings or penalties for skipping.
 
 | Element | Meaning |
 | --- | --- |
+| Rest camp | Tent and campfire; the sky follows the clock. Still picture when animations are turned off. |
+| **Breathe with the fire** | One minute of guided breathing (4 s in, 4 s hold, 4 s out); optional and never recorded. |
 | **Add recovery time** | Opens *Protect recovery time* with free-time suggestions. |
 | Slot card | *Protected time*, the time, **TIME RESERVED**; **⋮ Edit/Remove**; *Activity done* once it has started. |
 | Footer | Skipping has no penalty; rest does not change scores; not a medical service. |
