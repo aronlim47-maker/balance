@@ -106,6 +106,14 @@ void main() {
 
       await tester.tap(find.byTooltip('Edit name'));
       await tester.pumpAndSettle();
+      // The field starts with the current name, ready to adjust.
+      expect(
+        find.descendant(
+          of: find.byType(TextFormField),
+          matching: find.text('Tester'),
+        ),
+        findsOneWidget,
+      );
       await tester.enterText(find.byType(TextFormField), 'Yi Ming');
       await tester.tap(find.widgetWithText(FilledButton, 'Save'));
       await tester.pumpAndSettle();

@@ -78,6 +78,19 @@ void main() {
     expect(fmt(windows), '10:15-12:0');
   });
 
+  test('a window starting now begins at the next 5-minute mark', () {
+    List<FreeWindow> from(DateTime now) => freeWindowsOn(
+      day,
+      availability: [block(9, 12)],
+      tasks: const [],
+      recovery: const [],
+      now: now,
+    );
+    expect(fmt(from(at(10, 1))), '10:5-12:0');
+    expect(fmt(from(DateTime(2026, 10, 10, 10, 5, 30))), '10:10-12:0');
+    expect(fmt(from(at(10, 55))), '10:55-12:0');
+  });
+
   test('the slot being edited does not block itself', () {
     final slot = RecoverySlot(id: 'r', startAt: at(9), endAt: at(10));
     final windows = freeWindowsOn(

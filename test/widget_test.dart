@@ -14,14 +14,17 @@ void main() {
     await tester.pumpWidget(const BalanceApp());
     await tester.pumpAndSettle();
     expect(find.byType(TodayScreen), findsOneWidget);
-    // Capacity and the plan verdict come first and start open; the overview
-    // follows below in a section that opens with its + button.
+    // Capacity and the plan verdict come first; the core sections below,
+    // including the five-dimension overview, start open.
     expect(find.text('TIME CAPACITY'), findsOneWidget);
-    expect(find.text('WORKLOAD OVERVIEW'), findsNothing);
-    await tester.scrollUntilVisible(find.byTooltip('Show Workload'), 300);
-    await tester.tap(find.byTooltip('Show Workload'));
-    await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('WORKLOAD OVERVIEW'), 300);
     expect(find.text('WORKLOAD OVERVIEW'), findsOneWidget);
+    expect(find.byTooltip('Hide Workload'), findsOneWidget);
+    // Optional updates stay folded away.
+    await tester.scrollUntilVisible(
+      find.byTooltip('Show Optional updates'),
+      300,
+    );
+    expect(find.byTooltip('Show Optional updates'), findsOneWidget);
   });
 }

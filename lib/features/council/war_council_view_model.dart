@@ -23,12 +23,12 @@ import '../../domain/usecases/preview_trade_off.dart';
 
 class WarCouncilViewModel extends LifecycleNotifier {
   WarCouncilViewModel(
-      this._taskRepository,
-      this._availabilityRepository,
-      this._planningDayController, [
-        this._planRepository,
-        this._recoveryRepository,
-      ]);
+    this._taskRepository,
+    this._availabilityRepository,
+    this._planningDayController, [
+    this._planRepository,
+    this._recoveryRepository,
+  ]);
 
   final TaskRepository _taskRepository;
   final AvailabilityRepository _availabilityRepository;
@@ -87,6 +87,7 @@ class WarCouncilViewModel extends LifecycleNotifier {
       return DailyCapacity.sameDay(task.dueAt.toLocal(), selectedDay);
     }),
   );
+
   /// Plain-language reasons shown when no safe plan exists (display only).
   NoPlanExplanation get noPlanExplanation => explainNoFeasiblePlan(
     day: selectedDay,
@@ -94,20 +95,21 @@ class WarCouncilViewModel extends LifecycleNotifier {
     availability: _availability,
     capacity: capacity,
     recoverySlots: _recoverySlots,
+    now: DateTime.now(),
   );
 
   bool get allDayTasksProtected {
     final dayTasks = _tasks.where(_isTaskOnSelectedDay).toList();
     return dayTasks.isNotEmpty &&
         dayTasks.every(
-              (task) =>
-          task.isProtected || task.flexibility == TaskFlexibility.fixed,
+          (task) =>
+              task.isProtected || task.flexibility == TaskFlexibility.fixed,
         );
   }
 
   bool get hasUnscheduledFlexibleWork => _tasks.any(
-        (task) =>
-    _isTaskOnSelectedDay(task) &&
+    (task) =>
+        _isTaskOnSelectedDay(task) &&
         task.scheduledStart == null &&
         !task.isProtected &&
         task.flexibility == TaskFlexibility.flexible,
@@ -127,8 +129,8 @@ class WarCouncilViewModel extends LifecycleNotifier {
 
   List<RecoverySlot> get protectedRecoverySlots => List.unmodifiable(
     _recoverySlots.where(
-          (slot) =>
-      slot.isProtected &&
+      (slot) =>
+          slot.isProtected &&
           DailyCapacity.overlapsDay(slot.startAt, slot.endAt, selectedDay),
     ),
   );
@@ -139,8 +141,8 @@ class WarCouncilViewModel extends LifecycleNotifier {
   bool get changeNotFound => _changeNotFound;
   bool get capacityMatchesServer =>
       _serverOverloadMinutes != null &&
-          _serverCapacityDay == selectedDay &&
-          _serverOverloadMinutes == capacity.overloadMinutes;
+      _serverCapacityDay == selectedDay &&
+      _serverOverloadMinutes == capacity.overloadMinutes;
   String? get capacityCheckError => _capacityCheckError;
   bool get isConfigured => _planRepository != null;
   String? get errorMessage => _errorMessage;
@@ -161,18 +163,18 @@ class WarCouncilViewModel extends LifecycleNotifier {
   bool get wasUndone => _wasUndone;
   bool get canUndoCurrentChange =>
       _currentChange?.status == PlanStatus.confirmed &&
-          !_wasUndone &&
-          !_isSaving;
+      !_wasUndone &&
+      !_isSaving;
   TradeOffPlan? get selectedOption =>
       _options.where((option) => option.id == _selectedOptionId).firstOrNull;
   ValidationStatus get validationStatus {
     final informationReady =
         _errorMessage == null &&
-            _capacityCheckError == null &&
-            _migrationReady &&
-            !_isLoading &&
-            !_isCheckingCapacity &&
-            capacityMatchesServer;
+        _capacityCheckError == null &&
+        _migrationReady &&
+        !_isLoading &&
+        !_isCheckingCapacity &&
+        capacityMatchesServer;
     if (capacity.overloadMinutes == 0 && informationReady) {
       return ValidationStatus.feasible;
     }
@@ -185,10 +187,10 @@ class WarCouncilViewModel extends LifecycleNotifier {
 
   bool get canConfirm =>
       validationStatus == ValidationStatus.feasible &&
-          selectedOption != null &&
-          previewFor(selectedOption!).canApply &&
-          !_isSaving &&
-          !_isLoading;
+      selectedOption != null &&
+      previewFor(selectedOption!).canApply &&
+      !_isSaving &&
+      !_isLoading;
 
   Future<void> load({bool afterMutation = false}) async {
     if (isDisposed || (_isSaving && !afterMutation)) return;
@@ -268,7 +270,7 @@ class WarCouncilViewModel extends LifecycleNotifier {
     if (!_options.any((option) => option.id == _selectedOptionId)) {
       _selectedOptionId =
           _options.where((option) => !option.needsAgreement).firstOrNull?.id ??
-              _options.firstOrNull?.id;
+          _options.firstOrNull?.id;
     }
   }
 
@@ -430,9 +432,9 @@ class WarCouncilViewModel extends LifecycleNotifier {
           .firstOrNull;
       final justConfirmed =
           _confirmedOption != null &&
-              !_wasUndone &&
-              _currentChange?.id == changeId &&
-              _currentChange?.status == PlanStatus.confirmed;
+          !_wasUndone &&
+          _currentChange?.id == changeId &&
+          _currentChange?.status == PlanStatus.confirmed;
       _currentChange = fetched ?? (justConfirmed ? _currentChange : null);
       _changeNotFound = _currentChange == null;
       _wasUndone =

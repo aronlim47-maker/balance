@@ -120,6 +120,7 @@ release build; reinstall from the release link.
 9. **7-day workload trend** shows each day's total once at least three days are recorded;
    before that it says how many days are recorded so far. Missing days are never invented.
 10. **Optional updates** add detail to the workload bars. Skipping them has no penalty.
+    This section starts folded: tap its chevron (⌄) to open it.
     - **Daily Review** — *Add review* asks for mental energy, physical energy and hours of
       rest; **Skip for now** is always available.
     - **Movement** — *Track movement* turns on the Physical bar, with a preferred interval
@@ -243,7 +244,9 @@ There are no streaks, rankings or penalties for skipping.
 1. Tap the round **profile icon** at the top right of any main page.
 2. **Profile** shows the signed-in account, *Signed in · Changes are saved to your account*,
    the **Planning time zone** (*Asia/Kuala_Lumpur*), a **Plan summary** and the same **World
-   Status** score as Today.
+   Status** score as Today. **Edit name** changes the display name, and the camera badge on
+   the round picture lets you choose a profile photo (kept on this phone only). On the
+   shared judge account, please leave the name and photo as they are.
 3. **Beginner guide** reopens the five-step guide with animations.
 4. **Sound effects** (on by default) plays chimes for confirmed plans and new achievements.
    **Relaxing background music** (on by default) plays a calm ambient loop and pauses when
@@ -274,6 +277,8 @@ There are no streaks, rankings or penalties for skipping.
 | Sun / moon | Switches between the dark look and the light parchment look; the choice is remembered. |
 | Round profile icon | Opens Profile. |
 | Clock icon | *Plan history* on Council; *My reflections* on Journey. |
+| **?** next to a title | Shows a one-line description of the page or section; tap again to hide it. |
+| Chevron (⌄ / ⌃) on a section | Folds or unfolds that section. The main sections start open; *Optional updates* and *Finished* start folded. Your choice is remembered on this phone. |
 | **+** | Today: add a time block. Quests: add a task. Sanctuary: add recovery time. |
 
 ## TODAY (World Status)

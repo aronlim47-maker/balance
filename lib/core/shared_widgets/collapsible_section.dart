@@ -5,7 +5,7 @@ import '../theme/app_theme.dart';
 import '../theme/balance_colors.dart';
 import 'rpg_widgets.dart';
 
-/// A page section with a large title and a +/− button that shows or hides
+/// A page section with a large title and a chevron button that shows or hides
 /// its content, so pages stay short and easy to scan.
 ///
 /// While closed, an optional [summary] line tells the user what is inside
@@ -137,8 +137,9 @@ class _CollapsibleSectionState extends State<CollapsibleSection> {
             const SizedBox(width: 4),
             Semantics(
               expanded: expanded,
+              // A chevron, not +/−, so it never reads as "add something".
               child: RpgSquareButton(
-                icon: expanded ? Icons.remove : Icons.add,
+                icon: expanded ? Icons.expand_less : Icons.expand_more,
                 tooltip: '${expanded ? 'Hide' : 'Show'} ${widget.title}',
                 onPressed: _toggle,
               ),
@@ -193,7 +194,9 @@ class HelpButton extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     expanded: showing,
     child: IconButton(
-      tooltip: showing ? 'Hide info about $topic' : 'What is $topic?',
+      // "About …" reads naturally for every title ("About What stays
+      // protected"), unlike "What is …?".
+      tooltip: showing ? 'Hide info about $topic' : 'About $topic',
       onPressed: onPressed,
       color: showing ? BalanceColors.accentBright : BalanceColors.textMuted,
       icon: Icon(showing ? Icons.help : Icons.help_outline, size: 22),

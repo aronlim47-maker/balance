@@ -25,7 +25,7 @@ const _section = CollapsibleSection(
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('starts closed with a large title, summary and + button', (
+  testWidgets('starts closed with a large title, summary and chevron', (
     tester,
   ) async {
     await tester.pumpWidget(_host(_section));
@@ -34,12 +34,12 @@ void main() {
     expect(find.text('2 blocks · 4h free'), findsOneWidget);
     expect(find.text('Block details'), findsNothing);
     expect(find.byTooltip('Show Availability'), findsOneWidget);
-    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.byIcon(Icons.expand_more), findsOneWidget);
+    // Never a "+" that could be mistaken for adding something.
+    expect(find.byIcon(Icons.add), findsNothing);
   });
 
-  testWidgets('the + button opens it and the − button closes it', (
-    tester,
-  ) async {
+  testWidgets('the chevron opens it and closes it again', (tester) async {
     await tester.pumpWidget(_host(_section));
 
     await tester.tap(find.byTooltip('Show Availability'));
@@ -47,7 +47,7 @@ void main() {
     expect(find.text('Block details'), findsOneWidget);
     expect(find.text('2 blocks · 4h free'), findsNothing);
     expect(find.byTooltip('Hide Availability'), findsOneWidget);
-    expect(find.byIcon(Icons.remove), findsOneWidget);
+    expect(find.byIcon(Icons.expand_less), findsOneWidget);
 
     await tester.tap(find.byTooltip('Hide Availability'));
     await tester.pumpAndSettle();
@@ -94,9 +94,7 @@ void main() {
     expect(find.text('Block details'), findsOneWidget);
   });
 
-  testWidgets('the description stays hidden until ? is tapped', (
-    tester,
-  ) async {
+  testWidgets('the description stays hidden until ? is tapped', (tester) async {
     await tester.pumpWidget(
       _host(
         const CollapsibleSection(
@@ -110,7 +108,7 @@ void main() {
     const help = 'Add detail to your Workload Overview. Skipping is fine.';
     expect(find.text(help), findsNothing);
 
-    await tester.tap(find.byTooltip('What is Optional updates?'));
+    await tester.tap(find.byTooltip('About Optional updates'));
     await tester.pumpAndSettle();
     expect(find.text(help), findsOneWidget);
     // Showing the description does not open the section.

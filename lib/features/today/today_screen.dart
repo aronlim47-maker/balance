@@ -170,6 +170,8 @@ class _TodayContent extends StatelessWidget {
           CollapsibleSection(
             key: const ValueKey('today.availability'),
             id: 'today.availability',
+            // Core section: open until the user closes it.
+            initiallyExpanded: true,
             title: 'Availability',
             help:
                 'The free time you have on this day. Tap Add to enter a time '
@@ -237,6 +239,8 @@ class _TodayContent extends StatelessWidget {
           CollapsibleSection(
             key: const ValueKey('today.tasks'),
             id: 'today.tasks',
+            // Core section: open until the user closes it.
+            initiallyExpanded: true,
             title: 'Planned tasks',
             help:
                 'Work that counts on this day, with its minutes and why it is '
@@ -291,6 +295,8 @@ class _TodayContent extends StatelessWidget {
           CollapsibleSection(
             key: const ValueKey('today.workload'),
             id: 'today.workload',
+            // Core section: open until the user closes it.
+            initiallyExpanded: true,
             title: 'Workload',
             help:
                 'Your planning pressure in five areas (Mental, Time, '

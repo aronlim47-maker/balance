@@ -9,6 +9,7 @@ import 'daily_capacity.dart';
 
 /// Why Council could not find a safe move, in the order a student should read.
 enum NoPlanReasonKind {
+  dayPassed,
   noFreeTime,
   dueBeforeFreeTime,
   flexibleUnscheduled,
@@ -70,6 +71,7 @@ NoPlanExplanation explainNoFeasiblePlan({
   required Iterable<AvailabilityBlock> availability,
   required DailyCapacity capacity,
   Iterable<RecoverySlot> recoverySlots = const [],
+  DateTime? now,
 }) {
   final selectedDay = DateTime(day.year, day.month, day.day);
   final gap = capacity.overloadMinutes;
@@ -78,6 +80,26 @@ NoPlanExplanation explainNoFeasiblePlan({
     capacity.plannedMinutes - capacity.availableMinutes,
   );
   final dueBefore = math.max(0, gap - extra);
+
+  // Council never plans a past day, so say that instead of listing reasons
+  // about free time that no longer matter.
+  if (now != null) {
+    final local = now.toLocal();
+    if (selectedDay.isBefore(DateTime(local.year, local.month, local.day))) {
+      return NoPlanExplanation(
+        gapMinutes: gap,
+        extraWorkMinutes: extra,
+        dueBeforeFreeTimeMinutes: dueBefore,
+        reasons: const [
+          NoPlanReason(
+            NoPlanReasonKind.dayPassed,
+            'This day has already passed, so Council cannot change it. '
+            'Plans start from today: open today or a later day.',
+          ),
+        ],
+      );
+    }
+  }
   final dayTasks = tasks.where((task) => _isOnDay(task, selectedDay)).toList()
     ..sort((a, b) => _taskTime(a).compareTo(_taskTime(b)));
 

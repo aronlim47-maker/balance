@@ -52,14 +52,31 @@ List<FreeWindow> freeWindowsOn(
     for (final slot in recovery)
       if (slot.id != exceptSlotId)
         FreeWindow(slot.startAt.toLocal(), slot.endAt.toLocal()),
+    // Past time is busy, up to the next 5-minute mark, so a window that
+    // starts now reads "10:05 AM" rather than "10:01 AM".
     if (now != null && now.isAfter(dayStart))
-      FreeWindow(dayStart, now.toLocal()),
+      FreeWindow(dayStart, _nextFiveMinutes(now.toLocal())),
   ];
   for (final b in busy) {
     windows = [for (final w in windows) ..._subtract(w, b)];
   }
   return windows.where((w) => w.minutes >= minMinutes).toList()
     ..sort((a, b) => a.start.compareTo(b.start));
+}
+
+/// [time] rounded up to a whole 5 minutes (seconds dropped); an exact
+/// 5-minute mark stays as it is.
+DateTime _nextFiveMinutes(DateTime time) {
+  final whole = DateTime(
+    time.year,
+    time.month,
+    time.day,
+    time.hour,
+    time.minute,
+  );
+  final exact = whole == time && time.minute % 5 == 0;
+  if (exact) return whole;
+  return whole.add(Duration(minutes: 5 - time.minute % 5));
 }
 
 FreeWindow? _clip(DateTime start, DateTime end, DateTime from, DateTime to) {

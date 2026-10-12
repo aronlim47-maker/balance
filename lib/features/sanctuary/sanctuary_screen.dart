@@ -206,6 +206,8 @@ class _RecoveryContent extends StatelessWidget {
               CollapsibleSection(
                 key: const ValueKey('sanctuary.all'),
                 id: 'sanctuary.all',
+                // Core section: open until the user closes it.
+                initiallyExpanded: true,
                 title: 'All recovery slots',
                 help:
                     'Every rest slot you protected. Mark an activity done or '
@@ -486,7 +488,9 @@ class _RecoveryFormState extends State<_RecoveryForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RpgLabel(
-          windows.isEmpty || sameDay
+          windows.isEmpty
+              ? 'Free time'
+              : sameDay
               ? 'Free on ${date.format(start)}'
               : 'Next free time · ${date.format(day)}',
           size: 12,

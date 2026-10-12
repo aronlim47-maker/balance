@@ -14,7 +14,7 @@ void main() {
     const help = 'Safe ways to fix an overloaded day.';
     expect(find.text(help), findsNothing);
 
-    await tester.tap(find.byTooltip('What is this page?'));
+    await tester.tap(find.byTooltip('About this page'));
     await tester.pumpAndSettle();
     expect(find.text(help), findsOneWidget);
 
@@ -31,7 +31,7 @@ void main() {
     for (final tab in ['TODAY', 'QUESTS', 'COUNCIL', 'SANCTUARY', 'JOURNEY']) {
       await tester.tap(find.text(tab).last);
       await tester.pumpAndSettle();
-      expect(find.byTooltip('What is this page?'), findsOneWidget, reason: tab);
+      expect(find.byTooltip('About this page'), findsOneWidget, reason: tab);
     }
     await tester.tap(find.text('TODAY').last);
     await tester.pumpAndSettle();

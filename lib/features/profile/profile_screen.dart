@@ -82,9 +82,9 @@ class _ProfileContent extends StatelessWidget {
                                         (auth.isConfigured
                                             ? 'Balance member'
                                             : 'Preview user'),
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleLarge,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge,
                                   ),
                                 ),
                                 if (profile.canEditName &&
@@ -318,7 +318,9 @@ class _ProfileContent extends StatelessWidget {
   }
 
   Future<void> _editName(BuildContext context, ProfileViewModel profile) async {
-    var name = profile.userProfile?.displayName ?? '';
+    // Start from the name shown on the card, so a small change needs no
+    // retyping. Empty only when the generic placeholder is showing.
+    var name = _displayName(profile, context.read<AuthViewModel>()) ?? '';
     final entered = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
