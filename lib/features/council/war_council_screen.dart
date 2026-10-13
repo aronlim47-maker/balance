@@ -15,6 +15,8 @@ import '../../core/theme/balance_colors.dart';
 import '../../core/audio/sound_service.dart';
 import '../../core/router/app_router.dart';
 import '../../domain/enums/validation_status.dart';
+import '../../domain/models/task_item.dart';
+import '../quests/task_form_screen.dart';
 import 'no_plan_explanation_card.dart';
 import 'trade_off_option_card.dart';
 import 'war_council_view_model.dart';
@@ -313,6 +315,40 @@ class _NoPlanGuidance extends StatelessWidget {
       explanation: viewModel.noPlanExplanation,
       onOpenTasks: () => context.go(AppRoutes.quests),
       onOpenToday: () => context.go(AppRoutes.today),
+      freeTime: viewModel.freeTimeSuggestion,
+      onEditTask: (id) => _editTask(context, id),
+      onAddFreeTimeOn: (day) {
+        // Today shares the selected day with Council.
+        viewModel.selectDay(day);
+        context.go(AppRoutes.today);
+      },
+    );
+  }
+
+  Future<void> _editTask(BuildContext context, String id) async {
+    final task = viewModel.taskById(id);
+    if (task == null) return;
+    final result = await showModalBottomSheet<TaskItem>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      useSafeArea: true,
+      builder: (_) => FractionallySizedBox(
+        heightFactor: 0.92,
+        child: TaskFormScreen(task: task),
+      ),
+    );
+    if (result == null || !context.mounted) return;
+    final saved = await viewModel.saveTask(result);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          saved
+              ? 'Task updated. Council checked the day again.'
+              : viewModel.errorMessage ?? 'The task could not be saved.',
+        ),
+      ),
     );
   }
 }

@@ -7,10 +7,14 @@
 
 | | |
 | --- | --- |
-| 📱 **Download (Android APK)** | [Latest release](https://github.com/aronlim47-maker/balance/releases/latest) |
-| 📖 **User guide for judges** | [docs/USER_GUIDE.md](docs/USER_GUIDE.md) |
+| 📱 **Download (Android APK)** | [Latest release](https://github.com/aronlim47-maker/balance/releases/latest) — `app-release.apk`, Android 8.0 or later |
+| 📖 **User guide for judges** | [docs/USER_GUIDE.md](docs/USER_GUIDE.md) · [PDF](docs/Balance_User_Guide.pdf) · [Word](docs/Balance_User_Guide.docx) |
+| 🔑 **Judge account** | Supplied in our submission form (never stored in this repository) |
+| 📝 Release notes | [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md) |
 | 🎬 Preliminary pitch video | [YouTube](https://www.youtube.com/watch?v=DV6PFbYdbk8) |
 | 🖼️ Preliminary slides | [Google Slides](https://docs.google.com/presentation/d/1_ctq2F96NrVD1dD9PSV1PLKwfyI83E4G-brSaejZjLE/edit?usp=sharing) |
+
+<p align="center"><img src="docs/images/balance_thumbnail.png" width="720" alt="Balance: Detect, Decide, Recover, Reflect"></p>
 
 ## What Balance does
 
@@ -25,7 +29,7 @@ cost.** Balance answers those questions in one flow:
 | --- | --- | --- |
 | Workload Overview | World Status | Planned vs available minutes first, then five load dimensions (Mental, Time, Physical, Social, Errands) with their change since yesterday and a 7-day trend. Missing data shows **Unknown**, never zero. Availability can be copied from the previous day or repeated for a week. |
 | Tasks and Protected Commitments | Quest Board | Tasks with category, duration, deadline, flexibility and protection; tap a task for its details. Protected work is never moved to make a plan look feasible. |
-| Plan Comparison | War Council | Compares safe moves and shows what changes, what stays protected and the cost on other days. Nothing changes until you **Confirm**; every confirmed plan can be **Undone** from Plan history. |
+| Plan Comparison | War Council | Compares safe moves (whole or part of flexible tasks) and shows what changes, what stays protected and the cost on other days. Nothing changes until you **Confirm**; every confirmed plan can be **Undone** from Plan history. When no safe move exists it explains why and names how much free time on which day would unlock one. |
 | Recovery Time | Sanctuary | A rest camp: a campfire scene whose sky follows the clock, a soft crackle while music is on, and an optional one-minute "Breathe with the fire" exercise. Protects genuinely freed time for optional rest and suggests free windows to choose from. Skipping has no penalty and rest is never scored. |
 | Weekly Reflection | Journey | Private weekly summary, optional reflection and an RPG achievement wall of seven sustainable-planning badges, celebrated once when earned. No streaks, rankings or rewards for overwork. |
 | Overload Alert | Calamity Alert | Optional notification the evening before a day with more planned work than available time. Off by default. |
@@ -71,8 +75,8 @@ Step-by-step instructions with screenshots are in the [user guide](docs/USER_GUI
 
 Flutter and Dart (Android first) · Supabase Auth, PostgreSQL, Row Level Security and
 transactional RPCs · Provider + go_router. The [Architecture](#architecture) and
-[Testing and coverage](#testing-and-coverage) sections below give details: 427
-automated tests pass and critical code has 92.5% line coverage, enforced by CI.
+[Testing and coverage](#testing-and-coverage) sections below give details: 445
+automated tests pass and critical code has 93.1% line coverage, enforced by CI.
 
 **Monitoring.** An hourly GitHub Actions job
 ([Production health check](.github/workflows/health.yml)) verifies that Supabase Auth
@@ -84,27 +88,15 @@ email).
 
 # Developer documentation
 
-## Latest Council upgrade (4 October)
-
-After every earlier migration, apply
-`supabase/migrations/202610040001_plan_review_version.sql` once. Council now
-requires schema version 3: confirmation carries the reviewed task version and
-the server rejects missing/stale versions before writing. Existing databases
-must apply only unapplied migrations, not rerun the initial schema. See
-`docs/20261004_AUDIT_FIXES.md` for the two-device acceptance test and release gates.
-
-For a partially installed verified-progress backend, apply the next additive
-repair `202610040002_restore_progress_helpers.sql`. It installs missing original
-dependencies without replacing existing definitions or reconstructing historical
-scores. Validate with `supabase/tests/verified_progress_runtime.sql` on a disposable
-database; it uses an existing Auth test user and rolls back its fixture writes.
-
-Balance is a Flutter workload-planning application with personal tasks, five-dimension World Status, Supabase authentication, safe Council Confirm/Undo, Sanctuary, private Journey and plan/reflection history. This is an implemented V1 foundation, not a claim that release and live security gates have passed.
+Balance is a Flutter workload-planning app with personal tasks, five-dimension World
+Status, Supabase authentication, server-checked Council Confirm/Undo, Sanctuary, a private
+Journey and plan/reflection history. This section is for developers who want to run their
+own copy; judges only need the [user guide](docs/USER_GUIDE.md).
 
 ## Supabase setup
 
 1. Create a Supabase project.
-2. Open the Supabase SQL Editor and run each unapplied migration once, in filename order: `202609240001_initial_schema.sql`, `202609250001_war_council_integrity.sql`, `202609270001_world_status_achievements.sql`, `202609270002_verified_progress.sql`, `202610010001_planning_consistency.sql`, `202610010002_atomic_social_event.sql`, `202610020001_recovery_history.sql`, `202610020002_planning_adapter_compatibility.sql`, `202610030001_active_planning_occupancy.sql`, `202610030002_retry_safe_social_event.sql`, `202610040001_plan_review_version.sql`, `202610040002_restore_progress_helpers.sql`, then `202610080001_require_task_category.sql` **only after confirming every supported app client submits a category for new tasks and validating the migration against a disposable database**. The latest migration intentionally rejects new tasks with an omitted/NULL category but preserves legacy NULL rows; an older client will fail to save new tasks after it is deployed. For an existing database, apply only migrations not already run. Each migration depends on those before it. Social-event creation requires the atomic-social-event migration; do not fall back to separate writes. Recovery history requires `202610020001_recovery_history.sql` and is recorded only when today's World Status is captured; past days are not backfilled.
+2. Open the Supabase SQL Editor and run each unapplied migration once, in filename order: `202609240001_initial_schema.sql`, `202609250001_war_council_integrity.sql`, `202609270001_world_status_achievements.sql`, `202609270002_verified_progress.sql`, `202610010001_planning_consistency.sql`, `202610010002_atomic_social_event.sql`, `202610020001_recovery_history.sql`, `202610020002_planning_adapter_compatibility.sql`, `202610030001_active_planning_occupancy.sql`, `202610030002_retry_safe_social_event.sql`, `202610040001_plan_review_version.sql`, `202610040002_restore_progress_helpers.sql`, then `202610080001_require_task_category.sql`. The last migration rejects new tasks without a category (every released app version sends one) and keeps older rows without a category, which the app shows as *Uncategorized · Needs Review*. For an existing database, apply only migrations not already run. Each migration depends on those before it. Social-event creation requires the atomic-social-event migration; do not fall back to separate writes. Recovery history requires `202610020001_recovery_history.sql` and is recorded only when today's World Status is captured; past days are not backfilled.
 3. Copy `.env.example` to `.env`.
 4. Put the project URL and publishable key in `.env`. Never use the `service_role` key in the Flutter application.
    Optional: set `SENTRY_DSN` to the Sentry project DSN to enable crash reporting. When it is
@@ -130,11 +122,11 @@ Install that newly built APK on the device. A debug app started without the `--d
 
 The first migration creates the seven MVP tables, automatically creates a profile after signup, and enables Row Level Security. The second migration adds the War Council validation and atomic confirm/undo checks. Until it is applied, the app shows an upgrade notice and disables plan confirmation.
 
-Before testing day-by-day planning, open Profile and set the signed-in user's planning time zone to match the device (for example, `Asia/Kuala_Lumpur` in Malaysia). New profiles currently default to `UTC`; a mismatch can make the app and database assign work near midnight to different days. The Profile page saves this setting to `profiles.time_zone`.
+Before testing day-by-day planning, open Profile and set the signed-in user's planning time zone to match the device (for example, `Asia/Kuala_Lumpur` in Malaysia). New profiles default to `UTC`; a mismatch can make the app and database assign work near midnight to different days. The Profile page saves this setting to `profiles.time_zone`.
 
 War Council labels plans as Feasible, Needs Review, Needs Agreement or No Feasible Plan. It compares its capacity calculation with the database before enabling confirmation; a mismatch is shown as Needs Review. Fixed and protected tasks and protected recovery are listed separately. Agreement-dependent suggestions are visible but cannot be confirmed until the task is updated after agreement.
 
-To test War Council after upgrading, add three hours of availability on one future day and two hours on the following day. Create one flexible, unprotected task scheduled for the full three hours on the first day, with a deadline after the second day. Create another unscheduled two-hour task due on the first day. War Council should propose moving two hours of the scheduled task to the second day. Confirm it, check both days in Today, then undo it on the plan-updated screen. The first day's original overload should return after undo. Avoid changing the tasks or availability between confirm and undo, because the undo safety check may correctly reject restoration if a new conflict was introduced.
+To test War Council after upgrading, add three hours of availability on one future day and two hours on the following day. Create one flexible, unprotected task scheduled for the full three hours on the first day, with a deadline after the second day. Create another unscheduled two-hour task due on the first day. War Council should propose moving two hours of the scheduled task to the second day. Confirm it, check both days in Today, then undo it on the plan-updated screen or from Plan history. The first day's original overload should return after undo. Avoid changing the tasks or availability between confirm and undo, because the undo safety check may correctly reject restoration if a new conflict was introduced.
 
 Without Supabase values, debug builds stay in local development mode so UI work and widget tests can continue; release builds stop at the setup notice.
 
@@ -173,48 +165,28 @@ With one account, record a protected recovery slot in Sanctuary; check its achie
 `capture_world_status` records today's server-derived snapshot when Today loads.
 It does not backfill historic days. Open the app on multiple days to accumulate
 a real trend. The configured profile time zone should match the device for day
-boundaries. For the verified remote deployment state, see the 4 October record below.
+boundaries. For the production deployment state, see *Production database status* below.
 
 ```powershell
 flutter analyze
 flutter test
 ```
 
-## 3 October fixes and database handoff
+## Production database status
 
-The 3 October handoff note (migration dependencies and retry limitations) has been
-removed from `docs/`; it remains in the Git history. Its deployment statements were
-historical; the 4 October record below supersedes them. Flutter tests alone do not prove RLS
-or remote function behavior.
+The production Supabase project (`zuilqjrwpyilsbaitmwo`) has every migration above applied,
+through `202610080001_require_task_category.sql`. Three transaction-and-rollback scripts in
+`supabase/tests` were run against it and passed, with all test writes rolled back:
 
-## 4 October remote repair and acceptance
+- `verified_progress_runtime.sql`: today's snapshot, verified reflection evidence, repeat
+  evaluation without duplicate awards, private helpers.
+- `active_planning_and_retry.sql`: stale or missing task versions, Confirm/Undo, active
+  occupancy and retry-safe social saves.
+- `world_status_achievements.sql`: Row Level Security, grants, trusted writes and
+  cross-owner checks.
 
-Project `zuilqjrwpyilsbaitmwo`: migrations `202610030001`, `202610030002`,
-`202610040001` and additive repair `202610040002` were applied with Lim's approval.
-The repair restores missing snapshot helpers, owner-bound achievement/review RPCs
-and four award triggers without replacing existing snapshot formulas or guessing
-historical scores. Private helpers remain unavailable to client roles.
-
-Three transaction/rollback scripts passed against this project:
-
-- `supabase/tests/verified_progress_runtime.sql`: today's snapshot, verified
-  reflection evidence, repeat evaluation without duplicate awards, private helpers.
-- `supabase/tests/active_planning_and_retry.sql`: stale/missing versions,
-  Confirm/Undo, active occupancy and retry-safe social saves.
-- `supabase/tests/world_status_achievements.sql`: its RLS, grants, trusted-write
-  and cross-owner assertions using existing Auth identities as database claims.
-
-Test fixture writes were rolled back. These tests do not prove two live app
-sessions, simultaneous requests, mobile email callbacks or notification delivery.
-See [acceptance checklist](docs/MVP1_ACCEPTANCE.md) and
-[repair evidence](docs/20261004_AUDIT_FIXES.md). No whole-MVP completion is implied.
-
-## Pending Chong database delivery (8 October)
-
-See [WS11 and judge fixture handoff](docs/20261008_CHONG_WS11_AND_JUDGE.md).
-Migration 202610080001 requires supported-client category rollout and disposable
-database verification before deployment. The judge fixture defaults to rollback.
-No deadline remains a design proposal, not a shipped feature.
+Physical-phone results (Samsung Galaxy A55 5G, 22 scripted checks) and every release APK
+with its SHA-256 are recorded in the [evidence pack](docs/BUILDING_EVIDENCE_PACK.md).
 
 ## Architecture
 
@@ -249,7 +221,7 @@ python tools/check_coverage.py --min 70       # critical code: lib/domain + *_vi
 
 `tools/check_coverage.py` prints per-file line coverage for the critical code and exits 1 when
 the combined figure is below `--min`. CI enforces the 70% minimum; the 13 October 2026 local
-run measured 92.5% (2439/2636 lines) with 427 tests passing.
+run measured 93.1% (2586/2777 lines) with 445 tests passing.
 The WS01-WS14 and achievement test map is `docs/WS_AND_ACHIEVEMENT_TEST_MAP.md`.
 `test/domain/full_scenario_test.dart` is the domain-level full-journey regression
 (300 minutes proposed for a 180-minute evening). SQL scripts in `supabase/tests` need a
@@ -262,7 +234,6 @@ What changed in this build: [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md).
 
 Judge accounts are prepared by the team, never by the repository: create a fresh Auth
 account, set its profile time zone to `Asia/Kuala_Lumpur` **before** seeding, then run
-`supabase/manual/20261008_judge_demo.sql` with `demo_date` 2026-11-01. The full,
-checked procedure is in
-[docs/20261010_CHONG_JUDGE_ACCOUNT_GUIDE.md](docs/20261010_CHONG_JUDGE_ACCOUNT_GUIDE.md).
-Credentials are shared out of band and never committed.
+`supabase/manual/20261008_judge_demo.sql` with `demo_date` 2026-11-01. Judge accounts are
+read-only during judging, so the sample day stays the same for every judge. Credentials are
+shared out of band and never committed.
