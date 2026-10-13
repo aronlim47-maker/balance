@@ -1,5 +1,26 @@
 # Balance release notes
 
+## v1.0.4 — 13 October 2026
+
+Two small wording fixes found while retesting v1.0.3. Install it over any earlier version;
+your sign-in and settings stay. Judges: the
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+applies unchanged.
+
+### Fixes
+
+- Deleting a task that was part of a confirmed plan (even one later undone) now explains
+  why it cannot be deleted — plan history keeps it — and suggests **Mark as done**, which
+  removes it from every day. Before, it said only "Could not delete this task. Please try
+  again."
+- Protect recovery time with no free time ahead now says "No free time in the 7 days from
+  *(date)*" instead of "this week", which read as the calendar week.
+
+### Quality
+
+- 445 automated tests; critical code 93.1% line coverage.
+
 ## v1.0.3 — 13 October 2026
 
 A smarter War Council for days with no safe move. Install it over any earlier version; your

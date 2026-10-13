@@ -190,6 +190,36 @@ void main() {
     );
   });
 
+  testWidgets('with no free time ahead, the form names the 7-day range', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthViewModel()),
+          Provider<RecoveryRepository?>.value(value: _Recovery()),
+          Provider<AvailabilityRepository>.value(
+            value: LocalAvailabilityRepository(),
+          ),
+          Provider<TaskRepository>.value(value: LocalTaskRepository()),
+        ],
+        child: const MaterialApp(home: SanctuaryScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Add recovery time'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add recovery time'));
+    await tester.pumpAndSettle();
+
+    // Smoke test D14: not "this week", which read as the calendar week.
+    expect(
+      find.textContaining('No free time in the 7 days from'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('this week'), findsNothing);
+  });
+
   testWidgets('with slots, a full-width Add recovery time button is shown', (
     tester,
   ) async {

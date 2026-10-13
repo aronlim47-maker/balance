@@ -82,6 +82,15 @@ abstract final class AppErrorMessage {
       return 'This plan changed. Refresh and review it before confirming again.';
     }
     final detail = message.toLowerCase();
+    if (code == '23503') {
+      // A row still referenced elsewhere. Plan history keeps every task that
+      // was part of a confirmed plan (even after Undo), so it cannot be
+      // deleted; completing it removes it from every day instead.
+      return detail.contains('plan_change_items')
+          ? 'This task is part of your plan history, so it cannot be deleted. '
+                'Use Mark as done instead: it will no longer count on any day.'
+          : 'This item is still used elsewhere, so it cannot be deleted.';
+    }
     if (code == '23514' && detail == 'task category required') {
       return 'Choose a task category before saving.';
     }
