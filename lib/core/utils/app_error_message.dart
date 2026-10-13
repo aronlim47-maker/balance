@@ -82,6 +82,19 @@ abstract final class AppErrorMessage {
       return 'This plan changed. Refresh and review it before confirming again.';
     }
     final detail = message.toLowerCase();
+    // A row still referenced elsewhere. A delete that also selects the row
+    // reports HTTP 409 with the database error JSON as its message, so match
+    // the message as well as the code. Plan history keeps every task that was
+    // part of a confirmed plan (even after Undo), so it cannot be deleted;
+    // completing it removes it from every day instead.
+    if (code == '23503' ||
+        detail.contains('"23503"') ||
+        detail.contains('violates foreign key constraint')) {
+      return detail.contains('plan_change_items')
+          ? 'This task is part of your plan history, so it cannot be deleted. '
+                'Use Mark as done instead: it will no longer count on any day.'
+          : 'This item is still used elsewhere, so it cannot be deleted.';
+    }
     if (code == '23514' && detail == 'task category required') {
       return 'Choose a task category before saving.';
     }

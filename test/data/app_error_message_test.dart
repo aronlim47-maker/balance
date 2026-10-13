@@ -101,4 +101,48 @@ void main() {
       'Could not connect. Check your internet connection and try again.',
     );
   });
+
+  test('a task kept by plan history explains why it cannot be deleted', () {
+    expect(
+      AppErrorMessage.from(
+        const PostgrestException(
+          message:
+              'update or delete on table "tasks" violates foreign key '
+              'constraint "plan_change_items_task_id_fkey" on table '
+              '"plan_change_items"',
+          code: '23503',
+        ),
+        fallback: fallback,
+      ),
+      allOf(contains('plan history'), contains('Mark as done')),
+    );
+    // As received on a phone (smoke test D13): delete + select returns HTTP
+    // 409 with the database error JSON as the message.
+    expect(
+      AppErrorMessage.from(
+        const PostgrestException(
+          message:
+              '{"code":"23503","details":"Key is still referenced from table '
+              '\\"plan_change_items\\".","hint":null,"message":"update or '
+              'delete on table \\"tasks\\" violates foreign key constraint '
+              '\\"plan_change_items_task_id_fkey\\" on table '
+              '\\"plan_change_items\\""}',
+          code: '409',
+          details: 'Conflict',
+        ),
+        fallback: fallback,
+      ),
+      allOf(contains('plan history'), contains('Mark as done')),
+    );
+    expect(
+      AppErrorMessage.from(
+        const PostgrestException(
+          message: 'violates foreign key constraint on table "other"',
+          code: '23503',
+        ),
+        fallback: fallback,
+      ),
+      'This item is still used elsewhere, so it cannot be deleted.',
+    );
+  });
 }

@@ -514,7 +514,8 @@ class _RecoveryFormState extends State<_RecoveryForm> {
         const SizedBox(height: 8),
         if (windows.isEmpty)
           Text(
-            'No free time this week. Add availability on Today first.',
+            'No free time in the 7 days from ${date.format(start)}. '
+            'Add availability on Today first.',
             style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
           )
         else ...[
