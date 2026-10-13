@@ -6,6 +6,7 @@ import 'package:balance/domain/models/recovery_slot.dart';
 import 'package:balance/domain/models/task_item.dart';
 import 'package:balance/domain/usecases/generate_trade_offs.dart';
 import 'package:balance/domain/usecases/daily_capacity.dart';
+import 'package:balance/domain/usecases/preview_trade_off.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -293,6 +294,96 @@ void main() {
       ),
       isEmpty,
     );
+  });
+
+  test('moves part of unscheduled work due on the day to an earlier day', () {
+    final dueDay = DateTime(2026, 10, 1);
+    final essay = _task(
+      id: 'essay',
+      start: dueDay,
+      minutes: 120,
+      due: DateTime(2026, 10, 1, 18),
+      scheduled: false,
+    );
+    final availability = [
+      _available(DateTime(2026, 10, 1, 9), 60),
+      _available(DateTime(2026, 9, 30, 9), 120),
+    ];
+    final options = generateTradeOffs(
+      day: dueDay,
+      tasks: [essay],
+      availability: availability,
+      now: now,
+    );
+    expect(options, hasLength(1));
+    expect(options.single.taskId, 'essay');
+    expect(options.single.movedMinutes, 60);
+    expect(options.single.proposedStart, DateTime(2026, 9, 30, 9));
+
+    // The preview accepts it and shows both the due day and the new day.
+    final preview = previewTradeOff(
+      option: options.single,
+      sourceDay: dueDay,
+      tasks: [essay],
+      availability: availability,
+      reservations: const [],
+      recoverySlots: const [],
+    );
+    expect(preview.issue, isNull);
+    expect(preview.canApply, isTrue);
+    expect(preview.days.map((d) => d.day), [
+      DateTime(2026, 9, 30),
+      DateTime(2026, 10, 1),
+    ]);
+    expect(preview.days.last.after.overloadMinutes, 0);
+  });
+
+  test('unscheduled work due on the day has nowhere to go without an '
+      'earlier free day', () {
+    final dueDay = DateTime(2026, 10, 1);
+    expect(
+      generateTradeOffs(
+        day: dueDay,
+        tasks: [
+          _task(
+            id: 'essay',
+            start: dueDay,
+            minutes: 120,
+            due: DateTime(2026, 10, 1, 18),
+            scheduled: false,
+          ),
+        ],
+        // Free time only after the deadline day.
+        availability: [_available(DateTime(2026, 10, 2, 9), 180)],
+        now: now,
+      ),
+      isEmpty,
+    );
+  });
+
+  test('moves the largest part that fits when a window is too short', () {
+    final options = generateTradeOffs(
+      day: day,
+      tasks: [
+        _task(id: 'first', start: DateTime(2026, 9, 30, 9), minutes: 60),
+        _task(id: 'second', start: DateTime(2026, 9, 30, 10), minutes: 60),
+        _task(id: 'third', start: DateTime(2026, 9, 30, 11), minutes: 30),
+      ],
+      availability: [
+        _available(DateTime(2026, 9, 30, 9), 30),
+        _available(DateTime(2026, 10, 1, 9), 90),
+        _available(DateTime(2026, 10, 2, 9), 30),
+      ],
+      now: now,
+    );
+
+    expect(options, hasLength(1));
+    final moves = options.single.allMoves;
+    expect(moves.map((move) => move.taskId), ['first', 'second', 'third']);
+    // "second" only has a 30-minute window left, so half of it moves.
+    expect(moves.map((move) => move.movedMinutes), [60, 30, 30]);
+    expect(moves[1].proposedStart, DateTime(2026, 10, 1, 10));
+    expect(options.single.movedMinutes, 120);
   });
 }
 

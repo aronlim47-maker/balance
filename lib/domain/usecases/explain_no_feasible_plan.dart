@@ -12,7 +12,7 @@ enum NoPlanReasonKind {
   dayPassed,
   noFreeTime,
   dueBeforeFreeTime,
-  flexibleUnscheduled,
+  noOtherDay,
   noLaterFreeTime,
   needsAgreement,
   protectedStays,
@@ -48,7 +48,7 @@ class NoPlanExplanation {
 
   bool get suggestsTasks => reasons.any(
     (reason) =>
-        reason.kind == NoPlanReasonKind.flexibleUnscheduled ||
+        reason.kind == NoPlanReasonKind.noOtherDay ||
         reason.kind == NoPlanReasonKind.needsAgreement ||
         reason.kind == NoPlanReasonKind.protectedStays,
   );
@@ -63,8 +63,9 @@ class NoPlanExplanation {
 
 /// Explains why no trade-off exists for [day]. Mirrors the rules Council uses:
 /// protected and fixed work never moves, agreement-dependent work needs
-/// agreement first, and only flexible work that already has a time on the
-/// day can be moved to free time before its deadline.
+/// agreement first, and flexible work (scheduled on the day, or unscheduled and
+/// due on it) can move, whole or in part, to free time on another day before
+/// its deadline.
 NoPlanExplanation explainNoFeasiblePlan({
   required DateTime day,
   required Iterable<TaskItem> tasks,
@@ -127,28 +128,26 @@ NoPlanExplanation explainNoFeasiblePlan({
     );
   }
 
-  for (final task in dayTasks) {
-    if (_isMovableKind(task) && task.scheduledStart == null) {
-      reasons.add(
-        NoPlanReason(
-          NoPlanReasonKind.flexibleUnscheduled,
-          '"${task.title}" (${task.effectiveRemainingMinutes} min) has no time '
-          'on this day, so Council cannot move it. Give it a start time first.',
-          taskId: task.id,
-        ),
-      );
-    }
-  }
-
-  final scheduledMovable = dayTasks
-      .where((task) => _isMovableKind(task) && task.scheduledStart != null)
-      .take(3);
+  final localNow = (now ?? DateTime.now()).toLocal();
+  final today = DateTime(localNow.year, localNow.month, localNow.day);
   final dayEnd = DateTime(
     selectedDay.year,
     selectedDay.month,
     selectedDay.day + 1,
   );
-  for (final task in scheduledMovable) {
+  for (final task in dayTasks.where(_isMovableKind).take(3)) {
+    if (!_hasOtherDay(task, selectedDay, today, localNow)) {
+      reasons.add(
+        NoPlanReason(
+          NoPlanReasonKind.noOtherDay,
+          '"${task.title}" (${task.effectiveRemainingMinutes} min) is due on '
+          'this day, so there is no other day to move it to. Ask for a later '
+          'deadline, or edit it if it can take less time.',
+          taskId: task.id,
+        ),
+      );
+      continue;
+    }
     // Name protected rest that sits in the free time Council could have used,
     // so the student knows what to change instead of a generic message.
     final blocking =
@@ -171,8 +170,9 @@ NoPlanExplanation explainNoFeasiblePlan({
       NoPlanReason(
         NoPlanReasonKind.noLaterFreeTime,
         blocking.isEmpty
-            ? 'No free time was found for "${task.title}" before it is due. '
-                  'Add free time on another day before its deadline.'
+            ? 'No free time was found for "${task.title}" on another day '
+                  'before it is due. Add free time on another day before its '
+                  'deadline.'
             : '"${task.title}" does not fit before it is due because protected '
                   'recovery time (${_day(blocking.first.startAt)}, '
                   '${_clock(blocking.first.startAt)}) uses free time it needs. '
@@ -228,7 +228,29 @@ NoPlanExplanation explainNoFeasiblePlan({
 }
 
 bool _isMovableKind(TaskItem task) =>
-    !task.isProtected && task.flexibility == TaskFlexibility.flexible;
+    !task.isProtected &&
+    task.flexibility == TaskFlexibility.flexible &&
+    task.effectiveRemainingMinutes > 0;
+
+/// Whether any day other than [day], from today up to the deadline, could
+/// still receive part of [task].
+bool _hasOtherDay(
+  TaskItem task,
+  DateTime day,
+  DateTime today,
+  DateTime localNow,
+) {
+  final due = task.dueAt.toLocal();
+  if (!due.isAfter(localNow)) return false;
+  for (
+    var candidate = today;
+    candidate.isBefore(due);
+    candidate = DateTime(candidate.year, candidate.month, candidate.day + 1)
+  ) {
+    if (!DailyCapacity.sameDay(candidate, day)) return true;
+  }
+  return false;
+}
 
 bool _isOnDay(TaskItem task, DateTime day) {
   if (task.status != TaskStatus.planned) return false;

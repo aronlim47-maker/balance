@@ -74,12 +74,13 @@ TradeOffPreview previewTradeOff({
     if (task.status != TaskStatus.planned ||
         task.isProtected ||
         task.flexibility == TaskFlexibility.fixed ||
-        start == null ||
-        end == null ||
+        // Unscheduled work (no start and no end) may move from its due day.
+        (start == null) != (end == null) ||
         move.movedMinutes <= 0 ||
         move.movedMinutes > task.effectiveRemainingMinutes ||
-        end.difference(start) !=
-            Duration(minutes: task.effectiveRemainingMinutes) ||
+        (start != null &&
+            end!.difference(start) !=
+                Duration(minutes: task.effectiveRemainingMinutes)) ||
         move.proposedEnd.difference(move.proposedStart) !=
             Duration(minutes: move.movedMinutes) ||
         move.proposedEnd.isAfter(task.dueAt) ||
@@ -106,7 +107,7 @@ TradeOffPreview previewTradeOff({
       scheduledStart: remaining == 0 ? null : start,
       scheduledEnd: remaining == 0
           ? null
-          : start.add(Duration(minutes: remaining)),
+          : start?.add(Duration(minutes: remaining)),
     );
   }
   final revisedTasks = [for (final item in tasks) revisedById[item.id] ?? item];
@@ -221,7 +222,13 @@ TradeOffPreview previewTradeOff({
 
   for (final move in moves) {
     final task = sources[move.taskId]!;
-    addDays(task.scheduledStart!, task.scheduledEnd!);
+    final start = task.scheduledStart;
+    final end = task.scheduledEnd;
+    if (start != null && end != null) {
+      addDays(start, end);
+    } else {
+      days.add(date(task.dueAt));
+    }
     addDays(move.proposedStart, move.proposedEnd);
   }
   final sorted = days.toList()..sort();
