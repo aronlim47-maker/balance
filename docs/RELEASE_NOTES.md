@@ -1,5 +1,26 @@
 # Balance release notes
 
+## v1.0.5 — 13 October 2026
+
+Consistency fixes from the second physical-phone retest (HONOR 400 Pro). Install it over any
+earlier version; your sign-in and settings stay. Judges: the
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+applies unchanged; the sample day works exactly as before.
+
+### Fixes
+
+- Today's Time capacity tag now shows the full capacity gap, the same number as Council and
+  the Capacity gap card. Before, a day with work due before its free time could read
+  *1H OVER* on Today and *2H OVER* on Council.
+- Council on a day with no tasks and no free time says *Nothing planned yet* instead of the
+  green *No changes needed. Your plan fits this day.*
+- Sanctuary's folded *Next rest* line uses 12-hour time like the rest of the page.
+
+### Quality
+
+- 446 automated tests; critical code 93.1% line coverage.
+
 ## v1.0.4 — 13 October 2026
 
 Two small wording fixes found while retesting v1.0.3. Install it over any earlier version;

@@ -182,10 +182,20 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
               // and a disabled Confirm button.
               if (viewModel.capacity.overloadMinutes == 0) ...[
                 const SizedBox(height: 18),
-                const RpgPanel(
-                  tone: RpgTone.calm,
-                  child: Text('No changes needed. Your plan fits this day.'),
-                ),
+                // An empty day is not "fits": say so neutrally, as Today does.
+                if (viewModel.capacity.plannedMinutes == 0 &&
+                    viewModel.capacity.availableMinutes == 0)
+                  const RpgPanel(
+                    child: Text(
+                      'Nothing planned yet. Add your free time and tasks on '
+                      'Today to see if this day fits.',
+                    ),
+                  )
+                else
+                  const RpgPanel(
+                    tone: RpgTone.calm,
+                    child: Text('No changes needed. Your plan fits this day.'),
+                  ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
                   onPressed: () => context.go(AppRoutes.today),

@@ -318,10 +318,16 @@ class TimeCapacityPanel extends StatelessWidget {
     super.key,
     required this.plannedMinutes,
     required this.availableMinutes,
+    this.overloadMinutes,
   });
 
   final int plannedMinutes;
   final int availableMinutes;
+
+  /// The day's full capacity gap, when known. The tag shows this number so it
+  /// matches Council and the Capacity gap card: it also counts work due before
+  /// the free time starts. The bar still compares planned with available time.
+  final int? overloadMinutes;
 
   @override
   Widget build(BuildContext context) {
@@ -345,7 +351,7 @@ class TimeCapacityPanel extends StatelessWidget {
     // and the verdict tag pops in last. Replays when the day's numbers change.
     return OneShot(
       duration: const Duration(milliseconds: 1100),
-      replayKey: '$plannedMinutes/$availableMinutes',
+      replayKey: '$plannedMinutes/$availableMinutes/$overloadMinutes',
       builder: (context, t) {
         final shown = ((fitSegments + overSegments) * phase(t, 0, 0.75))
             .round();
@@ -371,6 +377,7 @@ class TimeCapacityPanel extends StatelessWidget {
     required double tagScale,
   }) {
     const segments = 10;
+    final tagOver = overloadMinutes ?? over;
     return RpgPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,9 +386,9 @@ class TimeCapacityPanel extends StatelessWidget {
             'Time capacity',
             trailing: Transform.scale(
               scale: tagScale,
-              child: over > 0
+              child: tagOver > 0
                   ? RpgTag(
-                      '${formatShortDuration(over)} over',
+                      '${formatShortDuration(tagOver)} over',
                       tone: RpgTone.danger,
                     )
                   : availableMinutes == 0
