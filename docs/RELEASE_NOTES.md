@@ -1,5 +1,30 @@
 # Balance release notes
 
+## v1.0.2 — 13 October 2026
+
+Fixes from our physical-phone smoke test (Samsung Galaxy A55 5G). Install it over
+v1.0.0 or v1.0.1; your sign-in and settings stay. Judges: the
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+applies unchanged.
+
+### Fixes
+
+- When work is due before the day's free time starts, the Capacity gap card now explains
+  why the gap is larger than planned minus available time.
+- A day with nothing added says "Nothing planned yet" instead of a green "Plan is
+  balanced".
+- The ▲/▼ change arrows only compare with a previous day that has a recorded total,
+  the same rule as the 7-day trend.
+- Council shows each option's description in full, so the time range is never cut off.
+- Sanctuary uses 12-hour times everywhere, and its error message no longer touches the
+  buttons below it.
+- Journey's weekly chart states its unit (workload score 0–100 per day).
+
+### Quality
+
+- 431 automated tests; critical code 92.6% line coverage.
+
 ## v1.0.1 — 13 October 2026
 
 A small update to v1.0.0. Install it over v1.0.0; your sign-in and settings stay.
