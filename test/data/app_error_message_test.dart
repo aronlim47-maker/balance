@@ -116,6 +116,24 @@ void main() {
       ),
       allOf(contains('plan history'), contains('Mark as done')),
     );
+    // As received on a phone (smoke test D13): delete + select returns HTTP
+    // 409 with the database error JSON as the message.
+    expect(
+      AppErrorMessage.from(
+        const PostgrestException(
+          message:
+              '{"code":"23503","details":"Key is still referenced from table '
+              '\\"plan_change_items\\".","hint":null,"message":"update or '
+              'delete on table \\"tasks\\" violates foreign key constraint '
+              '\\"plan_change_items_task_id_fkey\\" on table '
+              '\\"plan_change_items\\""}',
+          code: '409',
+          details: 'Conflict',
+        ),
+        fallback: fallback,
+      ),
+      allOf(contains('plan history'), contains('Mark as done')),
+    );
     expect(
       AppErrorMessage.from(
         const PostgrestException(
