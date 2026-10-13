@@ -154,7 +154,11 @@ class _TodayContent extends StatelessWidget {
                   availableMinutes: viewModel.availableMinutes,
                 ),
                 const SizedBox(height: 12),
-                CapacityGapCard(overloadMinutes: viewModel.overloadMinutes),
+                CapacityGapCard(
+                  overloadMinutes: viewModel.overloadMinutes,
+                  plannedMinutes: viewModel.plannedMinutes,
+                  availableMinutes: viewModel.availableMinutes,
+                ),
                 if (viewModel.overloadMinutes > 0 &&
                     viewModel.earlyReviewCandidate != null &&
                     context.read<VerifiedProgressService?>() != null)

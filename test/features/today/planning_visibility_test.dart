@@ -69,6 +69,48 @@ void main() {
     },
   );
 
+  test('change arrows ignore a previous day without a total score', () async {
+    // Smoke test D01: yesterday's snapshot had an Errands score but no total,
+    // so the 7-day trend counts it as no data; no arrow should appear.
+    WorldStatusResult snapshot({required int? total}) => WorldStatusResult(
+      dimensions: {
+        for (final d in WorldDimension.values)
+          d: d == WorldDimension.errands
+              ? const DimensionResult.known(0)
+              : const DimensionResult.unknown('No data'),
+      },
+      totalScore: total,
+      coverage: 0.2,
+      isPartial: true,
+      trend: WorldTrend.notEnoughHistory,
+    );
+    final history = _History()..previous = snapshot(total: null);
+    final model = TodayViewModel(
+      LocalTaskRepository(),
+      LocalAvailabilityRepository(),
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      history,
+    );
+    model.selectDay(day, reload: false);
+    await model.load();
+    expect(model.dimensionChanges.values.every((c) => c == null), isTrue);
+
+    history.previous = snapshot(total: 40);
+    await model.load();
+    final errandsNow =
+        model.worldStatus.dimensions[WorldDimension.errands]?.score;
+    expect(
+      model.dimensionChanges[WorldDimension.errands],
+      errandsNow == null ? isNull : errandsNow - 0,
+    );
+    model.dispose();
+  });
+
   test('review and availability changes capture history; capture failure is not save failure', () async {
     final history = _History();
     final model = TodayViewModel(
@@ -124,6 +166,7 @@ class _Plans implements PlanRepository {
 class _History implements WorldHistoryRepository {
   int captures = 0;
   bool fail = false;
+  WorldStatusResult? previous;
   @override
   Future<List<int?>> loadPreviousWeek(DateTime day) async {
     captures++;
@@ -132,7 +175,7 @@ class _History implements WorldHistoryRepository {
   }
 
   @override
-  Future<WorldStatusResult?> loadDaySnapshot(DateTime day) async => null;
+  Future<WorldStatusResult?> loadDaySnapshot(DateTime day) async => previous;
   @override
   Future<WeeklyJourney> loadWeek(DateTime day) async =>
       throw UnimplementedError();

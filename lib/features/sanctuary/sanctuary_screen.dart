@@ -114,6 +114,7 @@ class _RecoveryContent extends StatelessWidget {
                         Expanded(child: Text(model.error!)),
                       ],
                     ),
+                    const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
                       children: [
@@ -352,7 +353,8 @@ class _FeaturedSlot extends StatelessWidget {
     final start = slot.startAt.toLocal();
     final end = slot.endAt.toLocal();
     final minutes = end.difference(start).inMinutes;
-    final time = DateFormat.Hm();
+    // Same 12-hour format as the slot list below ("5:00 PM").
+    final time = DateFormat.jm();
     return RpgPanel(
       tone: RpgTone.calm,
       padding: const EdgeInsets.all(18),

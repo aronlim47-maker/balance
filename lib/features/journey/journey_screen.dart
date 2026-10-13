@@ -120,6 +120,16 @@ class _JourneyContent extends StatelessWidget {
                         weekStart: viewModel.weekStart,
                         scores: viewModel.week!.dailyScores,
                       ),
+                      const SizedBox(height: 8),
+                      // The unit, as on Today's 7-day trend.
+                      Text(
+                        'Workload score 0–100 per day, higher means more '
+                        'planning pressure. "–" means no record.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: BalanceColors.textMuted,
+                        ),
+                      ),
                     ],
                   ),
                 ),
