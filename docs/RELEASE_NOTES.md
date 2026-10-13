@@ -1,11 +1,29 @@
 # Balance release notes
 
+## v1.0.1 — 13 October 2026
+
+A small update to v1.0.0. Install it over v1.0.0; your sign-in and settings stay.
+Judges: the [user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+applies unchanged.
+
+### New
+
+- Deadline reminders can now use a custom lead time: besides 15 minutes, 30 minutes,
+  1 hour and 1 day, choose **Custom minutes…** and enter 1 to 10080 minutes (up to
+  7 days). Only whole numbers in that range are accepted.
+
+### Quality
+
+- 427 automated tests; critical code 92.5% line coverage.
+
 ## v1.0.0 — Building submission (October 2026)
 
 Balance helps a student whose plan no longer fits the day: it shows the overload,
 compares safe ways to fix it, changes nothing until the student confirms, and can undo
 every confirmed change. Android 8.0 or later. Judges: start with the
-[user guide](USER_GUIDE.md).
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf)).
 
 ### Install
 
@@ -43,6 +61,17 @@ every confirmed change. Android 8.0 or later. Judges: start with the
   vibration); original sound effects and relaxing background music, both on by default.
   A gold music button on every page turns the music off in one tap.
 - Dark look by default, plus a warm parchment light look (sun/moon button).
+- Sanctuary rest camp: a campfire scene whose sky follows the clock, a soft crackle while
+  music is on, and an optional one-minute 'Breathe with the fire' exercise (never scored).
+- Short one-shot animations on the core journey: the capacity bar fills and the verdict
+  pops in, the five workload bars grow with counting scores, a confirmed plan draws a tick
+  and slides the task to the day with room, and Undo slides it back. All of them show
+  their finished frame when the phone asks for reduced motion.
+- Gold guild-crest app icon (adaptive and Android 13 themed), a dark launch screen with
+  the crest, the crest on the sign-in page and as the notification icon.
+- Foldable page sections (main ones open, choice remembered on the phone) with a ? button
+  that explains each page and section; full-width Add task and Add recovery time buttons.
+- Profile: edit the display name and choose a profile photo (kept on the phone only).
 - Simpler pages: decision first on Today, one-line score explanations, compact trend,
   shorter Council, Journey and Sanctuary text, plain wording without technical terms.
 
@@ -53,10 +82,17 @@ every confirmed change. Android 8.0 or later. Judges: start with the
   main tabs; it returns to sign-in or Today.
 - A confirmed plan can be undone after leaving the plan-updated screen (Plan history).
 - Large text (200%) no longer overflows on the main pages; faint text meets WCAG AA.
+- Sign-in shows the Email field again (it had been replaced by a second password field).
+- Closing the weekly reflection with Back no longer shows an error screen.
+- Council names a blocking recovery slot in local time (it showed the UTC hour).
+- Today's task cards show the minutes that count on that day, including plan-moved time.
+- Sound effects no longer pause the background music.
+- Council no longer flashes "Needs Review" while it loads; Edit name starts with the
+  current name.
 
 ### Quality and monitoring
 
-- 416 automated tests; critical code 92.4% line coverage, enforced by CI on every push.
+- 422 automated tests; critical code 92.5% line coverage, enforced by CI on every push.
 - Accessibility tests on every main page: tap targets, labels, contrast, 200% text.
 - Hourly health check of the backend and the APK download link; crash reporting with
   Sentry (errors only; no screenshots, IP address or user email).

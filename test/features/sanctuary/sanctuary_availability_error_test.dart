@@ -169,6 +169,9 @@ void main() {
     );
     await tester.pumpAndSettle();
     // No slots yet: the empty card's Add recovery time button opens the form.
+    // The camp scene sits above it, so bring the button into view first.
+    await tester.ensureVisible(find.text('Add recovery time'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Add recovery time'));
     await tester.pumpAndSettle();
 

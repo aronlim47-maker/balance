@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/shared_widgets/one_shot.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
@@ -48,7 +49,7 @@ class RecoverySlotCard extends StatelessWidget {
               '${dayFormat.format(end)} ${timeFormat.format(end)}';
     final title = slot.selectedActivity ?? 'Free rest time';
 
-    return RpgPanel(
+    final card = RpgPanel(
       tone: slot.isProtected ? RpgTone.calm : RpgTone.muted,
       padding: const EdgeInsets.fromLTRB(16, 14, 4, 12),
       child: Column(
@@ -59,14 +60,7 @@ class RecoverySlotCard extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 2, right: 12),
-                child: Icon(
-                  slot.isProtected ? Icons.shield_outlined : Icons.eco_outlined,
-                  color: BalanceColors.calm,
-                  size: 20,
-                  semanticLabel: slot.isProtected
-                      ? 'Protected time'
-                      : 'Unprotected time',
-                ),
+                child: _WardIcon(protected: slot.isProtected),
               ),
               Expanded(
                 child: Column(
@@ -183,6 +177,48 @@ class RecoverySlotCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+    // Dealt in once when it first appears (for example right after saving).
+    return EntranceFade(child: card);
+  }
+}
+
+/// The slot's shield lights up once with a soft calm glow, like a ward
+/// being raised over the rest time.
+class _WardIcon extends StatelessWidget {
+  const _WardIcon({required this.protected});
+  final bool protected;
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = Icon(
+      protected ? Icons.shield_outlined : Icons.eco_outlined,
+      color: BalanceColors.calm,
+      size: 20,
+      semanticLabel: protected ? 'Protected time' : 'Unprotected time',
+    );
+    if (!protected) return icon;
+    return OneShot(
+      duration: const Duration(milliseconds: 900),
+      delay: const Duration(milliseconds: 200),
+      builder: (context, t) {
+        final glow = t < 0.5 ? t * 2 : (1 - t) * 2;
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: BalanceColors.calm.withValues(alpha: 0.6 * glow),
+                blurRadius: 14 * glow,
+              ),
+            ],
+          ),
+          child: Transform.scale(
+            scale: 0.7 + 0.3 * phase(t, 0, 0.45, Curves.easeOutBack),
+            child: icon,
+          ),
+        );
+      },
     );
   }
 }

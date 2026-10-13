@@ -21,6 +21,9 @@ class SoundService extends ChangeNotifier with WidgetsBindingObserver {
   final SharedPreferencesAsync? _prefs;
   AudioPlayer? _effects;
   AudioPlayer? _music;
+  AudioPlayer? _campfire;
+  bool _atCamp = false;
+  bool _loaded = false;
   bool _disposed = false;
 
   bool effectsOn = true;
@@ -32,8 +35,10 @@ class SoundService extends ChangeNotifier with WidgetsBindingObserver {
       effectsOn = await prefs.getBool(_effectsKey) ?? true;
       musicOn = await prefs.getBool(_musicKey) ?? true;
       if (_disposed) return;
+      _loaded = true;
       notifyListeners();
       if (musicOn) await _startMusic();
+      if (musicOn && _atCamp) await _startCampfire();
     } catch (_) {}
   }
 
@@ -48,6 +53,39 @@ class SoundService extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
     await _save(_musicKey, on);
     on ? await _startMusic() : await _stopMusic();
+    if (_atCamp) on ? await _startCampfire() : await _stopCampfire();
+  }
+
+  /// Sanctuary calls this while it is on screen: a soft crackling fire plays
+  /// over the music, only while background music is on.
+  Future<void> setAtCamp(bool atCamp) async {
+    if (_atCamp == atCamp || _disposed) return;
+    _atCamp = atCamp;
+    // Before the saved settings load, load() starts the fire if needed.
+    if (!_loaded) return;
+    atCamp && musicOn ? await _startCampfire() : await _stopCampfire();
+  }
+
+  Future<void> _startCampfire() async {
+    if (_disposed) return;
+    try {
+      var player = _campfire;
+      if (player == null) {
+        player = _campfire = AudioPlayer();
+        await player.setAudioContext(
+          AudioContextConfig(focus: AudioContextConfigFocus.mixWithOthers)
+              .build(),
+        );
+        await player.setReleaseMode(ReleaseMode.loop);
+      }
+      await player.play(AssetSource('audio/campfire_crackle.wav'), volume: 0.3);
+    } catch (_) {}
+  }
+
+  Future<void> _stopCampfire() async {
+    try {
+      await _campfire?.stop();
+    } catch (_) {}
   }
 
   Future<void> playAchievement() => _effect('audio/achievement_unlock.wav');
@@ -101,8 +139,10 @@ class SoundService extends ChangeNotifier with WidgetsBindingObserver {
     try {
       if (state == AppLifecycleState.resumed) {
         _music?.resume();
+        if (_atCamp) _campfire?.resume();
       } else if (state == AppLifecycleState.paused) {
         _music?.pause();
+        _campfire?.pause();
       }
     } catch (_) {}
   }
@@ -113,6 +153,7 @@ class SoundService extends ChangeNotifier with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _effects?.dispose();
     _music?.dispose();
+    _campfire?.dispose();
     super.dispose();
   }
 }

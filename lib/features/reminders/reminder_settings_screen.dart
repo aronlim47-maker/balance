@@ -34,23 +34,63 @@ class ReminderSettingsScreen extends StatelessWidget {
                         controller.save(settings.copyWith(enabled: value))
                   : null,
             ),
-            DropdownButtonFormField<int>(
-              key: ValueKey(settings.leadMinutes),
-              initialValue: settings.leadMinutes,
+            InputDecorator(
               decoration: const InputDecoration(labelText: 'Remind me before'),
-              items: const [
-                DropdownMenuItem(value: 15, child: Text('15 minutes')),
-                DropdownMenuItem(value: 30, child: Text('30 minutes')),
-                DropdownMenuItem(value: 60, child: Text('1 hour')),
-                DropdownMenuItem(value: 1440, child: Text('1 day')),
-              ],
-              onChanged: controller.available && !controller.busy
-                  ? (value) {
-                      if (value != null) {
-                        controller.save(settings.copyWith(leadMinutes: value));
-                      }
-                    }
-                  : null,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<int>(
+                  value: settings.leadMinutes,
+                  isExpanded: true,
+                  items: [
+                    const DropdownMenuItem(
+                      value: 15,
+                      child: Text('15 minutes'),
+                    ),
+                    const DropdownMenuItem(
+                      value: 30,
+                      child: Text('30 minutes'),
+                    ),
+                    const DropdownMenuItem(value: 60, child: Text('1 hour')),
+                    const DropdownMenuItem(value: 1440, child: Text('1 day')),
+                    if (![15, 30, 60, 1440].contains(settings.leadMinutes))
+                      DropdownMenuItem(
+                        value: settings.leadMinutes,
+                        child: Text('${settings.leadMinutes} minutes'),
+                      ),
+                    const DropdownMenuItem(
+                      value: -1,
+                      child: Text('Custom minutes…'),
+                    ),
+                  ],
+                  onChanged: controller.available && !controller.busy
+                      ? (value) async {
+                          if (value == null) return;
+                          if (value == -1) {
+                            final minutes = await _chooseCustomReminderMinutes(
+                              context,
+                              controller.preferences.leadMinutes,
+                            );
+                            if (!context.mounted ||
+                                minutes == null ||
+                                !controller.available ||
+                                controller.busy) {
+                              return;
+                            }
+                            controller.save(
+                              controller.preferences.copyWith(
+                                leadMinutes: minutes,
+                              ),
+                            );
+                          } else {
+                            controller.save(
+                              controller.preferences.copyWith(
+                                leadMinutes: value,
+                              ),
+                            );
+                          }
+                        }
+                      : null,
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             SwitchListTile(
@@ -188,4 +228,60 @@ class ReminderSettingsScreen extends StatelessWidget {
           : controller.preferences.copyWith(quietEnd: minute),
     );
   }
+}
+
+Future<int?> _chooseCustomReminderMinutes(
+  BuildContext context,
+  int currentMinutes,
+) {
+  final formKey = GlobalKey<FormState>();
+  var input = currentMinutes.toString();
+
+  return showDialog<int>(
+    context: context,
+    builder: (dialogContext) {
+      void submit() {
+        if (formKey.currentState!.validate()) {
+          Navigator.of(dialogContext).pop(int.parse(input.trim()));
+        }
+      }
+
+      return AlertDialog(
+        title: const Text('Custom reminder'),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            initialValue: input,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.done,
+            decoration: const InputDecoration(
+              labelText: 'Minutes before deadline',
+              helperText: '1–10080 minutes (up to 7 days)',
+            ),
+            onChanged: (value) => input = value,
+            validator: (value) {
+              final text = (value ?? '').trim();
+              final minutes = int.tryParse(text);
+              if (!RegExp(r'^[0-9]+$').hasMatch(text) ||
+                  minutes == null ||
+                  minutes < 1 ||
+                  minutes > 10080) {
+                return 'Enter a whole number from 1 to 10080.';
+              }
+              return null;
+            },
+            onFieldSubmitted: (_) => submit(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(onPressed: submit, child: const Text('Save')),
+        ],
+      );
+    },
+  );
 }

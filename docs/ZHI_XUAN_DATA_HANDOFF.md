@@ -1,8 +1,9 @@
 # Zhi Xuan: data foundation draft
 
-> Current status: see `20261008_ZHI_XUAN_STATUS.md` and `MVP1_ACCEPTANCE.md`.
+> Current status: see `MVP1_ACCEPTANCE.md`.
 > Historical 27 September draft. Integration context and correct schema names,
-> new migrations and remaining checks are in `20261003_FIX_AND_DATABASE_HANDOFF.md`.
+> new migrations and remaining checks were in the 3 October handoff note (now only in
+> the Git history).
 > Do not use the deployment status or proposed vocabulary below as current facts.
 
 Status: local implementation draft; not deployed to Supabase. Existing auth,
