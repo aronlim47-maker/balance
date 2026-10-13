@@ -1,5 +1,36 @@
 # Balance release notes
 
+## v1.0.3 — 13 October 2026
+
+A smarter War Council for days with no safe move. Install it over any earlier version; your
+sign-in and settings stay. Judges: the
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+applies unchanged; the sample day works exactly as before.
+
+### Council finds more safe moves
+
+- Flexible work without a start time can now move, whole or in part, to free time on an
+  earlier day before its deadline. Before, it was never moved.
+- When no free window is long enough, a plan can move the largest part that fits and leave
+  the rest in place.
+- Fixed and protected work and protected rest still never move, and the server still checks
+  every rule before saving.
+
+### When there is still no safe move
+
+- Council names the day and the extra free time that would unlock a plan, for example
+  *Add 2h 30m of free time on Wed 14 Oct (for example 8:00–10:30 AM)*, and says when that day
+  is already over capacity. Each suggestion is checked by re-running Council first.
+- **Add free time on …** opens Today on that day.
+- **Edit task** opens a blocking task (work due that day, or work waiting for agreement) so
+  you can change its deadline or minutes; Council checks the day again after saving.
+- Reasons no longer ask for a start time; they say when work is due that same day.
+
+### Quality
+
+- 443 automated tests; critical code 93.1% line coverage.
+
 ## v1.0.2 — 13 October 2026
 
 Fixes from our physical-phone smoke test (Samsung Galaxy A55 5G). Install it over
