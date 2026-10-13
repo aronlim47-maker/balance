@@ -5,6 +5,8 @@ the day is over capacity, compares safe ways to fix it, changes nothing until th
 confirms, protects real free time for rest, and lets the student reflect privately.
 
 **Time needed:** about 15 minutes for the full walkthrough. **Help needed:** none.
+**App version:** this guide matches Balance **v1.0.4** (13 October 2026), the
+[latest release](https://github.com/aronlim47-maker/balance/releases/latest).
 
 This guide has three parts:
 
@@ -228,8 +230,10 @@ music is on you hear a soft crackle that stops when you leave the page.
 
 <img src="images/guide/18_sanctuary_empty.png" width="200" alt="Sanctuary with no slots"> <img src="images/guide/19_sanctuary_form.png" width="200" alt="Protect recovery time with suggestions">
 
-If you choose a time outside the available time, Balance explains why and offers **Go to
-Today** or **Choose another time**. Marking an activity done never changes a workload score;
+If there is no free time in the 7 days from the chosen start, the form says *No free time in
+the 7 days from …* and asks you to add availability on Today first. If you choose a time
+outside the available time, Balance explains why and offers **Go to Today** or **Choose
+another time**. Marking an activity done never changes a workload score;
 rest is not graded, and skipping it has no penalty.
 
 ## Step 7 — Weekly summary and achievement wall (JOURNEY)
@@ -320,7 +324,7 @@ There are no streaks, rankings or penalties for skipping.
 | **Category / Status / Type / Protection** chips | Filters; *Clear filters* resets them. |
 | Sections | *Sacred contracts* (protected), *Quests*, *Finished*. |
 | Tags | **OVERDUE**, the category (STUDY, ERRAND, SOCIAL, EXERCISE, OTHER), flexibility (FLEXIBLE, FIXED, NEEDS AGREEMENT), **PROTECTED**. An old task without a category shows *Uncategorized · Needs Review*. |
-| **⋮** menu | **Mark as done** / **Mark as not done**, **Edit**, **Delete**. Marking an Exercise task done asks whether to record the exercise; *Skip* records nothing. |
+| **⋮** menu | **Mark as done** / **Mark as not done**, **Edit**, **Delete**. Marking an Exercise task done asks whether to record the exercise; *Skip* records nothing. A task that was part of a confirmed plan (even one later undone) stays in plan history, so it cannot be deleted: use **Mark as done** instead. |
 | Tap a card | Task details with **Edit task**. |
 
 ## COUNCIL (War Council)
@@ -403,6 +407,8 @@ There are no streaks, rankings or penalties for skipping.
 | Times look several hours off (for example availability at 1:00 AM) | Set the phone to Malaysia time (Settings → System → Date & time → automatic time zone), then reopen Balance. |
 | Council shows **No Feasible Plan** on your own day | Read *Why*. Most often there is not enough free time on another day before the deadline: tap **Add free time on …** for the day Council names. If the work is due on that same day, ask for a later deadline or tap **Edit task** if it can take less time. Fixed and protected work never moves, by design. |
 | Council shows **No Feasible Plan** on the sample day | A recovery slot is using the next day's free time; the explanation names it. Remove it in **SANCTUARY** (step 6.5). |
+| *This task is part of your plan history, so it cannot be deleted* | Plan history keeps every task that was part of a confirmed plan. Use **⋮ → Mark as done**; the task stops counting on every day. |
+| *No free time in the 7 days from …* when protecting rest | Add availability on **TODAY** for one of those days first, then add recovery time again. |
 | The beginner guide does not appear | It shows once per phone. Open **Profile → Beginner guide**. |
 | No sound | Check that the music note at the top of the page is gold, **Profile → Sound effects**, and the phone's media volume. |
 | Music is playing and you want quiet | Tap the gold music note at the top of any main page. |
