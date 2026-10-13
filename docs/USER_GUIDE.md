@@ -15,8 +15,8 @@ This guide has three parts:
 - **Part C — Glossary, privacy, troubleshooting and limitations.**
 
 > **About the screenshots.** They were taken on a team test account that holds the same
-> sample data as the judge account, on a day called *Sunday 11 October*. On the judge
-> account the sample day is **Sunday 1 November 2026**; everything else looks the same.
+> sample data as the judge account, so the dates in them differ. On the judge account the
+> sample day is **Sunday 1 November 2026**; everything else looks the same.
 
 ---
 
@@ -176,7 +176,7 @@ release build; reinstall from the release link.
    here by a plan**, and the day still fits. Back on the sample day, the report shows the
    **60 min** that stayed there, and the day is no longer over capacity.
 
-<img src="images/guide/13_today_after_confirm.png" width="200" alt="The next day after confirming">
+<img src="images/guide/13_today_after_confirm.png" width="200" alt="The sample day after confirming: 60 min of the report stays, the day fits">
 
 ## Step 5 — Undo the plan (COUNCIL → Plan history)
 
@@ -220,7 +220,11 @@ music is on you hear a soft crackle that stops when you leave the page.
 3. **Something to do with it** lists optional ideas (Short walk, Phone-free rest, Sleep
    preparation, Grounding exercise, Reflection prompt, Visit a campus support service,
    Something else). The slot is protected whether or not you choose one.
-4. Tap **Save**. The slot appears as **Protected time · TIME RESERVED**.
+4. Tap **Save**. The slot appears under **All recovery slots** as **Free rest time** (or the
+   activity you chose) with the tag **TIME RESERVED** and *30m held clear*. Your next
+   protected slot is also shown at the top under **Next rest**, with its day and time.
+   Once a slot has started, **Mark activity done** records it (before then the button reads
+   *Mark done after it starts*); **Undo activity done** reverses it.
 5. **Please remove it afterwards**: open its **⋮** menu → **Remove** → **Remove**. A slot on the
    next day would use the free time that the Council plan in step 4 needs.
 
@@ -342,7 +346,8 @@ There are no streaks, rankings or penalties for skipping.
 | Rest camp | Tent and campfire; the sky follows the clock. Still picture when animations are turned off. |
 | **Breathe with the fire** | One minute of guided breathing (4 s in, 4 s hold, 4 s out); optional and never recorded. |
 | **Add recovery time** | Opens *Protect recovery time* with free-time suggestions. |
-| Slot card | *Protected time*, the time, **TIME RESERVED**; **⋮ Edit/Remove**; *Activity done* once it has started. |
+| **Next rest** | Your next protected slot: day, time (for example *11:00 AM – 11:30 AM*), **PROTECTED** and *held clear. Nothing will be scheduled into it.* |
+| **All recovery slots** | Each slot card: **Free rest time** or the chosen activity, the day and time, **TIME RESERVED**; **⋮ Edit/Remove**; **Mark activity done** once it has started (**ACTIVITY DONE**, with **Undo activity done**). |
 | Footer | Skipping has no penalty; rest does not change scores; not a medical service. |
 
 ## JOURNEY (Weekly reflection)
