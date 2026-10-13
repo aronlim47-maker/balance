@@ -7,10 +7,14 @@
 
 | | |
 | --- | --- |
-| 📱 **Download (Android APK)** | [Latest release](https://github.com/aronlim47-maker/balance/releases/latest) |
-| 📖 **User guide for judges** | [docs/USER_GUIDE.md](docs/USER_GUIDE.md) |
+| 📱 **Download (Android APK)** | [Latest release](https://github.com/aronlim47-maker/balance/releases/latest) — `app-release.apk`, Android 8.0 or later |
+| 📖 **User guide for judges** | [docs/USER_GUIDE.md](docs/USER_GUIDE.md) · [PDF](docs/Balance_User_Guide.pdf) · [Word](docs/Balance_User_Guide.docx) |
+| 🔑 **Judge account** | Supplied in our submission form (never stored in this repository) |
+| 📝 Release notes | [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md) |
 | 🎬 Preliminary pitch video | [YouTube](https://www.youtube.com/watch?v=DV6PFbYdbk8) |
 | 🖼️ Preliminary slides | [Google Slides](https://docs.google.com/presentation/d/1_ctq2F96NrVD1dD9PSV1PLKwfyI83E4G-brSaejZjLE/edit?usp=sharing) |
+
+<p align="center"><img src="docs/images/balance_thumbnail.png" width="720" alt="Balance: Detect, Decide, Recover, Reflect"></p>
 
 ## What Balance does
 
@@ -25,7 +29,7 @@ cost.** Balance answers those questions in one flow:
 | --- | --- | --- |
 | Workload Overview | World Status | Planned vs available minutes first, then five load dimensions (Mental, Time, Physical, Social, Errands) with their change since yesterday and a 7-day trend. Missing data shows **Unknown**, never zero. Availability can be copied from the previous day or repeated for a week. |
 | Tasks and Protected Commitments | Quest Board | Tasks with category, duration, deadline, flexibility and protection; tap a task for its details. Protected work is never moved to make a plan look feasible. |
-| Plan Comparison | War Council | Compares safe moves and shows what changes, what stays protected and the cost on other days. Nothing changes until you **Confirm**; every confirmed plan can be **Undone** from Plan history. |
+| Plan Comparison | War Council | Compares safe moves (whole or part of flexible tasks) and shows what changes, what stays protected and the cost on other days. Nothing changes until you **Confirm**; every confirmed plan can be **Undone** from Plan history. When no safe move exists it explains why and names how much free time on which day would unlock one. |
 | Recovery Time | Sanctuary | A rest camp: a campfire scene whose sky follows the clock, a soft crackle while music is on, and an optional one-minute "Breathe with the fire" exercise. Protects genuinely freed time for optional rest and suggests free windows to choose from. Skipping has no penalty and rest is never scored. |
 | Weekly Reflection | Journey | Private weekly summary, optional reflection and an RPG achievement wall of seven sustainable-planning badges, celebrated once when earned. No streaks, rankings or rewards for overwork. |
 | Overload Alert | Calamity Alert | Optional notification the evening before a day with more planned work than available time. Off by default. |
