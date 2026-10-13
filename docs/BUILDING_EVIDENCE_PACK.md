@@ -158,10 +158,10 @@ Critical and Major must be fixed or disclosed before 11 October.
 1. Sign in on a **test account** before you start recording (so no password is filmed). Keep
    the judge account untouched.
 2. Start recording, either:
-    - on the phone: swipe down twice → **Screen record** → with media sound on, so the confirm chime
-      is heard; or
-    - from the PC: `adb shell screenrecord /sdcard/balance_core.mp4` (stops after 3 minutes;
-      press Ctrl+C to stop), then `adb pull /sdcard/balance_core.mp4`.
+   - on the phone: swipe down twice → **Screen record** → with media sound on, so the confirm chime
+     is heard; or
+   - from the PC: `adb shell screenrecord /sdcard/balance_core.mp4` (stops after 3 minutes;
+     press Ctrl+C to stop), then `adb pull /sdcard/balance_core.mp4`.
 3. Do J3 → J8 in one take. Do not cut, speed up or edit the file.
 4. Save as `balance_core_flow_YYYYMMDD_<device>.mp4` and record the commit hash next to it.
 5. The **backup demo video** for the presentation is a separate, edited file.
@@ -201,14 +201,17 @@ time mm:ss; top 3 problems and what we changed.*
 
 Do this on one physical phone. Note the screen and the exact element for each Fail.
 
+Run on 13 Oct 2026 by Tan on the HONOR 400 Pro (Android 16, MagicOS 10.0), v1.0.2 code, test
+account (run R10). Screenshots G01–G10 are in `docs/evidence/Accessibility/`.
+
 | Check | How | Screens | Result |
 | --- | --- | --- | --- |
-| Labels | Turn on TalkBack (Settings → Accessibility). Swipe through every control. Every button reads a meaningful English name (no "button" alone, no icon names). | Today, Quests, Council, Sanctuary, Journey, task form | |
-| Focus order | With TalkBack, swipe right through each screen. Order follows the visual top-to-bottom order; dialogs trap focus until closed. | All | |
-| Text scaling | Settings → Display → Font size largest, Display size largest. Nothing is cut off; no text overlaps; every screen still scrolls. | All | |
-| Contrast | Muted text and chips are readable in daylight; check the faint footer text on Sanctuary. | All | |
-| Touch targets | Every tappable item is at least about 48×48 dp (a fingertip). Check chips, the ⋮ menu, day arrows. | All | |
-| Colour alone | Status (Fits/Over, Locked/Unlocked) is also written as text, not colour only. | Today, Journey | |
+| Labels | Turn on TalkBack (Settings → Accessibility). Swipe through every control. Every button reads a meaningful English name (no "button" alone, no icon names). | Today, Quests, Council, Sanctuary, Journey, task form | **Pass** (R10, HONOR 400 Pro, TalkBack). TalkBack focuses every icon control and reads its English name: ? → "About Today" (G06), section chevron → "Hide/Show Capacity" (G01, G05), → → "Next day" (G04), music → "Turn background music on/off" (G02), sun → "Switch to light mode" (G09), ⋮ → "Task actions" (G03), badge → "Safe Trade-off, Wise Strategist. Unlocked 13 Oct. …" (G07), text buttons Add task (G10) and Add recovery time (G08). Names are the app's labels in code; the screenshots show the focus box (spoken-text overlay was off). |
+| Focus order | With TalkBack, swipe right through each screen. Order follows the visual top-to-bottom order; dialogs trap focus until closed. | All | **Pass** (R10): swiping right moved through the header icons, title and ?, day arrows, then each section from top to bottom on Today, Quests, Sanctuary and Journey (G01–G10). |
+| Text scaling | Settings → Display → Font size largest, Display size largest. Nothing is cut off; no text overlaps; every screen still scrolls. | All | **Partly checked.** Automated: widget tests at 200% text pass (page headers wrap instead of overflowing). Manual check at the largest phone font and display size: not yet recorded. |
+| Contrast | Muted text and chips are readable in daylight; check the faint footer text on Sanctuary. | All | **Pass** in dark mode (R10): muted text, chips and the Sanctuary footer "Skipping has no penalty… Not a medical or therapy service." are readable (Retest_v1.0.2/D04_collapsed.jpg). Automated contrast check in `test/accessibility_guidelines_test.dart`. Light mode not photographed. |
+| Touch targets | Every tappable item is at least about 48×48 dp (a fingertip). Check chips, the ⋮ menu, day arrows. | All | **Pass** (R10): TalkBack's focus boxes show fingertip-sized targets for ⋮ (G03), day arrow (G04), chevrons (G01, G05), ? (G06), music (G02) and theme (G09); the tap-target guideline test passes. |
+| Colour alone | Status (Fits/Over, Locked/Unlocked) is also written as text, not colour only. | Today, Journey | **Pass**: Today writes FITS / NO TIME ADDED / 1H OVER (Retest_v1.0.2/D12.jpg, D10.jpg); Journey badges say UNLOCKED 13 OCT or LOCKED (G07). |
 
 The automated part is `test/accessibility_guidelines_test.dart` (`meetsGuideline` checks for
 labels, tap targets and contrast; passes in the test runs in section J). This manual
@@ -220,7 +223,7 @@ The judge screenshots are the User Guide images in `docs/images/guide/` (taken o
 default font size and Malaysia time, test account with the sample data; judge account
 untouched). `docs/USER_GUIDE.md` shows each one next to the step it explains. Test evidence
 is kept separately in `docs/evidence/Smoke_Test/` (section A) and
-`docs/evidence/Retest_v1.0.2/` (physical-phone retests, run R10).
+`docs/evidence/Retest_v1.0.2/` (physical-phone retests, run R10) and `docs/evidence/Accessibility/` (section G).
 
 ## I. Problem-statement mapping (Effectiveness)
 
@@ -247,3 +250,4 @@ exact wording.
 | 13 Oct 2026 | `260e08b` (v1.0.3) / `fa867de` (v1.0.4) | `flutter test --coverage` + report | 443 / 445 tests passed; critical code 93.1% | Lim (see R8, R9) |
 | 12–13 Oct 2026 | release APK (R6) | Smoke test A on device 1 (Samsung Galaxy A55 5G) | S01–S22 Pass; D01–D12 logged | Matthew |
 | 13 Oct 2026 | v1.0.2 (R10) | Physical-phone retest of the fixed defects on device 2 (HONOR 400 Pro) | D01 D02 D04 D05 D07 D10 D12 Pass; S21 confirm chime verified; D15 D16 logged | Tan; full smoke A not repeated on device 2 |
+| 13 Oct 2026 | v1.0.2 (R10) | Accessibility check (section G) with TalkBack on device 2 (HONOR 400 Pro) | Labels, focus order, touch targets, colour alone Pass; text scaling at the largest phone font not yet recorded | Tan; G01–G10 |
