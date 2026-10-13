@@ -169,8 +169,8 @@ class _RecoveryContent extends StatelessWidget {
                 tone: RpgTone.calm,
                 initiallyExpanded: true,
                 summary:
-                    '${DateFormat.Hm().format(featured.startAt.toLocal())} – '
-                    '${DateFormat.Hm().format(featured.endAt.toLocal())}',
+                    '${DateFormat.jm().format(featured.startAt.toLocal())} – '
+                    '${DateFormat.jm().format(featured.endAt.toLocal())}',
                 child: _FeaturedSlot(slot: featured),
               ),
               const SizedBox(height: 20),
