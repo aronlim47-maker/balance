@@ -324,10 +324,11 @@ There are no streaks, rankings or penalties for skipping.
 | Element | Meaning |
 | --- | --- |
 | Status tag | **FEASIBLE** (a safe option exists), **NEEDS REVIEW** (information missing), **NEEDS AGREEMENT** (someone else must agree), **NO FEASIBLE PLAN** (no safe move). |
+| How Council decides | It moves only flexible work (scheduled on the day, or due on it without a start time), whole or in part, into free time on another day before the deadline. Fixed and protected tasks and protected rest never move; one plan moves at most three tasks. |
 | **What stays protected** | Fixed and protected tasks and protected recovery that will not move. |
 | Option card | What moves, where and when; **See trade-offs** shows cost, protection, room created and checks. |
 | **Confirm selected plan** | Saves the selected option after the server re-checks it. |
-| *No safe move found* | Explains why (for example a task with no start time, or recovery time using the only free time) and offers **Review tasks** or **Add free time on Today**. |
+| *No safe move found* | Explains why (for example work due on this day with no other day to move to, or recovery time using the only free time). When extra free time would help, it says how much and on which day (*Add 2h of free time on Wed 14 Oct …*) with an **Add free time on …** button. Tasks that block the plan have **Edit task** (change the deadline or minutes); **Review tasks** opens Quests. |
 | **Plan history** | Every confirmed plan; open one to **Undo this plan**. |
 
 ## SANCTUARY (Recovery time)
@@ -395,6 +396,7 @@ There are no streaks, rankings or penalties for skipping.
 | "Could not connect" with **Try again** | Check the internet connection, then tap **Try again**. Data already on screen stays visible. |
 | The sample day is not 2h over | Check that you are on the sample day. If a plan is still confirmed, undo it in **COUNCIL → Plan history**. |
 | Times look several hours off (for example availability at 1:00 AM) | Set the phone to Malaysia time (Settings → System → Date & time → automatic time zone), then reopen Balance. |
+| Council shows **No Feasible Plan** on your own day | Read *Why*. Most often there is not enough free time on another day before the deadline: tap **Add free time on …** for the day Council names. If the work is due on that same day, ask for a later deadline or tap **Edit task** if it can take less time. Fixed and protected work never moves, by design. |
 | Council shows **No Feasible Plan** on the sample day | A recovery slot is using the next day's free time; the explanation names it. Remove it in **SANCTUARY** (step 6.5). |
 | The beginner guide does not appear | It shows once per phone. Open **Profile → Beginner guide**. |
 | No sound | Check that the music note at the top of the page is gold, **Profile → Sound effects**, and the phone's media volume. |

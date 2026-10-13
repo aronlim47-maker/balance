@@ -127,27 +127,23 @@ List<TradeOffPlan> _generateSingleTradeOffs({
   if (sourceCapacity.overloadMinutes == 0) return const [];
 
   final movableTasks =
-      allTasks.where((task) {
-        final start = task.scheduledStart;
-        final end = task.scheduledEnd;
-        final remaining = task.effectiveRemainingMinutes;
-        return task.status == TaskStatus.planned &&
-            (task.flexibility == TaskFlexibility.flexible ||
-                (includeNeedsAgreement &&
-                    task.flexibility == TaskFlexibility.needsAgreement)) &&
-            !task.isProtected &&
-            start != null &&
-            end != null &&
-            remaining > 0 &&
-            end.difference(start).inMicroseconds ==
-                Duration(minutes: remaining).inMicroseconds &&
-            !end.isAfter(task.dueAt) &&
-            task.dueAt.isAfter(localNow) &&
-            DailyCapacity.overlapsDay(start, end, selectedDay);
-      }).toList()..sort((a, b) {
-        final byStart = a.scheduledStart!.compareTo(b.scheduledStart!);
-        return byStart != 0 ? byStart : a.id.compareTo(b.id);
-      });
+      allTasks
+          .where(
+            (task) =>
+                _canMove(task, includeNeedsAgreement, localNow) &&
+                (_isBacklogOn(task, selectedDay) ||
+                    (_hasWholeSchedule(task) &&
+                        DailyCapacity.overlapsDay(
+                          task.scheduledStart!,
+                          task.scheduledEnd!,
+                          selectedDay,
+                        ))),
+          )
+          .toList()
+        ..sort((a, b) {
+          final byStart = _taskTime(a).compareTo(_taskTime(b));
+          return byStart != 0 ? byStart : a.id.compareTo(b.id);
+        });
 
   final results = <TradeOffPlan>[];
   for (final task in movableTasks) {
@@ -278,35 +274,29 @@ TradeOffPlan? _generateCombinedTradeOff({
   ).overloadMinutes;
   if (initialGap <= 0) return null;
 
-  // Restrict the first combined planner to tasks fully contained in the source
-  // day. This makes each moved minute's source-day effect exact and avoids
-  // over-promising for cross-midnight work, which the single-task path handles.
+  // Restrict the combined planner to work whose whole effect is on the source
+  // day: tasks scheduled inside it, or unscheduled work due on it. This makes
+  // each moved minute's source-day effect exact and avoids over-promising for
+  // cross-midnight work, which the single-task path handles.
   final candidates =
       allTasks.where((task) {
-        final start = task.scheduledStart;
-        final end = task.scheduledEnd;
-        return task.status == TaskStatus.planned &&
-            (task.flexibility == TaskFlexibility.flexible ||
-                (includeNeedsAgreement &&
-                    task.flexibility == TaskFlexibility.needsAgreement)) &&
-            !task.isProtected &&
-            start != null &&
-            end != null &&
-            task.effectiveRemainingMinutes > 0 &&
-            end.difference(start).inMicroseconds ==
-                Duration(minutes: task.effectiveRemainingMinutes)
-                    .inMicroseconds &&
-            DailyCapacity.sameDay(start.toLocal(), selectedDay) &&
+        if (!_canMove(task, includeNeedsAgreement, localNow)) return false;
+        if (_isBacklogOn(task, selectedDay)) return true;
+        return _hasWholeSchedule(task) &&
             DailyCapacity.sameDay(
-              end.subtract(const Duration(microseconds: 1)).toLocal(),
+              task.scheduledStart!.toLocal(),
               selectedDay,
             ) &&
-            !end.isAfter(task.dueAt) &&
-            task.dueAt.isAfter(localNow);
+            DailyCapacity.sameDay(
+              task.scheduledEnd!
+                  .subtract(const Duration(microseconds: 1))
+                  .toLocal(),
+              selectedDay,
+            );
       }).toList()..sort((a, b) {
         final byDeadline = a.dueAt.compareTo(b.dueAt);
         if (byDeadline != 0) return byDeadline;
-        final byStart = a.scheduledStart!.compareTo(b.scheduledStart!);
+        final byStart = _taskTime(a).compareTo(_taskTime(b));
         return byStart != 0 ? byStart : a.id.compareTo(b.id);
       });
 
@@ -318,10 +308,7 @@ TradeOffPlan? _generateCombinedTradeOff({
 
   for (final task in candidates) {
     if (remainingGap <= 0 || selectedMoves.length >= 3) break;
-    final minutes = task.effectiveRemainingMinutes < remainingGap
-        ? task.effectiveRemainingMinutes
-        : remainingGap;
-    final placement = _findCombinedDestination(
+    DateTime? placeFor(int minutes) => _findCombinedDestination(
       task: task,
       movedMinutes: minutes,
       sourceDay: selectedDay,
@@ -331,7 +318,31 @@ TradeOffPlan? _generateCombinedTradeOff({
       reservations: proposedReservations,
       recoverySlots: allRecovery,
     );
-    if (placement == null) continue;
+    var minutes = task.effectiveRemainingMinutes < remainingGap
+        ? task.effectiveRemainingMinutes
+        : remainingGap;
+    var placement = placeFor(minutes);
+    if (placement == null) {
+      // No free window is long enough: move the largest part that fits
+      // (whole 5-minute steps) and leave the rest where it is. A part that
+      // fits means every shorter part fits too, so a binary search is exact.
+      var low = 5;
+      var high = minutes - 1;
+      int? best;
+      while (low <= high) {
+        final middle = low + ((high - low) ~/ 2);
+        if (placeFor(middle) != null) {
+          best = middle;
+          low = middle + 1;
+        } else {
+          high = middle - 1;
+        }
+      }
+      if (best == null) continue;
+      minutes = best - best % 5;
+      placement = placeFor(minutes);
+      if (placement == null) continue;
+    }
 
     revisedTasks = [
       for (final item in revisedTasks)
@@ -559,13 +570,7 @@ bool _affectedDaysAreClear({
   required List<PlanReservation> reservations,
   required List<RecoverySlot> recoverySlots,
 }) {
-  final start = _dateOnly(originalTask.scheduledStart!.toLocal());
-  final end = originalTask.scheduledEnd!.toLocal();
-  for (
-    var day = start;
-    day.isBefore(end);
-    day = DateTime(day.year, day.month, day.day + 1)
-  ) {
+  for (final day in _sourceDays(originalTask)) {
     if (DailyCapacity.forDay(
           day: day,
           tasks: tasks,
@@ -585,6 +590,53 @@ bool _affectedDaysAreClear({
         recoverySlots: recoverySlots,
       ).overloadMinutes ==
       0;
+}
+
+/// Work Council may move: planned, flexible (or awaiting agreement when the
+/// caller asks), not protected, with time left and a deadline still ahead.
+bool _canMove(TaskItem task, bool includeNeedsAgreement, DateTime localNow) =>
+    task.status == TaskStatus.planned &&
+    (task.flexibility == TaskFlexibility.flexible ||
+        (includeNeedsAgreement &&
+            task.flexibility == TaskFlexibility.needsAgreement)) &&
+    !task.isProtected &&
+    task.effectiveRemainingMinutes > 0 &&
+    task.dueAt.isAfter(localNow);
+
+/// A scheduled task whose time block holds exactly its remaining work and
+/// ends by the deadline.
+bool _hasWholeSchedule(TaskItem task) {
+  final start = task.scheduledStart;
+  final end = task.scheduledEnd;
+  return start != null &&
+      end != null &&
+      end.difference(start).inMicroseconds ==
+          Duration(minutes: task.effectiveRemainingMinutes).inMicroseconds &&
+      !end.isAfter(task.dueAt);
+}
+
+/// Unscheduled work counts on its due day, so moving part of it to free time
+/// on an earlier day lowers that day's load. The server accepts these moves.
+bool _isBacklogOn(TaskItem task, DateTime day) =>
+    task.scheduledStart == null &&
+    task.scheduledEnd == null &&
+    DailyCapacity.sameDay(task.dueAt.toLocal(), day);
+
+DateTime _taskTime(TaskItem task) => task.scheduledStart ?? task.dueAt;
+
+/// The days whose load the task counts on before it is moved.
+List<DateTime> _sourceDays(TaskItem task) {
+  final start = task.scheduledStart;
+  final end = task.scheduledEnd;
+  if (start == null || end == null) return [_dateOnly(task.dueAt.toLocal())];
+  return [
+    for (
+      var day = _dateOnly(start.toLocal());
+      day.isBefore(end.toLocal());
+      day = DateTime(day.year, day.month, day.day + 1)
+    )
+      day,
+  ];
 }
 
 DateTime? _firstFreeStart({

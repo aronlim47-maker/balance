@@ -143,8 +143,48 @@ void main() {
     expect(fixture.viewModel.protectedTasks.single.title, 'Flexible work');
     expect(fixture.viewModel.hasUnscheduledFlexibleWork, isTrue);
     expect(fixture.viewModel.canConfirm, isFalse);
+    // "Due today" could move to the day before if it had free time.
+    final suggestion = fixture.viewModel.freeTimeSuggestion!;
+    final day = fixture.viewModel.selectedDay;
+    expect(suggestion.day, DateTime(day.year, day.month, day.day - 1));
+    expect(suggestion.minutes, 120);
+    expect(suggestion.taskTitle, 'Due today');
     fixture.dispose();
   });
+
+  test(
+    'editing a task from Council saves it and checks the day again',
+    () async {
+      final fixture = await _Fixture.create(
+        serverOverload: 120,
+        flexibility: TaskFlexibility.fixed,
+      );
+      addTearDown(fixture.dispose);
+      await fixture.viewModel.load();
+      // The reason naming "Due today" carries its id, as the Edit button uses.
+      final task = fixture.viewModel.noPlanExplanation.reasons
+          .map((reason) => fixture.viewModel.taskById(reason.taskId ?? ''))
+          .firstWhere((task) => task?.title == 'Due today')!;
+      final day = fixture.viewModel.selectedDay;
+      final later = DateTime(day.year, day.month, day.day + 1, 18);
+      expect(
+        await fixture.viewModel.saveTask(
+          TaskItem(
+            id: task.id,
+            version: task.version,
+            title: task.title,
+            estimatedMinutes: task.estimatedMinutes,
+            dueAt: later,
+          ),
+        ),
+        isTrue,
+      );
+      expect(fixture.viewModel.taskById(task.id)!.dueAt, later);
+      // The 120 minutes now count on the next day, so this day fits.
+      expect(fixture.viewModel.capacity.overloadMinutes, 0);
+      expect(fixture.viewModel.freeTimeSuggestion, isNull);
+    },
+  );
 
   test('recognizes a day when every task is protected', () async {
     final fixture = await _Fixture.create(

@@ -20,6 +20,7 @@ import '../../domain/usecases/explain_no_feasible_plan.dart';
 import '../../domain/usecases/generate_trade_offs.dart';
 import '../../domain/usecases/validate_plan.dart';
 import '../../domain/usecases/preview_trade_off.dart';
+import '../../domain/usecases/suggest_free_time.dart';
 
 class WarCouncilViewModel extends LifecycleNotifier {
   WarCouncilViewModel(
@@ -97,6 +98,37 @@ class WarCouncilViewModel extends LifecycleNotifier {
     recoverySlots: _recoverySlots,
     now: DateTime.now(),
   );
+
+  /// Extra free time on another day that would give Council a safe move.
+  /// Only computed when there is no option (display only).
+  FreeTimeSuggestion? get freeTimeSuggestion => _freeTimeSuggestion;
+  FreeTimeSuggestion? _freeTimeSuggestion;
+
+  TaskItem? taskById(String id) =>
+      _tasks.where((task) => task.id == id).firstOrNull;
+
+  /// Saves an edit made from Council (deadline, minutes or flexibility) and
+  /// reloads the options. Returns false and sets [errorMessage] on failure.
+  Future<bool> saveTask(TaskItem task) async {
+    if (isDisposed || _isSaving) return false;
+    _isSaving = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      await _taskRepository.updateTask(task);
+    } catch (error) {
+      _errorMessage = AppErrorMessage.from(
+        error,
+        fallback: 'Could not save this task. Please try again.',
+      );
+      return false;
+    } finally {
+      _isSaving = false;
+      notifyListeners();
+    }
+    await load();
+    return true;
+  }
 
   bool get allDayTasksProtected {
     final dayTasks = _tasks.where(_isTaskOnSelectedDay).toList();
@@ -267,6 +299,15 @@ class WarCouncilViewModel extends LifecycleNotifier {
       recoverySlots: _recoverySlots,
       includeNeedsAgreement: true,
     );
+    _freeTimeSuggestion = _options.isEmpty
+        ? suggestFreeTime(
+            day: selectedDay,
+            tasks: _tasks,
+            availability: _availability,
+            reservations: _reservations,
+            recoverySlots: _recoverySlots,
+          )
+        : null;
     if (!_options.any((option) => option.id == _selectedOptionId)) {
       _selectedOptionId =
           _options.where((option) => !option.needsAgreement).firstOrNull?.id ??

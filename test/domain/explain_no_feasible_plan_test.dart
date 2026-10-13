@@ -21,6 +21,7 @@ void main() {
       tasks: tasks,
       availability: availability,
     ),
+    now: DateTime(2026, 10, 9, 8),
   );
 
   AvailabilityBlock free(int fromHour, int toHour) => AvailabilityBlock(
@@ -33,7 +34,7 @@ void main() {
   List<NoPlanReasonKind> kinds(NoPlanExplanation explanation) =>
       explanation.reasons.map((reason) => reason.kind).toList();
 
-  test('230 protected + 50 unscheduled flexible: every cause is named', () {
+  test('230 protected + 50 flexible due today: every cause is named', () {
     final explanation = explain(
       [
         TaskItem(
@@ -58,13 +59,13 @@ void main() {
     expect(explanation.dueBeforeFreeTimeMinutes, 190);
     expect(kinds(explanation), [
       NoPlanReasonKind.dueBeforeFreeTime,
-      NoPlanReasonKind.flexibleUnscheduled,
+      NoPlanReasonKind.noOtherDay,
       NoPlanReasonKind.protectedStays,
     ]);
     expect(explanation.reasons[0].message, contains('190 min'));
     expect(explanation.reasons[0].message, contains('7:00 PM'));
     expect(explanation.reasons[1].message, contains('"Lab report" (50 min)'));
-    expect(explanation.reasons[1].message, contains('no time'));
+    expect(explanation.reasons[1].message, contains('no other day'));
     expect(explanation.reasons[1].taskId, 'lab');
     expect(explanation.reasons[2].message, contains('"Thesis" (230 min)'));
     expect(explanation.reasons[2].message, contains('protected'));
@@ -94,7 +95,7 @@ void main() {
           id: 'reading',
           title: 'Reading',
           estimatedMinutes: 180,
-          dueAt: DateTime(2026, 10, 9, 23),
+          dueAt: DateTime(2026, 10, 10, 23),
           scheduledStart: DateTime(2026, 10, 9, 19),
           scheduledEnd: DateTime(2026, 10, 9, 22),
         ),
@@ -132,10 +133,7 @@ void main() {
     );
 
     expect(kinds(explanation), contains(NoPlanReasonKind.needsAgreement));
-    expect(
-      kinds(explanation),
-      isNot(contains(NoPlanReasonKind.flexibleUnscheduled)),
-    );
+    expect(kinds(explanation), isNot(contains(NoPlanReasonKind.noOtherDay)));
   });
 
   test('tasks on other days are not blamed', () {
@@ -241,6 +239,7 @@ void main() {
           endAt: DateTime(2026, 10, 10, 9, 30).toUtc(),
         ),
       ],
+      now: DateTime(2026, 10, 9, 8),
     );
     final reason = explanation.reasons.firstWhere(
       (r) => r.kind == NoPlanReasonKind.noLaterFreeTime,
@@ -250,5 +249,51 @@ void main() {
       contains('protected recovery time (Sat 10 Oct, 9:00 AM)'),
     );
     expect(reason.message, contains('Sanctuary'));
+  });
+
+  test('unscheduled flexible work due later is movable, not blamed for '
+      'missing a start time', () {
+    final explanation = explain(
+      [
+        TaskItem(
+          id: 'essay',
+          title: 'Essay',
+          estimatedMinutes: 120,
+          dueAt: DateTime(2026, 10, 9, 23),
+        ),
+      ],
+      [free(21, 22)],
+    );
+    // Due today with no earlier day left: there is no other day.
+    expect(kinds(explanation), contains(NoPlanReasonKind.noOtherDay));
+
+    final viewedEarly = explainNoFeasiblePlan(
+      day: day,
+      tasks: [
+        TaskItem(
+          id: 'essay',
+          title: 'Essay',
+          estimatedMinutes: 120,
+          dueAt: DateTime(2026, 10, 9, 23),
+        ),
+      ],
+      availability: [free(21, 22)],
+      capacity: DailyCapacity.forDay(
+        day: day,
+        tasks: [
+          TaskItem(
+            id: 'essay',
+            title: 'Essay',
+            estimatedMinutes: 120,
+            dueAt: DateTime(2026, 10, 9, 23),
+          ),
+        ],
+        availability: [free(21, 22)],
+      ),
+      now: DateTime(2026, 10, 7, 8),
+    );
+    // Viewed two days earlier, earlier days could take it: ask for free time.
+    expect(kinds(viewedEarly), contains(NoPlanReasonKind.noLaterFreeTime));
+    expect(kinds(viewedEarly), isNot(contains(NoPlanReasonKind.noOtherDay)));
   });
 }
