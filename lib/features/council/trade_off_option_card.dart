@@ -77,11 +77,9 @@ class TradeOffOptionCard extends StatelessWidget {
                         const SizedBox(height: 6),
                         const RpgLabel('What changes', size: 11),
                         const SizedBox(height: 2),
-                        Text(
-                          description,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        // Shown in full: the time range at the end is the
+                        // part people need, so it must not be cut off.
+                        Text(description),
                       ],
                     ),
                   ),

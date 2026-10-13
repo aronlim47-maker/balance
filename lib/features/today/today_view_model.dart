@@ -82,8 +82,12 @@ class TodayViewModel extends LifecycleNotifier {
 
   /// Change of each dimension against the previous day's recorded snapshot.
   /// Null when either day has no score: a missing day is never read as zero.
+  /// The previous day counts only when it has a total, the same rule the
+  /// 7-day trend uses, so arrows never appear for a day the trend calls
+  /// "no data".
   Map<WorldDimension, int?> get dimensionChanges {
-    final previous = _previousDayStatus;
+    final snapshot = _previousDayStatus;
+    final previous = snapshot?.totalScore == null ? null : snapshot;
     final current = worldStatus;
     return {
       for (final dimension in WorldDimension.values)
