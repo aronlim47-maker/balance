@@ -116,9 +116,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ],
                       const SizedBox(height: 22),
                       FilledButton(
-                        onPressed: auth.isLoading ? null : _submit,
+                        onPressed: auth.isLoading || auth.isWaiting
+                            ? null
+                            : _submit,
                         child: Text(
-                          auth.isLoading ? 'Creating account…' : 'Sign up',
+                          auth.isLoading
+                              ? 'Creating account…'
+                              : auth.isWaiting
+                              ? 'Try again in ${auth.retrySecondsLeft}s'
+                              : 'Sign up',
                         ),
                       ),
                       TextButton(

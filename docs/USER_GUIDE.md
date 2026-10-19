@@ -5,7 +5,7 @@ the day is over capacity, compares safe ways to fix it, changes nothing until th
 confirms, protects real free time for rest, and lets the student reflect privately.
 
 **Time needed:** about 15 minutes for the full walkthrough. **Help needed:** none.
-**App version:** this guide matches Balance **v1.0.5** (13 October 2026), the
+**App version:** this guide matches Balance **v1.0.6** (16 October 2026), the
 [latest release](https://github.com/aronlim47-maker/balance/releases/latest).
 
 This guide has three parts:
@@ -414,6 +414,7 @@ There are no streaks, rankings or penalties for skipping.
 | No sound | Check that the music note at the top of the page is gold, **Profile → Sound effects**, and the phone's media volume. |
 | Music is playing and you want quiet | Tap the gold music note at the top of any main page. |
 | Sign-in fails | Check the email and password from the submission form for typing errors. |
+| *For security, wait … seconds* and the button reads **Try again in …s** | Too many requests in a short time. Wait for the countdown; the button unlocks by itself. |
 | "Can't install app" | Uninstall any earlier Balance build first, then install again. |
 
 ## What Balance does not claim

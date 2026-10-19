@@ -125,11 +125,19 @@ class _AccountHelpScreenState extends State<AccountHelpScreen> {
                       const SizedBox(height: 24),
                       if (!reset) ...[
                         FilledButton(
-                          onPressed: auth.isLoading ? null : () => _send(false),
-                          child: const Text('Send password reset link'),
+                          onPressed: auth.isLoading || auth.isWaiting
+                              ? null
+                              : () => _send(false),
+                          child: Text(
+                            auth.isWaiting
+                                ? 'Try again in ${auth.retrySecondsLeft}s'
+                                : 'Send password reset link',
+                          ),
                         ),
                         TextButton(
-                          onPressed: auth.isLoading ? null : () => _send(true),
+                          onPressed: auth.isLoading || auth.isWaiting
+                              ? null
+                              : () => _send(true),
                           child: const Text('Resend verification email'),
                         ),
                       ] else ...[

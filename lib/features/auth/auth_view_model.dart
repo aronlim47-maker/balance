@@ -45,6 +45,28 @@ class AuthViewModel extends LifecycleNotifier {
   String? get currentUserId => _repository?.currentUser?.id;
   bool get isAuthenticated => !isConfigured || _repository?.currentUser != null;
   bool get isLoading => _isLoading;
+
+  /// Seconds left before the server allows another request, after it asked
+  /// the user to wait. Buttons stay disabled and show a countdown meanwhile.
+  int get retrySecondsLeft => _retrySecondsLeft;
+  bool get isWaiting => _retrySecondsLeft > 0;
+  int _retrySecondsLeft = 0;
+  Timer? _retryTicker;
+
+  void _startWait(Duration wait) {
+    _retrySecondsLeft = wait.inSeconds;
+    _retryTicker?.cancel();
+    _retryTicker = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (isDisposed) return timer.cancel();
+      _retrySecondsLeft--;
+      if (_retrySecondsLeft <= 0) {
+        _retrySecondsLeft = 0;
+        timer.cancel();
+      }
+      notifyListeners();
+    });
+  }
+
   String? get errorMessage => _errorMessage;
   String? get noticeMessage => _noticeMessage;
   String? get currentUserEmail => _repository?.currentUser?.email;
@@ -120,7 +142,7 @@ class AuthViewModel extends LifecycleNotifier {
   }
 
   Future<bool> _run(Future<bool> Function() action) async {
-    if (isDisposed || _isLoading) return false;
+    if (isDisposed || _isLoading || isWaiting) return false;
     _isLoading = true;
     _errorMessage = null;
     _noticeMessage = null;
@@ -132,6 +154,8 @@ class AuthViewModel extends LifecycleNotifier {
         error,
         fallback: 'Could not complete this request. Please try again.',
       );
+      final wait = AppErrorMessage.retryAfter(error);
+      if (wait != null && wait > Duration.zero) _startWait(wait);
       return false;
     } finally {
       _isLoading = false;
@@ -149,6 +173,7 @@ class AuthViewModel extends LifecycleNotifier {
   @override
   void dispose() {
     _subscription?.cancel();
+    _retryTicker?.cancel();
     super.dispose();
   }
 }

@@ -11,8 +11,25 @@ abstract final class AppErrorMessage {
       'Recovery time must be inside your available time. '
       'Add availability on Today first, then try again.';
 
+  /// How long the server asks the user to wait before trying again, when it
+  /// says so ("...you can only request this after 42 seconds"). Null otherwise.
+  static Duration? retryAfter(Object error) {
+    if (error is! AuthException) return null;
+    final match = _waitSeconds.firstMatch(error.message.toLowerCase());
+    if (match == null) return null;
+    return Duration(seconds: int.parse(match.group(1)!));
+  }
+
+  static final _waitSeconds = RegExp(r'after (\d+) seconds?');
+
   static String from(Object error, {required String fallback}) {
-    if (error is AuthException) return _auth(error.message);
+    if (error is AuthException) {
+      return _auth(
+        error.message,
+        code: error.code,
+        statusCode: error.statusCode,
+      );
+    }
     if (error is PostgrestException) {
       return _database(error.message, error.code, fallback);
     }
@@ -40,8 +57,26 @@ abstract final class AppErrorMessage {
     return fallback;
   }
 
-  static String _auth(String message) {
+  static String _auth(String message, {String? code, String? statusCode}) {
     final detail = message.toLowerCase();
+    final wait = _waitSeconds.firstMatch(detail);
+    if (wait != null) {
+      return 'For security, wait ${wait.group(1)} seconds before trying again. '
+          'The button unlocks when the time is up.';
+    }
+    if (code == 'over_email_send_rate_limit' ||
+        detail.contains('email rate limit')) {
+      return 'Too many verification emails were sent recently, so new ones are '
+          'paused for up to an hour. If you already signed up, check your inbox '
+          'and spam folder for the first email, then sign in.';
+    }
+    if (detail.contains('error sending')) {
+      return 'The email could not be sent right now. Wait a few minutes and '
+          'try again.';
+    }
+    if (code == 'signup_disabled' || detail.contains('signups not allowed')) {
+      return 'New sign-ups are turned off right now. Please contact the team.';
+    }
     if (_looksLikeNetworkFailure(detail)) {
       return 'Could not connect. Check your internet connection and try again.';
     }
@@ -68,13 +103,21 @@ abstract final class AppErrorMessage {
             detail.contains('least'))) {
       return 'Choose a stronger password and try again.';
     }
-    if (detail.contains('rate limit') || detail.contains('too many requests')) {
-      return 'Too many attempts. Wait a little and try again.';
+    if (code == 'over_request_rate_limit' ||
+        statusCode == '429' ||
+        detail.contains('rate limit') ||
+        detail.contains('too many requests')) {
+      return 'Too many attempts from this device. Wait about 5 minutes, then '
+          'try again.';
     }
     if (detail.contains('expired') || detail.contains('jwt')) {
       return 'Your session has ended. Sign in again and retry.';
     }
-    return 'Could not complete the account request. Please try again.';
+    // Name the server's error code (never its message) so the team can help.
+    return code == null
+        ? 'Could not complete the account request. Please try again.'
+        : 'Could not complete the account request (code: $code). '
+              'Please try again.';
   }
 
   static String _database(String message, String? code, String fallback) {
