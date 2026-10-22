@@ -84,8 +84,10 @@ abstract final class Tr {
 
   /// A value captured by a pattern: translated when it has its own entry.
   static String _value(String value) {
-    final table = _table;
-    return table[value] ?? table[value.trim()] ?? _durations(value);
+    // A value can itself be a translatable sentence ("90 minutes must be
+    // moved…" inside a longer message), so run the full lookup on it.
+    final translated = of(value);
+    return translated != value ? translated : _durations(value);
   }
 
   /// "2h 30m" / "45m" / "3h" written with the language's own units.
@@ -116,7 +118,12 @@ abstract final class Tr {
           var last = 0;
           for (final m in slot.allMatches(key)) {
             buffer.write(RegExp.escape(key.substring(last, m.start)));
-            buffer.write('(.+?)');
+            // A slot glued to a unit ("{0}h", "{0}s", "{0}%") is a number,
+            // so "Room" can never match "{0}m".
+            final next = m.end < key.length ? key[m.end] : ' ';
+            final glued = RegExp(r'[A-Za-z%]').hasMatch(next);
+            // Other slots may be empty: "task{1}" is "task" or "tasks".
+            buffer.write(glued ? r'(\d+(?:\.\d+)?)' : '(.*?)');
             slots.add(m.group(1)!);
             last = m.end;
           }

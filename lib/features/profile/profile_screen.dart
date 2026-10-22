@@ -20,6 +20,7 @@ import '../../data/repositories/check_in_repository.dart';
 import '../../data/repositories/movement_repository.dart';
 import '../../data/repositories/social_repository.dart';
 import '../../core/l10n/tr.dart';
+import '../../core/l10n/language_controller.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -275,6 +276,8 @@ class _ProfileContent extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
+              const _LanguageTile(),
+              const SizedBox(height: 12),
               const _SoundSettings(),
               Card(
                 child: ListTile(
@@ -484,5 +487,49 @@ class _SoundSettings extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Language: English, 中文 or Bahasa Melayu. Each option is written in its own
+/// language so anyone can find theirs. Saved on this phone.
+class _LanguageTile extends StatelessWidget {
+  const _LanguageTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watch<LanguageController?>();
+    if (controller == null) return const SizedBox.shrink();
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.translate),
+        title: Text('Language'.tr),
+        subtitle: Text(controller.language.nativeName),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => _choose(context, controller),
+      ),
+    );
+  }
+
+  Future<void> _choose(
+    BuildContext context,
+    LanguageController controller,
+  ) async {
+    final picked = await showDialog<AppLanguage>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text('Language'.tr),
+        children: [
+          for (final language in AppLanguage.values)
+            ListTile(
+              title: Text(language.nativeName),
+              trailing: language == controller.language
+                  ? const Icon(Icons.check)
+                  : null,
+              onTap: () => Navigator.pop(dialogContext, language),
+            ),
+        ],
+      ),
+    );
+    if (picked != null) await controller.setLanguage(picked);
   }
 }

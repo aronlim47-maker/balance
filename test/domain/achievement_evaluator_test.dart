@@ -109,11 +109,14 @@ void main() {
         expect(CommitmentType.fromStorage(type.storageValue), type);
       }
     });
-    test('anything else is no commitment type, never inferred from a title', () {
-      expect(CommitmentType.fromStorage(null), isNull);
-      expect(CommitmentType.fromStorage(''), isNull);
-      expect(CommitmentType.fromStorage('Work shift'), isNull);
-    });
+    test(
+      'anything else is no commitment type, never inferred from a title',
+      () {
+        expect(CommitmentType.fromStorage(null), isNull);
+        expect(CommitmentType.fromStorage(''), isNull);
+        expect(CommitmentType.fromStorage('Work shift'), isNull);
+      },
+    );
   });
 
   group('catalogue', () {
@@ -224,23 +227,26 @@ void main() {
         isTrue,
       );
     });
-    test('negative: no move, only a fixed task moved, or past the deadline', () {
-      expect(eligible(AchievementKey.deadlineSafety, plan()), isFalse);
-      expect(
-        eligible(
-          AchievementKey.deadlineSafety,
-          plan(moves: [move(flexible: false)]),
-        ),
-        isFalse,
-      );
-      expect(
-        eligible(
-          AchievementKey.deadlineSafety,
-          plan(moves: [move(end: due.add(const Duration(minutes: 1)))]),
-        ),
-        isFalse,
-      );
-    });
+    test(
+      'negative: no move, only a fixed task moved, or past the deadline',
+      () {
+        expect(eligible(AchievementKey.deadlineSafety, plan()), isFalse);
+        expect(
+          eligible(
+            AchievementKey.deadlineSafety,
+            plan(moves: [move(flexible: false)]),
+          ),
+          isFalse,
+        );
+        expect(
+          eligible(
+            AchievementKey.deadlineSafety,
+            plan(moves: [move(end: due.add(const Duration(minutes: 1)))]),
+          ),
+          isFalse,
+        );
+      },
+    );
     test('negative: an unconfirmed or failed plan never qualifies', () {
       expect(
         eligible(
@@ -325,10 +331,7 @@ void main() {
     });
     test('negative: not protected, unsaved, or a recovery slot', () {
       expect(
-        eligible(
-          AchievementKey.protectedLimit,
-          commitment(isProtected: false),
-        ),
+        eligible(AchievementKey.protectedLimit, commitment(isProtected: false)),
         isFalse,
       );
       expect(
@@ -493,10 +496,7 @@ void main() {
         reflection(id: 'e'),
         shared(id: 'f'),
       ]);
-      expect(
-        awards.map((a) => a.key).toSet(),
-        AchievementKey.values.toSet(),
-      );
+      expect(awards.map((a) => a.key).toSet(), AchievementKey.values.toSet());
       expect(awards.length, 7);
     });
   });

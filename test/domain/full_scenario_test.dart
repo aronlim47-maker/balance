@@ -137,32 +137,35 @@ void main() {
   });
 
   group('Step 3: compare plans', () {
-    test('a destination with room produces a plan that spares protected work', () {
-      final options = generateTradeOffs(
-        day: tonight,
-        tasks: [assignment, reading, recording],
-        availability: [
-          eveningAvailability,
-          AvailabilityBlock(
-            id: 'thursday',
-            startAt: DateTime(2026, 10, 8, 18),
-            endAt: DateTime(2026, 10, 8, 20),
-            isAvailable: true,
-          ),
-        ],
-        now: now,
-      );
-      expect(options, isNotEmpty);
-      for (final option in options) {
-        for (final move in option.allMoves) {
-          expect(move.taskId, isNot('assignment'));
-          expect(move.proposedEnd.isAfter(readingDue), isFalse);
-          expect(move.proposedStart.isAfter(now), isTrue);
+    test(
+      'a destination with room produces a plan that spares protected work',
+      () {
+        final options = generateTradeOffs(
+          day: tonight,
+          tasks: [assignment, reading, recording],
+          availability: [
+            eveningAvailability,
+            AvailabilityBlock(
+              id: 'thursday',
+              startAt: DateTime(2026, 10, 8, 18),
+              endAt: DateTime(2026, 10, 8, 20),
+              isAvailable: true,
+            ),
+          ],
+          now: now,
+        );
+        expect(options, isNotEmpty);
+        for (final option in options) {
+          for (final move in option.allMoves) {
+            expect(move.taskId, isNot('assignment'));
+            expect(move.proposedEnd.isAfter(readingDue), isFalse);
+            expect(move.proposedStart.isAfter(now), isTrue);
+          }
+          expect(option.movedMinutes, greaterThanOrEqualTo(120));
         }
-        expect(option.movedMinutes, greaterThanOrEqualTo(120));
-      }
-      expect(options.first.allMoves.first.proposedStart.day, thursday.day);
-    });
+        expect(options.first.allMoves.first.proposedStart.day, thursday.day);
+      },
+    );
 
     test('a protected-only evening has no plan to propose', () {
       final options = generateTradeOffs(
@@ -187,32 +190,35 @@ void main() {
       expect(options, isEmpty);
     });
 
-    test('status rules: unknown -> Needs Review, impossible -> No Feasible Plan', () {
-      expect(
-        validatePlan(
-          hasRequiredInformation: false, // recording deadline unknown
-          hasFeasibleCapacity: true,
-          needsAgreement: false,
-        ),
-        ValidationStatus.needsReview,
-      );
-      expect(
-        validatePlan(
-          hasRequiredInformation: true,
-          hasFeasibleCapacity: false, // Thursday/Saturday cannot fit the work
-          needsAgreement: false,
-        ),
-        ValidationStatus.noFeasiblePlan,
-      );
-      expect(
-        validatePlan(
-          hasRequiredInformation: true,
-          hasFeasibleCapacity: true,
-          needsAgreement: true, // shared task without approval
-        ),
-        ValidationStatus.needsAgreement,
-      );
-    });
+    test(
+      'status rules: unknown -> Needs Review, impossible -> No Feasible Plan',
+      () {
+        expect(
+          validatePlan(
+            hasRequiredInformation: false, // recording deadline unknown
+            hasFeasibleCapacity: true,
+            needsAgreement: false,
+          ),
+          ValidationStatus.needsReview,
+        );
+        expect(
+          validatePlan(
+            hasRequiredInformation: true,
+            hasFeasibleCapacity: false, // Thursday/Saturday cannot fit the work
+            needsAgreement: false,
+          ),
+          ValidationStatus.noFeasiblePlan,
+        );
+        expect(
+          validatePlan(
+            hasRequiredInformation: true,
+            hasFeasibleCapacity: true,
+            needsAgreement: true, // shared task without approval
+          ),
+          ValidationStatus.needsAgreement,
+        );
+      },
+    );
   });
 
   group('Step 4-5: confirm and protect recovery (14.8 arithmetic)', () {
@@ -237,47 +243,59 @@ void main() {
     });
 
     test('the moved work fits its destination slots before the deadlines', () {
-      final thursdaySlot = DateTime(2026, 10, 8, 18).add(
-        const Duration(minutes: 90),
-      );
-      final saturdaySlot = DateTime(2026, 10, 10, 10).add(
-        const Duration(minutes: 60),
-      );
+      final thursdaySlot = DateTime(
+        2026,
+        10,
+        8,
+        18,
+      ).add(const Duration(minutes: 90));
+      final saturdaySlot = DateTime(
+        2026,
+        10,
+        10,
+        10,
+      ).add(const Duration(minutes: 60));
       expect(thursdaySlot.isAfter(readingDue), isFalse);
       expect(saturdaySlot.isAfter(recording.dueAt), isFalse);
       expect(thursday.weekday, DateTime.thursday);
       expect(saturday.weekday, DateTime.saturday);
     });
 
-    test('Mental and Time pressure fall; protecting recovery lowers them again', () {
-      final before = status(
-        planned: 300,
-        recoveryMinutes: 0,
-        tasks: [assignment, reading, recording],
-      );
-      final moved = status(
-        planned: 150,
-        recoveryMinutes: 0,
-        tasks: [assignment, readingTonight],
-      );
-      final protectedRecovery = status(
-        planned: 150,
-        recoveryMinutes: 30,
-        tasks: [assignment, readingTonight],
-      );
-      int score(WorldStatusResult r, WorldDimension d) =>
-          r.dimensions[d]!.score!;
-      for (final d in [WorldDimension.time, WorldDimension.mental]) {
-        expect(score(moved, d), lessThan(score(before, d)), reason: d.name);
-        expect(
-          score(protectedRecovery, d),
-          lessThan(score(moved, d)),
-          reason: d.name,
+    test(
+      'Mental and Time pressure fall; protecting recovery lowers them again',
+      () {
+        final before = status(
+          planned: 300,
+          recoveryMinutes: 0,
+          tasks: [assignment, reading, recording],
         );
-      }
-      expect(moved.totalScore!, lessThan(before.totalScore!));
-      expect(protectedRecovery.totalScore!, lessThanOrEqualTo(moved.totalScore!));
-    });
+        final moved = status(
+          planned: 150,
+          recoveryMinutes: 0,
+          tasks: [assignment, readingTonight],
+        );
+        final protectedRecovery = status(
+          planned: 150,
+          recoveryMinutes: 30,
+          tasks: [assignment, readingTonight],
+        );
+        int score(WorldStatusResult r, WorldDimension d) =>
+            r.dimensions[d]!.score!;
+        for (final d in [WorldDimension.time, WorldDimension.mental]) {
+          expect(score(moved, d), lessThan(score(before, d)), reason: d.name);
+          expect(
+            score(protectedRecovery, d),
+            lessThan(score(moved, d)),
+            reason: d.name,
+          );
+        }
+        expect(moved.totalScore!, lessThan(before.totalScore!));
+        expect(
+          protectedRecovery.totalScore!,
+          lessThanOrEqualTo(moved.totalScore!),
+        );
+      },
+    );
   });
 
   group('Step 6: achievements earned along the journey, and Undo', () {
@@ -357,16 +375,21 @@ void main() {
       expect(evaluator.eligibleKeys(review), [AchievementKey.earlyReview]);
     });
 
-    test('Team Coordination stays locked without verified shared-task evidence', () {
-      const personal = SharedTaskAgreementEvent(
-        eventId: 'task-1',
-        committed: true,
-        isVerifiedShared: false,
-        markedNeedsAgreement: true,
-        movedAutomatically: false,
-      );
-      expect(evaluator.newAwards([confirm, recovery, personal]).map((a) => a.key),
-          isNot(contains(AchievementKey.teamCoordination)));
-    });
+    test(
+      'Team Coordination stays locked without verified shared-task evidence',
+      () {
+        const personal = SharedTaskAgreementEvent(
+          eventId: 'task-1',
+          committed: true,
+          isVerifiedShared: false,
+          markedNeedsAgreement: true,
+          movedAutomatically: false,
+        );
+        expect(
+          evaluator.newAwards([confirm, recovery, personal]).map((a) => a.key),
+          isNot(contains(AchievementKey.teamCoordination)),
+        );
+      },
+    );
   });
 }

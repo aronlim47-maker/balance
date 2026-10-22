@@ -1,3 +1,5 @@
+import '../../core/l10n/tr.dart';
+
 /// The user's primary task category. Protection and flexibility are separate.
 enum LoadCategory {
   study('Study'),
@@ -6,8 +8,11 @@ enum LoadCategory {
   exercise('Exercise'),
   other('Other');
 
-  const LoadCategory(this.label);
-  final String label;
+  const LoadCategory(this._english);
+  final String _english;
+
+  /// The label in the current language.
+  String get label => _english.tr;
 
   static LoadCategory? fromStorage(String? value) => switch (value) {
     'study' => LoadCategory.study,

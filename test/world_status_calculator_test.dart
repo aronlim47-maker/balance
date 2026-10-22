@@ -64,7 +64,7 @@ void main() {
         ? lastExercise ?? DateTime(2026, 9, 21)
         : null,
     socialEvents:
-    social ??
+        social ??
         const [
           WorldSocialEvent(
             durationMinutes: 120,
@@ -112,7 +112,7 @@ void main() {
   test('WS01 weights total 100% and bars keep the fixed order', () {
     final total = WorldStatusCalculator.weights.values.fold<double>(
       0,
-          (sum, weight) => sum + weight,
+      (sum, weight) => sum + weight,
     );
     expect(total, closeTo(1, 1e-9));
     expect(WorldStatusCalculator.weights[WorldDimension.time], .30);
@@ -154,7 +154,10 @@ void main() {
   test('WS02 skipped energy is excluded, not scored as zero or High', () {
     final skipped = calculator.calculate(fixture(mental: null));
     // (0.25*45 + 0.25*66.67 + 0.20*100) / 0.70 = 68.45
-    expect(skipped.dimensions[WorldDimension.mental]!.rawScore, closeTo(68.45, .01));
+    expect(
+      skipped.dimensions[WorldDimension.mental]!.rawScore,
+      closeTo(68.45, .01),
+    );
     expect(score(skipped, WorldDimension.mental), 68);
     // Different from every recorded energy choice, so it was not substituted.
     for (final level in EnergyLevel.values) {
@@ -189,29 +192,35 @@ void main() {
     expect(score(fits, WorldDimension.mental), 51);
   });
 
-  test('WS03 explicit zero availability and disabled recovery target stay finite', () {
-    final result = calculator.calculate(
-      WorldStatusInput(
-        localDate: date,
-        windowStart: start,
-        previousSevenTotals: noHistory,
-        plannedMinutes: 60,
-        availableMinutes: 0,
-        unfinishedTasks: [
-          WorldStatusTask(
-            remainingMinutes: 60,
-            dueAt: start,
-            category: LoadCategory.errand,
-          ),
-        ],
-        protectedRecoveryMinutes: 0,
-        targetRecoveryMinutes: 0,
-      ),
-    );
-    expect(result.dimensions[WorldDimension.time]!.score, isNotNull);
-    expect(result.dimensions[WorldDimension.errands]!.score, isNotNull);
-    expect(result.dimensions[WorldDimension.mental]!.rawScore!.isFinite, true);
-  });
+  test(
+    'WS03 explicit zero availability and disabled recovery target stay finite',
+    () {
+      final result = calculator.calculate(
+        WorldStatusInput(
+          localDate: date,
+          windowStart: start,
+          previousSevenTotals: noHistory,
+          plannedMinutes: 60,
+          availableMinutes: 0,
+          unfinishedTasks: [
+            WorldStatusTask(
+              remainingMinutes: 60,
+              dueAt: start,
+              category: LoadCategory.errand,
+            ),
+          ],
+          protectedRecoveryMinutes: 0,
+          targetRecoveryMinutes: 0,
+        ),
+      );
+      expect(result.dimensions[WorldDimension.time]!.score, isNotNull);
+      expect(result.dimensions[WorldDimension.errands]!.score, isNotNull);
+      expect(
+        result.dimensions[WorldDimension.mental]!.rawScore!.isFinite,
+        true,
+      );
+    },
+  );
 
   // ---------------------------------------------------------------- WS04
   test('WS04 exercise history and opt in are both required', () {
@@ -241,25 +250,28 @@ void main() {
   });
 
   // ---------------------------------------------------------------- WS05
-  test('WS05 neutral event is known zero; no event without response is unknown', () {
-    final neutral = calculator.calculate(
-      fixture(
-        social: const [
-          WorldSocialEvent(
-            durationMinutes: 60,
-            pressure: SocialPressure.neutral,
-          ),
-        ],
-      ),
-    );
-    expect(neutral.dimensions[WorldDimension.social]!.score, 0);
-    final missing = calculator.calculate(fixture(social: const []));
-    expect(missing.dimensions[WorldDimension.social]!.score, isNull);
-    final explicitZero = calculator.calculate(
-      fixture(social: const [], noSocial: true),
-    );
-    expect(explicitZero.dimensions[WorldDimension.social]!.score, 0);
-  });
+  test(
+    'WS05 neutral event is known zero; no event without response is unknown',
+    () {
+      final neutral = calculator.calculate(
+        fixture(
+          social: const [
+            WorldSocialEvent(
+              durationMinutes: 60,
+              pressure: SocialPressure.neutral,
+            ),
+          ],
+        ),
+      );
+      expect(neutral.dimensions[WorldDimension.social]!.score, 0);
+      final missing = calculator.calculate(fixture(social: const []));
+      expect(missing.dimensions[WorldDimension.social]!.score, isNull);
+      final explicitZero = calculator.calculate(
+        fixture(social: const [], noSocial: true),
+      );
+      expect(explicitZero.dimensions[WorldDimension.social]!.score, 0);
+    },
+  );
 
   test('WS05 a High event and a sleep overlap raise Social by the formula', () {
     final moderate = calculator.calculate(fixture());
@@ -380,7 +392,7 @@ void main() {
   // ---------------------------------------------------------------- WS08
   test(
     'WS08 trend requires three prior totals and uses strict 5-point thresholds',
-        () {
+    () {
       expect(
         WorldStatusCalculator.calculateTrend(60, const [
           50,
@@ -473,11 +485,11 @@ void main() {
   // ------------------------------------- Invalid range / unit (WL07, WS08)
   test('WS08 trend input must be exactly seven local dates', () {
     expect(
-          () => WorldStatusCalculator.calculateTrend(50, const [50, 50, 50]),
+      () => WorldStatusCalculator.calculateTrend(50, const [50, 50, 50]),
       throwsArgumentError,
     );
     expect(
-          () => calculator.calculate(
+      () => calculator.calculate(
         WorldStatusInput(
           localDate: date,
           windowStart: start,
@@ -495,7 +507,7 @@ void main() {
 
   test('WS01 invalid ranges are rejected before calculation', () {
     expect(
-          () => WorldStatusInput(
+      () => WorldStatusInput(
         localDate: date,
         windowStart: start,
         previousSevenTotals: noHistory,
@@ -504,7 +516,7 @@ void main() {
       throwsAssertionError,
     );
     expect(
-          () => WorldStatusInput(
+      () => WorldStatusInput(
         localDate: date,
         windowStart: start,
         previousSevenTotals: noHistory,
@@ -513,7 +525,7 @@ void main() {
       throwsAssertionError,
     );
     expect(
-          () => WorldStatusInput(
+      () => WorldStatusInput(
         localDate: date,
         windowStart: start,
         previousSevenTotals: noHistory,
@@ -522,7 +534,7 @@ void main() {
       throwsAssertionError,
     );
     expect(
-          () => WorldStatusInput(
+      () => WorldStatusInput(
         localDate: date,
         windowStart: start,
         previousSevenTotals: noHistory,
@@ -531,7 +543,7 @@ void main() {
       throwsAssertionError,
     );
     expect(
-          () => WorldStatusInput(
+      () => WorldStatusInput(
         localDate: date,
         windowStart: start,
         previousSevenTotals: noHistory,
@@ -540,7 +552,7 @@ void main() {
       throwsAssertionError,
     );
     expect(
-          () => WorldStatusTask(
+      () => WorldStatusTask(
         remainingMinutes: -5,
         dueAt: start,
         category: LoadCategory.study,

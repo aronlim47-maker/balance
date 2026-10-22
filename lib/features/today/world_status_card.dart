@@ -90,7 +90,7 @@ class WorldStatusCard extends StatelessWidget {
                   final score = Text(
                     status.totalScore == null
                         ? 'Not enough data'.tr
-                        : '${status.totalScore}/100 · ${status.label}',
+                        : '${status.totalScore}/100 · ${status.label.tr}',
                     style: TextStyle(
                       fontFamily: AppTheme.displayFont,
                       fontWeight: FontWeight.w700,
@@ -269,10 +269,10 @@ class _DimensionExplanation extends StatelessWidget {
       childrenPadding: const EdgeInsets.only(left: 12, bottom: 8),
       dense: true,
       title: Text(
-        '$name · ${result.score == null ? 'Unknown' : '${result.score}/100'}',
+        '${name.tr} · ${result.score == null ? 'Unknown'.tr : '${result.score}/100'}',
         style: small?.copyWith(fontWeight: FontWeight.w700),
       ),
-      subtitle: headline == null ? null : Text(headline, style: faint),
+      subtitle: headline == null ? null : Text(headline.tr, style: faint),
       children: [
         if (result.contributions.isEmpty)
           Align(
@@ -288,18 +288,21 @@ class _DimensionExplanation extends StatelessWidget {
             child: Text(
               c.points == null
                   ? '${c.label} · Unknown'.tr
-                  : '${c.label} · +${c.points!.round()}',
+                  : '${c.label.tr} · +${c.points!.round()}',
               style: small?.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(c.evidence, style: small),
+            child: Text(c.evidence.tr, style: small),
           ),
           if (c.sources.isNotEmpty)
             Align(
               alignment: Alignment.centerLeft,
-              child: Text('From: ${c.sources.join(', ')}'.tr, style: faint),
+              child: Text(
+                'From: ${c.sources.map((s) => s.tr).join(', ')}'.tr,
+                style: faint,
+              ),
             ),
           const SizedBox(height: 6),
         ],
@@ -307,7 +310,7 @@ class _DimensionExplanation extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'No pressure from: ${zero.map((c) => c.label).join(', ')}'.tr,
+              'No pressure from: ${zero.map((c) => c.label.tr).join(', ')}'.tr,
               style: faint,
             ),
           ),

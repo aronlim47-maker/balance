@@ -39,10 +39,7 @@ void main() {
       );
       expect(viewModel.overdueCount, 1);
       expect(repository.updates, 0);
-      expect(
-        repository.stored('late').dueAt,
-        DateTime(2026, 10, 3, 16, 32),
-      );
+      expect(repository.stored('late').dueAt, DateTime(2026, 10, 3, 16, 32));
       expect(repository.stored('late').status, TaskStatus.planned);
     });
 

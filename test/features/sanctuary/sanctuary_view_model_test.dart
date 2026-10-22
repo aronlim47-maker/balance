@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test(
     'manual rest saves, overlapping rest is rejected, Council slot is locked',
-        () async {
+    () async {
       final repository = _Recovery();
       final model = SanctuaryViewModel(repository);
       final first = RecoverySlot(
@@ -41,7 +41,7 @@ void main() {
 
   test(
     'a successful write reports a refresh failure without asking to save again',
-        () async {
+    () async {
       final repository = _Recovery()..failReads = true;
       final model = SanctuaryViewModel(repository);
       final slot = RecoverySlot(
@@ -64,7 +64,7 @@ void main() {
 
   test(
     'a failed write is reported as a failure, not a refresh warning',
-        () async {
+    () async {
       final repository = _Recovery()..failWrites = true;
       final model = SanctuaryViewModel(repository);
       final slot = RecoverySlot(
@@ -84,35 +84,37 @@ void main() {
 }
 
 void _activityDoneTests() {
-  test('marking an activity done only sets completedAt and can be undone',
-          () async {
-        final repository = _Recovery();
-        final model = SanctuaryViewModel(repository);
-        final past = DateTime.now().subtract(const Duration(hours: 2));
-        expect(
-          await model.save(
-            RecoverySlot(
-              id: '',
-              startAt: past,
-              endAt: past.add(const Duration(minutes: 30)),
-              selectedActivity: 'Short walk',
-            ),
+  test(
+    'marking an activity done only sets completedAt and can be undone',
+    () async {
+      final repository = _Recovery();
+      final model = SanctuaryViewModel(repository);
+      final past = DateTime.now().subtract(const Duration(hours: 2));
+      expect(
+        await model.save(
+          RecoverySlot(
+            id: '',
+            startAt: past,
+            endAt: past.add(const Duration(minutes: 30)),
+            selectedActivity: 'Short walk',
           ),
-          isTrue,
-        );
-        final slot = model.slots.single;
+        ),
+        isTrue,
+      );
+      final slot = model.slots.single;
 
-        expect(await model.setActivityDone(slot, done: true), isTrue);
-        final done = repository.slots.single;
-        expect(done.completedAt, isNotNull);
-        expect(done.startAt, slot.startAt);
-        expect(done.endAt, slot.endAt);
-        expect(done.selectedActivity, 'Short walk');
+      expect(await model.setActivityDone(slot, done: true), isTrue);
+      final done = repository.slots.single;
+      expect(done.completedAt, isNotNull);
+      expect(done.startAt, slot.startAt);
+      expect(done.endAt, slot.endAt);
+      expect(done.selectedActivity, 'Short walk');
 
-        expect(await model.setActivityDone(done, done: false), isTrue);
-        expect(repository.slots.single.completedAt, isNull);
-        model.dispose();
-      });
+      expect(await model.setActivityDone(done, done: false), isTrue);
+      expect(repository.slots.single.completedAt, isNull);
+      model.dispose();
+    },
+  );
 
   test('future and Council slots cannot be marked done here', () async {
     final repository = _Recovery();

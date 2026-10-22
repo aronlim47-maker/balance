@@ -69,7 +69,10 @@ void main() {
       expect(known(5).copyWith(value: 9), known(9));
       expect(known(5).copyWith(status: DataStatus.partial).isPartial, isTrue);
       expect(known(5).copyWith(status: DataStatus.unknown), unknown);
-      expect(() => unknown.copyWith(status: DataStatus.known), throwsArgumentError);
+      expect(
+        () => unknown.copyWith(status: DataStatus.known),
+        throwsArgumentError,
+      );
     });
 
     test('fromResult maps calculator results without coercing Unknown', () {
@@ -220,7 +223,10 @@ void main() {
 
     test('asOf defaults to the latest date but can be given explicitly', () {
       final history = [day(3, known(10)), day(1, known(20))];
-      expect(calculator.calculate7DayTrend(history).windowEnd, today.addDays(-1));
+      expect(
+        calculator.calculate7DayTrend(history).windowEnd,
+        today.addDays(-1),
+      );
       final explicit = calculator.calculate7DayTrend(history, asOf: today);
       expect(explicit.windowEnd, today);
       expect(explicit[WorldDimension.time].latest, unknown);
@@ -242,10 +248,8 @@ void main() {
         expect(empty[dimension].unknownDays, 7);
       }
       expect(
-        () => calculator.calculate7DayTrend([
-          day(1, known(1)),
-          day(1, known(2)),
-        ]),
+        () =>
+            calculator.calculate7DayTrend([day(1, known(1)), day(1, known(2))]),
         throwsArgumentError,
       );
     });
@@ -253,12 +257,18 @@ void main() {
 
   group('Direction (WS08 thresholds)', () {
     /// Previous seven days all at [prior], today at [now].
-    WorldTrend directionFor(double? now, {double prior = 40, int priorDays = 7}) {
+    WorldTrend directionFor(
+      double? now, {
+      double prior = 40,
+      int priorDays = 7,
+    }) {
       final history = [
         day(0, now == null ? unknown : known(now)),
         for (var i = 1; i <= priorDays; i++) day(i, known(prior)),
       ];
-      return calculator.calculate7DayTrend(history)[WorldDimension.time].direction;
+      return calculator
+          .calculate7DayTrend(history)[WorldDimension.time]
+          .direction;
     }
 
     test('beyond +5 is Rising, beyond -5 is Easing, otherwise Stable', () {
