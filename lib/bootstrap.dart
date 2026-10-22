@@ -1,3 +1,4 @@
+import 'core/l10n/language_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -53,11 +54,13 @@ Future<void> _start() async {
   // opens in the right look without a flash.
   final themeController = await ThemeController.load();
   final sectionMemory = await SectionMemory.load();
+  final languageController = await LanguageController.load();
   runApp(
     BalanceApp(
       supabaseConfigured: isSupabaseConfigured,
       themeController: themeController,
       sectionMemory: sectionMemory,
+      languageController: languageController,
     ),
   );
 }

@@ -10,6 +10,10 @@ import 'core/audio/sound_service.dart';
 import 'core/router/app_router.dart';
 import 'core/state/planning_day_controller.dart';
 import 'core/state/section_memory.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+import 'core/l10n/language_controller.dart';
+import 'core/l10n/tr.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
 import 'core/theme/theme_scope.dart';
@@ -49,6 +53,7 @@ class BalanceApp extends StatefulWidget {
     this.supabaseConfigured = false,
     this.themeController,
     this.sectionMemory,
+    this.languageController,
   });
 
   final bool supabaseConfigured;
@@ -60,6 +65,10 @@ class BalanceApp extends StatefulWidget {
   /// Which page sections the user opened or closed, loaded in `bootstrap()`.
   /// When null (widget tests) every section starts in its default state.
   final SectionMemory? sectionMemory;
+
+  /// The saved language, loaded in `bootstrap()`. When null (widget tests)
+  /// the app starts in English.
+  final LanguageController? languageController;
 
   @override
   State<BalanceApp> createState() => _BalanceAppState();
@@ -83,12 +92,14 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
   final SoundService _sound = SoundService()..load();
   late final ThemeController _theme;
   late final SectionMemory _sections;
+  late final LanguageController _language;
 
   @override
   void initState() {
     super.initState();
     _theme = widget.themeController ?? ThemeController();
     _sections = widget.sectionMemory ?? SectionMemory();
+    _language = widget.languageController ?? LanguageController();
     _authViewModel = AuthViewModel(
       widget.supabaseConfigured
           ? SupabaseAuthService(Supabase.instance.client)
@@ -166,6 +177,7 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
     _authViewModel.dispose();
     _planningDayController.dispose();
     if (widget.themeController == null) _theme.dispose();
+    if (widget.languageController == null) _language.dispose();
     super.dispose();
   }
 
@@ -178,6 +190,7 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
         ChangeNotifierProvider.value(value: _sound),
         ChangeNotifierProvider.value(value: _authViewModel),
         ChangeNotifierProvider.value(value: _planningDayController),
+        ChangeNotifierProvider.value(value: _language),
         ChangeNotifierProvider(
           create: (_) => WarCouncilViewModel(
             _taskRepository,
@@ -212,9 +225,17 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
         child: SectionMemoryScope(
           memory: _sections,
           child: ListenableBuilder(
-            listenable: _theme,
+            listenable: Listenable.merge([_theme, _language]),
             builder: (context, _) => MaterialApp.router(
+              // A new key rebuilds every page in the chosen language.
+              key: ValueKey(_language.language),
               title: 'Balance',
+              locale: _language.locale,
+              supportedLocales: [
+                for (final language in AppLanguage.values)
+                  Locale(language.code),
+              ],
+              localizationsDelegates: GlobalMaterialLocalizations.delegates,
               debugShowCheckedModeBanner: false,
               theme: AppTheme.light,
               darkTheme: AppTheme.dark,
