@@ -10,6 +10,7 @@ import 'core/audio/sound_service.dart';
 import 'core/router/app_router.dart';
 import 'core/state/planning_day_controller.dart';
 import 'core/state/section_memory.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/l10n/language_controller.dart';
@@ -229,7 +230,7 @@ class _BalanceAppState extends State<BalanceApp> with WidgetsBindingObserver {
             builder: (context, _) => MaterialApp.router(
               // A new key rebuilds every page in the chosen language.
               key: ValueKey(_language.language),
-              title: 'Balance',
+              title: 'Balance'.tr,
               locale: _language.locale,
               supportedLocales: [
                 for (final language in AppLanguage.values)

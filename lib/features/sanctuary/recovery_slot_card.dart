@@ -6,6 +6,7 @@ import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../domain/models/recovery_slot.dart';
+import '../../core/l10n/tr.dart';
 
 /// One recovery slot in Sanctuary.
 ///
@@ -47,7 +48,7 @@ class RecoverySlotCard extends StatelessWidget {
         ? '${dayFormat.format(start)} · ${timeFormat.format(start)} – ${timeFormat.format(end)}'
         : '${dayFormat.format(start)} ${timeFormat.format(start)} – '
               '${dayFormat.format(end)} ${timeFormat.format(end)}';
-    final title = slot.selectedActivity ?? 'Free rest time';
+    final title = slot.selectedActivity ?? 'Free rest time'.tr;
 
     final card = RpgPanel(
       tone: slot.isProtected ? RpgTone.calm : RpgTone.muted,
@@ -94,20 +95,20 @@ class RecoverySlotCard extends StatelessWidget {
                     Icons.lock_outline,
                     size: 20,
                     color: BalanceColors.textMuted,
-                    semanticLabel: 'Locked by a Council plan',
+                    semanticLabel: 'Locked by a Council plan'.tr,
                   ),
                 )
               else
                 PopupMenuButton<String>(
-                  tooltip: 'Recovery time actions',
+                  tooltip: 'Recovery time actions'.tr,
                   enabled: !busy,
                   onSelected: (value) {
                     if (value == 'edit') onEdit();
                     if (value == 'remove') onRemove();
                   },
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'edit', child: Text('Edit')),
-                    PopupMenuItem(value: 'remove', child: Text('Remove')),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(value: 'edit', child: Text('Edit'.tr)),
+                    PopupMenuItem(value: 'remove', child: Text('Remove'.tr)),
                   ],
                 ),
             ],
@@ -119,19 +120,19 @@ class RecoverySlotCard extends StatelessWidget {
               spacing: 6,
               runSpacing: 6,
               children: [
-                const RpgTag(
-                  'Time reserved',
+                RpgTag(
+                  'Time reserved'.tr,
                   tone: RpgTone.calm,
                   icon: Icons.event_available_outlined,
                 ),
                 if (_isDone)
-                  const RpgTag(
-                    'Activity done',
+                  RpgTag(
+                    'Activity done'.tr,
                     tone: RpgTone.accent,
                     icon: Icons.check,
                   ),
                 if (_fromCouncil)
-                  const RpgTag('From Council plan', icon: Icons.gavel_outlined),
+                  RpgTag('From Council plan'.tr, icon: Icons.gavel_outlined),
               ],
             ),
           ),
@@ -139,8 +140,9 @@ class RecoverySlotCard extends StatelessWidget {
             padding: const EdgeInsets.only(left: 32, top: 6),
             child: _fromCouncil
                 ? Text(
-                    'This time was freed by a confirmed plan. '
-                    'Undo the plan in Council to change it.',
+                    ('This time was freed by a confirmed plan. '
+                            'Undo the plan in Council to change it.')
+                        .tr,
                     style: TextStyle(
                       fontSize: 13,
                       color: BalanceColors.textMuted,
@@ -148,7 +150,7 @@ class RecoverySlotCard extends StatelessWidget {
                   )
                 : slot.selectedActivity == null
                 ? Text(
-                    'No activity planned. Rest needs no proof.',
+                    'No activity planned. Rest needs no proof.'.tr,
                     style: TextStyle(
                       fontSize: 13,
                       color: BalanceColors.textMuted,
@@ -160,7 +162,7 @@ class RecoverySlotCard extends StatelessWidget {
                         ? TextButton.icon(
                             onPressed: busy ? null : () => onDoneChanged(false),
                             icon: const Icon(Icons.undo, size: 18),
-                            label: const Text('Undo activity done'),
+                            label: Text('Undo activity done'.tr),
                           )
                         : TextButton.icon(
                             onPressed: busy || !_hasStarted
@@ -169,8 +171,8 @@ class RecoverySlotCard extends StatelessWidget {
                             icon: const Icon(Icons.check, size: 18),
                             label: Text(
                               _hasStarted
-                                  ? 'Mark activity done'
-                                  : 'Mark done after it starts',
+                                  ? 'Mark activity done'.tr
+                                  : 'Mark done after it starts'.tr,
                             ),
                           ),
                   ),
@@ -195,7 +197,7 @@ class _WardIcon extends StatelessWidget {
       protected ? Icons.shield_outlined : Icons.eco_outlined,
       color: BalanceColors.calm,
       size: 20,
-      semanticLabel: protected ? 'Protected time' : 'Unprotected time',
+      semanticLabel: protected ? 'Protected time'.tr : 'Unprotected time'.tr,
     );
     if (!protected) return icon;
     return OneShot(

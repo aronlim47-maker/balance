@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../audio/sound_service.dart';
 import '../theme/balance_colors.dart';
+import '../l10n/tr.dart';
 
 /// Gold music button in the page header: one tap turns the background music
 /// on or off.
@@ -15,8 +16,8 @@ import '../theme/balance_colors.dart';
 class SoundToggleButton extends StatefulWidget {
   const SoundToggleButton({super.key});
 
-  static const turnOffLabel = 'Turn background music off';
-  static const turnOnLabel = 'Turn background music on';
+  static final turnOffLabel = 'Turn background music off'.tr;
+  static final turnOnLabel = 'Turn background music on'.tr;
 
   @override
   State<SoundToggleButton> createState() => _SoundToggleButtonState();

@@ -21,6 +21,7 @@ import '../../domain/usecases/generate_trade_offs.dart';
 import '../../domain/usecases/validate_plan.dart';
 import '../../domain/usecases/preview_trade_off.dart';
 import '../../domain/usecases/suggest_free_time.dart';
+import '../../core/l10n/tr.dart';
 
 class WarCouncilViewModel extends LifecycleNotifier {
   WarCouncilViewModel(
@@ -119,7 +120,7 @@ class WarCouncilViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not save this task. Please try again.',
+        fallback: 'Could not save this task. Please try again.'.tr,
       );
       return false;
     } finally {
@@ -270,7 +271,7 @@ class WarCouncilViewModel extends LifecycleNotifier {
       if (isDisposed || version != _loadVersion) return;
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not load plan options. Please try again.',
+        fallback: 'Could not load plan options. Please try again.'.tr,
       );
       _options = const [];
     } finally {
@@ -336,7 +337,7 @@ class WarCouncilViewModel extends LifecycleNotifier {
       if (checkId != _capacityCheckId) return;
       _capacityCheckError = AppErrorMessage.from(
         error,
-        fallback: 'Could not check capacity. Refresh and try again.',
+        fallback: 'Could not check capacity. Refresh and try again.'.tr,
       );
     } finally {
       if (checkId == _capacityCheckId) {
@@ -363,7 +364,8 @@ class WarCouncilViewModel extends LifecycleNotifier {
         (expectedOptionId != _selectedOptionId ||
             (expectedSourceDay != null && expectedSourceDay != selectedDay) ||
             expectedRevision != _reviewRevision)) {
-      _errorMessage = 'The plan changed while you were reviewing it. Refresh and review again.';
+      _errorMessage = 'The plan changed while you were reviewing it. Refresh and review again.'
+          .tr;
       notifyListeners();
       return null;
     }
@@ -394,7 +396,7 @@ class WarCouncilViewModel extends LifecycleNotifier {
           'selected_day': selectedDay.toIso8601String(),
           'task_title': option.allMoves.length == 1
               ? option.allMoves.single.taskTitle
-              : '${option.allMoves.length} tasks',
+              : '${option.allMoves.length} tasks'.tr,
           'task_titles': option.allMoves.map((move) => move.taskTitle).toList(),
           'task_count': option.allMoves.length,
           'moved_minutes': option.movedMinutes,
@@ -408,7 +410,7 @@ class WarCouncilViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not confirm this plan. Please try again.',
+        fallback: 'Could not confirm this plan. Please try again.'.tr,
       );
       return null;
     } finally {
@@ -436,14 +438,15 @@ class WarCouncilViewModel extends LifecycleNotifier {
       _wasUndone = true;
       await load(afterMutation: true);
       if (_errorMessage != null) {
-        _refreshWarning = 'The plan was undone, but the latest plan could not be loaded. Try refreshing.';
+        _refreshWarning = 'The plan was undone, but the latest plan could not be loaded. Try refreshing.'
+            .tr;
         notifyListeners();
       }
       return true;
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not undo this plan. Please try again.',
+        fallback: 'Could not undo this plan. Please try again.'.tr,
       );
       return false;
     } finally {
@@ -484,7 +487,7 @@ class WarCouncilViewModel extends LifecycleNotifier {
       if (isDisposed || version != _changeVersion) return;
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not load this plan. Please try again.',
+        fallback: 'Could not load this plan. Please try again.'.tr,
       );
     } finally {
       if (!isDisposed && version == _changeVersion) {

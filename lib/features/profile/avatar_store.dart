@@ -29,7 +29,8 @@ class AvatarStore {
   Future<bool> save(String? owner, Uint8List bytes) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      return await prefs.setString(keyFor(owner), base64Encode(bytes));    } catch (_) {
+      return await prefs.setString(keyFor(owner), base64Encode(bytes));
+    } catch (_) {
       return false;
     }
   }
@@ -37,7 +38,8 @@ class AvatarStore {
   Future<bool> remove(String? owner) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      return await prefs.remove(keyFor(owner));    } catch (_) {
+      return await prefs.remove(keyFor(owner));
+    } catch (_) {
       return false;
     }
   }

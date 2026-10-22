@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/theme_scope.dart';
+import '../l10n/tr.dart';
 
 /// Sun/moon button that switches Balance between dark and light in one tap.
 ///
@@ -12,8 +13,8 @@ import '../theme/theme_scope.dart';
 class ThemeToggleButton extends StatelessWidget {
   const ThemeToggleButton({super.key});
 
-  static const toLightLabel = 'Switch to light mode';
-  static const toDarkLabel = 'Switch to dark mode';
+  static final toLightLabel = 'Switch to light mode'.tr;
+  static final toDarkLabel = 'Switch to dark mode'.tr;
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +28,10 @@ class ThemeToggleButton extends StatelessWidget {
         duration: MediaQuery.of(context).disableAnimations
             ? Duration.zero
             : const Duration(milliseconds: 200),
-        transitionBuilder: (child, animation) =>
-            RotationTransition(
-              turns: Tween<double>(begin: 0.75, end: 1).animate(animation),
-              child: FadeTransition(opacity: animation, child: child),
-            ),
+        transitionBuilder: (child, animation) => RotationTransition(
+          turns: Tween<double>(begin: 0.75, end: 1).animate(animation),
+          child: FadeTransition(opacity: animation, child: child),
+        ),
         child: Icon(
           dark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
           key: ValueKey(dark),

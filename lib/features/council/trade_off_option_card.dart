@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
+import '../../core/l10n/tr.dart';
 
 class TradeOffOptionCard extends StatelessWidget {
   const TradeOffOptionCard({
@@ -75,7 +76,7 @@ class TradeOffOptionCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 6),
-                        const RpgLabel('What changes', size: 11),
+                        RpgLabel('What changes'.tr, size: 11),
                         const SizedBox(height: 2),
                         // Shown in full: the time range at the end is the
                         // part people need, so it must not be cut off.
@@ -85,7 +86,7 @@ class TradeOffOptionCard extends StatelessWidget {
                   ),
                   if (isSelected) ...[
                     const SizedBox(width: 8),
-                    const RpgTag('Selected', tone: RpgTone.accent),
+                    RpgTag('Selected'.tr, tone: RpgTone.accent),
                   ],
                 ],
               ),
@@ -98,16 +99,16 @@ class TradeOffOptionCard extends StatelessWidget {
             spacing: 6,
             runSpacing: 6,
             children: [
-              RpgTag('$movedMinutes min moved', icon: Icons.swap_horiz),
+              RpgTag('$movedMinutes min moved'.tr, icon: Icons.swap_horiz),
               if (recoveryMinutes > 0)
                 RpgTag(
-                  '$recoveryMinutes min recovery',
+                  '$recoveryMinutes min recovery'.tr,
                   tone: RpgTone.calm,
                   icon: Icons.eco_outlined,
                 ),
               if (needsAgreement)
-                const RpgTag(
-                  'Needs agreement',
+                RpgTag(
+                  'Needs agreement'.tr,
                   tone: RpgTone.warning,
                   icon: Icons.groups_outlined,
                 ),
@@ -117,24 +118,24 @@ class TradeOffOptionCard extends StatelessWidget {
         ExpansionTile(
           tilePadding: const EdgeInsets.fromLTRB(44, 0, 12, 0),
           title: Text(
-            'See trade-offs',
+            'See trade-offs'.tr,
             style: TextStyle(color: BalanceColors.accentBright, fontSize: 14),
           ),
           childrenPadding: const EdgeInsets.fromLTRB(44, 0, 16, 16),
           expandedCrossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _EffectLine(
-              label: 'Protected',
+              label: 'Protected'.tr,
               value: protectedSummary,
               valueColor: BalanceColors.calm,
             ),
             const SizedBox(height: 10),
-            _EffectLine(label: 'Cost', value: costSummary),
+            _EffectLine(label: 'Cost'.tr, value: costSummary),
             const SizedBox(height: 10),
-            _EffectLine(label: 'Room created', value: roomSummary),
+            _EffectLine(label: 'Room created'.tr, value: roomSummary),
             const SizedBox(height: 10),
             _EffectLine(
-              label: 'Check before confirming',
+              label: 'Check before confirming'.tr,
               value: reviewSummary,
               valueColor: BalanceColors.warning,
             ),

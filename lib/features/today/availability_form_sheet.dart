@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/balance_colors.dart';
+
 import 'package:intl/intl.dart';
 
 import '../../domain/models/availability_block.dart';
+import '../../core/l10n/tr.dart';
 
 class AvailabilityFormSheet extends StatefulWidget {
   const AvailabilityFormSheet({super.key, required this.day, this.block});
@@ -56,12 +59,14 @@ class _AvailabilityFormSheetState extends State<AvailabilityFormSheet> {
             children: [
               Expanded(
                 child: Text(
-                  widget.block == null ? 'Add time block' : 'Edit time block',
+                  widget.block == null
+                      ? 'Add time block'.tr
+                      : 'Edit time block'.tr,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ),
               IconButton(
-                tooltip: 'Close',
+                tooltip: 'Close'.tr,
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.close),
               ),
@@ -70,23 +75,23 @@ class _AvailabilityFormSheetState extends State<AvailabilityFormSheet> {
           const SizedBox(height: 16),
           TextField(
             controller: _labelController,
-            decoration: const InputDecoration(
-              labelText: 'Label',
-              hintText: 'Work day',
+            decoration: InputDecoration(
+              labelText: 'Label'.tr,
+              hintText: 'Work day'.tr,
             ),
           ),
           const SizedBox(height: 12),
           SegmentedButton<bool>(
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: true,
                 icon: Icon(Icons.event_available),
-                label: Text('Available'),
+                label: Text('Available'.tr),
               ),
               ButtonSegment(
                 value: false,
                 icon: Icon(Icons.block),
-                label: Text('Blocked'),
+                label: Text('Blocked'.tr),
               ),
             ],
             selected: {_isAvailable},
@@ -95,20 +100,20 @@ class _AvailabilityFormSheetState extends State<AvailabilityFormSheet> {
           ),
           const SizedBox(height: 12),
           _TimeTile(
-            label: 'Start',
+            label: 'Start'.tr,
             value: _startAt,
             onTap: () => _pickTime(isStart: true),
           ),
           const SizedBox(height: 12),
           _TimeTile(
-            label: 'End',
+            label: 'End'.tr,
             value: _endAt,
             onTap: () => _pickTime(isStart: false),
           ),
           if (!_endAt.isAfter(_startAt)) ...[
             const SizedBox(height: 8),
             Text(
-              'End time must be after start time.',
+              'End time must be after start time.'.tr,
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ],
@@ -116,7 +121,7 @@ class _AvailabilityFormSheetState extends State<AvailabilityFormSheet> {
           FilledButton(
             onPressed: _endAt.isAfter(_startAt) ? _submit : null,
             child: Text(
-              widget.block == null ? 'Add time block' : 'Save changes',
+              widget.block == null ? 'Add time block'.tr : 'Save changes'.tr,
             ),
           ),
         ],

@@ -75,10 +75,7 @@ abstract final class AppTheme {
       extensions: [p],
     );
 
-    final text = base.textTheme.apply(
-      bodyColor: p.text,
-      displayColor: p.text,
-    );
+    final text = base.textTheme.apply(bodyColor: p.text, displayColor: p.text);
 
     TextStyle? display(TextStyle? style, {double spacing = 0.5}) =>
         style?.copyWith(
@@ -145,16 +142,10 @@ abstract final class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          side: BorderSide(
-            color: p.outlineStrong,
-            width: 1.2,
-          ),
+          side: BorderSide(color: p.outlineStrong, width: 1.2),
         ),
       ),
-      dividerTheme: DividerThemeData(
-        color: p.outline,
-        thickness: 1,
-      ),
+      dividerTheme: DividerThemeData(color: p.outline, thickness: 1),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: p.accent,
@@ -205,10 +196,7 @@ abstract final class AppTheme {
           color: p.text,
         ),
         checkmarkColor: p.accentBright,
-        iconTheme: IconThemeData(
-          color: p.textMuted,
-          size: 16,
-        ),
+        iconTheme: IconThemeData(color: p.textMuted, size: 16),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -257,10 +245,7 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         shape: BeveledRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: p.gold.withValues(alpha: 0.6),
-            width: 1.2,
-          ),
+          side: BorderSide(color: p.gold.withValues(alpha: 0.6), width: 1.2),
         ),
         titleTextStyle: textTheme.titleLarge,
         contentTextStyle: textTheme.bodyMedium,
@@ -276,10 +261,7 @@ abstract final class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: p.surfaceRaised,
-        contentTextStyle: TextStyle(
-          fontFamily: bodyFont,
-          color: p.text,
-        ),
+        contentTextStyle: TextStyle(fontFamily: bodyFont, color: p.text),
         actionTextColor: p.accentBright,
         behavior: SnackBarBehavior.floating,
         shape: BeveledRectangleBorder(
@@ -297,9 +279,8 @@ abstract final class AppTheme {
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? onAccent
-              : p.textMuted,
+          (states) =>
+              states.contains(WidgetState.selected) ? onAccent : p.textMuted,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
@@ -311,13 +292,10 @@ abstract final class AppTheme {
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: ButtonStyle(
           shape: WidgetStateProperty.all(squareShape),
-          side: WidgetStateProperty.all(
-            BorderSide(color: p.outline),
-          ),
+          side: WidgetStateProperty.all(BorderSide(color: p.outline)),
           backgroundColor: WidgetStateProperty.resolveWith(
-            (states) => states.contains(WidgetState.selected)
-                ? p.accentDim
-                : p.surface,
+            (states) =>
+                states.contains(WidgetState.selected) ? p.accentDim : p.surface,
           ),
           foregroundColor: WidgetStateProperty.all(p.text),
           textStyle: WidgetStateProperty.all(
@@ -333,9 +311,7 @@ abstract final class AppTheme {
         backgroundColor: p.surface,
         surfaceTintColor: Colors.transparent,
       ),
-      timePickerTheme: TimePickerThemeData(
-        backgroundColor: p.surface,
-      ),
+      timePickerTheme: TimePickerThemeData(backgroundColor: p.surface),
       dropdownMenuTheme: DropdownMenuThemeData(
         menuStyle: MenuStyle(
           backgroundColor: WidgetStatePropertyAll(p.surfaceRaised),

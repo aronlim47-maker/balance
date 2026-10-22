@@ -5,6 +5,7 @@ import '../models/plan_reservation.dart';
 import '../models/recovery_slot.dart';
 import '../models/task_item.dart';
 import 'daily_capacity.dart';
+import '../../core/l10n/tr.dart';
 
 /// A single task move that can be confirmed without another person's consent.
 class TradeOffMove {
@@ -222,10 +223,11 @@ List<TradeOffPlan> _generateSingleTradeOffs({
               final date = _dateLabel(targetDay);
               option = TradeOffPlan(
                 id: '${task.id}:${start.toUtc().toIso8601String()}:$movedMinutes',
-                title: 'Move ${task.title} to $date',
+                title: 'Move ${task.title} to $date'.tr,
                 description:
-                    'Move $movedMinutes minutes to $date, '
-                    '${_timeLabel(start)}–${_timeLabel(end)} before the deadline.',
+                    ('Move $movedMinutes minutes to $date, '
+                            '${_timeLabel(start)}–${_timeLabel(end)} before the deadline.')
+                        .tr,
                 taskId: task.id,
                 taskTitle: task.title,
                 proposedStart: start,
@@ -406,17 +408,18 @@ TradeOffPlan? _generateCombinedTradeOff({
   final moveSummary = selectedMoves
       .map((move) {
         final date = _dateLabel(_dateOnly(move.proposedStart.toLocal()));
-        return '${move.taskTitle}: ${move.movedMinutes} min to $date '
-            '${_timeLabel(move.proposedStart)}–${_timeLabel(move.proposedEnd)}';
+        return ('${move.taskTitle}: ${move.movedMinutes} min to $date '
+                '${_timeLabel(move.proposedStart)}–${_timeLabel(move.proposedEnd)}')
+            .tr;
       })
       .join('  ');
   final first = selectedMoves.first;
   return TradeOffPlan(
     id: 'combined:${selectedMoves.map((move) => move.taskId).join('+')}',
-    title: 'Move ${selectedMoves.length} tasks to clear the overload',
+    title: 'Move ${selectedMoves.length} tasks to clear the overload'.tr,
     description: moveSummary,
     taskId: first.taskId,
-    taskTitle: '${selectedMoves.length} tasks',
+    taskTitle: '${selectedMoves.length} tasks'.tr,
     proposedStart: first.proposedStart,
     proposedEnd: first.proposedEnd,
     movedMinutes: totalMoved,
@@ -660,20 +663,28 @@ DateTime? _firstFreeStart({
 DateTime _dateOnly(DateTime time) => DateTime(time.year, time.month, time.day);
 DateTime _later(DateTime a, DateTime b) => a.isAfter(b) ? a : b;
 DateTime _earlier(DateTime a, DateTime b) => a.isBefore(b) ? a : b;
-const _weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const _months = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
+final _weekdays = [
+  'Mon',
+  'Tue'.tr,
+  'Wed'.tr,
+  'Thu'.tr,
+  'Fri'.tr,
+  'Sat'.tr,
+  'Sun'.tr,
+];
+final _months = [
+  'Jan'.tr,
+  'Feb'.tr,
+  'Mar'.tr,
+  'Apr'.tr,
   'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
+  'Jun'.tr,
+  'Jul'.tr,
+  'Aug'.tr,
+  'Sep'.tr,
+  'Oct'.tr,
+  'Nov'.tr,
+  'Dec'.tr,
 ];
 
 /// "Mon 12 Oct", matching the dates shown elsewhere in the app.
@@ -684,7 +695,7 @@ String _dateLabel(DateTime date) =>
 String _timeLabel(DateTime time) {
   final local = time.toLocal();
   final hour = local.hour % 12 == 0 ? 12 : local.hour % 12;
-  final suffix = local.hour < 12 ? 'AM' : 'PM';
+  final suffix = local.hour < 12 ? 'AM'.tr : 'PM'.tr;
   return '$hour:${local.minute.toString().padLeft(2, '0')} $suffix';
 }
 

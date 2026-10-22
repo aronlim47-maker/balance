@@ -6,6 +6,7 @@ import '../models/availability_block.dart';
 import '../models/recovery_slot.dart';
 import '../models/task_item.dart';
 import 'daily_capacity.dart';
+import '../../core/l10n/tr.dart';
 
 /// Why Council could not find a safe move, in the order a student should read.
 enum NoPlanReasonKind {
@@ -91,11 +92,12 @@ NoPlanExplanation explainNoFeasiblePlan({
         gapMinutes: gap,
         extraWorkMinutes: extra,
         dueBeforeFreeTimeMinutes: dueBefore,
-        reasons: const [
+        reasons: [
           NoPlanReason(
             NoPlanReasonKind.dayPassed,
-            'This day has already passed, so Council cannot change it. '
-            'Plans start from today: open today or a later day.',
+            ('This day has already passed, so Council cannot change it. '
+                    'Plans start from today: open today or a later day.')
+                .tr,
           ),
         ],
       );
@@ -107,10 +109,11 @@ NoPlanExplanation explainNoFeasiblePlan({
   final reasons = <NoPlanReason>[];
   if (capacity.availableMinutes == 0) {
     reasons.add(
-      const NoPlanReason(
+      NoPlanReason(
         NoPlanReasonKind.noFreeTime,
-        'No free time is added for this day. Add your real availability on '
-        'Today so Council has time to work with.',
+        ('No free time is added for this day. Add your real availability on '
+                'Today so Council has time to work with.')
+            .tr,
       ),
     );
   } else if (dueBefore > 0) {
@@ -119,11 +122,13 @@ NoPlanExplanation explainNoFeasiblePlan({
       NoPlanReason(
         NoPlanReasonKind.dueBeforeFreeTime,
         firstFree == null
-            ? '$dueBefore min of work is due before enough free time is '
-                  'available.'
-            : '$dueBefore min of work is due before your free time starts '
-                  '(${_clock(firstFree)}). Add earlier free time or ask for a '
-                  'later deadline.',
+            ? ('$dueBefore min of work is due before enough free time is '
+                      'available.')
+                  .tr
+            : ('$dueBefore min of work is due before your free time starts '
+                      '(${_clock(firstFree)}). Add earlier free time or ask for a '
+                      'later deadline.')
+                  .tr,
       ),
     );
   }
@@ -140,9 +145,10 @@ NoPlanExplanation explainNoFeasiblePlan({
       reasons.add(
         NoPlanReason(
           NoPlanReasonKind.noOtherDay,
-          '"${task.title}" (${task.effectiveRemainingMinutes} min) is due on '
-          'this day, so there is no other day to move it to. Ask for a later '
-          'deadline, or edit it if it can take less time.',
+          ('"${task.title}" (${task.effectiveRemainingMinutes} min) is due on '
+                  'this day, so there is no other day to move it to. Ask for a later '
+                  'deadline, or edit it if it can take less time.')
+              .tr,
           taskId: task.id,
         ),
       );
@@ -170,13 +176,15 @@ NoPlanExplanation explainNoFeasiblePlan({
       NoPlanReason(
         NoPlanReasonKind.noLaterFreeTime,
         blocking.isEmpty
-            ? 'No free time was found for "${task.title}" on another day '
-                  'before it is due. Add free time on another day before its '
-                  'deadline.'
-            : '"${task.title}" does not fit before it is due because protected '
-                  'recovery time (${_day(blocking.first.startAt)}, '
-                  '${_clock(blocking.first.startAt)}) uses free time it needs. '
-                  'Remove or move that slot in Sanctuary, or add free time.',
+            ? ('No free time was found for "${task.title}" on another day '
+                      'before it is due. Add free time on another day before its '
+                      'deadline.')
+                  .tr
+            : ('"${task.title}" does not fit before it is due because protected '
+                      'recovery time (${_day(blocking.first.startAt)}, '
+                      '${_clock(blocking.first.startAt)}) uses free time it needs. '
+                      'Remove or move that slot in Sanctuary, or add free time.')
+                  .tr,
         taskId: task.id,
       ),
     );
@@ -188,7 +196,7 @@ NoPlanExplanation explainNoFeasiblePlan({
       reasons.add(
         NoPlanReason(
           NoPlanReasonKind.needsAgreement,
-          '"${task.title}" needs agreement before it can move.',
+          '"${task.title}" needs agreement before it can move.'.tr,
           taskId: task.id,
         ),
       );
@@ -200,9 +208,10 @@ NoPlanExplanation explainNoFeasiblePlan({
       reasons.add(
         NoPlanReason(
           NoPlanReasonKind.protectedStays,
-          '"${task.title}" (${task.effectiveRemainingMinutes} min) is '
-          '${task.isProtected ? 'protected' : 'fixed'}, so it stays where it '
-          'is.',
+          ('"${task.title}" (${task.effectiveRemainingMinutes} min) is '
+                  '${task.isProtected ? 'protected' : 'fixed'}, so it stays where it '
+                  'is.')
+              .tr,
           taskId: task.id,
         ),
       );
@@ -211,10 +220,11 @@ NoPlanExplanation explainNoFeasiblePlan({
 
   if (reasons.isEmpty) {
     reasons.add(
-      const NoPlanReason(
+      NoPlanReason(
         NoPlanReasonKind.noLaterFreeTime,
-        'No move fits before the deadlines. Add free time on another day or '
-        'ask for a deadline change.',
+        ('No move fits before the deadlines. Add free time on another day or '
+                'ask for a deadline change.')
+            .tr,
       ),
     );
   }
@@ -294,20 +304,28 @@ String _clock(DateTime time) {
 }
 
 String _day(DateTime time) {
-  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
+  final weekdays = [
+    'Mon',
+    'Tue'.tr,
+    'Wed'.tr,
+    'Thu'.tr,
+    'Fri'.tr,
+    'Sat'.tr,
+    'Sun'.tr,
+  ];
+  final months = [
+    'Jan'.tr,
+    'Feb'.tr,
+    'Mar'.tr,
+    'Apr'.tr,
     'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+    'Jun'.tr,
+    'Jul'.tr,
+    'Aug'.tr,
+    'Sep'.tr,
+    'Oct'.tr,
+    'Nov'.tr,
+    'Dec'.tr,
   ];
   final local = time.toLocal();
   return '${weekdays[local.weekday - 1]} ${local.day} ${months[local.month - 1]}';

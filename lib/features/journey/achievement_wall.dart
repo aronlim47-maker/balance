@@ -11,6 +11,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../domain/models/achievement_models.dart';
 import '../auth/auth_view_model.dart';
+import '../../core/l10n/tr.dart';
 
 /// Badge colour for earned achievements.
 Color get _gold => BalanceColors.gold;
@@ -124,7 +125,8 @@ class _Badge extends StatelessWidget {
     final unlocked = award != null;
     final status = unlocked
         ? 'Unlocked ${DateFormat('d MMM').format(award!.awardedAt.toLocal())}'
-        : 'Locked';
+              .tr
+        : 'Locked'.tr;
     return Semantics(
       button: true,
       label:
@@ -249,7 +251,7 @@ void _showDetails(
             ),
             const SizedBox(height: 14),
             Text(
-              unlocked ? 'Earned by' : 'How to unlock',
+              unlocked ? 'Earned by'.tr : 'How to unlock'.tr,
               style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
             ),
             const SizedBox(height: 2),
@@ -258,9 +260,10 @@ void _showDetails(
             Text(
               unlocked
                   ? 'Unlocked on ${DateFormat('d MMMM y').format(award.awardedAt.toLocal())}'
+                        .tr
                   : definition.key == 'team_coordination'
-                  ? 'Needs shared tasks, which arrive in a later version.'
-                  : 'Locked',
+                  ? 'Needs shared tasks, which arrive in a later version.'.tr
+                  : 'Locked'.tr,
               style: TextStyle(
                 fontSize: 13,
                 color: unlocked ? BalanceColors.calm : BalanceColors.textMuted,
@@ -393,7 +396,7 @@ class _UnlockDialogState extends State<_UnlockDialog>
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'ACHIEVEMENT UNLOCKED',
+              'ACHIEVEMENT UNLOCKED'.tr,
               style: TextStyle(
                 fontFamily: AppTheme.displayFont,
                 fontWeight: FontWeight.w700,
@@ -452,14 +455,14 @@ class _UnlockDialogState extends State<_UnlockDialog>
             if (more > 0) ...[
               const SizedBox(height: 8),
               Text(
-                '+ $more more unlocked',
+                '+ $more more unlocked'.tr,
                 style: TextStyle(color: BalanceColors.calm),
               ),
             ],
             const SizedBox(height: 18),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Continue'),
+              child: Text('Continue'.tr),
             ),
           ],
         ),

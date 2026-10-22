@@ -20,6 +20,7 @@ import '../../data/repositories/movement_repository.dart';
 import '../../data/repositories/social_repository.dart';
 import '../today/today_view_model.dart';
 import '../../domain/usecases/world_status_calculator.dart';
+import '../../core/l10n/tr.dart';
 
 class ProfileViewModel extends LifecycleNotifier {
   ProfileViewModel(
@@ -130,7 +131,7 @@ class ProfileViewModel extends LifecycleNotifier {
       if (isDisposed || version != _loadVersion) return;
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not load your profile. Please try again.',
+        fallback: 'Could not load your profile. Please try again.'.tr,
       );
     } finally {
       if (!isDisposed && version == _loadVersion) {
@@ -145,7 +146,7 @@ class ProfileViewModel extends LifecycleNotifier {
     if (repository == null || _isSavingTimeZone) return false;
     final value = timeZone.trim();
     if (value.isEmpty) {
-      _errorMessage = 'Enter an IANA time zone such as Asia/Kuala_Lumpur.';
+      _errorMessage = 'Enter an IANA time zone such as Asia/Kuala_Lumpur.'.tr;
       notifyListeners();
       return false;
     }
@@ -158,7 +159,7 @@ class ProfileViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not update the time zone. Please try again.',
+        fallback: 'Could not update the time zone. Please try again.'.tr,
       );
       return false;
     } finally {
@@ -172,12 +173,12 @@ class ProfileViewModel extends LifecycleNotifier {
     if (repository == null || _isSavingName) return false;
     final value = name.trim();
     if (value.isEmpty) {
-      _errorMessage = 'Enter a name.';
+      _errorMessage = 'Enter a name.'.tr;
       notifyListeners();
       return false;
     }
     if (value.length > maxNameLength) {
-      _errorMessage = 'Use $maxNameLength characters or fewer.';
+      _errorMessage = 'Use $maxNameLength characters or fewer.'.tr;
       notifyListeners();
       return false;
     }
@@ -190,7 +191,7 @@ class ProfileViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not update your name. Please try again.',
+        fallback: 'Could not update your name. Please try again.'.tr,
       );
       return false;
     } finally {

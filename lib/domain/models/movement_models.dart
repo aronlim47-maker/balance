@@ -1,7 +1,10 @@
 class MovementSettings {
-  const MovementSettings({this.trackingEnabled = false, this.targetDays = 3,
-    this.targetRecoveryMinutes = 30, this.targetSocialMinutesWeek = 300})
-    : assert(targetDays >= 1 && targetDays <= 14);
+  const MovementSettings({
+    this.trackingEnabled = false,
+    this.targetDays = 3,
+    this.targetRecoveryMinutes = 30,
+    this.targetSocialMinutesWeek = 300,
+  }) : assert(targetDays >= 1 && targetDays <= 14);
 
   final bool trackingEnabled;
   final int targetDays;

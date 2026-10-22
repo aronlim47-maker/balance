@@ -6,6 +6,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../domain/usecases/world_status_calculator.dart';
 import 'world_trend_panel.dart';
+import '../../core/l10n/tr.dart';
 
 class WorldStatusCard extends StatelessWidget {
   const WorldStatusCard({
@@ -53,18 +54,18 @@ class WorldStatusCard extends StatelessWidget {
               LayoutBuilder(
                 builder: (context, constraints) {
                   if (constraints.maxWidth < 360) {
-                    return const Column(
+                    return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        PanelHeader('Workload Overview'),
+                        PanelHeader('Workload Overview'.tr),
                         SizedBox(height: 6),
-                        RpgTag('World Status', tone: RpgTone.accent),
+                        RpgTag('World Status'.tr, tone: RpgTone.accent),
                       ],
                     );
                   }
-                  return const PanelHeader(
-                    'Workload Overview',
-                    trailing: RpgTag('World Status', tone: RpgTone.accent),
+                  return PanelHeader(
+                    'Workload Overview'.tr,
+                    trailing: RpgTag('World Status'.tr, tone: RpgTone.accent),
                   );
                 },
               ),
@@ -73,11 +74,11 @@ class WorldStatusCard extends StatelessWidget {
                 builder: (context, constraints) {
                   final details = Row(
                     children: [
-                      const RpgLabel('Load', tone: RpgTone.neutral, size: 13),
+                      RpgLabel('Load'.tr, tone: RpgTone.neutral, size: 13),
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
-                          'five dimensions',
+                          'five dimensions'.tr,
                           style: TextStyle(
                             fontSize: 12,
                             color: BalanceColors.textMuted,
@@ -88,7 +89,7 @@ class WorldStatusCard extends StatelessWidget {
                   );
                   final score = Text(
                     status.totalScore == null
-                        ? 'Not enough data'
+                        ? 'Not enough data'.tr
                         : '${status.totalScore}/100 · ${status.label}',
                     style: TextStyle(
                       fontFamily: AppTheme.displayFont,
@@ -131,7 +132,7 @@ class WorldStatusCard extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    '▲ ▼ change since yesterday',
+                    '▲ ▼ change since yesterday'.tr,
                     style: TextStyle(
                       fontSize: 11,
                       color: BalanceColors.textMuted,
@@ -142,11 +143,11 @@ class WorldStatusCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const RpgLabel('Calamity', tone: RpgTone.neutral, size: 13),
+                  RpgLabel('Calamity'.tr, tone: RpgTone.neutral, size: 13),
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
-                      'workload trend',
+                      'workload trend'.tr,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12,
@@ -158,11 +159,11 @@ class WorldStatusCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       switch (status.trend) {
-                        WorldTrend.rising => 'Trend: Rising',
-                        WorldTrend.easing => 'Trend: Easing',
-                        WorldTrend.stable => 'Trend: Stable',
+                        WorldTrend.rising => 'Trend: Rising'.tr,
+                        WorldTrend.easing => 'Trend: Easing'.tr,
+                        WorldTrend.stable => 'Trend: Stable'.tr,
                         WorldTrend.notEnoughHistory =>
-                          'Trend: Not enough history',
+                          'Trend: Not enough history'.tr,
                       },
                       textAlign: TextAlign.end,
                       style: TextStyle(
@@ -186,7 +187,7 @@ class WorldStatusCard extends StatelessWidget {
                 tilePadding: EdgeInsets.zero,
                 childrenPadding: const EdgeInsets.only(bottom: 4),
                 title: Text(
-                  'How is this calculated?',
+                  'How is this calculated?'.tr,
                   style: TextStyle(
                     color: BalanceColors.accentBright,
                     fontSize: 14,
@@ -198,7 +199,9 @@ class WorldStatusCard extends StatelessWidget {
                     child: Text(
                       status.totalScore == null
                           ? 'A total appears when enough dimensions have recorded data.'
-                          : '${(status.coverage * 100).round()}% data coverage${status.isPartial ? ' · Partial result' : ''}.',
+                                .tr
+                          : '${(status.coverage * 100).round()}% data coverage${status.isPartial ? ' · Partial result' : ''}.'
+                                .tr,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -210,7 +213,8 @@ class WorldStatusCard extends StatelessWidget {
                     const SizedBox(height: 4),
                   ],
                   Text(
-                    'Unknown means missing information, not zero pressure. This is a planning aid, not a health assessment.',
+                    'Unknown means missing information, not zero pressure. This is a planning aid, not a health assessment.'
+                        .tr,
                     style: TextStyle(color: BalanceColors.textMuted),
                   ),
                 ],
@@ -232,11 +236,11 @@ class WorldStatusCard extends StatelessWidget {
   }
 
   static String _name(WorldDimension dimension) => switch (dimension) {
-    WorldDimension.mental => 'Mental',
-    WorldDimension.time => 'Time',
-    WorldDimension.physical => 'Physical',
-    WorldDimension.social => 'Social',
-    WorldDimension.errands => 'Errands',
+    WorldDimension.mental => 'Mental'.tr,
+    WorldDimension.time => 'Time'.tr,
+    WorldDimension.physical => 'Physical'.tr,
+    WorldDimension.social => 'Social'.tr,
+    WorldDimension.errands => 'Errands'.tr,
   };
 }
 
@@ -274,7 +278,7 @@ class _DimensionExplanation extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'No component-level data is available for this snapshot.',
+              'No component-level data is available for this snapshot.'.tr,
               style: small,
             ),
           ),
@@ -283,7 +287,7 @@ class _DimensionExplanation extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               c.points == null
-                  ? '${c.label} · Unknown'
+                  ? '${c.label} · Unknown'.tr
                   : '${c.label} · +${c.points!.round()}',
               style: small?.copyWith(fontWeight: FontWeight.w600),
             ),
@@ -295,7 +299,7 @@ class _DimensionExplanation extends StatelessWidget {
           if (c.sources.isNotEmpty)
             Align(
               alignment: Alignment.centerLeft,
-              child: Text('From: ${c.sources.join(', ')}', style: faint),
+              child: Text('From: ${c.sources.join(', ')}'.tr, style: faint),
             ),
           const SizedBox(height: 6),
         ],
@@ -303,7 +307,7 @@ class _DimensionExplanation extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'No pressure from: ${zero.map((c) => c.label).join(', ')}',
+              'No pressure from: ${zero.map((c) => c.label).join(', ')}'.tr,
               style: faint,
             ),
           ),
@@ -383,23 +387,23 @@ class TimeCapacityPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           PanelHeader(
-            'Time capacity',
+            'Time capacity'.tr,
             trailing: Transform.scale(
               scale: tagScale,
               child: tagOver > 0
                   ? RpgTag(
-                      '${formatShortDuration(tagOver)} over',
+                      '${formatShortDuration(tagOver)} over'.tr,
                       tone: RpgTone.danger,
                     )
                   : availableMinutes == 0
-                  ? const RpgTag('No time added', tone: RpgTone.muted)
-                  : const RpgTag('Fits', tone: RpgTone.calm),
+                  ? RpgTag('No time added'.tr, tone: RpgTone.muted)
+                  : RpgTag('Fits'.tr, tone: RpgTone.calm),
             ),
           ),
           const SizedBox(height: 12),
           if (availableMinutes == 0 && plannedMinutes == 0)
-            const Text(
-              'NO TIME ADDED YET',
+            Text(
+              'NO TIME ADDED YET'.tr,
               style: TextStyle(
                 fontFamily: AppTheme.displayFont,
                 fontWeight: FontWeight.w700,
@@ -414,7 +418,7 @@ class TimeCapacityPanel extends StatelessWidget {
               runSpacing: 4,
               children: [
                 Text(
-                  '${formatShortDuration(availableMinutes)} AVAILABLE',
+                  '${formatShortDuration(availableMinutes)} AVAILABLE'.tr,
                   style: const TextStyle(
                     fontFamily: AppTheme.displayFont,
                     fontWeight: FontWeight.w700,
@@ -424,7 +428,7 @@ class TimeCapacityPanel extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${formatShortDuration(plannedMinutes)} PLANNED',
+                  '${formatShortDuration(plannedMinutes)} PLANNED'.tr,
                   style: const TextStyle(
                     fontFamily: AppTheme.displayFont,
                     fontWeight: FontWeight.w700,
@@ -443,7 +447,8 @@ class TimeCapacityPanel extends StatelessWidget {
             height: 10,
             gap: 3,
             semanticsLabel:
-                '$plannedMinutes minutes planned, $availableMinutes minutes available',
+                '$plannedMinutes minutes planned, $availableMinutes minutes available'
+                    .tr,
           ),
           const SizedBox(height: 10),
           Wrap(
@@ -453,12 +458,12 @@ class TimeCapacityPanel extends StatelessWidget {
               if (availableMinutes > 0)
                 _Legend(
                   color: BalanceColors.accent,
-                  text: 'Fits today · ${formatShortDuration(fits)}',
+                  text: 'Fits today · ${formatShortDuration(fits)}'.tr,
                 ),
               if (over > 0)
                 _Legend(
                   color: BalanceColors.dangerFill,
-                  text: 'Beyond capacity · ${formatShortDuration(over)}',
+                  text: 'Beyond capacity · ${formatShortDuration(over)}'.tr,
                 ),
             ],
           ),
@@ -539,7 +544,7 @@ class _DimensionRow extends StatelessWidget {
               ? const SegmentMeter(filled: 0)
               : SegmentMeter.fromScore(
                   score,
-                  semanticsLabel: '$name planning load $score',
+                  semanticsLabel: '$name planning load $score'.tr,
                 ),
         ),
         const SizedBox(width: 10),
@@ -547,7 +552,7 @@ class _DimensionRow extends StatelessWidget {
           width: 72,
           child: Text(
             score == null
-                ? 'Unknown'
+                ? 'Unknown'.tr
                 : '$score/100${result.isPartial ? '*' : ''}',
             textAlign: TextAlign.end,
             style: TextStyle(
@@ -576,12 +581,12 @@ class _Change extends StatelessWidget {
     final value = change;
     if (value == null) return const SizedBox.shrink();
     final (symbol, color, words) = value > 0
-        ? ('▲', BalanceColors.warning, 'up $value')
+        ? ('▲', BalanceColors.warning, 'up $value'.tr)
         : value < 0
-        ? ('▼', BalanceColors.calm, 'down ${-value}')
-        : ('–', BalanceColors.textMuted, 'no change');
+        ? ('▼', BalanceColors.calm, 'down ${-value}'.tr)
+        : ('–', BalanceColors.textMuted, 'no change'.tr);
     return Semantics(
-      label: '$words since yesterday',
+      label: '$words since yesterday'.tr,
       excludeSemantics: true,
       child: Text(
         value == 0 ? symbol : '$symbol ${value.abs()}',

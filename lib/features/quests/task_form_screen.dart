@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/theme/balance_colors.dart';
 
 import '../../domain/enums/task_flexibility.dart';
 import '../../domain/enums/load_category.dart';
 import '../../domain/enums/task_status.dart';
 import '../../domain/models/task_item.dart';
+import '../../core/l10n/tr.dart';
 
 class TaskFormScreen extends StatefulWidget {
   const TaskFormScreen({super.key, this.task});
@@ -77,12 +79,12 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    _isEditing ? 'Edit task' : 'New task',
+                    _isEditing ? 'Edit task'.tr : 'New task'.tr,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Close',
+                  tooltip: 'Close'.tr,
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.close),
                 ),
@@ -93,12 +95,12 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               controller: _titleController,
               autofocus: !_isEditing,
               textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                hintText: 'Prepare project demo',
+              decoration: InputDecoration(
+                labelText: 'Title'.tr,
+                hintText: 'Prepare project demo'.tr,
               ),
               validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Enter a task title.'
+                  ? 'Enter a task title.'.tr
                   : null,
             ),
             const SizedBox(height: 12),
@@ -106,18 +108,18 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               controller: _minutesController,
               onChanged: (_) => setState(() {}),
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Estimated minutes',
+              decoration: InputDecoration(
+                labelText: 'Estimated minutes'.tr,
                 hintText: '60',
               ),
               validator: (value) {
                 final minutes = int.tryParse(value ?? '');
                 if (minutes == null || minutes <= 0) {
-                  return 'Enter a number greater than zero.';
+                  return 'Enter a number greater than zero.'.tr;
                 }
                 if (_isEditing &&
                     widget.task!.remainingAfterEstimate(minutes) < 0) {
-                  return 'Duration cannot be below already allocated work.';
+                  return 'Duration cannot be below already allocated work.'.tr;
                 }
                 return null;
               },
@@ -129,7 +131,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              title: const Text('Due date and time'),
+              title: Text('Due date and time'.tr),
               subtitle: Text(DateFormat.yMMMd().add_jm().format(_dueAt)),
               trailing: const Icon(Icons.calendar_month_outlined),
               onTap: _pickDueAt,
@@ -138,7 +140,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             DropdownButtonFormField<LoadCategory>(
               initialValue: _loadCategory,
               decoration: InputDecoration(
-                labelText: 'Task category',
+                labelText: 'Task category'.tr,
                 helperText: _categoryHelp(_loadCategory),
                 helperMaxLines: 3,
               ),
@@ -150,30 +152,30 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                   ),
               ],
               validator: (value) => value == null
-                  ? 'Choose a task category before saving.'
+                  ? 'Choose a task category before saving.'.tr
                   : null,
               onChanged: (value) => setState(() => _loadCategory = value),
             ),
             if (_isEditing && widget.task!.loadCategory == null) ...[
               const SizedBox(height: 6),
-              const Text('Choose a category for this older task.'),
+              Text('Choose a category for this older task.'.tr),
             ],
             const SizedBox(height: 12),
             DropdownButtonFormField<TaskFlexibility>(
               initialValue: _flexibility,
-              decoration: const InputDecoration(labelText: 'Flexibility'),
-              items: const [
+              decoration: InputDecoration(labelText: 'Flexibility'.tr),
+              items: [
                 DropdownMenuItem(
                   value: TaskFlexibility.flexible,
-                  child: Text('Flexible'),
+                  child: Text('Flexible'.tr),
                 ),
                 DropdownMenuItem(
                   value: TaskFlexibility.fixed,
-                  child: Text('Fixed'),
+                  child: Text('Fixed'.tr),
                 ),
                 DropdownMenuItem(
                   value: TaskFlexibility.needsAgreement,
-                  child: Text('Needs agreement'),
+                  child: Text('Needs agreement'.tr),
                 ),
               ],
               onChanged: (value) {
@@ -184,19 +186,19 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               const SizedBox(height: 12),
               DropdownButtonFormField<TaskStatus>(
                 initialValue: _status,
-                decoration: const InputDecoration(labelText: 'Status'),
-                items: const [
+                decoration: InputDecoration(labelText: 'Status'.tr),
+                items: [
                   DropdownMenuItem(
                     value: TaskStatus.planned,
-                    child: Text('Planned'),
+                    child: Text('Planned'.tr),
                   ),
                   DropdownMenuItem(
                     value: TaskStatus.completed,
-                    child: Text('Completed'),
+                    child: Text('Completed'.tr),
                   ),
                   DropdownMenuItem(
                     value: TaskStatus.cancelled,
-                    child: Text('Cancelled'),
+                    child: Text('Cancelled'.tr),
                   ),
                 ],
                 onChanged: (value) {
@@ -206,32 +208,32 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             ],
             SwitchListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-              title: const Text('Protected task'),
+              title: Text('Protected task'.tr),
               value: _isProtected,
               onChanged: (value) => setState(() => _isProtected = value),
             ),
             if (_isProtected)
               DropdownButtonFormField<String?>(
                 initialValue: _protectedCommitmentType,
-                decoration: const InputDecoration(
-                  labelText: 'Protected commitment type',
+                decoration: InputDecoration(
+                  labelText: 'Protected commitment type'.tr,
                 ),
-                items: const [
+                items: [
                   DropdownMenuItem(
                     value: null,
-                    child: Text('Other protected task'),
+                    child: Text('Other protected task'.tr),
                   ),
                   DropdownMenuItem(
                     value: 'work_shift',
-                    child: Text('Work shift'),
+                    child: Text('Work shift'.tr),
                   ),
                   DropdownMenuItem(
                     value: 'family_duty',
-                    child: Text('Family duty'),
+                    child: Text('Family duty'.tr),
                   ),
                   DropdownMenuItem(
                     value: 'sleep_minimum',
-                    child: Text('Sleep minimum'),
+                    child: Text('Sleep minimum'.tr),
                   ),
                 ],
                 onChanged: (value) =>
@@ -239,13 +241,13 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               ),
             SwitchListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-              title: const Text('Optional task'),
+              title: Text('Optional task'.tr),
               value: _isOptional,
               onChanged: (value) => setState(() => _isOptional = value),
             ),
             SwitchListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-              title: const Text('Schedule work time'),
+              title: Text('Schedule work time'.tr),
               value: _isScheduled,
               onChanged: (value) => setState(() {
                 _isScheduled = value;
@@ -264,10 +266,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                title: const Text('Planned start'),
+                title: Text('Planned start'.tr),
                 subtitle: Text(
                   _scheduledStart == null
-                      ? 'Choose date and time'
+                      ? 'Choose date and time'.tr
                       : DateFormat.yMMMd().add_jm().format(_scheduledStart!),
                 ),
                 trailing: const Icon(Icons.schedule),
@@ -276,14 +278,15 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               if (_scheduledStart != null) ...[
                 const SizedBox(height: 8),
                 Text(
-                  'Ends ${DateFormat.yMMMd().add_jm().format(_scheduledStart!.add(Duration(minutes: _scheduledMinutes)))}',
+                  'Ends ${DateFormat.yMMMd().add_jm().format(_scheduledStart!.add(Duration(minutes: _scheduledMinutes)))}'
+                      .tr,
                 ),
               ],
             ],
             const SizedBox(height: 12),
             FilledButton(
               onPressed: _submit,
-              child: Text(_isEditing ? 'Save changes' : 'Create task'),
+              child: Text(_isEditing ? 'Save changes'.tr : 'Create task'.tr),
             ),
           ],
         ),
@@ -295,15 +298,16 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   /// The app never guesses a category from the task title.
   static String _categoryHelp(LoadCategory? category) => switch (category) {
     null =>
-    'Study: coursework, revision · Errand: admin, chores, shopping · '
-        'Social: meetups · Exercise: sport · Other: anything else',
+      ('Study: coursework, revision · Errand: admin, chores, shopping · '
+              'Social: meetups · Exercise: sport · Other: anything else')
+          .tr,
     LoadCategory.study =>
-    'Coursework, homework, revision and academic projects.',
+      'Coursework, homework, revision and academic projects.'.tr,
     LoadCategory.errand =>
-    'Admin, purchases, household jobs and other practical tasks.',
-    LoadCategory.social => 'A planned meeting or social commitment.',
-    LoadCategory.exercise => 'A planned sport or movement session.',
-    LoadCategory.other => 'Anything that does not fit the other categories.',
+      'Admin, purchases, household jobs and other practical tasks.'.tr,
+    LoadCategory.social => 'A planned meeting or social commitment.'.tr,
+    LoadCategory.exercise => 'A planned sport or movement session.'.tr,
+    LoadCategory.other => 'Anything that does not fit the other categories.'.tr,
   };
 
   Future<void> _pickDueAt() async {
@@ -368,9 +372,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     final original = widget.task;
     if (_scheduledMinutes < 0 || (_isScheduled && _scheduledMinutes == 0)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'The duration cannot be less than already allocated work. Review the plan first.',
+            'The duration cannot be less than already allocated work. Review the plan first.'
+                .tr,
           ),
         ),
       );
@@ -385,8 +390,8 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             scheduledEnd == null ||
             scheduledEnd.isAfter(_dueAt))) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Planned work must end before the task deadline.'),
+        SnackBar(
+          content: Text('Planned work must end before the task deadline.'.tr),
         ),
       );
       return;

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/shared_widgets/balance_crest.dart';
 import '../../core/shared_widgets/password_field.dart';
 import 'auth_view_model.dart';
+import '../../core/l10n/tr.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -43,14 +44,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Center(child: BalanceCrest(size: 88, shine: true)),
                     const SizedBox(height: 20),
                     Text(
-                      'Welcome back to Balance',
+                      'Welcome back to Balance'.tr,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Sign in to manage your tasks and recovery time.',
+                    Text(
+                      'Sign in to manage your tasks and recovery time.'.tr,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 28),
@@ -58,13 +59,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       autofillHints: const [AutofillHints.email],
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
+                      decoration: InputDecoration(
+                        labelText: 'Email'.tr,
                         prefixIcon: Icon(Icons.email_outlined),
                       ),
                       validator: (value) =>
                           value == null || !value.contains('@')
-                          ? 'Enter a valid email address.'
+                          ? 'Enter a valid email address.'.tr
                           : null,
                     ),
                     const SizedBox(height: 14),
@@ -72,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _passwordController,
                       autofillHints: const [AutofillHints.password],
                       validator: (value) => value == null || value.length < 6
-                          ? 'Password must be at least 6 characters.'
+                          ? 'Password must be at least 6 characters.'.tr
                           : null,
                     ),
                     if (auth.errorMessage != null) ...[
@@ -91,23 +92,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           : _submit,
                       child: Text(
                         auth.isLoading
-                            ? 'Signing in…'
+                            ? 'Signing in…'.tr
                             : auth.isWaiting
-                            ? 'Try again in ${auth.retrySecondsLeft}s'
-                            : 'Sign in',
+                            ? 'Try again in ${auth.retrySecondsLeft}s'.tr
+                            : 'Sign in'.tr,
                       ),
                     ),
                     TextButton(
                       onPressed: auth.isLoading
                           ? null
                           : () => context.go('/account-help'),
-                      child: const Text(
-                        'Forgot password or need verification?',
-                      ),
+                      child: Text('Forgot password or need verification?'.tr),
                     ),
                     TextButton(
                       onPressed: () => context.go('/register'),
-                      child: const Text('New to Balance? Create an account'),
+                      child: Text('New to Balance? Create an account'.tr),
                     ),
                   ],
                 ),

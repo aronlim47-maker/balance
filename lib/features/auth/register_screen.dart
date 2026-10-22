@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'auth_view_model.dart';
+import '../../core/l10n/tr.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -51,49 +52,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'Create an account',
+                        'Create an account'.tr,
                         style: Theme.of(context).textTheme.headlineMedium
                             ?.copyWith(fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Your planning data stays private to your account.',
+                      Text(
+                        'Your planning data stays private to your account.'.tr,
                       ),
                       const SizedBox(height: 26),
                       TextFormField(
                         controller: _nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Display name',
+                        decoration: InputDecoration(
+                          labelText: 'Display name'.tr,
                           prefixIcon: Icon(Icons.person_outline),
                         ),
                         validator: (value) =>
                             value == null || value.trim().isEmpty
-                            ? 'Enter a display name.'
+                            ? 'Enter a display name.'.tr
                             : null,
                       ),
                       const SizedBox(height: 14),
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
+                        decoration: InputDecoration(
+                          labelText: 'Email'.tr,
                           prefixIcon: Icon(Icons.email_outlined),
                         ),
                         validator: (value) =>
                             value == null || !value.contains('@')
-                            ? 'Enter a valid email address.'
+                            ? 'Enter a valid email address.'.tr
                             : null,
                       ),
                       const SizedBox(height: 14),
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Password',
+                        decoration: InputDecoration(
+                          labelText: 'Password'.tr,
                           prefixIcon: Icon(Icons.lock_outline),
                         ),
                         validator: (value) => value == null || value.length < 8
-                            ? 'Password must be at least 8 characters.'
+                            ? 'Password must be at least 8 characters.'.tr
                             : null,
                       ),
                       if (auth.errorMessage != null) ...[
@@ -121,15 +122,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             : _submit,
                         child: Text(
                           auth.isLoading
-                              ? 'Creating account…'
+                              ? 'Creating account…'.tr
                               : auth.isWaiting
-                              ? 'Try again in ${auth.retrySecondsLeft}s'
-                              : 'Sign up',
+                              ? 'Try again in ${auth.retrySecondsLeft}s'.tr
+                              : 'Sign up'.tr,
                         ),
                       ),
                       TextButton(
                         onPressed: () => context.go('/login'),
-                        child: const Text('Already have an account? Sign in'),
+                        child: Text('Already have an account? Sign in'.tr),
                       ),
                     ],
                   ),

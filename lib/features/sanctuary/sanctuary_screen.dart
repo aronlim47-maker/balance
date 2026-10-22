@@ -17,15 +17,16 @@ import '../../domain/models/recovery_slot.dart';
 import 'camp_scene.dart';
 import 'recovery_slot_card.dart';
 import 'sanctuary_view_model.dart';
+import '../../core/l10n/tr.dart';
 
 /// Optional recovery ideas. Sanctuary is support, not therapy.
-const recoverySuggestions = <String>[
-  'Short walk',
-  'Phone-free rest',
-  'Sleep preparation',
-  'Grounding exercise',
-  'Reflection prompt',
-  'Visit a campus support service',
+final recoverySuggestions = <String>[
+  'Short walk'.tr,
+  'Phone-free rest'.tr,
+  'Sleep preparation'.tr,
+  'Grounding exercise'.tr,
+  'Reflection prompt'.tr,
+  'Visit a campus support service'.tr,
 ];
 
 /// Reads an optional dependency; screens in tests may not provide it.
@@ -68,9 +69,9 @@ class _RecoveryContent extends StatelessWidget {
     final canEdit = !model.busy && model.repository != null;
     final featured = _featured(model.slots);
     return BalanceScaffold(
-      title: 'Sanctuary',
-      headline: 'Recovery time',
-      help: 'Protected time for rest. Activities are optional.',
+      title: 'Sanctuary'.tr,
+      headline: 'Recovery time'.tr,
+      help: 'Protected time for rest. Activities are optional.'.tr,
       eyebrowTone: RpgTone.calm,
       currentIndex: 3,
       body: RefreshIndicator(
@@ -86,19 +87,19 @@ class _RecoveryContent extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: () => showBreathing(context),
               icon: const Icon(Icons.air),
-              label: const Text('Breathe with the fire'),
+              label: Text('Breathe with the fire'.tr),
             ),
             const SizedBox(height: 16),
             if (model.repository == null)
-              const RpgPanel(
+              RpgPanel(
                 tone: RpgTone.warning,
-                child: Text('Sign in to protect recovery time.'),
+                child: Text('Sign in to protect recovery time.'.tr),
               ),
             if (model.busy)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(bottom: 12),
                 child: LinearProgressIndicator(
-                  semanticsLabel: 'Loading recovery time',
+                  semanticsLabel: 'Loading recovery time'.tr,
                 ),
               ),
             if (model.error != null) ...[
@@ -122,7 +123,7 @@ class _RecoveryContent extends StatelessWidget {
                           FilledButton.icon(
                             onPressed: () => context.go(AppRoutes.today),
                             icon: const Icon(Icons.event_available_outlined),
-                            label: const Text('Go to Today'),
+                            label: Text('Go to Today'.tr),
                           ),
                         // A rejected time needs a new time, not a page reload.
                         if (model.needsAvailability)
@@ -130,12 +131,12 @@ class _RecoveryContent extends StatelessWidget {
                             onPressed: canEdit
                                 ? () => _edit(context, model)
                                 : null,
-                            child: const Text('Choose another time'),
+                            child: Text('Choose another time'.tr),
                           )
                         else
                           TextButton(
                             onPressed: model.busy ? null : model.load,
-                            child: const Text('Try again'),
+                            child: Text('Try again'.tr),
                           ),
                       ],
                     ),
@@ -153,7 +154,7 @@ class _RecoveryContent extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: canEdit ? () => _edit(context, model) : null,
                   icon: const Icon(Icons.add),
-                  label: const Text('Add recovery time'),
+                  label: Text('Add recovery time'.tr),
                 ),
               ),
               const SizedBox(height: 16),
@@ -162,10 +163,11 @@ class _RecoveryContent extends StatelessWidget {
               CollapsibleSection(
                 key: const ValueKey('sanctuary.next'),
                 id: 'sanctuary.next',
-                title: 'Next rest',
+                title: 'Next rest'.tr,
                 help:
-                    'Your next protected rest. The time is held clear and '
-                    'nothing will be scheduled into it.',
+                    ('Your next protected rest. The time is held clear and '
+                            'nothing will be scheduled into it.')
+                        .tr,
                 tone: RpgTone.calm,
                 initiallyExpanded: true,
                 summary:
@@ -191,8 +193,8 @@ class _RecoveryContent extends StatelessWidget {
                       color: BalanceColors.calm,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'No recovery time yet.',
+                    Text(
+                      'No recovery time yet.'.tr,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: AppTheme.displayFont,
@@ -203,8 +205,9 @@ class _RecoveryContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Add a slot inside your available time, or confirm a '
-                      'Council plan that frees time.',
+                      ('Add a slot inside your available time, or confirm a '
+                              'Council plan that frees time.')
+                          .tr,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: BalanceColors.textMuted),
                     ),
@@ -212,7 +215,7 @@ class _RecoveryContent extends StatelessWidget {
                     FilledButton.icon(
                       onPressed: canEdit ? () => _edit(context, model) : null,
                       icon: const Icon(Icons.add),
-                      label: const Text('Add recovery time'),
+                      label: Text('Add recovery time'.tr),
                     ),
                   ],
                 ),
@@ -223,14 +226,16 @@ class _RecoveryContent extends StatelessWidget {
                 id: 'sanctuary.all',
                 // Core section: open until the user closes it.
                 initiallyExpanded: true,
-                title: 'All recovery slots',
+                title: 'All recovery slots'.tr,
                 help:
-                    'Every rest slot you protected. Mark an activity done or '
-                    'remove a slot with ⋮. Rest never changes your scores.',
+                    ('Every rest slot you protected. Mark an activity done or '
+                            'remove a slot with ⋮. Rest never changes your scores.')
+                        .tr,
                 tone: RpgTone.calm,
                 summary:
-                    '${model.slots.length} '
-                    '${model.slots.length == 1 ? 'slot' : 'slots'} protected',
+                    ('${model.slots.length} '
+                            '${model.slots.length == 1 ? 'slot' : 'slots'} protected')
+                        .tr,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -253,8 +258,9 @@ class _RecoveryContent extends StatelessWidget {
             ],
             const SizedBox(height: 8),
             Text(
-              'Skipping has no penalty, and rest does not change your scores. '
-              'Not a medical or therapy service.',
+              ('Skipping has no penalty, and rest does not change your scores. '
+                      'Not a medical or therapy service.')
+                  .tr,
               style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
             ),
           ],
@@ -280,7 +286,7 @@ class _RecoveryContent extends StatelessWidget {
     if (saved && context.mounted) {
       _snack(
         context,
-        slot == null ? 'Recovery time added.' : 'Recovery time updated.',
+        slot == null ? 'Recovery time added.'.tr : 'Recovery time updated.'.tr,
       );
     }
   }
@@ -293,23 +299,24 @@ class _RecoveryContent extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove recovery time?'),
-        content: const Text('This removes its protection from your plan.'),
+        title: Text('Remove recovery time?'.tr),
+        content: Text('This removes its protection from your plan.'.tr),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Remove'),
+            child: Text('Remove'.tr),
           ),
         ],
       ),
     );
     if (confirmed != true || !context.mounted) return;
     final removed = await model.remove(slot);
-    if (removed && context.mounted) _snack(context, 'Recovery time removed.');
+    if (removed && context.mounted)
+      _snack(context, 'Recovery time removed.'.tr);
   }
 
   Future<void> _setDone(
@@ -322,7 +329,9 @@ class _RecoveryContent extends StatelessWidget {
     if (saved && context.mounted) {
       _snack(
         context,
-        done ? 'Activity marked done.' : 'Activity no longer marked done.',
+        done
+            ? 'Activity marked done.'.tr
+            : 'Activity no longer marked done.'.tr,
       );
     }
   }
@@ -342,9 +351,9 @@ class _FeaturedSlot extends StatelessWidget {
     final today = DateTime(now.year, now.month, now.day);
     final day = DateTime(start.year, start.month, start.day);
     final diff = day.difference(today).inDays;
-    if (!start.isAfter(now)) return 'Happening now';
-    if (diff == 0) return start.hour >= 18 ? 'Tonight' : 'Today';
-    if (diff == 1) return 'Tomorrow';
+    if (!start.isAfter(now)) return 'Happening now'.tr;
+    if (diff == 0) return start.hour >= 18 ? 'Tonight'.tr : 'Today'.tr;
+    if (diff == 1) return 'Tomorrow'.tr;
     return DateFormat('EEEE d MMM').format(start);
   }
 
@@ -365,8 +374,8 @@ class _FeaturedSlot extends StatelessWidget {
             children: [
               Expanded(child: RpgLabel(_when(start), tone: RpgTone.calm)),
               if (slot.isProtected)
-                const RpgTag(
-                  'Protected',
+                RpgTag(
+                  'Protected'.tr,
                   tone: RpgTone.calm,
                   icon: Icons.shield_outlined,
                 ),
@@ -385,8 +394,9 @@ class _FeaturedSlot extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            '${formatShortDuration(minutes)} held clear. '
-            'Nothing will be scheduled into it.',
+            ('${formatShortDuration(minutes)} held clear. '
+                    'Nothing will be scheduled into it.')
+                .tr,
             style: TextStyle(color: BalanceColors.textMuted),
           ),
           if (slot.selectedActivity != null) ...[
@@ -486,7 +496,7 @@ class _RecoveryFormState extends State<_RecoveryForm> {
 
   static String _length(int minutes) {
     final h = minutes ~/ 60, m = minutes % 60;
-    return h == 0 ? '${m}m' : (m == 0 ? '${h}h' : '${h}h ${m}m');
+    return h == 0 ? '${m}m'.tr : (m == 0 ? '${h}h'.tr : '${h}h ${m}m'.tr);
   }
 
   Widget _freeTime() {
@@ -505,17 +515,18 @@ class _RecoveryFormState extends State<_RecoveryForm> {
       children: [
         RpgLabel(
           windows.isEmpty
-              ? 'Free time'
+              ? 'Free time'.tr
               : sameDay
-              ? 'Free on ${date.format(start)}'
-              : 'Next free time · ${date.format(day)}',
+              ? 'Free on ${date.format(start)}'.tr
+              : 'Next free time · ${date.format(day)}'.tr,
           size: 12,
         ),
         const SizedBox(height: 8),
         if (windows.isEmpty)
           Text(
-            'No free time in the 7 days from ${date.format(start)}. '
-            'Add availability on Today first.',
+            ('No free time in the 7 days from ${date.format(start)}. '
+                    'Add availability on Today first.')
+                .tr,
             style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
           )
         else ...[
@@ -523,7 +534,8 @@ class _RecoveryFormState extends State<_RecoveryForm> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
-                'Nothing free on ${date.format(start)}. Tap a time to use it.',
+                'Nothing free on ${date.format(start)}. Tap a time to use it.'
+                    .tr,
                 style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
               ),
             ),
@@ -534,8 +546,9 @@ class _RecoveryFormState extends State<_RecoveryForm> {
               for (final w in windows.take(4))
                 ChoiceChip(
                   label: Text(
-                    '${time.format(w.start)} – ${time.format(w.end)} · '
-                    '${_length(w.minutes)} free',
+                    ('${time.format(w.start)} – ${time.format(w.end)} · '
+                            '${_length(w.minutes)} free')
+                        .tr,
                   ),
                   selected: !start.isBefore(w.start) && !end.isAfter(w.end),
                   onSelected: (_) => setState(() => _useWindow(w)),
@@ -620,7 +633,9 @@ class _RecoveryFormState extends State<_RecoveryForm> {
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: Text(
-      widget.slot == null ? 'Protect recovery time' : 'Edit recovery time',
+      widget.slot == null
+          ? 'Protect recovery time'.tr
+          : 'Edit recovery time'.tr,
     ),
     content: SizedBox(
       width: 420,
@@ -631,21 +646,21 @@ class _RecoveryFormState extends State<_RecoveryForm> {
           children: [
             Semantics(
               button: true,
-              label: 'Start',
-              child: _timeTile('Start', start, () => pick(true)),
+              label: 'Start'.tr,
+              child: _timeTile('Start'.tr, start, () => pick(true)),
             ),
             const SizedBox(height: 8),
             Semantics(
               button: true,
-              label: 'End',
-              child: _timeTile('End', end, () => pick(false)),
+              label: 'End'.tr,
+              child: _timeTile('End'.tr, end, () => pick(false)),
             ),
             const SizedBox(height: 14),
             _freeTime(),
             const SizedBox(height: 18),
-            const SectionRule(
-              'Something to do with it',
-              subtitle: 'Optional · the slot holds either way',
+            SectionRule(
+              'Something to do with it'.tr,
+              subtitle: 'Optional · the slot holds either way'.tr,
               tone: RpgTone.calm,
             ),
             const SizedBox(height: 10),
@@ -659,7 +674,7 @@ class _RecoveryFormState extends State<_RecoveryForm> {
               const SizedBox(height: 8),
             ],
             DiamondOptionRow(
-              title: 'Something else',
+              title: 'Something else'.tr,
               selected: choice == _custom,
               tone: RpgTone.calm,
               onTap: () => setState(() => choice = _custom),
@@ -670,18 +685,18 @@ class _RecoveryFormState extends State<_RecoveryForm> {
                 controller: customActivity,
                 maxLength: 80,
                 autofocus: true,
-                decoration: const InputDecoration(
-                  labelText: 'Your activity',
-                  hintText: 'For example: listen to music',
+                decoration: InputDecoration(
+                  labelText: 'Your activity'.tr,
+                  hintText: 'For example: listen to music'.tr,
                 ),
               ),
             ],
             const SizedBox(height: 8),
             DiamondOptionRow(
-              title: 'Skip for now',
+              title: 'Skip for now'.tr,
               subtitle: choice == _skip
-                  ? 'No problem. The time stays free for rest.'
-                  : 'Leave it unplanned',
+                  ? 'No problem. The time stays free for rest.'.tr
+                  : 'Leave it unplanned'.tr,
               selected: choice == _skip,
               dashed: true,
               tone: RpgTone.calm,
@@ -702,23 +717,23 @@ class _RecoveryFormState extends State<_RecoveryForm> {
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
+        child: Text('Cancel'.tr),
       ),
       FilledButton(
         style: FilledButton.styleFrom(minimumSize: const Size(110, 48)),
         onPressed: _submit,
-        child: const Text('Save'),
+        child: Text('Save'.tr),
       ),
     ],
   );
 
   void _submit() {
     if (end.difference(start).inMinutes < 1) {
-      setState(() => error = 'End must be after start.');
+      setState(() => error = 'End must be after start.'.tr);
       return;
     }
     if (choice == _custom && customActivity.text.trim().isEmpty) {
-      setState(() => error = 'Type your activity, or choose Skip for now.');
+      setState(() => error = 'Type your activity, or choose Skip for now.'.tr);
       return;
     }
     Navigator.pop(

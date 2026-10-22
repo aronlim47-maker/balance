@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../domain/models/movement_models.dart';
 import '../../domain/models/task_item.dart';
+import '../../core/l10n/tr.dart';
 
 class MovementCard extends StatelessWidget {
   const MovementCard({
@@ -44,17 +45,17 @@ class MovementCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Movement', style: Theme.of(context).textTheme.titleMedium),
+          Text('Movement'.tr, style: Theme.of(context).textTheme.titleMedium),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Track movement'),
+            title: Text('Track movement'.tr),
             value: settings.trackingEnabled,
             onChanged: isSaving ? null : onTrackingChanged,
           ),
           if (settings.trackingEnabled) ...[
             Row(
               children: [
-                const Expanded(child: Text('Preferred interval')),
+                Expanded(child: Text('Preferred interval'.tr)),
                 DropdownButton<int>(
                   value: settings.targetDays,
                   onChanged: isSaving
@@ -64,35 +65,39 @@ class MovementCard extends StatelessWidget {
                         },
                   items: [
                     for (var days = 1; days <= 14; days++)
-                      DropdownMenuItem(value: days, child: Text('$days days')),
+                      DropdownMenuItem(
+                        value: days,
+                        child: Text('$days days'.tr),
+                      ),
                   ],
                 ),
               ],
             ),
             Text(
               latestExercise == null
-                  ? 'No exercise recorded'
-                  : 'Last: ${DateFormat.yMMMd().format(latestExercise!.occurredAt.toLocal())}',
+                  ? 'No exercise recorded'.tr
+                  : 'Last: ${DateFormat.yMMMd().format(latestExercise!.occurredAt.toLocal())}'
+                        .tr,
             ),
             const SizedBox(height: 6),
             TextButton.icon(
               onPressed: isSaving || isFutureDay ? null : onAdd,
               icon: const Icon(Icons.add),
-              label: const Text('Record exercise'),
+              label: Text('Record exercise'.tr),
             ),
             if (isFutureDay)
-              const Text('You can record an activity after it happens.'),
+              Text('You can record an activity after it happens.'.tr),
             for (final log in dayLogs)
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.directions_run_outlined),
-                title: Text('${log.durationMinutes} minutes recorded'),
+                title: Text('${log.durationMinutes} minutes recorded'.tr),
                 subtitle: Text(
                   '${DateFormat.jm().format(log.occurredAt.toLocal())}'
                   '${log.taskId != null ? ' · Linked to a task' : ''}',
                 ),
                 trailing: IconButton(
-                  tooltip: 'Remove exercise record',
+                  tooltip: 'Remove exercise record'.tr,
                   onPressed: isSaving ? null : () => onDelete(log),
                   icon: const Icon(Icons.delete_outline),
                 ),
@@ -173,27 +178,25 @@ class _ExerciseLogSheetState extends State<ExerciseLogSheet> {
         shrinkWrap: true,
         children: [
           Text(
-            'Record actual exercise',
+            'Record actual exercise'.tr,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Only save an activity you completed. This does not change your planned tasks.',
+          Text(
+            'Only save an activity you completed. This does not change your planned tasks.'
+                .tr,
           ),
           const SizedBox(height: 16),
-          Text('Date: ${DateFormat.yMMMMd().format(widget.day)}'),
+          Text('Date: ${DateFormat.yMMMMd().format(widget.day)}'.tr),
           if (widget.tasks.isNotEmpty)
             DropdownButtonFormField<String?>(
               initialValue: _taskId,
               isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: 'Linked exercise task (optional)',
+              decoration: InputDecoration(
+                labelText: 'Linked exercise task (optional)'.tr,
               ),
               items: [
-                const DropdownMenuItem(
-                  value: null,
-                  child: Text('No linked task'),
-                ),
+                DropdownMenuItem(value: null, child: Text('No linked task'.tr)),
                 for (final task in widget.tasks)
                   DropdownMenuItem(
                     value: task.id,
@@ -204,7 +207,7 @@ class _ExerciseLogSheetState extends State<ExerciseLogSheet> {
             ),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Time completed'),
+            title: Text('Time completed'.tr),
             subtitle: Text(_time.format(context)),
             trailing: const Icon(Icons.schedule),
             onTap: _pickTime,
@@ -212,8 +215,8 @@ class _ExerciseLogSheetState extends State<ExerciseLogSheet> {
           TextField(
             controller: _minutesController,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Actual duration in minutes',
+            decoration: InputDecoration(
+              labelText: 'Actual duration in minutes'.tr,
               hintText: '30',
             ),
           ),
@@ -225,10 +228,10 @@ class _ExerciseLogSheetState extends State<ExerciseLogSheet> {
             ),
           ],
           const SizedBox(height: 18),
-          FilledButton(onPressed: _save, child: const Text('Save exercise')),
+          FilledButton(onPressed: _save, child: Text('Save exercise'.tr)),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
         ],
       ),
@@ -243,7 +246,7 @@ class _ExerciseLogSheetState extends State<ExerciseLogSheet> {
   void _save() {
     final minutes = int.tryParse(_minutesController.text.trim());
     if (minutes == null || minutes < 1 || minutes > 1440) {
-      setState(() => _error = 'Enter a duration from 1 to 1440 minutes.');
+      setState(() => _error = 'Enter a duration from 1 to 1440 minutes.'.tr);
       return;
     }
     final occurredAt = DateTime(
@@ -254,7 +257,7 @@ class _ExerciseLogSheetState extends State<ExerciseLogSheet> {
       _time.minute,
     );
     if (occurredAt.isAfter(DateTime.now())) {
-      setState(() => _error = 'Choose a time that has already passed.');
+      setState(() => _error = 'Choose a time that has already passed.'.tr);
       return;
     }
     Navigator.pop(

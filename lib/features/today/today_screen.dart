@@ -32,6 +32,7 @@ import 'world_status_card.dart';
 import '../../data/repositories/world_history_repository.dart';
 import '../../data/services/verified_progress_service.dart';
 import '../../core/utils/app_error_message.dart';
+import '../../core/l10n/tr.dart';
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({super.key});
@@ -59,17 +60,18 @@ class _TodayContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Consumer<TodayViewModel>(
     builder: (context, viewModel, _) => BalanceScaffold(
-      title: 'World Status',
-      headline: 'Today',
+      title: 'World Status'.tr,
+      headline: 'Today'.tr,
       help:
-          'Check whether today\'s work fits your free time, then add '
-          'details. Use the arrows to look at other days.',
+          ('Check whether today\'s work fits your free time, then add '
+                  'details. Use the arrows to look at other days.')
+              .tr,
       subtitle: DateFormat('EEEE, d MMMM').format(viewModel.selectedDay),
       headerTrailing: _StatusBadge(label: viewModel.worldStatus.label),
       currentIndex: 0,
       actions: [
         IconButton(
-          tooltip: 'Add time block',
+          tooltip: 'Add time block'.tr,
           onPressed: () => _openAvailabilityForm(context, viewModel),
           icon: const Icon(Icons.add),
         ),
@@ -97,7 +99,7 @@ class _TodayContent extends StatelessWidget {
               const SizedBox(height: 20),
               FilledButton.tonal(
                 onPressed: viewModel.load,
-                child: const Text('Try again'),
+                child: Text('Try again'.tr),
               ),
             ],
           ),
@@ -137,15 +139,17 @@ class _TodayContent extends StatelessWidget {
           CollapsibleSection(
             key: const ValueKey('today.capacity'),
             id: 'today.capacity',
-            title: 'Capacity',
+            title: 'Capacity'.tr,
             help:
-                'Compares the work planned for this day with the free time '
-                'you added. If the work needs more time than you have, the '
-                'day is over capacity and Council can suggest safe fixes.',
+                ('Compares the work planned for this day with the free time '
+                        'you added. If the work needs more time than you have, the '
+                        'day is over capacity and Council can suggest safe fixes.')
+                    .tr,
             initiallyExpanded: true,
             summary:
-                '${formatShortDuration(viewModel.plannedMinutes)} planned · '
-                '${formatShortDuration(viewModel.availableMinutes)} free',
+                ('${formatShortDuration(viewModel.plannedMinutes)} planned · '
+                        '${formatShortDuration(viewModel.availableMinutes)} free')
+                    .tr,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -166,7 +170,7 @@ class _TodayContent extends StatelessWidget {
                   TextButton.icon(
                     onPressed: () => _acknowledgeOverload(context, viewModel),
                     icon: const Icon(Icons.fact_check_outlined),
-                    label: const Text('I reviewed this overload'),
+                    label: Text('I reviewed this overload'.tr),
                   ),
               ],
             ),
@@ -177,25 +181,27 @@ class _TodayContent extends StatelessWidget {
             id: 'today.availability',
             // Core section: open until the user closes it.
             initiallyExpanded: true,
-            title: 'Availability',
+            title: 'Availability'.tr,
             help:
-                'The free time you have on this day. Tap Add to enter a time '
-                'block. Balance only counts work inside these times.',
+                ('The free time you have on this day. Tap Add to enter a time '
+                        'block. Balance only counts work inside these times.')
+                    .tr,
             summary: viewModel.availabilityForDay.isEmpty
-                ? 'None added for this day'
-                : '${viewModel.availabilityForDay.length} '
-                      '${viewModel.availabilityForDay.length == 1 ? 'block' : 'blocks'} · '
-                      '${formatShortDuration(viewModel.availableMinutes)} free',
+                ? 'None added for this day'.tr
+                : ('${viewModel.availabilityForDay.length} '
+                          '${viewModel.availabilityForDay.length == 1 ? 'block' : 'blocks'} · '
+                          '${formatShortDuration(viewModel.availableMinutes)} free')
+                      .tr,
             action: TextButton(
               onPressed: () => _openAvailabilityForm(context, viewModel),
-              child: const Text('Add'),
+              child: Text('Add'.tr),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (viewModel.availabilityForDay.isEmpty) ...[
-                  const _EmptyCard(
-                    message: 'No availability has been added for this day.',
+                  _EmptyCard(
+                    message: 'No availability has been added for this day.'.tr,
                   ),
                   if (viewModel.previousDayAvailability.isNotEmpty)
                     Align(
@@ -206,7 +212,8 @@ class _TodayContent extends StatelessWidget {
                             : () => _copyFromPreviousDay(context, viewModel),
                         icon: const Icon(Icons.content_copy_outlined),
                         label: Text(
-                          'Copy from ${DateFormat('EEE d MMM').format(viewModel.selectedDay.subtract(const Duration(days: 1)))}',
+                          'Copy from ${DateFormat('EEE d MMM').format(viewModel.selectedDay.subtract(const Duration(days: 1)))}'
+                              .tr,
                         ),
                       ),
                     ),
@@ -233,7 +240,7 @@ class _TodayContent extends StatelessWidget {
                           ? null
                           : () => _repeatForWeek(context, viewModel),
                       icon: const Icon(Icons.repeat),
-                      label: const Text('Repeat for the next 6 days'),
+                      label: Text('Repeat for the next 6 days'.tr),
                     ),
                   ),
                 ],
@@ -246,22 +253,24 @@ class _TodayContent extends StatelessWidget {
             id: 'today.tasks',
             // Core section: open until the user closes it.
             initiallyExpanded: true,
-            title: 'Planned tasks',
+            title: 'Planned tasks'.tr,
             help:
-                'Work that counts on this day, with its minutes and why it is '
-                'here (scheduled, due, or moved by a plan). Tap a task for '
-                'details.',
+                ('Work that counts on this day, with its minutes and why it is '
+                        'here (scheduled, due, or moved by a plan). Tap a task for '
+                        'details.')
+                    .tr,
             summary: viewModel.tasksForDay.isEmpty
-                ? 'None due on this day'
-                : '${viewModel.tasksForDay.length} '
-                      '${viewModel.tasksForDay.length == 1 ? 'task' : 'tasks'} · '
-                      '${formatShortDuration(viewModel.plannedMinutes)} planned',
+                ? 'None due on this day'.tr
+                : ('${viewModel.tasksForDay.length} '
+                          '${viewModel.tasksForDay.length == 1 ? 'task' : 'tasks'} · '
+                          '${formatShortDuration(viewModel.plannedMinutes)} planned')
+                      .tr,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (viewModel.tasksForDay.isEmpty)
-                  const _EmptyCard(
-                    message: 'No planned tasks are due on this day.',
+                  _EmptyCard(
+                    message: 'No planned tasks are due on this day.'.tr,
                   )
                 else
                   ...viewModel.tasksForDay.map(
@@ -287,7 +296,8 @@ class _TodayContent extends StatelessWidget {
                           ),
                         ),
                         subtitle: Text(
-                          '${viewModel.minutesOnSelectedDay(task)} min · ${viewModel.reasonOnSelectedDay(task)}',
+                          '${viewModel.minutesOnSelectedDay(task)} min · ${viewModel.reasonOnSelectedDay(task)}'
+                              .tr,
                         ),
                         trailing: const Icon(Icons.chevron_right),
                       ),
@@ -302,14 +312,16 @@ class _TodayContent extends StatelessWidget {
             id: 'today.workload',
             // Core section: open until the user closes it.
             initiallyExpanded: true,
-            title: 'Workload',
+            title: 'Workload'.tr,
             help:
-                'Your planning pressure in five areas (Mental, Time, '
-                'Physical, Social, Errands), scored 0-100, plus the 7-day '
-                'trend. Missing data shows as Unknown, never zero.',
+                ('Your planning pressure in five areas (Mental, Time, '
+                        'Physical, Social, Errands), scored 0-100, plus the 7-day '
+                        'trend. Missing data shows as Unknown, never zero.')
+                    .tr,
             summary:
-                'Five dimensions and 7-day trend · '
-                'Load: ${viewModel.worldStatus.label}',
+                ('Five dimensions and 7-day trend · '
+                        'Load: ${viewModel.worldStatus.label}')
+                    .tr,
             child: WorldStatusCard(
               plannedMinutes: viewModel.plannedMinutes,
               availableMinutes: viewModel.availableMinutes,
@@ -325,9 +337,9 @@ class _TodayContent extends StatelessWidget {
           CollapsibleSection(
             key: const ValueKey('today.optional'),
             id: 'today.optional',
-            title: 'Optional updates',
-            summary: 'Daily review, movement and social',
-            help: 'Add detail to your Workload Overview. Skipping is fine.',
+            title: 'Optional updates'.tr,
+            summary: 'Daily review, movement and social'.tr,
+            help: 'Add detail to your Workload Overview. Skipping is fine.'.tr,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -418,8 +430,8 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           filled == null
-              ? viewModel.errorMessage ?? 'Could not copy time blocks.'
-              : 'Copied the previous day’s time.',
+              ? viewModel.errorMessage ?? 'Could not copy time blocks.'.tr
+              : 'Copied the previous day’s time.'.tr,
         ),
       ),
     );
@@ -438,19 +450,20 @@ class _TodayContent extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Repeat this day’s time?'),
+        title: Text('Repeat this day’s time?'.tr),
         content: Text(
-          'Copy ${viewModel.availabilityForDay.length} time block(s) to $range. '
-          'Days that already have time are skipped.',
+          ('Copy ${viewModel.availabilityForDay.length} time block(s) to $range. '
+                  'Days that already have time are skipped.')
+              .tr,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Repeat'),
+            child: Text('Repeat'.tr),
           ),
         ],
       ),
@@ -462,10 +475,10 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           filled == null
-              ? viewModel.errorMessage ?? 'Could not copy time blocks.'
+              ? viewModel.errorMessage ?? 'Could not copy time blocks.'.tr
               : filled == 0
-              ? 'Every day already has time. Nothing was copied.'
-              : 'Copied to $filled day${filled == 1 ? '' : 's'}.',
+              ? 'Every day already has time. Nothing was copied.'.tr
+              : 'Copied to $filled day${filled == 1 ? '' : 's'}.'.tr,
         ),
       ),
     );
@@ -493,7 +506,7 @@ class _TodayContent extends StatelessWidget {
         content: Text(
           saved
               ? viewModel.refreshWarning!
-              : viewModel.errorMessage ?? 'Could not save your response.',
+              : viewModel.errorMessage ?? 'Could not save your response.'.tr,
         ),
       ),
     );
@@ -510,8 +523,8 @@ class _TodayContent extends StatelessWidget {
       await service.acknowledgeOverload(candidate.id);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Review recorded. Check Journey for progress.'),
+          SnackBar(
+            content: Text('Review recorded. Check Journey for progress.'.tr),
           ),
         );
       }
@@ -522,7 +535,7 @@ class _TodayContent extends StatelessWidget {
             content: Text(
               AppErrorMessage.from(
                 error,
-                fallback: 'Could not record this review. Try again.',
+                fallback: 'Could not record this review. Try again.'.tr,
               ),
             ),
           ),
@@ -552,8 +565,8 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           saved
-              ? viewModel.refreshWarning ?? 'Social event saved.'
-              : viewModel.errorMessage ?? 'Could not save the event.',
+              ? viewModel.refreshWarning ?? 'Social event saved.'.tr
+              : viewModel.errorMessage ?? 'Could not save the event.'.tr,
         ),
       ),
     );
@@ -567,15 +580,15 @@ class _TodayContent extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Remove social event?'),
+        title: Text('Remove social event?'.tr),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Remove'),
+            child: Text('Remove'.tr),
           ),
         ],
       ),
@@ -587,8 +600,8 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           removed
-              ? viewModel.refreshWarning ?? 'Social event removed.'
-              : viewModel.errorMessage ?? 'Could not remove the event.',
+              ? viewModel.refreshWarning ?? 'Social event removed.'.tr
+              : viewModel.errorMessage ?? 'Could not remove the event.'.tr,
         ),
       ),
     );
@@ -613,8 +626,11 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           saved
-              ? (block == null ? 'Time block added.' : 'Time block updated.')
-              : viewModel.errorMessage ?? 'The time block could not be saved.',
+              ? (block == null
+                    ? 'Time block added.'.tr
+                    : 'Time block updated.'.tr)
+              : viewModel.errorMessage ??
+                    'The time block could not be saved.'.tr,
         ),
       ),
     );
@@ -640,9 +656,9 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           saved
-              ? 'Daily Review saved.'
+              ? 'Daily Review saved.'.tr
               : viewModel.errorMessage ??
-                    'Could not save Daily Review. Please try again.',
+                    'Could not save Daily Review. Please try again.'.tr,
         ),
       ),
     );
@@ -661,7 +677,7 @@ class _TodayContent extends StatelessWidget {
           saved
               ? viewModel.refreshWarning!
               : viewModel.errorMessage ??
-                    'Could not save movement settings. Please try again.',
+                    'Could not save movement settings. Please try again.'.tr,
         ),
       ),
     );
@@ -687,9 +703,9 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           saved
-              ? viewModel.refreshWarning ?? 'Exercise recorded.'
+              ? viewModel.refreshWarning ?? 'Exercise recorded.'.tr
               : viewModel.errorMessage ??
-                    'Could not save exercise. Please try again.',
+                    'Could not save exercise. Please try again.'.tr,
         ),
       ),
     );
@@ -703,18 +719,18 @@ class _TodayContent extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Remove exercise record?'),
-        content: const Text(
-          'Physical will be recalculated from remaining records.',
+        title: Text('Remove exercise record?'.tr),
+        content: Text(
+          'Physical will be recalculated from remaining records.'.tr,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Remove'),
+            child: Text('Remove'.tr),
           ),
         ],
       ),
@@ -726,9 +742,9 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           removed
-              ? viewModel.refreshWarning ?? 'Exercise record removed.'
+              ? viewModel.refreshWarning ?? 'Exercise record removed.'.tr
               : viewModel.errorMessage ??
-                    'Could not remove exercise. Please try again.',
+                    'Could not remove exercise. Please try again.'.tr,
         ),
       ),
     );
@@ -742,16 +758,16 @@ class _TodayContent extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete time block?'),
-        content: const Text('This action cannot be undone.'),
+        title: Text('Delete time block?'.tr),
+        content: Text('This action cannot be undone.'.tr),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Delete'),
+            child: Text('Delete'.tr),
           ),
         ],
       ),
@@ -763,9 +779,9 @@ class _TodayContent extends StatelessWidget {
       SnackBar(
         content: Text(
           deleted
-              ? 'Time block deleted.'
+              ? 'Time block deleted.'.tr
               : viewModel.errorMessage ??
-                    'The time block could not be deleted.',
+                    'The time block could not be deleted.'.tr,
         ),
       ),
     );
@@ -786,7 +802,7 @@ class _InlineLoadError extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: Text(message)),
-          TextButton(onPressed: onRetry, child: const Text('Try again')),
+          TextButton(onPressed: onRetry, child: Text('Try again'.tr)),
         ],
       ),
     ),
@@ -807,10 +823,10 @@ class _DaySelector extends StatelessWidget {
       day.day,
     ).difference(today).inDays;
     return switch (diff) {
-      0 => 'Viewing today',
-      1 => 'Viewing tomorrow',
-      -1 => 'Viewing yesterday',
-      _ => 'Viewing ${DateFormat.MMMd().format(day)}',
+      0 => 'Viewing today'.tr,
+      1 => 'Viewing tomorrow'.tr,
+      -1 => 'Viewing yesterday'.tr,
+      _ => 'Viewing ${DateFormat.MMMd().format(day)}'.tr,
     };
   }
 
@@ -818,7 +834,7 @@ class _DaySelector extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     children: [
       RpgSquareButton(
-        tooltip: 'Previous day',
+        tooltip: 'Previous day'.tr,
         onPressed: () => viewModel.selectDay(
           viewModel.selectedDay.subtract(const Duration(days: 1)),
         ),
@@ -834,7 +850,7 @@ class _DaySelector extends StatelessWidget {
         ),
       ),
       RpgSquareButton(
-        tooltip: 'Next day',
+        tooltip: 'Next day'.tr,
         onPressed: () => viewModel.selectDay(
           viewModel.selectedDay.add(const Duration(days: 1)),
         ),
@@ -875,7 +891,9 @@ class _StatusBadge extends StatelessWidget {
               const SizedBox(width: 6),
               RpgLabel(
                 // Name the measure so 'Low' is not read as 'plan fits'.
-                label == 'Not enough data' ? 'Load: no data' : 'Load: $label',
+                label == 'Not enough data'
+                    ? 'Load: no data'.tr
+                    : 'Load: $label'.tr,
                 tone: tone == RpgTone.muted ? RpgTone.muted : tone,
                 size: 12,
                 spacing: 1.6,
@@ -911,7 +929,7 @@ class _AvailabilityCard extends StatelessWidget {
             : BalanceColors.danger,
       ),
       title: Text(
-        block.label ?? (block.isAvailable ? 'Available' : 'Blocked'),
+        block.label ?? (block.isAvailable ? 'Available'.tr : 'Blocked'.tr),
         style: const TextStyle(
           fontFamily: AppTheme.displayFont,
           fontWeight: FontWeight.w700,
@@ -924,11 +942,11 @@ class _AvailabilityCard extends StatelessWidget {
         '${DateFormat.jm().format(block.endAt.toLocal())}',
       ),
       trailing: PopupMenuButton<String>(
-        tooltip: 'Time block actions',
+        tooltip: 'Time block actions'.tr,
         onSelected: (value) => value == 'edit' ? onEdit() : onDelete(),
-        itemBuilder: (_) => const [
-          PopupMenuItem(value: 'edit', child: Text('Edit')),
-          PopupMenuItem(value: 'delete', child: Text('Delete')),
+        itemBuilder: (_) => [
+          PopupMenuItem(value: 'edit', child: Text('Edit'.tr)),
+          PopupMenuItem(value: 'delete', child: Text('Delete'.tr)),
         ],
       ),
     ),

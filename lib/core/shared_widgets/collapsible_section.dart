@@ -4,6 +4,7 @@ import '../state/section_memory.dart';
 import '../theme/app_theme.dart';
 import '../theme/balance_colors.dart';
 import 'rpg_widgets.dart';
+import '../l10n/tr.dart';
 
 /// A page section with a large title and a chevron button that shows or hides
 /// its content, so pages stay short and easy to scan.
@@ -196,7 +197,7 @@ class HelpButton extends StatelessWidget {
     child: IconButton(
       // "About …" reads naturally for every title ("About What stays
       // protected"), unlike "What is …?".
-      tooltip: showing ? 'Hide info about $topic' : 'About $topic',
+      tooltip: showing ? 'Hide info about $topic'.tr : 'About $topic'.tr,
       onPressed: onPressed,
       color: showing ? BalanceColors.accentBright : BalanceColors.textMuted,
       icon: Icon(showing ? Icons.help : Icons.help_outline, size: 22),

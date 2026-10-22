@@ -12,7 +12,7 @@ import 'balance_palette.dart';
 /// the wrong look on start.
 class ThemeController extends ChangeNotifier {
   ThemeController({ThemeMode mode = ThemeMode.dark, this._prefs})
-      : _mode = _onlyLightOrDark(mode) {
+    : _mode = _onlyLightOrDark(mode) {
     BalanceColors.use(palette);
   }
 
@@ -41,8 +41,7 @@ class ThemeController extends ChangeNotifier {
       isDark ? BalancePalette.dark : BalancePalette.light;
 
   /// Switches between dark and light right away and saves the choice.
-  Future<void> toggle() =>
-      setMode(isDark ? ThemeMode.light : ThemeMode.dark);
+  Future<void> toggle() => setMode(isDark ? ThemeMode.light : ThemeMode.dark);
 
   Future<void> setMode(ThemeMode mode) async {
     final next = _onlyLightOrDark(mode);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'one_shot.dart';
+import '../l10n/tr.dart';
 
 /// Balance's logo: the gold guild crest (shield with a balance beam on a
 /// pivot) on its dark tile, the same artwork as the launcher icon.
@@ -18,7 +19,7 @@ class BalanceCrest extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     image: true,
-    label: 'Balance logo',
+    label: 'Balance logo'.tr,
     child: shine
         ? OneShot(
             duration: const Duration(milliseconds: 1100),

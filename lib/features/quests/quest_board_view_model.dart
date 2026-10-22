@@ -6,6 +6,7 @@ import '../../domain/enums/task_flexibility.dart';
 import '../../domain/enums/load_category.dart';
 import '../../domain/enums/task_status.dart';
 import '../../domain/models/task_item.dart';
+import '../../core/l10n/tr.dart';
 
 enum QuestSort { dueSoonest, dueLatest, title, remainingMost }
 
@@ -189,7 +190,7 @@ class QuestBoardViewModel extends LifecycleNotifier {
       if (isDisposed || version != _loadVersion) return;
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not load tasks. Please try again.',
+        fallback: 'Could not load tasks. Please try again.'.tr,
       );
       _loadErrorMessage = _errorMessage;
     } finally {
@@ -224,7 +225,7 @@ class QuestBoardViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not save this task. Please try again.',
+        fallback: 'Could not save this task. Please try again.'.tr,
       );
       notifyListeners();
       return false;
@@ -275,7 +276,7 @@ class QuestBoardViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not delete this task. Please try again.',
+        fallback: 'Could not delete this task. Please try again.'.tr,
       );
       notifyListeners();
       return false;

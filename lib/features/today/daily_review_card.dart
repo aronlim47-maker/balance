@@ -5,6 +5,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../domain/enums/energy_level.dart';
 import '../../domain/models/check_in.dart';
+import '../../core/l10n/tr.dart';
 
 class DailyReviewCard extends StatelessWidget {
   const DailyReviewCard({
@@ -24,30 +25,31 @@ class DailyReviewCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PanelHeader(
-          'Daily Review',
+          'Daily Review'.tr,
           trailing: RpgTag(
-            review == null ? 'Optional' : 'Recorded',
+            review == null ? 'Optional'.tr : 'Recorded'.tr,
             tone: review == null ? RpgTone.muted : RpgTone.accent,
           ),
         ),
         const SizedBox(height: 10),
         Text(
           review == null
-              ? 'How are you today? Share only what you want.'
-              : 'Mental: ${review!.mentalEnergyLevel?.label ?? 'Unknown'} · '
-                    'Physical: ${review!.physicalEnergyLevel?.label ?? 'Unknown'}',
+              ? 'How are you today? Share only what you want.'.tr
+              : ('Mental: ${review!.mentalEnergyLevel?.label ?? 'Unknown'} · '
+                        'Physical: ${review!.physicalEnergyLevel?.label ?? 'Unknown'}')
+                    .tr,
           style: TextStyle(color: BalanceColors.textMuted),
         ),
         if (review?.sleepHours != null)
           Text(
-            'Rest recorded: ${review!.sleepHours} hours',
+            'Rest recorded: ${review!.sleepHours} hours'.tr,
             style: TextStyle(color: BalanceColors.textMuted),
           ),
         const SizedBox(height: 4),
         TextButton.icon(
           onPressed: isSaving ? null : onEdit,
           icon: const Icon(Icons.edit_outlined, size: 18),
-          label: Text(review == null ? 'Add review' : 'Edit review'),
+          label: Text(review == null ? 'Add review'.tr : 'Edit review'.tr),
         ),
       ],
     ),
@@ -103,10 +105,10 @@ class _DailyReviewSheetState extends State<DailyReviewSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Eyebrow('Status appraisal'),
+            Eyebrow('Status appraisal'.tr),
             const SizedBox(height: 8),
-            const Text(
-              'Daily Review',
+            Text(
+              'Daily Review'.tr,
               style: TextStyle(
                 fontFamily: AppTheme.displayFont,
                 fontWeight: FontWeight.w700,
@@ -116,20 +118,21 @@ class _DailyReviewSheetState extends State<DailyReviewSheet> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Share only what you want. Skipping does not count as low energy.',
+              'Share only what you want. Skipping does not count as low energy.'
+                  .tr,
               style: TextStyle(color: BalanceColors.textMuted, height: 1.35),
             ),
             const SizedBox(height: 16),
             _EnergyChoice(
-              label: 'Mental energy',
-              hint: 'energy right now',
+              label: 'Mental energy'.tr,
+              hint: 'energy right now'.tr,
               value: _mentalEnergy,
               onChanged: (value) => setState(() => _mentalEnergy = value),
             ),
             const SizedBox(height: 12),
             _EnergyChoice(
-              label: 'Physical energy',
-              hint: 'body right now',
+              label: 'Physical energy'.tr,
+              hint: 'body right now'.tr,
               value: _physicalEnergy,
               onChanged: (value) => setState(() => _physicalEnergy = value),
             ),
@@ -138,14 +141,14 @@ class _DailyReviewSheetState extends State<DailyReviewSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const PanelHeader('Rest'),
+                  PanelHeader('Rest'.tr),
                   const SizedBox(height: 12),
                   Row(
                     children: [
                       for (final hours in _restPresets) ...[
                         Expanded(
                           child: _RestPreset(
-                            label: hours == 8 ? '8h+' : '${hours}h',
+                            label: hours == 8 ? '8h+'.tr : '${hours}h'.tr,
                             selected:
                                 double.tryParse(_sleepController.text.trim()) ==
                                 hours.toDouble(),
@@ -167,16 +170,16 @@ class _DailyReviewSheetState extends State<DailyReviewSheet> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    decoration: const InputDecoration(
-                      labelText: 'Hours of rest (optional)',
+                    decoration: InputDecoration(
+                      labelText: 'Hours of rest (optional)'.tr,
                       hintText: '7.5',
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     _sleepController.text.trim().isEmpty
-                        ? 'Nothing recorded for last night.'
-                        : 'Exact hours can be typed above.',
+                        ? 'Nothing recorded for last night.'.tr
+                        : 'Exact hours can be typed above.'.tr,
                     style: TextStyle(
                       fontSize: 13,
                       color: BalanceColors.textMuted,
@@ -196,12 +199,12 @@ class _DailyReviewSheetState extends State<DailyReviewSheet> {
             FilledButton.icon(
               onPressed: _save,
               icon: const Icon(Icons.play_arrow_rounded),
-              label: const Text('Save review'),
+              label: Text('Save review'.tr),
             ),
             const SizedBox(height: 4),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Skip for now'),
+              child: Text('Skip for now'.tr),
             ),
           ],
         ),
@@ -213,11 +216,11 @@ class _DailyReviewSheetState extends State<DailyReviewSheet> {
     final sleepText = _sleepController.text.trim();
     final sleep = sleepText.isEmpty ? null : double.tryParse(sleepText);
     if (sleepText.isNotEmpty && (sleep == null || sleep < 0 || sleep > 24)) {
-      setState(() => _error = 'Enter rest hours between 0 and 24.');
+      setState(() => _error = 'Enter rest hours between 0 and 24.'.tr);
       return;
     }
     if (sleep == null && _mentalEnergy == null && _physicalEnergy == null) {
-      setState(() => _error = 'Choose an answer or skip for now.');
+      setState(() => _error = 'Choose an answer or skip for now.'.tr);
       return;
     }
     final old = widget.existing;
@@ -252,9 +255,9 @@ class _EnergyChoice extends StatelessWidget {
   final ValueChanged<EnergyLevel?> onChanged;
 
   static String _subtitle(EnergyLevel level) => switch (level) {
-    EnergyLevel.low => 'Running on reserves',
-    EnergyLevel.moderate => 'Enough for the essentials',
-    EnergyLevel.high => 'Room to take something on',
+    EnergyLevel.low => 'Running on reserves'.tr,
+    EnergyLevel.moderate => 'Enough for the essentials'.tr,
+    EnergyLevel.high => 'Room to take something on'.tr,
   };
 
   @override
@@ -265,11 +268,8 @@ class _EnergyChoice extends StatelessWidget {
         PanelHeader(
           label,
           trailing: Text(
-            value == null ? 'Not shared' : hint,
-            style: TextStyle(
-              fontSize: 12,
-              color: BalanceColors.textMuted,
-            ),
+            value == null ? 'Not shared'.tr : hint,
+            style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
           ),
         ),
         const SizedBox(height: 12),
@@ -329,7 +329,7 @@ class _RestPreset extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     button: true,
     selected: selected,
-    label: 'Rest $label',
+    label: 'Rest $label'.tr,
     excludeSemantics: true,
     child: RpgPanel(
       tone: RpgTone.muted,

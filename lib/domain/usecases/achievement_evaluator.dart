@@ -1,5 +1,6 @@
 import '../enums/validation_status.dart';
 import '../models/local_date.dart';
+import '../../core/l10n/tr.dart';
 
 /// Stable achievement keys. These strings are the persisted identifiers in
 /// `achievement_v1` (see `achievementV1Catalogue` and the SQL catalogue); a
@@ -214,98 +215,105 @@ class AchievementEvaluator {
     AchievementDecision no(String why) => AchievementDecision(key, false, why);
 
     if (!event.committed) {
-      return no('The action has not been saved yet.');
+      return no('The action has not been saved yet.'.tr);
     }
     switch (key) {
       case AchievementKey.protectedRest:
         return switch (event) {
-          RecoverySlotEvent e when e.action != RecoveryAction.protectSlot =>
-            no('Only protecting a slot qualifies, not ${e.action.name}.'),
-          RecoverySlotEvent e when !e.isProtected => no(
-            'The slot is not protected.',
+          RecoverySlotEvent e when e.action != RecoveryAction.protectSlot => no(
+            'Only protecting a slot qualifies, not ${e.action.name}.'.tr,
           ),
-          RecoverySlotEvent _ => yes('A sleep or recovery slot was protected.'),
+          RecoverySlotEvent e when !e.isProtected => no(
+            'The slot is not protected.'.tr,
+          ),
+          RecoverySlotEvent _ => yes(
+            'A sleep or recovery slot was protected.'.tr,
+          ),
           CommitmentProtectionEvent e
               when e.isProtected &&
                   e.commitmentType == CommitmentType.sleepMinimum =>
-            yes('A sleep minimum was protected.'),
-          _ => no('Not a sleep or recovery protection.'),
+            yes('A sleep minimum was protected.'.tr),
+          _ => no('Not a sleep or recovery protection.'.tr),
         };
       case AchievementKey.protectedLimit:
         return switch (event) {
           CommitmentProtectionEvent e when !e.isProtected => no(
-            'The commitment is not protected.',
+            'The commitment is not protected.'.tr,
           ),
           CommitmentProtectionEvent e when e.commitmentType == null => no(
-            'A protected task needs a recorded commitment type.',
+            'A protected task needs a recorded commitment type.'.tr,
           ),
           CommitmentProtectionEvent e => yes(
-            'A ${e.commitmentType!.name} was protected.',
+            'A ${e.commitmentType!.name} was protected.'.tr,
           ),
-          _ => no('Not a commitment protection.'),
+          _ => no('Not a commitment protection.'.tr),
         };
       case AchievementKey.safeTradeOff:
         return switch (event) {
-          PlanConfirmationEvent e => _isSafeConfirmation(e)
-              ? yes('A plan was confirmed without breaking protected items.')
-              : no(_whyNotSafe(e)),
-          _ => no('Not a plan confirmation.'),
+          PlanConfirmationEvent e =>
+            _isSafeConfirmation(e)
+                ? yes(
+                    'A plan was confirmed without breaking protected items.'.tr,
+                  )
+                : no(_whyNotSafe(e)),
+          _ => no('Not a plan confirmation.'.tr),
         };
       case AchievementKey.deadlineSafety:
         return switch (event) {
           PlanConfirmationEvent e when !_isSafeConfirmation(e) => no(
             _whyNotSafe(e),
           ),
-          PlanConfirmationEvent e => _flexibleMoves(e).isEmpty
-              ? no('No flexible task was moved.')
-              : _flexibleMoves(e).every((m) => m.keepsDeadline)
-              ? yes('A flexible task moved and its deadline stayed safe.')
-              : no('A moved task would miss its deadline.'),
-          _ => no('Not a plan confirmation.'),
+          PlanConfirmationEvent e =>
+            _flexibleMoves(e).isEmpty
+                ? no('No flexible task was moved.'.tr)
+                : _flexibleMoves(e).every((m) => m.keepsDeadline)
+                ? yes('A flexible task moved and its deadline stayed safe.'.tr)
+                : no('A moved task would miss its deadline.'.tr),
+          _ => no('Not a plan confirmation.'.tr),
         };
       case AchievementKey.earlyReview:
         return switch (event) {
           OverloadReviewEvent e when !e.acknowledged => no(
-            'Opening the screen is not a review.',
+            'Opening the screen is not a review.'.tr,
           ),
           OverloadReviewEvent e when !e.hadOverload => no(
-            'There was no identified overload.',
+            'There was no identified overload.'.tr,
           ),
           OverloadReviewEvent e when e.deadlineOn == null => no(
-            'No related deadline.',
+            'No related deadline.'.tr,
           ),
-          OverloadReviewEvent e when e.reviewedOn.compareTo(e.deadlineOn!) >=
-              0 =>
-            no('The review must be before the deadline day.'),
-          OverloadReviewEvent _ => yes('An overload was reviewed early.'),
-          _ => no('Not an overload review.'),
+          OverloadReviewEvent e
+              when e.reviewedOn.compareTo(e.deadlineOn!) >= 0 =>
+            no('The review must be before the deadline day.'.tr),
+          OverloadReviewEvent _ => yes('An overload was reviewed early.'.tr),
+          _ => no('Not an overload review.'.tr),
         };
       case AchievementKey.reflection:
         return switch (event) {
           ReflectionEvent e when !e.submitted => no(
-            'Opening, skipping or cancelling does not count.',
+            'Opening, skipping or cancelling does not count.'.tr,
           ),
           ReflectionEvent e when (e.body ?? '').trim().isEmpty => no(
-            'The reflection is empty.',
+            'The reflection is empty.'.tr,
           ),
-          ReflectionEvent _ => yes('A reflection was saved.'),
-          _ => no('Not a reflection.'),
+          ReflectionEvent _ => yes('A reflection was saved.'.tr),
+          _ => no('Not a reflection.'.tr),
         };
       case AchievementKey.teamCoordination:
         return switch (event) {
           SharedTaskAgreementEvent e when !e.isVerifiedShared => no(
-            'The task is not a verified shared task.',
+            'The task is not a verified shared task.'.tr,
           ),
           SharedTaskAgreementEvent e when !e.markedNeedsAgreement => no(
-            'The task was not marked Needs Agreement.',
+            'The task was not marked Needs Agreement.'.tr,
           ),
           SharedTaskAgreementEvent e when e.movedAutomatically => no(
-            'The task was moved automatically.',
+            'The task was moved automatically.'.tr,
           ),
           SharedTaskAgreementEvent _ => yes(
-            'A shared task was marked Needs Agreement.',
+            'A shared task was marked Needs Agreement.'.tr,
           ),
-          _ => no('Not a shared-task agreement.'),
+          _ => no('Not a shared-task agreement.'.tr),
         };
     }
   }
@@ -345,12 +353,12 @@ class AchievementEvaluator {
 
   static String _whyNotSafe(PlanConfirmationEvent e) {
     if (e.outcome != PlanOutcome.confirmed) {
-      return 'A ${e.outcome.name} plan does not qualify.';
+      return 'A ${e.outcome.name} plan does not qualify.'.tr;
     }
     if (e.validation != ValidationStatus.feasible) {
-      return 'The plan was not validated as feasible.';
+      return 'The plan was not validated as feasible.'.tr;
     }
-    return 'A protected commitment was broken.';
+    return 'A protected commitment was broken.'.tr;
   }
 
   static List<PlannedMove> _flexibleMoves(PlanConfirmationEvent e) =>

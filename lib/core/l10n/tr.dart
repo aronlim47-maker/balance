@@ -123,7 +123,11 @@ abstract final class Tr {
           buffer.write(RegExp.escape(key.substring(last)));
           buffer.write(r'$');
           patterns.add(
-            _Pattern(RegExp(buffer.toString(), dotAll: true), slots, translation),
+            _Pattern(
+              RegExp(buffer.toString(), dotAll: true),
+              slots,
+              translation,
+            ),
           );
         });
         // Longer keys first so the most specific pattern wins.

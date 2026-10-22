@@ -201,7 +201,8 @@ class DailyWorldStatus {
   Map<String, dynamic> toJson() => {
     'localDate': localDate.toString(),
     'readings': {
-      for (final entry in readings.entries) entry.key.name: entry.value.toJson(),
+      for (final entry in readings.entries)
+        entry.key.name: entry.value.toJson(),
     },
     'total': total.toJson(),
   };

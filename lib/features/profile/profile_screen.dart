@@ -19,6 +19,7 @@ import 'profile_view_model.dart';
 import '../../data/repositories/check_in_repository.dart';
 import '../../data/repositories/movement_repository.dart';
 import '../../data/repositories/social_repository.dart';
+import '../../core/l10n/tr.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -49,7 +50,7 @@ class _ProfileContent extends StatelessWidget {
     final stressPercent = profile.stressMeterPercent;
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: Text('Profile'.tr)),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: profile.load,
@@ -80,8 +81,8 @@ class _ProfileContent extends StatelessWidget {
                                   child: Text(
                                     _displayName(profile, auth) ??
                                         (auth.isConfigured
-                                            ? 'Balance member'
-                                            : 'Preview user'),
+                                            ? 'Balance member'.tr
+                                            : 'Preview user'.tr),
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleLarge,
@@ -100,7 +101,7 @@ class _ProfileContent extends StatelessWidget {
                                           ),
                                         )
                                       : IconButton(
-                                          tooltip: 'Edit name',
+                                          tooltip: 'Edit name'.tr,
                                           onPressed: () =>
                                               _editName(context, profile),
                                           icon: const Icon(
@@ -113,7 +114,7 @@ class _ProfileContent extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               auth.currentUserEmail ??
-                                  'No cloud account connected',
+                                  'No cloud account connected'.tr,
                             ),
                           ],
                         ),
@@ -138,7 +139,9 @@ class _ProfileContent extends StatelessWidget {
                         child: Text(
                           auth.isConfigured
                               ? 'Signed in · Changes are saved to your account.'
-                              : 'Local preview · Your changes are not saved to Supabase and may disappear when the app closes.',
+                                    .tr
+                              : 'Local preview · Your changes are not saved to Supabase and may disappear when the app closes.'
+                                    .tr,
                         ),
                       ),
                     ],
@@ -150,7 +153,7 @@ class _ProfileContent extends StatelessWidget {
                 Card(
                   child: ListTile(
                     leading: const Icon(Icons.public),
-                    title: const Text('Planning time zone'),
+                    title: Text('Planning time zone'.tr),
                     subtitle: Text(profile.userProfile!.timeZone),
                     trailing: profile.isSavingTimeZone
                         ? const SizedBox.square(
@@ -166,7 +169,7 @@ class _ProfileContent extends StatelessWidget {
               ],
               const SizedBox(height: 20),
               Text(
-                'Plan summary',
+                'Plan summary'.tr,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
@@ -182,7 +185,7 @@ class _ProfileContent extends StatelessWidget {
                         Text(profile.errorMessage!),
                         TextButton(
                           onPressed: profile.load,
-                          child: const Text('Try again'),
+                          child: Text('Try again'.tr),
                         ),
                       ],
                     ),
@@ -195,25 +198,26 @@ class _ProfileContent extends StatelessWidget {
                     child: Column(
                       children: [
                         _SummaryRow(
-                          label: 'Active tasks',
+                          label: 'Active tasks'.tr,
                           value: '${profile.plannedTaskCount}',
                         ),
                         const Divider(),
                         _SummaryRow(
-                          label: 'Completed tasks',
+                          label: 'Completed tasks'.tr,
                           value: '${profile.completedTaskCount}',
                         ),
                         const Divider(),
                         _SummaryRow(
-                          label: 'Confirmed plans',
+                          label: 'Confirmed plans'.tr,
                           value:
                               profile.confirmedPlanCount?.toString() ??
-                              'Cloud only',
+                              'Cloud only'.tr,
                         ),
                         const Divider(),
                         _SummaryRow(
-                          label: 'Today’s capacity gap',
-                          value: '${profile.todayCapacity.overloadMinutes} min',
+                          label: 'Today’s capacity gap'.tr,
+                          value:
+                              '${profile.todayCapacity.overloadMinutes} min'.tr,
                         ),
                       ],
                     ),
@@ -221,7 +225,7 @@ class _ProfileContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'World Status',
+                  'World Status'.tr,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 8),
@@ -233,7 +237,7 @@ class _ProfileContent extends StatelessWidget {
                       children: [
                         Text(
                           stressPercent == null
-                              ? 'Not enough data'
+                              ? 'Not enough data'.tr
                               : '$stressPercent/100${profile.worldStatus.isPartial ? ' · Partial' : ''}',
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
@@ -248,8 +252,9 @@ class _ProfileContent extends StatelessWidget {
                                 : colors.primary,
                           ),
                         const SizedBox(height: 12),
-                        const Text(
-                          'The same five-dimension score as Today. Missing data is not zero pressure. Not a health assessment.',
+                        Text(
+                          'The same five-dimension score as Today. Missing data is not zero pressure. Not a health assessment.'
+                              .tr,
                         ),
                       ],
                     ),
@@ -260,8 +265,8 @@ class _ProfileContent extends StatelessWidget {
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.school_outlined),
-                  title: const Text('Beginner guide'),
-                  subtitle: const Text('Learn Balance in 5 simple steps'),
+                  title: Text('Beginner guide'.tr),
+                  subtitle: Text('Learn Balance in 5 simple steps'.tr),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
                     final route = await showOnboarding(context);
@@ -274,7 +279,7 @@ class _ProfileContent extends StatelessWidget {
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.notifications_outlined),
-                  title: const Text('Reminders and alerts'),
+                  title: Text('Reminders and alerts'.tr),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push(AppRoutes.reminders),
                 ),
@@ -288,7 +293,7 @@ class _ProfileContent extends StatelessWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                auth.errorMessage ?? 'Could not sign out.',
+                                auth.errorMessage ?? 'Could not sign out.'.tr,
                               ),
                             ),
                           );
@@ -296,12 +301,12 @@ class _ProfileContent extends StatelessWidget {
                       }
                     : null,
                 icon: const Icon(Icons.logout),
-                label: Text(auth.isLoading ? 'Signing out…' : 'Sign out'),
+                label: Text(auth.isLoading ? 'Signing out…'.tr : 'Sign out'.tr),
               ),
               if (!auth.isConfigured) ...[
                 const SizedBox(height: 8),
-                const Text(
-                  'Sign out is available after connecting Supabase.',
+                Text(
+                  'Sign out is available after connecting Supabase.'.tr,
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -324,13 +329,13 @@ class _ProfileContent extends StatelessWidget {
     final entered = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Edit name'),
+        title: Text('Edit name'.tr),
         content: TextFormField(
           initialValue: name,
           autofocus: true,
           maxLength: ProfileViewModel.maxNameLength,
           textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(labelText: 'Display name'),
+          decoration: InputDecoration(labelText: 'Display name'.tr),
           onChanged: (value) => name = value,
           onFieldSubmitted: (value) =>
               Navigator.pop(dialogContext, value.trim()),
@@ -338,11 +343,11 @@ class _ProfileContent extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, name.trim()),
-            child: const Text('Save'),
+            child: Text('Save'.tr),
           ),
         ],
       ),
@@ -354,8 +359,8 @@ class _ProfileContent extends StatelessWidget {
       SnackBar(
         content: Text(
           saved
-              ? 'Name updated.'
-              : profile.errorMessage ?? 'Could not update your name.',
+              ? 'Name updated.'.tr
+              : profile.errorMessage ?? 'Could not update your name.'.tr,
         ),
       ),
     );
@@ -363,30 +368,31 @@ class _ProfileContent extends StatelessWidget {
 
   static String _initial(String? name, String? email) {
     final source = name ?? email;
-    return source == null || source.isEmpty ? 'B' : source[0].toUpperCase();
+    return source == null || source.isEmpty ? 'B'.tr : source[0].toUpperCase();
   }
 
   Future<void> _editTimeZone(
     BuildContext context,
     ProfileViewModel profile,
   ) async {
-    var timeZone = profile.userProfile?.timeZone ?? 'UTC';
+    var timeZone = profile.userProfile?.timeZone ?? 'UTC'.tr;
     final selected = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Planning time zone'),
+        title: Text('Planning time zone'.tr),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Use the same time zone as your phone so tasks near midnight appear on the correct day.',
+            Text(
+              'Use the same time zone as your phone so tasks near midnight appear on the correct day.'
+                  .tr,
             ),
             const SizedBox(height: 16),
             TextFormField(
               initialValue: timeZone,
-              decoration: const InputDecoration(
-                labelText: 'IANA time zone',
+              decoration: InputDecoration(
+                labelText: 'IANA time zone'.tr,
                 hintText: 'Asia/Kuala_Lumpur',
               ),
               onChanged: (value) => timeZone = value,
@@ -395,18 +401,18 @@ class _ProfileContent extends StatelessWidget {
             TextButton(
               onPressed: () =>
                   Navigator.pop(dialogContext, 'Asia/Kuala_Lumpur'),
-              child: const Text('Use Malaysia time'),
+              child: Text('Use Malaysia time'.tr),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, timeZone.trim()),
-            child: const Text('Save'),
+            child: Text('Save'.tr),
           ),
         ],
       ),
@@ -418,8 +424,8 @@ class _ProfileContent extends StatelessWidget {
       SnackBar(
         content: Text(
           saved
-              ? 'Planning time zone updated.'
-              : profile.errorMessage ?? 'Could not update the time zone.',
+              ? 'Planning time zone updated.'.tr
+              : profile.errorMessage ?? 'Could not update the time zone.'.tr,
         ),
       ),
     );
@@ -461,18 +467,16 @@ class _SoundSettings extends StatelessWidget {
           children: [
             SwitchListTile(
               secondary: const Icon(Icons.music_note_outlined),
-              title: const Text('Sound effects'),
-              subtitle: const Text(
-                'Chimes for achievements and confirmed plans',
-              ),
+              title: Text('Sound effects'.tr),
+              subtitle: Text('Chimes for achievements and confirmed plans'.tr),
               value: sound.effectsOn,
               onChanged: sound.setEffects,
             ),
             const Divider(height: 1),
             SwitchListTile(
               secondary: const Icon(Icons.headphones_outlined),
-              title: const Text('Relaxing background music'),
-              subtitle: const Text('A calm ambient loop while you plan'),
+              title: Text('Relaxing background music'.tr),
+              subtitle: Text('A calm ambient loop while you plan'.tr),
               value: sound.musicOn,
               onChanged: sound.setMusic,
             ),

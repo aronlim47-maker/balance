@@ -7,6 +7,7 @@ import '../../data/repositories/task_repository.dart';
 import '../../data/services/device_reminder_gateway.dart';
 import '../../domain/models/availability_block.dart';
 import '../../domain/usecases/plan_task_reminders.dart';
+import '../../core/l10n/tr.dart';
 
 abstract interface class ReminderStore {
   Future<ReminderPreferences> read(String owner);
@@ -15,7 +16,7 @@ abstract interface class ReminderStore {
 
 class DeviceReminderStore implements ReminderStore {
   late final _prefs = SharedPreferencesAsync();
-  String _key(String owner) => 'balance.reminders.v1.$owner';
+  String _key(String owner) => 'balance.reminders.v1.$owner'.tr;
   @override
   Future<ReminderPreferences> read(String owner) async {
     final raw = await _prefs.getString(_key(owner));
@@ -68,7 +69,8 @@ class ReminderController extends LifecycleNotifier {
         await action(generation);
       } catch (_) {
         if (generation == _generation && !isDisposed) {
-          message = 'Could not update reminders. This does not affect saved tasks. Try again.';
+          message = 'Could not update reminders. This does not affect saved tasks. Try again.'
+              .tr;
         }
       } finally {
         if (!isDisposed && generation == _generation) {
@@ -107,7 +109,7 @@ class ReminderController extends LifecycleNotifier {
     final owner = _owner;
     if (!_gateway.supported || owner == null) return;
     if (!value.isValid) {
-      message = 'Choose different quiet-hour start and end times.';
+      message = 'Choose different quiet-hour start and end times.'.tr;
       return;
     }
     await _gateway.initialize();
@@ -116,7 +118,8 @@ class ReminderController extends LifecycleNotifier {
       await _gateway.cancelAll();
       if (!_current(generation)) return;
       scheduledCount = 0;
-      message = 'Notifications are blocked. Allow Balance notifications in device settings, then try again.';
+      message = 'Notifications are blocked. Allow Balance notifications in device settings, then try again.'
+          .tr;
       return;
     }
     if (!_current(generation)) return;
@@ -146,7 +149,7 @@ class ReminderController extends LifecycleNotifier {
       await _gateway.cancelAll();
       if (_current(generation)) {
         scheduledCount = 0;
-        message = 'Notifications are blocked in device settings.';
+        message = 'Notifications are blocked in device settings.'.tr;
       }
       return;
     }

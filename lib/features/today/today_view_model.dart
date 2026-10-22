@@ -22,6 +22,7 @@ import '../../domain/usecases/daily_capacity.dart';
 import '../../domain/usecases/world_status_calculator.dart';
 import '../../domain/usecases/social_conflicts.dart';
 import '../../data/repositories/world_history_repository.dart';
+import '../../core/l10n/tr.dart';
 
 class TodayViewModel extends LifecycleNotifier {
   TodayViewModel(
@@ -179,8 +180,8 @@ class TodayViewModel extends LifecycleNotifier {
           WorldStatusResult(
             dimensions: {
               for (final dimension in WorldDimension.values)
-                dimension: const DimensionResult.unknown(
-                  'No snapshot was recorded for this day.',
+                dimension: DimensionResult.unknown(
+                  'No snapshot was recorded for this day.'.tr,
                 ),
             },
             totalScore: null,
@@ -232,7 +233,7 @@ class TodayViewModel extends LifecycleNotifier {
                   '${date.year}-${date.month.toString().padLeft(2, '0')}-'
                   '${date.day.toString().padLeft(2, '0')}';
               return activity == null || activity.isEmpty
-                  ? 'Protected recovery · $dateLabel'
+                  ? 'Protected recovery · $dateLabel'.tr
                   : '$activity · $dateLabel';
             })
             .toList(growable: false),
@@ -347,13 +348,14 @@ class TodayViewModel extends LifecycleNotifier {
           if (loadVersion == _loadVersion) {
             _historicalStatus = snapshot;
             historyNotice = snapshot == null
-                ? 'No workload record for this day.'
-                : 'Recorded workload. The schedule below shows current task data.';
+                ? 'No workload record for this day.'.tr
+                : 'Recorded workload. The schedule below shows current task data.'
+                      .tr;
           }
         } catch (_) {
           if (loadVersion == _loadVersion) {
             historyNotice =
-                'Recorded workload is unavailable. Pull to refresh.';
+                'Recorded workload is unavailable. Pull to refresh.'.tr;
           }
         }
       }
@@ -379,7 +381,7 @@ class TodayViewModel extends LifecycleNotifier {
         } catch (_) {
           if (loadVersion == _loadVersion) {
             _previousTotals = List.filled(7, null);
-            historyNotice ??= 'History is unavailable. Pull to refresh.';
+            historyNotice ??= 'History is unavailable. Pull to refresh.'.tr;
           }
         }
       }
@@ -387,7 +389,7 @@ class TodayViewModel extends LifecycleNotifier {
       if (loadVersion != _loadVersion) return;
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not load today’s plan. Please try again.',
+        fallback: 'Could not load today’s plan. Please try again.'.tr,
       );
       _loadErrorMessage = _errorMessage;
     } finally {
@@ -422,7 +424,8 @@ class TodayViewModel extends LifecycleNotifier {
 
   void _recordRefreshWarningIfNeeded() {
     if (_errorMessage != null) {
-      _refreshWarning = 'Your change was saved, but the latest view could not be loaded. Pull to refresh.';
+      _refreshWarning = 'Your change was saved, but the latest view could not be loaded. Pull to refresh.'
+          .tr;
       notifyListeners();
     }
   }
@@ -432,7 +435,7 @@ class TodayViewModel extends LifecycleNotifier {
     final savingDay = _selectedDay;
     if (value && socialEvents.isNotEmpty) {
       _errorMessage =
-          'Remove this week’s events before selecting no commitments.';
+          'Remove this week’s events before selecting no commitments.'.tr;
       notifyListeners();
       return false;
     }
@@ -447,7 +450,7 @@ class TodayViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not save your social response. Please try again.',
+        fallback: 'Could not save your social response. Please try again.'.tr,
       );
       return false;
     } finally {
@@ -462,7 +465,7 @@ class TodayViewModel extends LifecycleNotifier {
     final selectedWeek = CalendarWeek.start(_selectedDay);
     final eventWeek = CalendarWeek.start(day);
     if (!DailyCapacity.sameDay(selectedWeek, eventWeek)) {
-      _errorMessage = 'Choose a date in the selected week.';
+      _errorMessage = 'Choose a date in the selected week.'.tr;
       notifyListeners();
       return false;
     }
@@ -477,7 +480,7 @@ class TodayViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not save the social event. Please try again.',
+        fallback: 'Could not save the social event. Please try again.'.tr,
       );
       return false;
     } finally {
@@ -499,7 +502,7 @@ class TodayViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not remove the social event. Please try again.',
+        fallback: 'Could not remove the social event. Please try again.'.tr,
       );
       return false;
     } finally {
@@ -521,7 +524,7 @@ class TodayViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not save movement settings. Please try again.',
+        fallback: 'Could not save movement settings. Please try again.'.tr,
       );
       return false;
     } finally {
@@ -533,17 +536,17 @@ class TodayViewModel extends LifecycleNotifier {
   Future<bool> recordExercise(ExerciseLog log) async {
     if (_movementRepository == null || _isSavingMovement) return false;
     if (!_movementSettings.trackingEnabled) {
-      _errorMessage = 'Enable movement tracking before adding an exercise.';
+      _errorMessage = 'Enable movement tracking before adding an exercise.'.tr;
       notifyListeners();
       return false;
     }
     if (!DailyCapacity.sameDay(log.occurredAt.toLocal(), _selectedDay)) {
-      _errorMessage = 'Choose a time on the selected day.';
+      _errorMessage = 'Choose a time on the selected day.'.tr;
       notifyListeners();
       return false;
     }
     if (log.occurredAt.isAfter(DateTime.now())) {
-      _errorMessage = 'Choose a time that has already passed.';
+      _errorMessage = 'Choose a time that has already passed.'.tr;
       notifyListeners();
       return false;
     }
@@ -558,7 +561,7 @@ class TodayViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not save the exercise record. Please try again.',
+        fallback: 'Could not save the exercise record. Please try again.'.tr,
       );
       return false;
     } finally {
@@ -580,7 +583,7 @@ class TodayViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not remove the exercise record. Please try again.',
+        fallback: 'Could not remove the exercise record. Please try again.'.tr,
       );
       return false;
     } finally {
@@ -609,7 +612,7 @@ class TodayViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not save Daily Review. Please try again.',
+        fallback: 'Could not save Daily Review. Please try again.'.tr,
       );
       return false;
     } finally {
@@ -643,7 +646,7 @@ class TodayViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not save this time block. Please try again.',
+        fallback: 'Could not save this time block. Please try again.'.tr,
       );
       notifyListeners();
       return false;
@@ -715,7 +718,7 @@ class TodayViewModel extends LifecycleNotifier {
       _availability.sort((a, b) => a.startAt.compareTo(b.startAt));
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not copy all time blocks. Please try again.',
+        fallback: 'Could not copy all time blocks. Please try again.'.tr,
       );
       return null;
     } finally {
@@ -741,7 +744,7 @@ class TodayViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not delete this time block. Please try again.',
+        fallback: 'Could not delete this time block. Please try again.'.tr,
       );
       notifyListeners();
       return false;
@@ -815,9 +818,9 @@ class TodayViewModel extends LifecycleNotifier {
           task.scheduledEnd!,
           _selectedDay,
         );
-    if (scheduledHere) return 'Scheduled this day';
-    if (reservationsForTask(task).isNotEmpty) return 'Moved here by a plan';
-    return 'Due this day';
+    if (scheduledHere) return 'Scheduled this day'.tr;
+    if (reservationsForTask(task).isNotEmpty) return 'Moved here by a plan'.tr;
+    return 'Due this day'.tr;
   }
 
   Future<void> _refreshHistoryAfterSave() async {
@@ -836,7 +839,7 @@ class TodayViewModel extends LifecycleNotifier {
     } catch (_) {
       if (!isDisposed && version == _loadVersion) {
         _refreshWarning =
-            'Saved, but workload history could not refresh. Pull to retry.';
+            'Saved, but workload history could not refresh. Pull to retry.'.tr;
       }
     }
   }

@@ -4,6 +4,7 @@ import '../../core/utils/app_error_message.dart';
 import '../../data/repositories/achievement_repository.dart';
 import '../../domain/models/achievement_models.dart';
 import '../../data/repositories/world_history_repository.dart';
+import '../../core/l10n/tr.dart';
 
 class JourneyViewModel extends LifecycleNotifier {
   JourneyViewModel(this._repository, [this._history]);
@@ -44,7 +45,8 @@ class JourneyViewModel extends LifecycleNotifier {
   String get reflectionSavedMessage =>
       _errorMessage != null || _weekError != null
       ? 'Reflection saved, but the latest view could not refresh. Pull to retry.'
-      : 'Reflection saved.';
+            .tr
+      : 'Reflection saved.'.tr;
 
   Future<void> load() async {
     if (isDisposed) return;
@@ -73,7 +75,7 @@ class JourneyViewModel extends LifecycleNotifier {
       if (version != _loadVersion) return;
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not load achievements. Pull to retry.',
+        fallback: 'Could not load achievements. Pull to retry.'.tr,
       );
     } finally {
       if (_history != null && !isDisposed && version == _loadVersion) {
@@ -87,7 +89,7 @@ class JourneyViewModel extends LifecycleNotifier {
           _week = null;
           _weekError = AppErrorMessage.from(
             error,
-            fallback: 'Could not load this week. Pull to retry.',
+            fallback: 'Could not load this week. Pull to retry.'.tr,
           );
         }
       }

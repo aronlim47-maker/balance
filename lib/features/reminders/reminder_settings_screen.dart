@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'reminder_controller.dart';
+import '../../core/l10n/tr.dart';
 
 class ReminderSettingsScreen extends StatelessWidget {
   const ReminderSettingsScreen({super.key});
@@ -11,23 +12,23 @@ class ReminderSettingsScreen extends StatelessWidget {
     final controller = context.watch<ReminderController>();
     final settings = controller.preferences;
     return Scaffold(
-      appBar: AppBar(title: const Text('Reminders and alerts')),
+      appBar: AppBar(title: Text('Reminders and alerts'.tr)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             if (!controller.available)
-              const Card(
+              Card(
                 child: Padding(
                   padding: EdgeInsets.all(16),
                   child: Text(
-                    'Sign in on Android or iOS to use device reminders.',
+                    'Sign in on Android or iOS to use device reminders.'.tr,
                   ),
                 ),
               ),
             SwitchListTile(
-              title: const Text('Deadline reminders'),
-              subtitle: const Text('Only on this device. Off by default.'),
+              title: Text('Deadline reminders'.tr),
+              subtitle: Text('Only on this device. Off by default.'.tr),
               value: settings.enabled,
               onChanged: controller.available && !controller.busy
                   ? (value) =>
@@ -35,30 +36,24 @@ class ReminderSettingsScreen extends StatelessWidget {
                   : null,
             ),
             InputDecorator(
-              decoration: const InputDecoration(labelText: 'Remind me before'),
+              decoration: InputDecoration(labelText: 'Remind me before'.tr),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<int>(
                   value: settings.leadMinutes,
                   isExpanded: true,
                   items: [
-                    const DropdownMenuItem(
-                      value: 15,
-                      child: Text('15 minutes'),
-                    ),
-                    const DropdownMenuItem(
-                      value: 30,
-                      child: Text('30 minutes'),
-                    ),
-                    const DropdownMenuItem(value: 60, child: Text('1 hour')),
-                    const DropdownMenuItem(value: 1440, child: Text('1 day')),
+                    DropdownMenuItem(value: 15, child: Text('15 minutes'.tr)),
+                    DropdownMenuItem(value: 30, child: Text('30 minutes'.tr)),
+                    DropdownMenuItem(value: 60, child: Text('1 hour'.tr)),
+                    DropdownMenuItem(value: 1440, child: Text('1 day'.tr)),
                     if (![15, 30, 60, 1440].contains(settings.leadMinutes))
                       DropdownMenuItem(
                         value: settings.leadMinutes,
-                        child: Text('${settings.leadMinutes} minutes'),
+                        child: Text('${settings.leadMinutes} minutes'.tr),
                       ),
-                    const DropdownMenuItem(
+                    DropdownMenuItem(
                       value: -1,
-                      child: Text('Custom minutes…'),
+                      child: Text('Custom minutes…'.tr),
                     ),
                   ],
                   onChanged: controller.available && !controller.busy
@@ -94,10 +89,11 @@ class ReminderSettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             SwitchListTile(
-              title: const Text('Overload alerts'),
-              subtitle: const Text(
-                'The evening before a day with more planned work than '
-                'available time. Off by default.',
+              title: Text('Overload alerts'.tr),
+              subtitle: Text(
+                ('The evening before a day with more planned work than '
+                        'available time. Off by default.')
+                    .tr,
               ),
               value: settings.overloadAlerts,
               onChanged: controller.available && !controller.busy
@@ -107,7 +103,7 @@ class ReminderSettingsScreen extends StatelessWidget {
                   : null,
             ),
             ListTile(
-              title: const Text('Alert time'),
+              title: Text('Alert time'.tr),
               trailing: Text(_time(settings.overloadAt).format(context)),
               onTap:
                   controller.available &&
@@ -118,8 +114,8 @@ class ReminderSettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             SwitchListTile(
-              title: const Text('Quiet hours'),
-              subtitle: const Text('Reminders in this period are skipped.'),
+              title: Text('Quiet hours'.tr),
+              subtitle: Text('Reminders in this period are skipped.'.tr),
               value: settings.quietEnabled,
               onChanged: controller.available && !controller.busy
                   ? (value) =>
@@ -127,7 +123,7 @@ class ReminderSettingsScreen extends StatelessWidget {
                   : null,
             ),
             ListTile(
-              title: const Text('Start'),
+              title: Text('Start'.tr),
               trailing: Text(_time(settings.quietStart).format(context)),
               onTap:
                   controller.available &&
@@ -137,7 +133,7 @@ class ReminderSettingsScreen extends StatelessWidget {
                   : null,
             ),
             ListTile(
-              title: const Text('End'),
+              title: Text('End'.tr),
               trailing: Text(_time(settings.quietEnd).format(context)),
               onTap:
                   controller.available &&
@@ -156,28 +152,31 @@ class ReminderSettingsScreen extends StatelessWidget {
               ),
             if (controller.available) ...[
               Text(
-                '${controller.scheduledCount} reminders and '
-                '${controller.overloadAlertCount} overload alerts scheduled',
+                ('${controller.scheduledCount} reminders and '
+                        '${controller.overloadAlertCount} overload alerts scheduled')
+                    .tr,
               ),
               TextButton.icon(
                 onPressed: controller.busy ? null : controller.refresh,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Refresh reminders'),
+                label: Text('Refresh reminders'.tr),
               ),
             ],
             const SizedBox(height: 12),
-            const Text(
-              'Uses your device time zone. Task names stay private. Delivery may be delayed by battery settings.',
+            Text(
+              'Uses your device time zone. Task names stay private. Delivery may be delayed by battery settings.'
+                  .tr,
             ),
             ExpansionTile(
-              title: const Text('How reminders work'),
-              children: const [
+              title: Text('How reminders work'.tr),
+              children: [
                 Padding(
                   padding: EdgeInsets.all(16),
                   child: Text(
-                    'Only unfinished tasks with future reminder times are included, up to the nearest 50 deadlines. '
-                    'Completed, cancelled and deleted tasks are removed. Changes made on another device are picked up '
-                    'when Balance resumes or you refresh. This does not reschedule work or send remote push notifications.',
+                    ('Only unfinished tasks with future reminder times are included, up to the nearest 50 deadlines. '
+                            'Completed, cancelled and deleted tasks are removed. Changes made on another device are picked up '
+                            'when Balance resumes or you refresh. This does not reschedule work or send remote push notifications.')
+                        .tr,
                   ),
                 ),
               ],
@@ -247,7 +246,7 @@ Future<int?> _chooseCustomReminderMinutes(
       }
 
       return AlertDialog(
-        title: const Text('Custom reminder'),
+        title: Text('Custom reminder'.tr),
         content: Form(
           key: formKey,
           child: TextFormField(
@@ -255,9 +254,9 @@ Future<int?> _chooseCustomReminderMinutes(
             autofocus: true,
             keyboardType: TextInputType.number,
             textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(
-              labelText: 'Minutes before deadline',
-              helperText: '1–10080 minutes (up to 7 days)',
+            decoration: InputDecoration(
+              labelText: 'Minutes before deadline'.tr,
+              helperText: '1–10080 minutes (up to 7 days)'.tr,
             ),
             onChanged: (value) => input = value,
             validator: (value) {
@@ -267,7 +266,7 @@ Future<int?> _chooseCustomReminderMinutes(
                   minutes == null ||
                   minutes < 1 ||
                   minutes > 10080) {
-                return 'Enter a whole number from 1 to 10080.';
+                return 'Enter a whole number from 1 to 10080.'.tr;
               }
               return null;
             },
@@ -277,9 +276,9 @@ Future<int?> _chooseCustomReminderMinutes(
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
-          FilledButton(onPressed: submit, child: const Text('Save')),
+          FilledButton(onPressed: submit, child: Text('Save'.tr)),
         ],
       );
     },

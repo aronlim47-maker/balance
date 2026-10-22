@@ -6,6 +6,7 @@ import '../../core/router/app_router.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
+import '../../core/l10n/tr.dart';
 
 const _seenKey = 'balance.onboarding.v1';
 
@@ -28,54 +29,59 @@ class _Step {
   final _Art art;
 }
 
-const _steps = [
+final _steps = [
   _Step(
-    page: 'Today',
-    title: 'Add your free time',
+    page: 'Today'.tr,
+    title: 'Add your free time'.tr,
     body:
-        'Tell Balance when you are free each day. On Today, tap Add under '
-        'Availability.',
-    showMe: 'Show me on Today',
+        ('Tell Balance when you are free each day. On Today, tap Add under '
+                'Availability.')
+            .tr,
+    showMe: 'Show me on Today'.tr,
     route: AppRoutes.today,
     art: _Art.time,
   ),
   _Step(
-    page: 'Quests',
-    title: 'Add your tasks',
+    page: 'Quests'.tr,
+    title: 'Add your tasks'.tr,
     body:
-        'List what you need to do and when it is due. On Quests, tap Add '
-        'task.',
-    showMe: 'Show me on Quests',
+        ('List what you need to do and when it is due. On Quests, tap Add '
+                'task.')
+            .tr,
+    showMe: 'Show me on Quests'.tr,
     route: AppRoutes.quests,
     art: _Art.tasks,
   ),
   _Step(
-    page: 'Today',
-    title: 'See if your day fits',
+    page: 'Today'.tr,
+    title: 'See if your day fits'.tr,
     body:
-        'If your tasks need more time than you have, Today turns red and '
-        'shows how much is over.',
-    showMe: 'Show me on Today',
+        ('If your tasks need more time than you have, Today turns red and '
+                'shows how much is over.')
+            .tr,
+    showMe: 'Show me on Today'.tr,
     route: AppRoutes.today,
     art: _Art.overload,
   ),
   _Step(
-    page: 'Council',
-    title: 'Fix it safely',
+    page: 'Council'.tr,
+    title: 'Fix it safely'.tr,
     body:
-        'Council suggests moving flexible work to a day with room. Nothing '
-        'changes until you confirm, and you can undo it.',
-    showMe: 'Show me on Council',
+        ('Council suggests moving flexible work to a day with room. Nothing '
+                'changes until you confirm, and you can undo it.')
+            .tr,
+    showMe: 'Show me on Council'.tr,
     route: AppRoutes.council,
     art: _Art.fix,
   ),
   _Step(
-    page: 'Sanctuary · Journey',
-    title: 'Rest and look back',
+    page: 'Sanctuary · Journey'.tr,
+    title: 'Rest and look back'.tr,
     body:
-        'Protect free time for rest in Sanctuary. Journey shows your week and '
-        'the badges you earn. No streaks, no pressure.',
-    showMe: 'Show me Sanctuary',
+        ('Protect free time for rest in Sanctuary. Journey shows your week and '
+                'the badges you earn. No streaks, no pressure.')
+            .tr,
+    showMe: 'Show me Sanctuary'.tr,
     route: AppRoutes.sanctuary,
     art: _Art.rest,
   ),
@@ -154,10 +160,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               padding: const EdgeInsets.fromLTRB(20, 4, 4, 0),
               child: Row(
                 children: [
-                  const Expanded(child: Eyebrow('Beginner guide')),
+                  Expanded(child: Eyebrow('Beginner guide'.tr)),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Skip'),
+                    child: Text('Skip'.tr),
                   ),
                 ],
               ),
@@ -173,7 +179,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
             Semantics(
-              label: 'Step ${_index + 1} of ${_steps.length}',
+              label: 'Step ${_index + 1} of ${_steps.length}'.tr,
               excludeSemantics: true,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -207,7 +213,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           duration: const Duration(milliseconds: 250),
                           curve: Curves.easeOut,
                         ),
-                        child: const Text('Back'),
+                        child: Text('Back'.tr),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -221,7 +227,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               duration: const Duration(milliseconds: 250),
                               curve: Curves.easeOut,
                             ),
-                      child: Text(last ? 'Get started' : 'Next'),
+                      child: Text(last ? 'Get started'.tr : 'Next'.tr),
                     ),
                   ),
                 ],
@@ -286,7 +292,7 @@ class _StepPageState extends State<_StepPage>
           const SizedBox(height: 12),
           Semantics(
             button: true,
-            label: 'Replay animation',
+            label: 'Replay animation'.tr,
             onTap: _replay,
             excludeSemantics: true,
             child: GestureDetector(
@@ -323,7 +329,9 @@ class _StepPageState extends State<_StepPage>
             ),
           ),
           const SizedBox(height: 28),
-          Eyebrow('Step ${widget.number} of ${_steps.length} · ${step.page}'),
+          Eyebrow(
+            'Step ${widget.number} of ${_steps.length} · ${step.page}'.tr,
+          ),
           const SizedBox(height: 10),
           Text(
             step.title,
@@ -490,9 +498,9 @@ class _TimeArt extends StatelessWidget {
           children: [
             Icon(Icons.event_available, color: BalanceColors.calm),
             const SizedBox(width: 8),
-            Expanded(child: Text('Availability', style: _small)),
+            Expanded(child: Text('Availability'.tr, style: _small)),
             Text(
-              '${(3 * fill).round()}h free',
+              '${(3 * fill).round()}h free'.tr,
               style: TextStyle(
                 fontFamily: AppTheme.displayFont,
                 fontWeight: FontWeight.w700,
@@ -507,7 +515,7 @@ class _TimeArt extends StatelessWidget {
         const SizedBox(height: 14),
         Opacity(
           opacity: _part(t, 0.7, 1),
-          child: Text('9:00 AM – 12:00 PM', style: _small),
+          child: Text('9:00 AM – 12:00 PM'.tr, style: _small),
         ),
       ],
     );
@@ -537,15 +545,15 @@ class _TasksArt extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        slide('Report · 3h', 0),
+        slide('Report · 3h'.tr, 0),
         const SizedBox(height: 12),
-        slide('Deadline work · 2h', 0.25),
+        slide('Deadline work · 2h'.tr, 0.25),
         const SizedBox(height: 12),
         Opacity(
           opacity: _part(t, 0.75, 1),
           child: Align(
             alignment: Alignment.centerLeft,
-            child: Text('5h of work planned', style: _small),
+            child: Text('5h of work planned'.tr, style: _small),
           ),
         ),
       ],
@@ -568,10 +576,10 @@ class _OverloadArt extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text('Planned 5h  ·  Free 3h', style: _small)),
+            Expanded(child: Text('Planned 5h  ·  Free 3h'.tr, style: _small)),
             Transform.scale(
               scale: tag,
-              child: const RpgTag('2h over', tone: RpgTone.danger),
+              child: RpgTag('2h over'.tr, tone: RpgTone.danger),
             ),
           ],
         ),
@@ -580,11 +588,11 @@ class _OverloadArt extends StatelessWidget {
         const SizedBox(height: 10),
         Row(
           children: [
-            Expanded(flex: 6, child: Text('Fits', style: _small)),
+            Expanded(flex: 6, child: Text('Fits'.tr, style: _small)),
             Expanded(
               flex: 4,
               child: Text(
-                'Too much',
+                'Too much'.tr,
                 style: TextStyle(fontSize: 13, color: BalanceColors.danger),
               ),
             ),
@@ -632,13 +640,13 @@ class _FixArt extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 day(
-                  'Today',
+                  'Today'.tr,
                   fixed
-                      ? const RpgTag('Fits', tone: RpgTone.calm)
-                      : const RpgTag('2h over', tone: RpgTone.danger),
+                      ? RpgTag('Fits'.tr, tone: RpgTone.calm)
+                      : RpgTag('2h over'.tr, tone: RpgTone.danger),
                 ),
                 const SizedBox(width: 12),
-                day('Tomorrow', const RpgTag('Room', tone: RpgTone.calm)),
+                day('Tomorrow'.tr, RpgTag('Room'.tr, tone: RpgTone.calm)),
               ],
             ),
             Positioned(
@@ -646,7 +654,7 @@ class _FixArt extends StatelessWidget {
               bottom: 12,
               width: column - 20,
               child: _TaskChip(
-                'Report · 2h',
+                'Report · 2h'.tr,
                 tone: fixed ? RpgTone.calm : RpgTone.accent,
               ),
             ),
@@ -694,7 +702,7 @@ class _RestArt extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            Text('Rest time', style: _small),
+            Text('Rest time'.tr, style: _small),
           ],
         ),
         Column(
@@ -726,7 +734,7 @@ class _RestArt extends StatelessWidget {
             const SizedBox(height: 10),
             Opacity(
               opacity: _part(t, 0.6, 1),
-              child: Text('Badge earned', style: _small),
+              child: Text('Badge earned'.tr, style: _small),
             ),
           ],
         ),

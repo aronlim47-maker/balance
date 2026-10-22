@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../core/theme/balance_colors.dart';
 import 'avatar_store.dart';
+import '../../core/l10n/tr.dart';
 
 /// Picks a photo and returns its bytes, or null if the user cancelled.
 typedef AvatarPicker = Future<Uint8List?> Function();
@@ -67,9 +68,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   void _say(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _choose() async {
@@ -77,7 +77,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     try {
       bytes = await (widget.pickImage ?? _pickFromGallery)();
     } catch (_) {
-      if (mounted) _say('Could not open your photos. Please try again.');
+      if (mounted) _say('Could not open your photos. Please try again.'.tr);
       return;
     }
     if (bytes == null || !mounted) return;
@@ -85,9 +85,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     if (!mounted) return;
     if (saved) {
       setState(() => _photo = bytes);
-      _say('Profile picture updated.');
+      _say('Profile picture updated.'.tr);
     } else {
-      _say('Could not save the picture. Please try again.');
+      _say('Could not save the picture. Please try again.'.tr);
     }
   }
 
@@ -95,7 +95,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     await widget.store.remove(widget.owner);
     if (!mounted) return;
     setState(() => _photo = null);
-    _say('Profile picture removed.');
+    _say('Profile picture removed.'.tr);
   }
 
   Future<void> _openMenu() async {
@@ -109,15 +109,15 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
               title: Text(
-                _photo == null ? 'Choose a photo' : 'Choose a new photo',
+                _photo == null ? 'Choose a photo'.tr : 'Choose a new photo'.tr,
               ),
-              subtitle: const Text('Saved on this phone only'),
+              subtitle: Text('Saved on this phone only'.tr),
               onTap: () => Navigator.pop(sheetContext, 'choose'),
             ),
             if (_photo != null)
               ListTile(
                 leading: const Icon(Icons.delete_outline),
-                title: const Text('Remove photo'),
+                title: Text('Remove photo'.tr),
                 onTap: () => Navigator.pop(sheetContext, 'remove'),
               ),
           ],
@@ -140,7 +140,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         children: [
           Semantics(
             image: true,
-            label: photo == null ? null : 'Profile picture',
+            label: photo == null ? null : 'Profile picture'.tr,
             child: CircleAvatar(
               radius: widget.radius,
               backgroundColor: BalanceColors.accentDim,
@@ -158,7 +158,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             right: 0,
             bottom: 0,
             child: IconButton(
-              tooltip: 'Change profile picture',
+              tooltip: 'Change profile picture'.tr,
               onPressed: _openMenu,
               style: IconButton.styleFrom(
                 backgroundColor: BalanceColors.surfaceRaised,

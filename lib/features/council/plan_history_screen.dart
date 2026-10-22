@@ -7,6 +7,7 @@ import '../../core/utils/app_error_message.dart';
 import '../../data/repositories/plan_repository.dart';
 import '../../domain/enums/plan_status.dart';
 import '../../domain/models/plan_change.dart';
+import '../../core/l10n/tr.dart';
 
 class PlanHistoryScreen extends StatefulWidget {
   const PlanHistoryScreen({super.key});
@@ -48,7 +49,7 @@ class _PlanHistoryScreenState extends State<PlanHistoryScreen> {
       setState(
         () => _error = AppErrorMessage.from(
           error,
-          fallback: 'Could not load plans. Pull to retry.',
+          fallback: 'Could not load plans. Pull to retry.'.tr,
         ),
       );
     } finally {
@@ -58,7 +59,7 @@ class _PlanHistoryScreenState extends State<PlanHistoryScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Plan history')),
+    appBar: AppBar(title: Text('Plan history'.tr)),
     body: RefreshIndicator(
       onRefresh: _load,
       child: ListView(
@@ -70,15 +71,16 @@ class _PlanHistoryScreenState extends State<PlanHistoryScreen> {
           if (!_loading && _error == null && _plans.isEmpty)
             Text(
               context.read<PlanRepository?>() == null
-                  ? 'Connect your account to see plan history.'
-                  : 'No confirmed plans yet. Plans you confirm in War Council appear here, and you can undo them from here.',
+                  ? 'Connect your account to see plan history.'.tr
+                  : 'No confirmed plans yet. Plans you confirm in War Council appear here, and you can undo them from here.'
+                        .tr,
             ),
           for (final plan in _plans)
             Card(
               child: ListTile(
                 title: Text(
                   plan.consequences['task_title'] as String? ??
-                      'Rebalanced plan',
+                      'Rebalanced plan'.tr,
                 ),
                 subtitle: Text(
                   '${plan.status == PlanStatus.undone ? 'Undone' : 'Confirmed'}'

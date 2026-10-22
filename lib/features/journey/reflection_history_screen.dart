@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/utils/app_error_message.dart';
 import '../../data/services/verified_progress_service.dart';
 import '../../domain/models/reflection_record.dart';
+import '../../core/l10n/tr.dart';
 
 class ReflectionHistoryScreen extends StatefulWidget {
   const ReflectionHistoryScreen({super.key});
@@ -39,7 +40,7 @@ class _ReflectionHistoryScreenState extends State<ReflectionHistoryScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('My reflections')),
+    appBar: AppBar(title: Text('My reflections'.tr)),
     body: FutureBuilder<List<ReflectionRecord>>(
       future: _history,
       builder: (context, snapshot) => RefreshIndicator(
@@ -54,14 +55,15 @@ class _ReflectionHistoryScreenState extends State<ReflectionHistoryScreen> {
               Text(
                 AppErrorMessage.from(
                   snapshot.error!,
-                  fallback: 'Could not load reflections. Try again.',
+                  fallback: 'Could not load reflections. Try again.'.tr,
                 ),
               ),
-              TextButton(onPressed: _reload, child: const Text('Retry')),
+              TextButton(onPressed: _reload, child: Text('Retry'.tr)),
             ] else if (snapshot.connectionState == ConnectionState.done &&
                 snapshot.data!.isEmpty)
-              const Text(
-                'No reflections yet. Reflections you save in Journey appear here.',
+              Text(
+                'No reflections yet. Reflections you save in Journey appear here.'
+                    .tr,
               ),
             if (!snapshot.hasError)
               for (final reflection in snapshot.data ?? <ReflectionRecord>[])

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../domain/models/social_event_record.dart';
 import '../../domain/models/task_item.dart';
 import '../../domain/usecases/world_status_calculator.dart';
+import '../../core/l10n/tr.dart';
 
 class SocialCard extends StatelessWidget {
   const SocialCard({
@@ -30,19 +31,20 @@ class SocialCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tile = ExpansionTile(
-      title: const Text('Social'),
+      title: Text('Social'.tr),
       subtitle: Text(
         events.isNotEmpty
             ? '${events.length} event${events.length == 1 ? '' : 's'} this week'
+                  .tr
             : noCommitments
-            ? 'No commitments this week'
-            : 'Not recorded',
+            ? 'No commitments this week'.tr
+            : 'Not recorded'.tr,
       ),
       childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       children: [
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          title: const Text('No commitments this week'),
+          title: Text('No commitments this week'.tr),
           value: noCommitments,
           onChanged: isSaving || events.isNotEmpty
               ? null
@@ -53,7 +55,7 @@ class SocialCard extends StatelessWidget {
           child: TextButton.icon(
             onPressed: isSaving ? null : onAdd,
             icon: const Icon(Icons.add),
-            label: const Text('Add event'),
+            label: Text('Add event'.tr),
           ),
         ),
         for (final event in events)
@@ -63,10 +65,11 @@ class SocialCard extends StatelessWidget {
               DateFormat.MMMd().add_jm().format(event.startAt.toLocal()),
             ),
             subtitle: Text(
-              '${event.endAt.difference(event.startAt).inMinutes} min · ${_pressureLabel(event.pressure)}',
+              '${event.endAt.difference(event.startAt).inMinutes} min · ${_pressureLabel(event.pressure)}'
+                  .tr,
             ),
             trailing: IconButton(
-              tooltip: 'Remove social event',
+              tooltip: 'Remove social event'.tr,
               onPressed: isSaving ? null : () => onDelete(event),
               icon: const Icon(Icons.delete_outline),
             ),
@@ -77,10 +80,10 @@ class SocialCard extends StatelessWidget {
   }
 
   static String _pressureLabel(SocialPressure pressure) => switch (pressure) {
-    SocialPressure.neutral => 'Neutral',
-    SocialPressure.low => 'Low',
-    SocialPressure.moderate => 'Moderate',
-    SocialPressure.high => 'High',
+    SocialPressure.neutral => 'Neutral'.tr,
+    SocialPressure.low => 'Low'.tr,
+    SocialPressure.moderate => 'Moderate'.tr,
+    SocialPressure.high => 'High'.tr,
   };
 }
 
@@ -119,7 +122,7 @@ class _SocialEventSheetState extends State<SocialEventSheet> {
         shrinkWrap: true,
         children: [
           Text(
-            'Add social event',
+            'Add social event'.tr,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 12),
@@ -128,14 +131,11 @@ class _SocialEventSheetState extends State<SocialEventSheet> {
             DropdownButtonFormField<String?>(
               initialValue: _taskId,
               isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: 'Linked social task (optional)',
+              decoration: InputDecoration(
+                labelText: 'Linked social task (optional)'.tr,
               ),
               items: [
-                const DropdownMenuItem(
-                  value: null,
-                  child: Text('No linked task'),
-                ),
+                DropdownMenuItem(value: null, child: Text('No linked task'.tr)),
                 for (final task in widget.tasks)
                   DropdownMenuItem(
                     value: task.id,
@@ -162,7 +162,7 @@ class _SocialEventSheetState extends State<SocialEventSheet> {
             ),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Start time'),
+            title: Text('Start time'.tr),
             subtitle: Text(_time.format(context)),
             onTap: () async {
               final chosen = await showTimePicker(
@@ -175,12 +175,12 @@ class _SocialEventSheetState extends State<SocialEventSheet> {
           TextField(
             controller: _minutes,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Duration in minutes'),
+            decoration: InputDecoration(labelText: 'Duration in minutes'.tr),
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<SocialPressure>(
             initialValue: _pressure,
-            decoration: const InputDecoration(labelText: 'Pressure'),
+            decoration: InputDecoration(labelText: 'Pressure'.tr),
             items: [
               for (final pressure in SocialPressure.values)
                 DropdownMenuItem(
@@ -198,10 +198,10 @@ class _SocialEventSheetState extends State<SocialEventSheet> {
             ),
           ],
           const SizedBox(height: 18),
-          FilledButton(onPressed: _save, child: const Text('Save event')),
+          FilledButton(onPressed: _save, child: Text('Save event'.tr)),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
         ],
       ),
@@ -212,7 +212,7 @@ class _SocialEventSheetState extends State<SocialEventSheet> {
     final minutes = int.tryParse(_minutes.text.trim());
     if (minutes == null || minutes < 1 || minutes > 720 || _pressure == null) {
       setState(
-        () => _error = 'Enter 1–720 minutes and choose a pressure level.',
+        () => _error = 'Enter 1–720 minutes and choose a pressure level.'.tr,
       );
       return;
     }

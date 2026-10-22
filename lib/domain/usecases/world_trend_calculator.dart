@@ -1,6 +1,7 @@
 import '../models/local_date.dart';
 import '../models/world_trend_models.dart';
 import 'world_status_calculator.dart';
+import '../../core/l10n/tr.dart';
 
 /// Rolling seven-day cumulative load, moving average and direction for each of
 /// the five World Status dimensions and for the total.
@@ -42,7 +43,7 @@ class WorldTrendCalculator {
         throw ArgumentError.value(
           entry.localDate.toString(),
           'history',
-          'Duplicate entry for the same local date.',
+          'Duplicate entry for the same local date.'.tr,
         );
       }
       byDate[entry.localDate] = entry;
@@ -50,9 +51,7 @@ class WorldTrendCalculator {
     final end =
         asOf ??
         (byDate.isEmpty
-            ? throw ArgumentError(
-                'asOf is required when history is empty.',
-              )
+            ? throw ArgumentError('asOf is required when history is empty.'.tr)
             : byDate.keys.reduce((a, b) => a.compareTo(b) >= 0 ? a : b));
 
     DimensionReading reading(
@@ -63,9 +62,7 @@ class WorldTrendCalculator {
       return day == null ? const DimensionReading.unknown() : pick(day);
     }
 
-    DimensionTrend summarise(
-      DimensionReading Function(DailyWorldStatus) pick,
-    ) {
+    DimensionTrend summarise(DimensionReading Function(DailyWorldStatus) pick) {
       final window = [
         for (var offset = windowDays - 1; offset >= 0; offset--)
           reading(end.addDays(-offset), pick),

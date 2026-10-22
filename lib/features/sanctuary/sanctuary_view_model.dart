@@ -8,6 +8,7 @@ import '../../domain/models/availability_block.dart';
 import '../../domain/models/recovery_slot.dart';
 import '../../domain/models/task_item.dart';
 import '../../domain/usecases/free_windows.dart';
+import '../../core/l10n/tr.dart';
 
 class SanctuaryViewModel extends LifecycleNotifier {
   SanctuaryViewModel(
@@ -74,7 +75,7 @@ class SanctuaryViewModel extends LifecycleNotifier {
       if (isDisposed || version != _loadVersion) return;
       error = AppErrorMessage.from(
         e,
-        fallback: 'Could not load recovery time. Try again.',
+        fallback: 'Could not load recovery time. Try again.'.tr,
       );
     } finally {
       if (!isDisposed && version == _loadVersion) {
@@ -88,12 +89,12 @@ class SanctuaryViewModel extends LifecycleNotifier {
     if (isDisposed || busy || repository == null) return false;
     if (!slot.endAt.isAfter(slot.startAt) ||
         slot.endAt.difference(slot.startAt).inMinutes < 1) {
-      error = 'Choose an end time after the start.';
+      error = 'Choose an end time after the start.'.tr;
       notifyListeners();
       return false;
     }
     if (slot.planChangeId != null) {
-      error = 'Use Council to undo a plan-created slot.';
+      error = 'Use Council to undo a plan-created slot.'.tr;
       notifyListeners();
       return false;
     }
@@ -103,7 +104,7 @@ class SanctuaryViewModel extends LifecycleNotifier {
           other.startAt.isBefore(slot.endAt) &&
           other.endAt.isAfter(slot.startAt),
     )) {
-      error = 'This overlaps another recovery slot.';
+      error = 'This overlaps another recovery slot.'.tr;
       notifyListeners();
       return false;
     }
@@ -123,12 +124,12 @@ class SanctuaryViewModel extends LifecycleNotifier {
   Future<bool> setActivityDone(RecoverySlot slot, {required bool done}) async {
     if (isDisposed || busy || repository == null) return false;
     if (slot.planChangeId != null) {
-      error = 'Council plan slots can only be changed from Council.';
+      error = 'Council plan slots can only be changed from Council.'.tr;
       notifyListeners();
       return false;
     }
     if (done && DateTime.now().isBefore(slot.startAt)) {
-      error = 'You can mark this done once the recovery time has started.';
+      error = 'You can mark this done once the recovery time has started.'.tr;
       notifyListeners();
       return false;
     }
@@ -163,8 +164,9 @@ class SanctuaryViewModel extends LifecycleNotifier {
       error = AppErrorMessage.from(
         e,
         fallback:
-            'Could not save recovery time. Make sure it is inside your '
-            'available time on Today, then try again.',
+            ('Could not save recovery time. Make sure it is inside your '
+                    'available time on Today, then try again.')
+                .tr,
       );
       _mutating = false;
       notifyListeners();
@@ -172,7 +174,8 @@ class SanctuaryViewModel extends LifecycleNotifier {
     }
     await _reload();
     if (error != null) {
-      error = 'Your change was saved, but recovery time could not refresh. Try again.';
+      error = 'Your change was saved, but recovery time could not refresh. Try again.'
+          .tr;
       notifyListeners();
     }
     _mutating = false;

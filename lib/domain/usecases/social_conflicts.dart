@@ -4,6 +4,7 @@ import '../models/recovery_slot.dart';
 import '../models/social_event_record.dart';
 import '../models/task_item.dart';
 import 'world_status_calculator.dart';
+import '../../core/l10n/tr.dart';
 
 /// Half-open intervals, clipped to the selected local week. Each minute of
 /// conflict is counted once per event, even when several commitments overlap.
@@ -78,9 +79,10 @@ List<WorldSocialEvent> socialLoadForWeek(
 
 String _sourceLabel(SocialEventRecord event) {
   final date = event.startAt.toLocal();
-  return 'Social event · ${date.year}-'
-      '${date.month.toString().padLeft(2, '0')}-'
-      '${date.day.toString().padLeft(2, '0')} '
-      '${date.hour.toString().padLeft(2, '0')}:'
-      '${date.minute.toString().padLeft(2, '0')}';
+  return ('Social event · ${date.year}-'
+          '${date.month.toString().padLeft(2, '0')}-'
+          '${date.day.toString().padLeft(2, '0')} '
+          '${date.hour.toString().padLeft(2, '0')}:'
+          '${date.minute.toString().padLeft(2, '0')}')
+      .tr;
 }

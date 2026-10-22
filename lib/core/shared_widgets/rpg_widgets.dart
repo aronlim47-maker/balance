@@ -4,15 +4,16 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../theme/balance_colors.dart';
+import '../l10n/tr.dart';
 
 /// Short duration text: 45 → "45m", 180 → "3h", 150 → "2h 30m".
 String formatShortDuration(int minutes) {
   final safe = minutes < 0 ? 0 : minutes;
   final hours = safe ~/ 60;
   final rest = safe % 60;
-  if (hours == 0) return '${rest}m';
-  if (rest == 0) return '${hours}h';
-  return '${hours}h ${rest}m';
+  if (hours == 0) return '${rest}m'.tr;
+  if (rest == 0) return '${hours}h'.tr;
+  return '${hours}h ${rest}m'.tr;
 }
 
 /// Tone for a 0–100 planning-load score (matches World Status labels).

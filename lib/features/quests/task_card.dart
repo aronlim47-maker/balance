@@ -6,6 +6,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../domain/enums/task_status.dart';
 import '../../domain/models/task_item.dart';
+import '../../core/l10n/tr.dart';
 
 class TaskCard extends StatelessWidget {
   const TaskCard({
@@ -44,17 +45,17 @@ class TaskCard extends StatelessWidget {
           : 'EEE d MMM y, h:mm a',
     ).format(due);
     final PopupMenuItem<String> statusAction = switch (task.status) {
-      TaskStatus.planned => const PopupMenuItem(
+      TaskStatus.planned => PopupMenuItem(
         value: 'done',
-        child: Text('Mark as done'),
+        child: Text('Mark as done'.tr),
       ),
-      TaskStatus.completed => const PopupMenuItem(
+      TaskStatus.completed => PopupMenuItem(
         value: 'undone',
-        child: Text('Mark as not done'),
+        child: Text('Mark as not done'.tr),
       ),
-      TaskStatus.cancelled => const PopupMenuItem(
+      TaskStatus.cancelled => PopupMenuItem(
         value: 'undone',
-        child: Text('Restore task'),
+        child: Text('Restore task'.tr),
       ),
     };
     return RpgPanel(
@@ -75,7 +76,7 @@ class TaskCard extends StatelessWidget {
                     Icons.shield_outlined,
                     size: 20,
                     color: BalanceColors.calm,
-                    semanticLabel: 'Protected',
+                    semanticLabel: 'Protected'.tr,
                   )
                 : DiamondIcon(
                     size: 16,
@@ -106,8 +107,8 @@ class TaskCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   isOverdue
-                      ? '$minutes min · Was due $dueText'
-                      : '$minutes min · Due $dueText',
+                      ? '$minutes min · Was due $dueText'.tr
+                      : '$minutes min · Due $dueText'.tr,
                   style: TextStyle(
                     color: isOverdue
                         ? BalanceColors.warning
@@ -121,20 +122,20 @@ class TaskCard extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     if (isOverdue)
-                      const RpgTag(
-                        'Overdue',
+                      RpgTag(
+                        'Overdue'.tr,
                         tone: RpgTone.warning,
                         icon: Icons.schedule,
                       ),
                     if (task.isProtected)
-                      const RpgTag(
-                        'Protected',
+                      RpgTag(
+                        'Protected'.tr,
                         tone: RpgTone.calm,
                         icon: Icons.shield_outlined,
                       ),
                     RpgTag(
                       task.loadCategory?.label ??
-                          'Uncategorized · Needs Review',
+                          'Uncategorized · Needs Review'.tr,
                       tone: task.loadCategory == null
                           ? RpgTone.warning
                           : RpgTone.accent,
@@ -142,14 +143,14 @@ class TaskCard extends StatelessWidget {
                     RpgTag(_label(task.flexibility.name)),
                     if (task.status != TaskStatus.planned)
                       RpgTag(_label(task.status.name), tone: RpgTone.muted),
-                    if (task.isOptional) const RpgTag('Optional'),
+                    if (task.isOptional) RpgTag('Optional'.tr),
                   ],
                 ),
               ],
             ),
           ),
           PopupMenuButton<String>(
-            tooltip: 'Task actions',
+            tooltip: 'Task actions'.tr,
             onSelected: (value) {
               if (value == 'done') onStatusChange?.call(TaskStatus.completed);
               if (value == 'undone') onStatusChange?.call(TaskStatus.planned);
@@ -158,8 +159,8 @@ class TaskCard extends StatelessWidget {
             },
             itemBuilder: (_) => [
               if (onStatusChange != null) statusAction,
-              const PopupMenuItem(value: 'edit', child: Text('Edit')),
-              const PopupMenuItem(value: 'delete', child: Text('Delete')),
+              PopupMenuItem(value: 'edit', child: Text('Edit'.tr)),
+              PopupMenuItem(value: 'delete', child: Text('Delete'.tr)),
             ],
           ),
         ],

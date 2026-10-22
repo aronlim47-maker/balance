@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/usecases/preview_trade_off.dart';
+import '../../core/l10n/tr.dart';
 
 class PlanComparisonSheet extends StatelessWidget {
   const PlanComparisonSheet({
@@ -23,22 +24,25 @@ class PlanComparisonSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  confirmation ? 'Review before confirming' : 'Compare plans',
+                  confirmation
+                      ? 'Review before confirming'.tr
+                      : 'Compare plans'.tr,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               IconButton(
-                tooltip: 'Close',
+                tooltip: 'Close'.tr,
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.close),
               ),
             ],
           ),
         ),
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'Preview only. Nothing is saved here. Every rule is checked again when you confirm.',
+            'Preview only. Nothing is saved here. Every rule is checked again when you confirm.'
+                .tr,
           ),
         ),
         Expanded(
@@ -79,27 +83,31 @@ class _OptionPreview extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Option $index · ${option.taskTitle}',
+              'Option $index · ${option.taskTitle}'.tr,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'Move ${option.movedMinutes} min across ${option.allMoves.length} task${option.allMoves.length == 1 ? '' : 's'}',
+              'Move ${option.movedMinutes} min across ${option.allMoves.length} task${option.allMoves.length == 1 ? '' : 's'}'
+                  .tr,
             ),
             const SizedBox(height: 8),
             Text(
               preview.canApply
                   ? 'Why this option: it fits the checked availability and clears the reviewed capacity gap.'
-                  : 'Why it cannot be confirmed: ${preview.issue ?? (option.needsAgreement ? 'This task needs agreement first.' : 'Review the affected-day capacity before confirming.')}',
+                        .tr
+                  : 'Why it cannot be confirmed: ${preview.issue ?? (option.needsAgreement ? 'This task needs agreement first.' : 'Review the affected-day capacity before confirming.')}'
+                        .tr,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             for (final move in option.allMoves)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
-                  '• ${move.taskTitle}: ${move.movedMinutes} min · '
-                  '${DateFormat.MMMd().add_jm().format(move.proposedStart.toLocal())}–'
-                  '${DateFormat.jm().format(move.proposedEnd.toLocal())}',
+                  ('• ${move.taskTitle}: ${move.movedMinutes} min · '
+                          '${DateFormat.MMMd().add_jm().format(move.proposedStart.toLocal())}–'
+                          '${DateFormat.jm().format(move.proposedEnd.toLocal())}')
+                      .tr,
                 ),
               ),
             const SizedBox(height: 12),
@@ -114,25 +122,30 @@ class _OptionPreview extends StatelessWidget {
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                     Text(
-                      'Planned: ${day.before.plannedMinutes} → ${day.after.plannedMinutes} min',
+                      'Planned: ${day.before.plannedMinutes} → ${day.after.plannedMinutes} min'
+                          .tr,
                     ),
                     Text(
-                      'Available: ${day.after.availableMinutes} min · Gap: ${day.before.overloadMinutes} → ${day.after.overloadMinutes} min',
+                      'Available: ${day.after.availableMinutes} min · Gap: ${day.before.overloadMinutes} → ${day.after.overloadMinutes} min'
+                          .tr,
                     ),
                   ],
                 ),
               ),
-            const Text(
-              'Trade-off: destination times take this work; total workload and deadlines do not decrease.',
+            Text(
+              'Trade-off: destination times take this work; total workload and deadlines do not decrease.'
+                  .tr,
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Protected tasks and recovery stay unchanged. No new recovery slot is reserved.',
+            Text(
+              'Protected tasks and recovery stay unchanged. No new recovery slot is reserved.'
+                  .tr,
             ),
             if (preview.protectedTitles.isNotEmpty)
               ExpansionTile(
                 title: Text(
-                  '${preview.protectedTitles.length} fixed/protected tasks unchanged',
+                  '${preview.protectedTitles.length} fixed/protected tasks unchanged'
+                      .tr,
                 ),
                 children: [
                   for (final title in preview.protectedTitles)
@@ -152,9 +165,9 @@ class _OptionPreview extends StatelessWidget {
               child: Text(
                 confirmation
                     ? (option.allMoves.length == 1
-                          ? 'Confirm this move'
-                          : 'Confirm these moves')
-                    : 'Select this option',
+                          ? 'Confirm this move'.tr
+                          : 'Confirm these moves'.tr)
+                    : 'Select this option'.tr,
               ),
             ),
           ],

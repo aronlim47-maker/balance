@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../core/audio/sound_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
+import '../../core/l10n/tr.dart';
 
 /// Sanctuary's rest camp: a small night-or-day scene with a tent and a
 /// gently flickering campfire whose embers drift up.
@@ -77,7 +78,7 @@ class _CampSceneState extends State<CampScene>
   @override
   Widget build(BuildContext context) => Semantics(
     image: true,
-    label: 'Rest camp: a tent beside a small campfire',
+    label: 'Rest camp: a tent beside a small campfire'.tr,
     child: ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(
@@ -365,7 +366,7 @@ class _BreathingScreenState extends State<BreathingScreen>
     return Scaffold(
       backgroundColor: BalanceColors.background,
       appBar: AppBar(
-        title: const Text('Breathe with the fire'),
+        title: Text('Breathe with the fire'.tr),
         backgroundColor: BalanceColors.background,
       ),
       body: SafeArea(
@@ -387,11 +388,11 @@ class _BreathingScreenState extends State<BreathingScreen>
               _ => 1.25 - 0.5 * eased,
             };
             final label = done
-                ? 'Well done'
+                ? 'Well done'.tr
                 : switch (phase) {
-                    0 => 'Breathe in',
-                    1 => 'Hold',
-                    _ => 'Breathe out',
+                    0 => 'Breathe in'.tr,
+                    1 => 'Hold'.tr,
+                    _ => 'Breathe out'.tr,
                   };
             return ListView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
@@ -414,9 +415,10 @@ class _BreathingScreenState extends State<BreathingScreen>
                 const SizedBox(height: 6),
                 Text(
                   done
-                      ? 'One minute of slow breathing. Come back any time.'
-                      : '$count · breath ${(elapsed ~/ _cycle) + 1} of '
-                            '${BreathingScreen.cycles}',
+                      ? 'One minute of slow breathing. Come back any time.'.tr
+                      : ('$count · breath ${(elapsed ~/ _cycle) + 1} of '
+                                '${BreathingScreen.cycles}')
+                            .tr,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
@@ -427,17 +429,17 @@ class _BreathingScreenState extends State<BreathingScreen>
                 if (done) ...[
                   FilledButton(
                     onPressed: () => _clock.forward(from: 0),
-                    child: const Text('Again'),
+                    child: Text('Again'.tr),
                   ),
                   const SizedBox(height: 10),
                 ],
                 OutlinedButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text(done ? 'Back to camp' : 'Stop'),
+                  child: Text(done ? 'Back to camp'.tr : 'Stop'.tr),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Optional and private. Nothing is recorded or scored.',
+                  'Optional and private. Nothing is recorded or scored.'.tr,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,

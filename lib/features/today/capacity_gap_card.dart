@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/l10n/tr.dart';
 
 class CapacityGapCard extends StatelessWidget {
   const CapacityGapCard({
@@ -20,16 +21,17 @@ class CapacityGapCard extends StatelessWidget {
 
   String get _overText {
     final base =
-        '$overloadMinutes minutes must be moved, reduced or recovered.';
+        '$overloadMinutes minutes must be moved, reduced or recovered.'.tr;
     final planned = plannedMinutes, available = availableMinutes;
     if (planned == null || available == null) return base;
     final beyond = planned > available ? planned - available : 0;
     final dueEarly = overloadMinutes - beyond;
     if (dueEarly <= 0) return base;
     return beyond == 0
-        ? '$base All of it is due before your free time starts.'
-        : '$base $beyond min is beyond your free time and $dueEarly min is due '
-              'before your free time starts.';
+        ? '$base All of it is due before your free time starts.'.tr
+        : ('$base $beyond min is beyond your free time and $dueEarly min is due '
+                  'before your free time starts.')
+              .tr;
   }
 
   @override
@@ -57,10 +59,10 @@ class CapacityGapCard extends StatelessWidget {
               children: [
                 Text(
                   over
-                      ? 'Capacity gap'
+                      ? 'Capacity gap'.tr
                       : empty
-                      ? 'Nothing planned yet'
-                      : 'Plan is balanced',
+                      ? 'Nothing planned yet'.tr
+                      : 'Plan is balanced'.tr,
                   style: TextStyle(
                     fontFamily: AppTheme.displayFont,
                     fontWeight: FontWeight.w700,
@@ -75,7 +77,8 @@ class CapacityGapCard extends StatelessWidget {
                       ? _overText
                       : empty
                       ? 'Add your free time and tasks to see if this day fits.'
-                      : 'Planned work fits within your available time.',
+                            .tr
+                      : 'Planned work fits within your available time.'.tr,
                 ),
               ],
             ),

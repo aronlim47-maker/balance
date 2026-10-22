@@ -5,6 +5,7 @@ import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../domain/usecases/explain_no_feasible_plan.dart';
 import '../../domain/usecases/suggest_free_time.dart';
+import '../../core/l10n/tr.dart';
 
 /// Explains, in plain language, why Council has no safe move and what the
 /// student can do next. The buttons only navigate; nothing is changed here.
@@ -50,7 +51,7 @@ class NoPlanExplanationCard extends StatelessWidget {
             Semantics(
               header: true,
               child: Text(
-                'No safe move found',
+                'No safe move found'.tr,
                 style: textTheme.titleMedium?.copyWith(
                   color: BalanceColors.warning,
                 ),
@@ -58,13 +59,14 @@ class NoPlanExplanationCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Council keeps fixed and protected work in place and only moves '
-              'flexible work, whole or in part, to free time before its '
-              'deadline.',
+              ('Council keeps fixed and protected work in place and only moves '
+                      'flexible work, whole or in part, to free time before its '
+                      'deadline.')
+                  .tr,
               style: TextStyle(color: BalanceColors.textMuted),
             ),
             const SizedBox(height: 14),
-            const RpgLabel('Why', size: 12),
+            RpgLabel('Why'.tr, size: 12),
             const SizedBox(height: 6),
             for (final reason in explanation.reasons)
               Padding(
@@ -93,7 +95,7 @@ class NoPlanExplanationCard extends StatelessWidget {
                             TextButton.icon(
                               onPressed: () => onEditTask!(reason.taskId!),
                               icon: const Icon(Icons.edit_outlined, size: 18),
-                              label: const Text('Edit task'),
+                              label: Text('Edit task'.tr),
                             ),
                         ],
                       ),
@@ -105,7 +107,7 @@ class NoPlanExplanationCard extends StatelessWidget {
                 explanation.suggestsFreeTime ||
                 freeTime != null) ...[
               const SizedBox(height: 6),
-              const RpgLabel('What you can do', size: 12),
+              RpgLabel('What you can do'.tr, size: 12),
               const SizedBox(height: 8),
               if (freeTime != null) ...[
                 _FreeTimeHint(suggestion: freeTime!),
@@ -117,8 +119,9 @@ class NoPlanExplanationCard extends StatelessWidget {
                       onPressed: () => onAddFreeTimeOn!(freeTime!.day),
                       icon: const Icon(Icons.event_available_outlined),
                       label: Text(
-                        'Add free time on '
-                        '${DateFormat('EEE d MMM').format(freeTime!.day)}',
+                        ('Add free time on '
+                                '${DateFormat('EEE d MMM').format(freeTime!.day)}')
+                            .tr,
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -134,21 +137,22 @@ class NoPlanExplanationCard extends StatelessWidget {
                     OutlinedButton.icon(
                       onPressed: onOpenTasks,
                       icon: const Icon(Icons.notes_rounded),
-                      label: const Text('Review tasks'),
+                      label: Text('Review tasks'.tr),
                     ),
                   if (explanation.suggestsFreeTime &&
                       (freeTime == null || onAddFreeTimeOn == null))
                     OutlinedButton.icon(
                       onPressed: onOpenToday,
                       icon: const Icon(Icons.event_available_outlined),
-                      label: const Text('Add free time on Today'),
+                      label: Text('Add free time on Today'.tr),
                     ),
                 ],
               ),
             ],
             const SizedBox(height: 10),
             Text(
-              'Or keep your current plan. Nothing changes unless you confirm.',
+              'Or keep your current plan. Nothing changes unless you confirm.'
+                  .tr,
               style: TextStyle(fontSize: 13, color: BalanceColors.textMuted),
             ),
           ],
@@ -192,10 +196,11 @@ class _FreeTimeHint extends StatelessWidget {
         ),
         Expanded(
           child: Text(
-            'Add ${_duration(suggestion.minutes)} of free time on $day '
-            '(for example $from–$to) and Council can move '
-            '"${suggestion.taskTitle}" there.'
-            '${suggestion.dayAlreadyOverMinutes > 0 ? ' $day is already ${_duration(suggestion.dayAlreadyOverMinutes)} over, so this covers that too.' : ''}',
+            ('Add ${_duration(suggestion.minutes)} of free time on $day '
+                    '(for example $from–$to) and Council can move '
+                    '"${suggestion.taskTitle}" there.'
+                    '${suggestion.dayAlreadyOverMinutes > 0 ? ' $day is already ${_duration(suggestion.dayAlreadyOverMinutes)} over, so this covers that too.' : ''}')
+                .tr,
           ),
         ),
       ],
@@ -205,7 +210,7 @@ class _FreeTimeHint extends StatelessWidget {
   static String _duration(int minutes) {
     final hours = minutes ~/ 60;
     final rest = minutes % 60;
-    if (hours == 0) return '$rest min';
-    return rest == 0 ? '${hours}h' : '${hours}h ${rest}m';
+    if (hours == 0) return '$rest min'.tr;
+    return rest == 0 ? '${hours}h'.tr : '${hours}h ${rest}m'.tr;
   }
 }

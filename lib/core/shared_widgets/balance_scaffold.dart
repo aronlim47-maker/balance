@@ -10,6 +10,7 @@ import 'collapsible_section.dart';
 import 'rpg_widgets.dart';
 import 'sound_toggle_button.dart';
 import 'theme_toggle_button.dart';
+import '../l10n/tr.dart';
 
 /// Shared page shell: RPG header + responsive navigation.
 ///
@@ -56,7 +57,13 @@ class BalanceScaffold extends StatelessWidget {
     AppRoutes.journey,
   ];
 
-  static const _labels = ['Today', 'Quests', 'Council', 'Sanctuary', 'Journey'];
+  static final _labels = [
+    'Today',
+    'Quests'.tr,
+    'Council'.tr,
+    'Sanctuary'.tr,
+    'Journey'.tr,
+  ];
 
   static Widget _icon(int index, {required bool selected}) {
     final color = selected
@@ -103,7 +110,7 @@ class BalanceScaffold extends StatelessWidget {
             const SoundToggleButton(),
             const ThemeToggleButton(),
             IconButton(
-              tooltip: 'Profile',
+              tooltip: 'Profile'.tr,
               onPressed: () => context.push(AppRoutes.profile),
               icon: const Icon(Icons.account_circle_outlined),
             ),
@@ -125,7 +132,7 @@ class BalanceScaffold extends StatelessWidget {
                     border: Border.all(color: BalanceColors.warningBorder),
                   ),
                   child: Text(
-                    'Local preview · Changes are not saved to Supabase',
+                    'Local preview · Changes are not saved to Supabase'.tr,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: BalanceColors.warning,
@@ -332,10 +339,9 @@ class _HeaderState extends State<_Header> {
                     ),
                     if (widget.help != null)
                       HelpButton(
-                        topic: 'this page',
+                        topic: 'this page'.tr,
                         showing: _showHelp,
-                        onPressed: () =>
-                            setState(() => _showHelp = !_showHelp),
+                        onPressed: () => setState(() => _showHelp = !_showHelp),
                       ),
                   ],
                 ),

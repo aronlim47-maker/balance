@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/tr.dart';
+
 /// Password input with a show/hide eye button.
 ///
 /// Starts hidden. The eye button has a spoken label ("Show password" /
@@ -40,10 +42,10 @@ class _PasswordFieldState extends State<PasswordField> {
     onFieldSubmitted: widget.onFieldSubmitted,
     validator: widget.validator,
     decoration: InputDecoration(
-      labelText: widget.labelText,
+      labelText: widget.labelText.tr,
       prefixIcon: const Icon(Icons.lock_outline),
       suffixIcon: IconButton(
-        tooltip: _hidden ? 'Show password' : 'Hide password',
+        tooltip: _hidden ? 'Show password'.tr : 'Hide password'.tr,
         onPressed: () => setState(() => _hidden = !_hidden),
         icon: Icon(
           _hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined,

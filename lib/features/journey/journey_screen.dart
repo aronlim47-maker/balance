@@ -15,6 +15,7 @@ import 'journey_view_model.dart';
 import '../../data/services/verified_progress_service.dart';
 import '../../data/repositories/world_history_repository.dart';
 import '../../core/utils/app_error_message.dart';
+import '../../core/l10n/tr.dart';
 
 class JourneyScreen extends StatelessWidget {
   const JourneyScreen({super.key});
@@ -35,14 +36,14 @@ class _JourneyContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Consumer<JourneyViewModel>(
     builder: (context, viewModel, _) => BalanceScaffold(
-      title: 'Journey',
-      headline: 'Weekly reflection',
-      help: 'A private look at the week\'s patterns.',
+      title: 'Journey'.tr,
+      headline: 'Weekly reflection'.tr,
+      help: 'A private look at the week\'s patterns.'.tr,
       currentIndex: 4,
       actions: [
         // Only entry to saved reflections from earlier weeks.
         IconButton(
-          tooltip: 'My reflections',
+          tooltip: 'My reflections'.tr,
           icon: const Icon(Icons.history),
           onPressed: () => context.push(AppRoutes.reflectionHistory),
         ),
@@ -63,7 +64,7 @@ class _JourneyContent extends StatelessWidget {
             Row(
               children: [
                 RpgSquareButton(
-                  tooltip: 'Previous week',
+                  tooltip: 'Previous week'.tr,
                   onPressed: () => viewModel.shiftWeek(-1),
                   icon: Icons.arrow_back,
                 ),
@@ -78,7 +79,7 @@ class _JourneyContent extends StatelessWidget {
                   ),
                 ),
                 RpgSquareButton(
-                  tooltip: 'Next week',
+                  tooltip: 'Next week'.tr,
                   onPressed: () => viewModel.shiftWeek(1),
                   icon: Icons.arrow_forward,
                 ),
@@ -96,7 +97,7 @@ class _JourneyContent extends StatelessWidget {
                       Text(viewModel.weekError!),
                       TextButton(
                         onPressed: viewModel.isLoading ? null : viewModel.load,
-                        child: const Text('Try again'),
+                        child: Text('Try again'.tr),
                       ),
                     ],
                   ),
@@ -106,12 +107,13 @@ class _JourneyContent extends StatelessWidget {
               CollapsibleSection(
                 key: const ValueKey('journey.pattern'),
                 id: 'journey.pattern',
-                title: 'Weekly pattern',
+                title: 'Weekly pattern'.tr,
                 help:
-                    'World Status score per day. Only days captured at the '
-                    'time have a score.',
+                    ('World Status score per day. Only days captured at the '
+                            'time have a score.')
+                        .tr,
                 initiallyExpanded: true,
-                summary: 'Score for each day of this week',
+                summary: 'Score for each day of this week'.tr,
                 child: RpgPanel(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,8 +125,9 @@ class _JourneyContent extends StatelessWidget {
                       const SizedBox(height: 8),
                       // The unit, as on Today's 7-day trend.
                       Text(
-                        'Workload score 0–100 per day, higher means more '
-                        'planning pressure. "–" means no record.',
+                        ('Workload score 0–100 per day, higher means more '
+                                'planning pressure. "–" means no record.')
+                            .tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: BalanceColors.textMuted,
@@ -140,13 +143,14 @@ class _JourneyContent extends StatelessWidget {
                 id: 'journey.recovery',
                 // Core section: open until the user closes it.
                 initiallyExpanded: true,
-                title: 'Recovery kept',
-                help: 'Days this week that kept their protected rest.',
+                title: 'Recovery kept'.tr,
+                help: 'Days this week that kept their protected rest.'.tr,
                 tone: RpgTone.calm,
                 summary: viewModel.week!.recoveryRecordedDays == 0
-                    ? 'No recorded recovery this week'
-                    : 'Protected on ${viewModel.week!.protectedRecoveryDays} '
-                          'of ${viewModel.week!.recoveryRecordedDays} recorded days',
+                    ? 'No recorded recovery this week'.tr
+                    : ('Protected on ${viewModel.week!.protectedRecoveryDays} '
+                              'of ${viewModel.week!.recoveryRecordedDays} recorded days')
+                          .tr,
                 child: _RecoveryKept(week: viewModel.week!, showHeader: false),
               ),
             ],
@@ -155,7 +159,7 @@ class _JourneyContent extends StatelessWidget {
                 tone: RpgTone.muted,
                 dashed: true,
                 child: Text(
-                  'Connect your account to see recorded weekly patterns.',
+                  'Connect your account to see recorded weekly patterns.'.tr,
                   style: TextStyle(color: BalanceColors.textMuted),
                 ),
               ),
@@ -165,7 +169,7 @@ class _JourneyContent extends StatelessWidget {
                   ? null
                   : () => _reflect(context, viewModel),
               icon: const Icon(Icons.edit_note),
-              label: const Text('Add optional reflection'),
+              label: Text('Add optional reflection'.tr),
             ),
             const SizedBox(height: 8),
             if (viewModel.isLoading) ...[
@@ -182,7 +186,7 @@ class _JourneyContent extends StatelessWidget {
                     Text(viewModel.errorMessage!),
                     TextButton(
                       onPressed: viewModel.isLoading ? null : viewModel.load,
-                      child: const Text('Try again'),
+                      child: Text('Try again'.tr),
                     ),
                   ],
                 ),
@@ -194,11 +198,12 @@ class _JourneyContent extends StatelessWidget {
               id: 'journey.achievements',
               // Core section: open until the user closes it.
               initiallyExpanded: true,
-              title: 'Achievements',
+              title: 'Achievements'.tr,
               help:
-                  'Journey milestones. Only verified actions unlock '
-                  'achievements. Rest never removes progress.',
-              summary: '${viewModel.unlockedCount} of 7 unlocked',
+                  ('Journey milestones. Only verified actions unlock '
+                          'achievements. Rest never removes progress.')
+                      .tr,
+              summary: '${viewModel.unlockedCount} of 7 unlocked'.tr,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -206,7 +211,7 @@ class _JourneyContent extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          '${viewModel.unlockedCount} of 7 unlocked',
+                          '${viewModel.unlockedCount} of 7 unlocked'.tr,
                           style: TextStyle(color: BalanceColors.textMuted),
                         ),
                       ),
@@ -251,9 +256,9 @@ class _JourneyContent extends StatelessWidget {
     );
     if (!context.mounted || content == null) return;
     if (content.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Write a reflection first.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Write a reflection first.'.tr)));
       return;
     }
     try {
@@ -271,7 +276,7 @@ class _JourneyContent extends StatelessWidget {
             content: Text(
               AppErrorMessage.from(
                 error,
-                fallback: 'Could not save reflection. Try again.',
+                fallback: 'Could not save reflection. Try again.'.tr,
               ),
             ),
           ),
@@ -301,23 +306,23 @@ class _ReflectionDialogState extends State<_ReflectionDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Weekly reflection'),
+    title: Text('Weekly reflection'.tr),
     content: TextField(
       controller: _controller,
       maxLines: 4,
       maxLength: 500,
-      decoration: const InputDecoration(
-        hintText: 'What worked for you this week?',
+      decoration: InputDecoration(
+        hintText: 'What worked for you this week?'.tr,
       ),
     ),
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
+        child: Text('Cancel'.tr),
       ),
       FilledButton(
         onPressed: () => Navigator.pop(context, _controller.text.trim()),
-        child: const Text('Save'),
+        child: Text('Save'.tr),
       ),
     ],
   );
@@ -409,7 +414,7 @@ class _RecoveryKept extends StatelessWidget {
       children: [
         if (showHeader) ...[
           PanelHeader(
-            'Recovery kept',
+            'Recovery kept'.tr,
             tone: RpgTone.calm,
             trailing: week.recoveryRecordedDays == 0
                 ? null
@@ -423,8 +428,9 @@ class _RecoveryKept extends StatelessWidget {
         ],
         Text(
           week.recoveryRecordedDays == 0
-              ? 'No recorded recovery history for this week.'
-              : 'Protected recovery on ${week.protectedRecoveryDays} of ${week.recoveryRecordedDays} recorded days',
+              ? 'No recorded recovery history for this week.'.tr
+              : 'Protected recovery on ${week.protectedRecoveryDays} of ${week.recoveryRecordedDays} recorded days'
+                    .tr,
           style: TextStyle(color: BalanceColors.textMuted),
         ),
         if (week.recoveryRecordedDays > 0) ...[

@@ -8,6 +8,7 @@ import '../../core/shared_widgets/section_header.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../domain/enums/plan_status.dart';
 import 'war_council_view_model.dart';
+import '../../core/l10n/tr.dart';
 
 class PlanUpdatedScreen extends StatefulWidget {
   const PlanUpdatedScreen({super.key, required this.changeId});
@@ -43,7 +44,7 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
     final taskTitle =
         change?.consequences['task_title'] as String? ??
         viewModel.confirmedOption?.taskTitle ??
-        'Selected task';
+        'Selected task'.tr;
     final movedMinutes =
         (change?.consequences['moved_minutes'] as num?)?.toInt() ??
         viewModel.confirmedOption?.movedMinutes;
@@ -59,7 +60,7 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
         (change?.consequences['task_count'] as num?)?.toInt() ??
         taskTitles.length;
     return Scaffold(
-      appBar: AppBar(title: const Eyebrow('War Council'), titleSpacing: 0),
+      appBar: AppBar(title: Eyebrow('War Council'.tr), titleSpacing: 0),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -85,22 +86,25 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
             SectionHeader(
               title: !hasKnownChange
                   ? viewModel.isLoadingChange
-                        ? 'Loading plan…'
-                        : 'Plan unavailable'
+                        ? 'Loading plan…'.tr
+                        : 'Plan unavailable'.tr
                   : isUndone
-                  ? 'Changes were undone'
+                  ? 'Changes were undone'.tr
                   : isConfirmed
-                  ? 'Plan confirmed'
-                  : 'Plan not confirmed',
+                  ? 'Plan confirmed'.tr
+                  : 'Plan not confirmed'.tr,
               subtitle: !hasKnownChange
                   ? viewModel.changeNotFound
                         ? 'This plan record could not be found. Return to War Council and refresh.'
+                              .tr
                         : 'Check the plan status before making another change.'
+                              .tr
                   : isUndone
                   ? '$taskCount task placement${taskCount == 1 ? '' : 's'} restored.'
+                        .tr
                   : isConfirmed
-                  ? '$taskCount task${taskCount == 1 ? '' : 's'} updated.'
-                  : 'No task moves were applied.',
+                  ? '$taskCount task${taskCount == 1 ? '' : 's'} updated.'.tr
+                  : 'No task moves were applied.'.tr,
             ),
             if (isConfirmed || isUndone) ...[
               const SizedBox(height: 18),
@@ -118,7 +122,9 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      RpgLabel(isUndone ? 'What was restored' : 'What moved'),
+                      RpgLabel(
+                        isUndone ? 'What was restored'.tr : 'What moved'.tr,
+                      ),
                       ListTile(
                         leading: DiamondIcon(
                           size: 12,
@@ -130,12 +136,13 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                         title: Text(taskTitle),
                         subtitle: Text(
                           isUndone
-                              ? 'Move reversed'
+                              ? 'Move reversed'.tr
                               : !isConfirmed
-                              ? 'No move applied'
+                              ? 'No move applied'.tr
                               : movedMinutes == null
-                              ? 'Task placement changed'
-                              : '$movedMinutes minutes moved across $taskCount task${taskCount == 1 ? '' : 's'}',
+                              ? 'Task placement changed'.tr
+                              : '$movedMinutes minutes moved across $taskCount task${taskCount == 1 ? '' : 's'}'
+                                    .tr,
                         ),
                       ),
                       for (final title in taskTitles)
@@ -152,7 +159,7 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
                           size: 20,
                         ),
                         title: Text(
-                          'Change reference',
+                          'Change reference'.tr,
                           style: TextStyle(
                             fontSize: 14,
                             color: BalanceColors.textMuted,
@@ -181,21 +188,21 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
             if (!hasKnownChange && !viewModel.isLoadingChange)
               OutlinedButton(
                 onPressed: () => viewModel.loadChange(widget.changeId),
-                child: const Text('Try again'),
+                child: Text('Try again'.tr),
               ),
             if (viewModel.canUndoCurrentChange)
               OutlinedButton.icon(
                 onPressed: () => _undo(context, viewModel),
                 icon: const Icon(Icons.undo),
                 label: Text(
-                  viewModel.isSaving ? 'Restoring…' : 'Undo this plan',
+                  viewModel.isSaving ? 'Restoring…'.tr : 'Undo this plan'.tr,
                 ),
               ),
             const SizedBox(height: 10),
             FilledButton.icon(
               onPressed: () => context.go('/today'),
               icon: const Icon(Icons.play_arrow_rounded),
-              label: const Text('Return to Today'),
+              label: Text('Return to Today'.tr),
             ),
           ],
         ),
@@ -216,7 +223,7 @@ class _PlanUpdatedScreenState extends State<PlanUpdatedScreen> {
         content: Text(
           undone
               ? viewModel.refreshWarning!
-              : viewModel.errorMessage ?? 'Undo failed.',
+              : viewModel.errorMessage ?? 'Undo failed.'.tr,
         ),
       ),
     );
@@ -391,11 +398,11 @@ class _MoveStrip extends StatelessWidget {
                   Row(
                     children: [
                       slot(
-                        'Overloaded day',
+                        'Overloaded day'.tr,
                         p < 0.5 ? RpgTone.danger : RpgTone.muted,
                       ),
                       const SizedBox(width: 12),
-                      slot('Day with room', RpgTone.calm),
+                      slot('Day with room'.tr, RpgTone.calm),
                     ],
                   ),
                   Positioned(

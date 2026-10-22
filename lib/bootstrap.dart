@@ -1,4 +1,5 @@
 import 'core/l10n/language_controller.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -8,6 +9,7 @@ import 'app.dart';
 import 'core/config/environment.dart';
 import 'core/state/section_memory.dart';
 import 'core/theme/theme_controller.dart';
+import 'core/l10n/tr.dart';
 
 Future<void> bootstrap() async {
   if (Environment.sentryDsn.isEmpty) return _start();
@@ -27,8 +29,9 @@ Future<void> _start() async {
   final isSupabaseConfigured = Environment.hasSupabaseConfig;
   if (!isSupabaseConfigured && kReleaseMode) {
     runApp(
-      const _StartupMessage(
-        message: 'Balance needs its Supabase project URL and publishable key. Rebuild the release app with --dart-define-from-file=.env.',
+      _StartupMessage(
+        message: 'Balance needs its Supabase project URL and publishable key. Rebuild the release app with --dart-define-from-file=.env.'
+            .tr,
       ),
     );
     return;
@@ -43,8 +46,9 @@ Future<void> _start() async {
       // No-op when crash reporting is disabled.
       await Sentry.captureException(error, stackTrace: stackTrace);
       runApp(
-        const _StartupMessage(
-          message: 'Balance could not start its account service. Check your connection and app configuration, then reopen the app.',
+        _StartupMessage(
+          message: 'Balance could not start its account service. Check your connection and app configuration, then reopen the app.'
+              .tr,
         ),
       );
       return;

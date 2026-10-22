@@ -6,6 +6,7 @@ import '../models/recovery_slot.dart';
 import '../models/task_item.dart';
 import 'daily_capacity.dart';
 import 'generate_trade_offs.dart';
+import '../../core/l10n/tr.dart';
 
 class PlanDayComparison {
   const PlanDayComparison(this.day, this.before, this.after);
@@ -58,7 +59,7 @@ TradeOffPreview previewTradeOff({
   if (moves.isEmpty ||
       moves.map((move) => move.taskId).toSet().length != moves.length) {
     return invalid(
-      'This plan contains duplicate or missing tasks. Refresh to review it.',
+      'This plan contains duplicate or missing tasks. Refresh to review it.'.tr,
     );
   }
   final revisedById = <String, TaskItem>{};
@@ -66,7 +67,7 @@ TradeOffPreview previewTradeOff({
   for (final move in moves) {
     final matches = tasks.where((task) => task.id == move.taskId).toList();
     if (matches.length != 1) {
-      return invalid('Refresh to review the latest tasks.');
+      return invalid('Refresh to review the latest tasks.'.tr);
     }
     final task = matches.single;
     final start = task.scheduledStart;
@@ -86,7 +87,8 @@ TradeOffPreview previewTradeOff({
         move.proposedEnd.isAfter(task.dueAt) ||
         move.taskTitle != task.title) {
       return invalid(
-        'A task move no longer matches the latest task. Refresh before confirming.',
+        'A task move no longer matches the latest task. Refresh before confirming.'
+            .tr,
       );
     }
     sources[task.id] = task;
@@ -194,14 +196,14 @@ TradeOffPreview previewTradeOff({
         conflictsWithBlockedTime ||
         conflictsWithAnotherMove) {
       return invalid(
-        'A proposed time is no longer free. Refresh before confirming.',
+        'A proposed time is no longer free. Refresh before confirming.'.tr,
       );
     }
   }
   if (moves.fold<int>(0, (sum, move) => sum + move.movedMinutes) !=
       option.movedMinutes) {
     return invalid(
-      'The total moved time does not match this plan. Refresh to review it.',
+      'The total moved time does not match this plan. Refresh to review it.'.tr,
     );
   }
   DateTime date(DateTime value) {
@@ -258,6 +260,7 @@ TradeOffPreview previewTradeOff({
     protectedTitles: List.unmodifiable(protected),
     issue: comparisons.any((day) => day.after.overloadMinutes > 0)
         ? 'This move does not clear the affected days. Refresh or review availability.'
+              .tr
         : moves.any(
                 (move) =>
                     sources[move.taskId]!.flexibility ==
@@ -265,6 +268,7 @@ TradeOffPreview previewTradeOff({
               ) ||
               option.needsAgreement
         ? 'Agreement is required. Update the task after agreement, then refresh.'
+              .tr
         : null,
   );
 }

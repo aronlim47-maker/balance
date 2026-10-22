@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'auth_view_model.dart';
+import '../../core/l10n/tr.dart';
 
 /// Supabase verifies email links before the recovery route becomes available.
 class AccountHelpScreen extends StatefulWidget {
@@ -50,7 +51,7 @@ class _AccountHelpScreenState extends State<AccountHelpScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(reset ? 'Choose a new password' : 'Account help'),
+          title: Text(reset ? 'Choose a new password'.tr : 'Account help'.tr),
           leading: reset
               ? null
               : BackButton(onPressed: () => context.go('/login')),
@@ -68,43 +69,41 @@ class _AccountHelpScreenState extends State<AccountHelpScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       if (!reset) ...[
-                        const Text(
-                          'Enter your account email to receive a link.',
-                        ),
+                        Text('Enter your account email to receive a link.'.tr),
                         const SizedBox(height: 16),
                         TextFormField(
                           controller: _email,
                           keyboardType: TextInputType.emailAddress,
                           autofillHints: const [AutofillHints.email],
-                          decoration: const InputDecoration(labelText: 'Email'),
+                          decoration: InputDecoration(labelText: 'Email'.tr),
                           validator: (value) =>
                               RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
                                   .hasMatch((value ?? '').trim())
                               ? null
-                              : 'Enter a valid email address.',
+                              : 'Enter a valid email address.'.tr,
                         ),
                       ] else ...[
                         TextFormField(
                           controller: _password,
                           obscureText: true,
                           autofillHints: const [AutofillHints.newPassword],
-                          decoration: const InputDecoration(
-                            labelText: 'New password',
+                          decoration: InputDecoration(
+                            labelText: 'New password'.tr,
                           ),
                           validator: (value) => (value ?? '').length >= 8
                               ? null
-                              : 'Use at least 8 characters.',
+                              : 'Use at least 8 characters.'.tr,
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
                           controller: _confirmation,
                           obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Confirm password',
+                          decoration: InputDecoration(
+                            labelText: 'Confirm password'.tr,
                           ),
                           validator: (value) => value == _password.text
                               ? null
-                              : 'Passwords do not match.',
+                              : 'Passwords do not match.'.tr,
                         ),
                       ],
                       if (auth.errorMessage != null)
@@ -130,15 +129,15 @@ class _AccountHelpScreenState extends State<AccountHelpScreen> {
                               : () => _send(false),
                           child: Text(
                             auth.isWaiting
-                                ? 'Try again in ${auth.retrySecondsLeft}s'
-                                : 'Send password reset link',
+                                ? 'Try again in ${auth.retrySecondsLeft}s'.tr
+                                : 'Send password reset link'.tr,
                           ),
                         ),
                         TextButton(
                           onPressed: auth.isLoading || auth.isWaiting
                               ? null
                               : () => _send(true),
-                          child: const Text('Resend verification email'),
+                          child: Text('Resend verification email'.tr),
                         ),
                       ] else ...[
                         FilledButton(
@@ -148,13 +147,13 @@ class _AccountHelpScreenState extends State<AccountHelpScreen> {
                                   if (!_form.currentState!.validate()) return;
                                   await auth.updatePassword(_password.text);
                                 },
-                          child: const Text('Update password'),
+                          child: Text('Update password'.tr),
                         ),
                         TextButton(
                           onPressed: auth.isLoading
                               ? null
                               : () => auth.signOut(),
-                          child: const Text('Cancel and sign out'),
+                          child: Text('Cancel and sign out'.tr),
                         ),
                       ],
                       if (auth.isLoading)

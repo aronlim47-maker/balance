@@ -5,6 +5,7 @@ import '../../domain/enums/task_flexibility.dart';
 import '../../domain/enums/task_status.dart';
 import '../../domain/models/task_item.dart';
 import '../../domain/models/plan_reservation.dart';
+import '../../core/l10n/tr.dart';
 
 class TodayTaskDetailsSheet extends StatelessWidget {
   const TodayTaskDetailsSheet({
@@ -37,59 +38,62 @@ class TodayTaskDetailsSheet extends StatelessWidget {
             Text(task.title, style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 14),
             _Detail(
-              label: 'Remaining',
-              value: '${task.effectiveRemainingMinutes} min',
+              label: 'Remaining'.tr,
+              value: '${task.effectiveRemainingMinutes} min'.tr,
             ),
-            _Detail(label: 'Due', value: due),
+            _Detail(label: 'Due'.tr, value: due),
             for (final reservation in reservations)
               _Detail(
-                label: 'Council slot',
+                label: 'Council slot'.tr,
                 value:
                     '${DateFormat.MMMd().add_jm().format(reservation.startAt.toLocal())} – ${DateFormat.MMMd().add_jm().format(reservation.endAt.toLocal())}',
               ),
             if (scheduled)
               _Detail(
-                label: 'Scheduled',
+                label: 'Scheduled'.tr,
                 value:
                     '${DateFormat.MMMd().add_jm().format(task.scheduledStart!.toLocal())} – ${DateFormat.jm().format(task.scheduledEnd!.toLocal())}',
               ),
             _Detail(
-              label: 'Category',
-              value: task.loadCategory?.label ?? 'Needs Review',
+              label: 'Category'.tr,
+              value: task.loadCategory?.label ?? 'Needs Review'.tr,
             ),
             _Detail(
-              label: 'Flexibility',
+              label: 'Flexibility'.tr,
               value: switch (task.flexibility) {
-                TaskFlexibility.flexible => 'Flexible',
-                TaskFlexibility.fixed => 'Fixed',
-                TaskFlexibility.needsAgreement => 'Needs agreement',
+                TaskFlexibility.flexible => 'Flexible'.tr,
+                TaskFlexibility.fixed => 'Fixed'.tr,
+                TaskFlexibility.needsAgreement => 'Needs agreement'.tr,
               },
             ),
             if (task.isProtected)
-              const _Detail(label: 'Protection', value: 'Protected'),
+              _Detail(label: 'Protection'.tr, value: 'Protected'.tr),
             if (task.isOptional)
-              const _Detail(label: 'Priority', value: 'Optional'),
+              _Detail(label: 'Priority'.tr, value: 'Optional'.tr),
             _Detail(
-              label: 'Status',
+              label: 'Status'.tr,
               value: switch (task.status) {
-                TaskStatus.planned => 'Planned',
-                TaskStatus.completed => 'Done',
-                TaskStatus.cancelled => 'Cancelled',
+                TaskStatus.planned => 'Planned'.tr,
+                TaskStatus.completed => 'Done'.tr,
+                TaskStatus.cancelled => 'Cancelled'.tr,
               },
             ),
             if (explainDay) ...[
               const SizedBox(height: 14),
               Text(
-                'Why is it here?',
+                'Why is it here?'.tr,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 4),
               Text(
                 reservations.isNotEmpty
                     ? 'Council moved part of this task here. Its reserved time counts toward this day’s capacity.'
+                          .tr
                     : scheduled
                     ? 'Scheduled work overlaps this day and counts toward its capacity.'
-                    : 'Due on this day. Remaining work counts toward capacity, but no time slot is reserved.',
+                          .tr
+                    : 'Due on this day. Remaining work counts toward capacity, but no time slot is reserved.'
+                          .tr,
               ),
             ],
             const SizedBox(height: 16),
@@ -97,10 +101,10 @@ class TodayTaskDetailsSheet extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onEdit,
                 icon: const Icon(Icons.edit_outlined),
-                label: const Text('Edit task'),
+                label: Text('Edit task'.tr),
               )
             else
-              const Text('Review or edit this task in Quest Board.'),
+              Text('Review or edit this task in Quest Board.'.tr),
           ],
         ),
       ),

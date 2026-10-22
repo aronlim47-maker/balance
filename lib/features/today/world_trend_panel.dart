@@ -5,6 +5,7 @@ import '../../core/theme/balance_colors.dart';
 import '../../domain/models/local_date.dart';
 import '../../domain/models/world_trend_models.dart';
 import '../../domain/usecases/world_trend_calculator.dart';
+import '../../core/l10n/tr.dart';
 
 /// Seven-day cumulative workload trend (Rev7 14.4.1 WL05).
 ///
@@ -33,20 +34,28 @@ class WorldTrendPanel extends StatelessWidget {
   final bool todayIsPartial;
 
   static const _barsAfterDays = 3;
-  static const _weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  static const _months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
+  static final _weekdays = [
+    'Mon',
+    'Tue'.tr,
+    'Wed'.tr,
+    'Thu'.tr,
+    'Fri'.tr,
+    'Sat'.tr,
+    'Sun'.tr,
+  ];
+  static final _months = [
+    'Jan'.tr,
+    'Feb'.tr,
+    'Mar'.tr,
+    'Apr'.tr,
     'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+    'Jun'.tr,
+    'Jul'.tr,
+    'Aug'.tr,
+    'Sep'.tr,
+    'Oct'.tr,
+    'Nov'.tr,
+    'Dec'.tr,
   ];
 
   static String _date(LocalDate d) =>
@@ -90,37 +99,36 @@ class WorldTrendPanel extends StatelessWidget {
 
     final String summary;
     if (trend.observedDays == 0) {
-      summary = 'No data in this period. Add availability and tasks to build a trend.';
+      summary =
+          'No data in this period. Add availability and tasks to build a trend.'
+              .tr;
     } else {
       summary =
-          'Cumulative load: ${trend.cumulativeLoad!.round()} points over '
-          '${trend.observedDays} of 7 days · average ${trend.movingAverage!.round()}';
+          ('Cumulative load: ${trend.cumulativeLoad!.round()} points over '
+                  '${trend.observedDays} of 7 days · average ${trend.movingAverage!.round()}')
+              .tr;
     }
 
     return RpgPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const PanelHeader('7-day workload trend'),
+          PanelHeader('7-day workload trend'.tr),
           const SizedBox(height: 4),
           Text(
-            '${_date(report.windowStart)} – ${_date(report.windowEnd)} · '
-            'score 0–100, higher means more planning pressure',
-            style: TextStyle(
-              fontSize: 12,
-              color: BalanceColors.textMuted,
-            ),
+            ('${_date(report.windowStart)} – ${_date(report.windowEnd)} · '
+                    'score 0–100, higher means more planning pressure')
+                .tr,
+            style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
           ),
           const SizedBox(height: 12),
           // Seven mostly empty bars say little; show progress until 3 days exist.
           if (trend.observedDays < _barsAfterDays)
             Text(
-              'The chart appears after $_barsAfterDays days of records '
-              '(${trend.observedDays} of $_barsAfterDays so far).',
-              style: TextStyle(
-                fontSize: 13,
-                color: BalanceColors.textMuted,
-              ),
+              ('The chart appears after $_barsAfterDays days of records '
+                      '(${trend.observedDays} of $_barsAfterDays so far).')
+                  .tr,
+              style: TextStyle(fontSize: 13, color: BalanceColors.textMuted),
             )
           else
             Row(
@@ -147,12 +155,10 @@ class WorldTrendPanel extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               gaps == 1
-                  ? '1 day has no data and is left out of the average.'
-                  : '$gaps days have no data and are left out of the average.',
-              style: TextStyle(
-                fontSize: 12,
-                color: BalanceColors.textMuted,
-              ),
+                  ? '1 day has no data and is left out of the average.'.tr
+                  : '$gaps days have no data and are left out of the average.'
+                        .tr,
+              style: TextStyle(fontSize: 12, color: BalanceColors.textMuted),
             ),
           ],
         ],
@@ -193,10 +199,7 @@ class _DayBar extends StatelessWidget {
             child: Align(
               alignment: Alignment.bottomCenter,
               child: score == null
-                  ? Text(
-                      '—',
-                      style: TextStyle(color: BalanceColors.textMuted),
-                    )
+                  ? Text('—', style: TextStyle(color: BalanceColors.textMuted))
                   : Container(
                       width: 14,
                       height: height,
@@ -210,7 +213,7 @@ class _DayBar extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              score == null ? 'No data' : '$score',
+              score == null ? 'No data'.tr : '$score',
               style: const TextStyle(fontSize: 10),
             ),
           ),

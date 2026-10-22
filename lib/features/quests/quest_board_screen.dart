@@ -19,6 +19,7 @@ import '../today/today_task_details_sheet.dart';
 import 'quest_board_view_model.dart';
 import 'task_card.dart';
 import 'task_form_screen.dart';
+import '../../core/l10n/tr.dart';
 
 class QuestBoardScreen extends StatelessWidget {
   const QuestBoardScreen({super.key});
@@ -51,16 +52,17 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   Widget build(BuildContext context) => Consumer<QuestBoardViewModel>(
     builder: (context, viewModel, _) => BalanceScaffold(
       // Practical name as the headline, RPG name as the eyebrow (Rev7 14.13).
-      title: 'Quest Board',
-      headline: 'Tasks',
+      title: 'Quest Board'.tr,
+      headline: 'Tasks'.tr,
       subtitle: viewModel.tasks.isEmpty ? null : _summary(viewModel),
       help:
-          'Every commitment in one place. Search, filter or sort your '
-          'tasks, and tap Add task to add one.',
+          ('Every commitment in one place. Search, filter or sort your '
+                  'tasks, and tap Add task to add one.')
+              .tr,
       currentIndex: 1,
       actions: [
         PopupMenuButton<QuestSort>(
-          tooltip: 'Sort tasks: ${_sortLabel(viewModel.sort)}',
+          tooltip: 'Sort tasks: ${_sortLabel(viewModel.sort)}'.tr,
           icon: const Icon(Icons.sort),
           onSelected: viewModel.setSort,
           itemBuilder: (_) => [
@@ -111,7 +113,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
                       onPressed: viewModel.isLoading
                           ? null
                           : viewModel.loadTasks,
-                      child: const Text('Try again'),
+                      child: Text('Try again'.tr),
                     ),
                   ],
                 ),
@@ -129,12 +131,12 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
                       const SizedBox(height: 80),
                       const Icon(Icons.search_off_outlined, size: 48),
                       const SizedBox(height: 12),
-                      const Center(child: Text('No matching tasks')),
+                      Center(child: Text('No matching tasks'.tr)),
                       const SizedBox(height: 8),
                       Center(
                         child: TextButton(
                           onPressed: () => _clearFilters(viewModel),
-                          child: const Text('Clear filters'),
+                          child: Text('Clear filters'.tr),
                         ),
                       ),
                     ],
@@ -160,9 +162,10 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
         .where((task) => task.isProtected)
         .length;
     final overdue = viewModel.overdueCount;
-    return '$total ${total == 1 ? 'entry' : 'entries'} · '
-        '$protectedCount protected'
-        '${overdue == 0 ? '' : ' · $overdue overdue'}';
+    return ('$total ${total == 1 ? 'entry' : 'entries'} · '
+            '$protectedCount protected'
+            '${overdue == 0 ? '' : ' · $overdue overdue'}')
+        .tr;
   }
 
   /// Shows planned protected tasks first as "Sacred contracts", then other
@@ -218,8 +221,8 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
         CollapsibleSection(
           key: const ValueKey('quests.protected'),
           id: 'quests.protected',
-          title: 'Sacred contracts',
-          help: 'Protected tasks. Plans never move them.',
+          title: 'Sacred contracts'.tr,
+          help: 'Protected tasks. Plans never move them.'.tr,
           summary: count(protectedTasks),
           tone: RpgTone.calm,
           initiallyExpanded: true,
@@ -231,10 +234,11 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
         CollapsibleSection(
           key: const ValueKey('quests.active'),
           id: 'quests.active',
-          title: 'Quests',
+          title: 'Quests'.tr,
           help:
-              'Your other planned tasks. Use ⋮ to mark one done, edit or '
-              'delete it.',
+              ('Your other planned tasks. Use ⋮ to mark one done, edit or '
+                      'delete it.')
+                  .tr,
           summary: count(otherTasks),
           initiallyExpanded: true,
           child: cards(otherTasks),
@@ -245,8 +249,8 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
         CollapsibleSection(
           key: const ValueKey('quests.finished'),
           id: 'quests.finished',
-          title: 'Finished',
-          help: 'Completed or cancelled tasks.',
+          title: 'Finished'.tr,
+          help: 'Completed or cancelled tasks.'.tr,
           summary: count(finishedTasks),
           tone: RpgTone.muted,
           child: cards(finishedTasks),
@@ -256,7 +260,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
 
   Widget _filters(BuildContext context, QuestBoardViewModel viewModel) {
     final dates = viewModel.startDate == null
-        ? 'Date range'
+        ? 'Date range'.tr
         : '${DateFormat.MMMd().format(viewModel.startDate!)}–${DateFormat.MMMd().format(viewModel.endDate!)}';
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -269,7 +273,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
             child: FilledButton.icon(
               onPressed: () => _openTaskForm(context, viewModel),
               icon: const Icon(Icons.add),
-              label: const Text('Add task'),
+              label: Text('Add task'.tr),
             ),
           ),
           const SizedBox(height: 12),
@@ -277,12 +281,12 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
             controller: _searchController,
             onChanged: viewModel.setSearchQuery,
             decoration: InputDecoration(
-              hintText: 'Search tasks',
+              hintText: 'Search tasks'.tr,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: viewModel.searchQuery.isEmpty
                   ? null
                   : IconButton(
-                      tooltip: 'Clear search',
+                      tooltip: 'Clear search'.tr,
                       onPressed: () {
                         _searchController.clear();
                         viewModel.setSearchQuery('');
@@ -298,7 +302,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
             child: Row(
               children: [
                 PopupMenuButton<String>(
-                  tooltip: 'Filter by category',
+                  tooltip: 'Filter by category'.tr,
                   onSelected: (value) {
                     if (value == 'uncategorized') {
                       viewModel.setCategoryFilter(
@@ -312,29 +316,30 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
                     }
                   },
                   itemBuilder: (_) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'all',
-                      child: Text('All categories'),
+                      child: Text('All categories'.tr),
                     ),
                     for (final category in LoadCategory.values)
                       PopupMenuItem(
                         value: category.name,
                         child: Text(category.label),
                       ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'uncategorized',
-                      child: Text('Needs Review'),
+                      child: Text('Needs Review'.tr),
                     ),
                   ],
                   child: Chip(
                     label: Text(
-                      'Category: ${viewModel.uncategorizedOnly ? 'Needs Review' : viewModel.categoryFilter?.label ?? 'All'}',
+                      'Category: ${viewModel.uncategorizedOnly ? 'Needs Review' : viewModel.categoryFilter?.label ?? 'All'}'
+                          .tr,
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 PopupMenuButton<String>(
-                  tooltip: 'Filter by status',
+                  tooltip: 'Filter by status'.tr,
                   onSelected: (value) =>
                       viewModel.setStatusFilter(switch (value) {
                         'planned' => TaskStatus.planned,
@@ -342,22 +347,29 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
                         'cancelled' => TaskStatus.cancelled,
                         _ => null,
                       }, overdueOnly: value == 'overdue'),
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'all', child: Text('All statuses')),
-                    PopupMenuItem(value: 'planned', child: Text('Planned')),
-                    PopupMenuItem(value: 'overdue', child: Text('Overdue')),
-                    PopupMenuItem(value: 'completed', child: Text('Completed')),
-                    PopupMenuItem(value: 'cancelled', child: Text('Cancelled')),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(value: 'all', child: Text('All statuses'.tr)),
+                    PopupMenuItem(value: 'planned', child: Text('Planned'.tr)),
+                    PopupMenuItem(value: 'overdue', child: Text('Overdue'.tr)),
+                    PopupMenuItem(
+                      value: 'completed',
+                      child: Text('Completed'.tr),
+                    ),
+                    PopupMenuItem(
+                      value: 'cancelled',
+                      child: Text('Cancelled'.tr),
+                    ),
                   ],
                   child: Chip(
                     label: Text(
-                      'Status: ${viewModel.overdueOnly ? 'Overdue' : _statusLabel(viewModel.statusFilter)}',
+                      'Status: ${viewModel.overdueOnly ? 'Overdue' : _statusLabel(viewModel.statusFilter)}'
+                          .tr,
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 PopupMenuButton<String>(
-                  tooltip: 'Filter by flexibility',
+                  tooltip: 'Filter by flexibility'.tr,
                   onSelected: (value) =>
                       viewModel.setFlexibilityFilter(switch (value) {
                         'flexible' => TaskFlexibility.flexible,
@@ -365,45 +377,53 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
                         'agreement' => TaskFlexibility.needsAgreement,
                         _ => null,
                       }),
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'all', child: Text('All types')),
-                    PopupMenuItem(value: 'flexible', child: Text('Flexible')),
-                    PopupMenuItem(value: 'fixed', child: Text('Fixed')),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(value: 'all', child: Text('All types'.tr)),
+                    PopupMenuItem(
+                      value: 'flexible',
+                      child: Text('Flexible'.tr),
+                    ),
+                    PopupMenuItem(value: 'fixed', child: Text('Fixed'.tr)),
                     PopupMenuItem(
                       value: 'agreement',
-                      child: Text('Needs agreement'),
+                      child: Text('Needs agreement'.tr),
                     ),
                   ],
                   child: Chip(
                     label: Text(
-                      'Type: ${_flexibilityLabel(viewModel.flexibilityFilter)}',
+                      'Type: ${_flexibilityLabel(viewModel.flexibilityFilter)}'
+                          .tr,
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 PopupMenuButton<String>(
-                  tooltip: 'Filter protected tasks',
+                  tooltip: 'Filter protected tasks'.tr,
                   onSelected: (value) =>
                       viewModel.setProtectedFilter(switch (value) {
                         'protected' => true,
                         'unprotected' => false,
                         _ => null,
                       }),
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'all', child: Text('All tasks')),
-                    PopupMenuItem(value: 'protected', child: Text('Protected')),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(value: 'all', child: Text('All tasks'.tr)),
+                    PopupMenuItem(
+                      value: 'protected',
+                      child: Text('Protected'.tr),
+                    ),
                     PopupMenuItem(
                       value: 'unprotected',
-                      child: Text('Not protected'),
+                      child: Text('Not protected'.tr),
                     ),
                   ],
                   child: Chip(
                     label: Text(
-                      'Protection: ${viewModel.protectedFilter == null
-                          ? 'All'
-                          : viewModel.protectedFilter!
-                          ? 'Yes'
-                          : 'No'}',
+                      ('Protection: ${viewModel.protectedFilter == null
+                              ? 'All'
+                              : viewModel.protectedFilter!
+                              ? 'Yes'
+                              : 'No'}')
+                          .tr,
                     ),
                   ),
                 ),
@@ -415,7 +435,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
                 ),
                 if (viewModel.startDate != null)
                   IconButton(
-                    tooltip: 'Clear date range',
+                    tooltip: 'Clear date range'.tr,
                     onPressed: () => viewModel.setDateRange(null, null),
                     icon: const Icon(Icons.close),
                   ),
@@ -427,7 +447,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () => _clearFilters(viewModel),
-                child: const Text('Clear filters'),
+                child: Text('Clear filters'.tr),
               ),
             ),
         ],
@@ -458,25 +478,25 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
   }
 
   String _statusLabel(TaskStatus? status) => switch (status) {
-    TaskStatus.planned => 'Planned',
-    TaskStatus.completed => 'Completed',
-    TaskStatus.cancelled => 'Cancelled',
-    null => 'All',
+    TaskStatus.planned => 'Planned'.tr,
+    TaskStatus.completed => 'Completed'.tr,
+    TaskStatus.cancelled => 'Cancelled'.tr,
+    null => 'All'.tr,
   };
 
   String _flexibilityLabel(TaskFlexibility? flexibility) =>
       switch (flexibility) {
-        TaskFlexibility.flexible => 'Flexible',
-        TaskFlexibility.fixed => 'Fixed',
-        TaskFlexibility.needsAgreement => 'Needs agreement',
-        null => 'All',
+        TaskFlexibility.flexible => 'Flexible'.tr,
+        TaskFlexibility.fixed => 'Fixed'.tr,
+        TaskFlexibility.needsAgreement => 'Needs agreement'.tr,
+        null => 'All'.tr,
       };
 
   String _sortLabel(QuestSort sort) => switch (sort) {
-    QuestSort.dueSoonest => 'Due soonest',
-    QuestSort.dueLatest => 'Due latest',
-    QuestSort.title => 'Title A–Z',
-    QuestSort.remainingMost => 'Most time remaining',
+    QuestSort.dueSoonest => 'Due soonest'.tr,
+    QuestSort.dueLatest => 'Due latest'.tr,
+    QuestSort.title => 'Title A–Z'.tr,
+    QuestSort.remainingMost => 'Most time remaining'.tr,
   };
 
   Future<void> _openTaskForm(
@@ -501,8 +521,8 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
       context,
       saved,
       saved
-          ? (task == null ? 'Task created.' : 'Task updated.')
-          : viewModel.errorMessage ?? 'The task could not be saved.',
+          ? (task == null ? 'Task created.'.tr : 'Task updated.'.tr)
+          : viewModel.errorMessage ?? 'The task could not be saved.'.tr,
     );
     final justCompletedExercise =
         saved &&
@@ -531,11 +551,11 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
       saved,
       saved
           ? (status == TaskStatus.completed
-                ? 'Marked as done.'
+                ? 'Marked as done.'.tr
                 : task.status == TaskStatus.cancelled
-                ? 'Task restored.'
-                : 'Marked as not done.')
-          : viewModel.errorMessage ?? 'The task could not be updated.',
+                ? 'Task restored.'.tr
+                : 'Marked as not done.'.tr)
+          : viewModel.errorMessage ?? 'The task could not be updated.'.tr,
     );
     if (saved &&
         status == TaskStatus.completed &&
@@ -562,19 +582,20 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
     final wantsLog = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Record this exercise?'),
+        title: Text('Record this exercise?'.tr),
         content: Text(
-          'You completed "${task.title}". Record when it happened and how '
-          'long it actually took? Skipping changes nothing.',
+          ('You completed "${task.title}". Record when it happened and how '
+                  'long it actually took? Skipping changes nothing.')
+              .tr,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Skip'),
+            child: Text('Skip'.tr),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Record exercise'),
+            child: Text('Record exercise'.tr),
           ),
         ],
       ),
@@ -601,7 +622,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
     if (log == null || !context.mounted) return;
     try {
       await movement.createExerciseLog(log);
-      if (context.mounted) _showResult(context, true, 'Exercise recorded.');
+      if (context.mounted) _showResult(context, true, 'Exercise recorded.'.tr);
     } catch (error) {
       if (!context.mounted) return;
       _showResult(
@@ -609,7 +630,7 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
         false,
         AppErrorMessage.from(
           error,
-          fallback: 'Could not record the exercise. Please try again.',
+          fallback: 'Could not record the exercise. Please try again.'.tr,
         ),
       );
     }
@@ -623,16 +644,16 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete task?'),
-        content: Text('Delete “${task.title}”? This cannot be undone.'),
+        title: Text('Delete task?'.tr),
+        content: Text('Delete “${task.title}”? This cannot be undone.'.tr),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Delete'),
+            child: Text('Delete'.tr),
           ),
         ],
       ),
@@ -644,8 +665,8 @@ class _QuestBoardContentState extends State<_QuestBoardContent> {
       context,
       deleted,
       deleted
-          ? 'Task deleted.'
-          : viewModel.errorMessage ?? 'The task could not be deleted.',
+          ? 'Task deleted.'.tr
+          : viewModel.errorMessage ?? 'The task could not be deleted.'.tr,
     );
   }
 
@@ -675,12 +696,13 @@ class _EmptyState extends StatelessWidget {
           DiamondIcon(size: 48, color: BalanceColors.accentBright),
           const SizedBox(height: 16),
           Text(
-            'No tasks yet',
+            'No tasks yet'.tr,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
           Text(
-            'Add your first task to start comparing planned work with available time.',
+            'Add your first task to start comparing planned work with available time.'
+                .tr,
             textAlign: TextAlign.center,
             style: TextStyle(color: BalanceColors.textMuted),
           ),
@@ -688,7 +710,7 @@ class _EmptyState extends StatelessWidget {
           FilledButton.icon(
             onPressed: onAdd,
             icon: const Icon(Icons.add),
-            label: const Text('Create task'),
+            label: Text('Create task'.tr),
           ),
         ],
       ),
@@ -717,16 +739,13 @@ class _ErrorState extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Tasks could not be loaded',
+            'Tasks could not be loaded'.tr,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(message, textAlign: TextAlign.center),
           const SizedBox(height: 20),
-          FilledButton.tonal(
-            onPressed: onRetry,
-            child: const Text('Try again'),
-          ),
+          FilledButton.tonal(onPressed: onRetry, child: Text('Try again'.tr)),
         ],
       ),
     ),

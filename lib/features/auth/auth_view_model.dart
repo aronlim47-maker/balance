@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/utils/app_error_message.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../core/l10n/tr.dart';
 
 class AuthViewModel extends LifecycleNotifier {
   AuthViewModel([this._repository]) {
@@ -25,7 +26,8 @@ class AuthViewModel extends LifecycleNotifier {
         if (isDisposed) return;
         _errorMessage = AppErrorMessage.from(
           error,
-          fallback: 'This email link could not be verified. Request a new link and try again.',
+          fallback: 'This email link could not be verified. Request a new link and try again.'
+              .tr,
         );
         notifyListeners();
       },
@@ -96,7 +98,8 @@ class AuthViewModel extends LifecycleNotifier {
         displayName: displayName,
       );
       if (response.session == null) {
-        _noticeMessage = 'Check your email to verify your account. If you already have an account, sign in or use Account help.';
+        _noticeMessage = 'Check your email to verify your account. If you already have an account, sign in or use Account help.'
+            .tr;
       }
       return true;
     });
@@ -114,7 +117,8 @@ class AuthViewModel extends LifecycleNotifier {
     if (_repository == null) return _notConfigured();
     return _run(() async {
       await _repository.requestPasswordReset(email);
-      _noticeMessage = 'If this email has an account, a reset link will arrive shortly. Check your inbox and spam folder.';
+      _noticeMessage = 'If this email has an account, a reset link will arrive shortly. Check your inbox and spam folder.'
+          .tr;
       return true;
     });
   }
@@ -123,7 +127,8 @@ class AuthViewModel extends LifecycleNotifier {
     if (_repository == null) return _notConfigured();
     return _run(() async {
       await _repository.resendVerification(email);
-      _noticeMessage = 'If verification is needed, a new link will arrive shortly. Check your inbox and spam folder.';
+      _noticeMessage = 'If verification is needed, a new link will arrive shortly. Check your inbox and spam folder.'
+          .tr;
       return true;
     });
   }
@@ -136,7 +141,7 @@ class AuthViewModel extends LifecycleNotifier {
       await _repository.updatePassword(password);
       if (isDisposed || owner != currentUserId) return false;
       _recoveryUserId = null;
-      _noticeMessage = 'Password updated.';
+      _noticeMessage = 'Password updated.'.tr;
       return true;
     });
   }
@@ -152,7 +157,7 @@ class AuthViewModel extends LifecycleNotifier {
     } catch (error) {
       _errorMessage = AppErrorMessage.from(
         error,
-        fallback: 'Could not complete this request. Please try again.',
+        fallback: 'Could not complete this request. Please try again.'.tr,
       );
       final wait = AppErrorMessage.retryAfter(error);
       if (wait != null && wait > Duration.zero) _startWait(wait);
@@ -165,7 +170,8 @@ class AuthViewModel extends LifecycleNotifier {
 
   bool _notConfigured() {
     _errorMessage =
-        'Supabase is not configured. Add the project URL and publishable key.';
+        'Supabase is not configured. Add the project URL and publishable key.'
+            .tr;
     notifyListeners();
     return false;
   }

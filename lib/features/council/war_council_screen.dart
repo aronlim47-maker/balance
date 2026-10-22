@@ -20,6 +20,7 @@ import '../quests/task_form_screen.dart';
 import 'no_plan_explanation_card.dart';
 import 'trade_off_option_card.dart';
 import 'war_council_view_model.dart';
+import '../../core/l10n/tr.dart';
 
 class WarCouncilScreen extends StatefulWidget {
   const WarCouncilScreen({super.key});
@@ -41,15 +42,15 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
   Widget build(BuildContext context) {
     final viewModel = context.watch<WarCouncilViewModel>();
     return BalanceScaffold(
-      title: 'War Council',
-      headline: 'Compare plans',
-      help: 'Safe ways to fix an overloaded day.',
+      title: 'War Council'.tr,
+      headline: 'Compare plans'.tr,
+      help: 'Safe ways to fix an overloaded day.'.tr,
       currentIndex: 2,
       actions: [
         // Only entry to confirmed plans, so a plan can still be undone after
         // the user leaves the plan-updated screen.
         IconButton(
-          tooltip: 'Plan history',
+          tooltip: 'Plan history'.tr,
           icon: const Icon(Icons.history),
           onPressed: () => context.push(AppRoutes.planHistory),
         ),
@@ -64,10 +65,10 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
             const SizedBox(height: 18),
             SectionHeader(
               title: viewModel.capacity.overloadMinutes > 0
-                  ? 'Over capacity'
+                  ? 'Over capacity'.tr
                   : viewModel.capacity.availableMinutes == 0
-                  ? 'No time added'
-                  : 'On track',
+                  ? 'No time added'.tr
+                  : 'On track'.tr,
             ),
             const SizedBox(height: 18),
             _CapacitySummary(viewModel: viewModel),
@@ -77,9 +78,9 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
               id: 'council.protected',
               // Core section: open until the user closes it.
               initiallyExpanded: true,
-              title: 'What stays protected',
-              help:
-                  'Fixed tasks and protected recovery that no plan will move.',
+              title: 'What stays protected'.tr,
+              help: 'Fixed tasks and protected recovery that no plan will move.'
+                  .tr,
               tone: RpgTone.calm,
               summary: _protectedSummary(viewModel),
               child: _ProtectedItems(viewModel: viewModel, showHeader: false),
@@ -96,10 +97,10 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                 alignment: Alignment.centerLeft,
                 child: RpgTag(
                   switch (viewModel.validationStatus) {
-                    ValidationStatus.feasible => 'Feasible',
-                    ValidationStatus.needsReview => 'Needs Review',
-                    ValidationStatus.needsAgreement => 'Needs Agreement',
-                    ValidationStatus.noFeasiblePlan => 'No Feasible Plan',
+                    ValidationStatus.feasible => 'Feasible'.tr,
+                    ValidationStatus.needsReview => 'Needs Review'.tr,
+                    ValidationStatus.needsAgreement => 'Needs Agreement'.tr,
+                    ValidationStatus.noFeasiblePlan => 'No Feasible Plan'.tr,
                   },
                   tone: switch (viewModel.validationStatus) {
                     ValidationStatus.feasible => RpgTone.calm,
@@ -123,8 +124,8 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     padding: const EdgeInsets.all(2),
                     child: Text(
                       viewModel.isConfigured
-                          ? 'Database update needed to confirm plans.'
-                          : 'Sign in to confirm plans.',
+                          ? 'Database update needed to confirm plans.'.tr
+                          : 'Sign in to confirm plans.'.tr,
                     ),
                   ),
                 ),
@@ -142,7 +143,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                         const SizedBox(height: 8),
                         TextButton(
                           onPressed: viewModel.load,
-                          child: const Text('Try again'),
+                          child: Text('Try again'.tr),
                         ),
                       ],
                     ),
@@ -159,8 +160,10 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                     padding: const EdgeInsets.all(2),
                     child: Text(
                       viewModel.isCheckingCapacity
-                          ? 'Checking your saved capacity…'
-                          : viewModel.capacityCheckError ?? 'The app and database calculate different capacity for this day. Check your planning time zone in Profile, then refresh before confirming.',
+                          ? 'Checking your saved capacity…'.tr
+                          : viewModel.capacityCheckError ??
+                                'The app and database calculate different capacity for this day. Check your planning time zone in Profile, then refresh before confirming.'
+                                    .tr,
                     ),
                   ),
                 ),
@@ -168,12 +171,12 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
               if (viewModel.validationStatus ==
                   ValidationStatus.needsAgreement) ...[
                 const SizedBox(height: 12),
-                const RpgPanel(
+                RpgPanel(
                   tone: RpgTone.warning,
                   child: Padding(
                     padding: EdgeInsets.all(2),
                     child: Text(
-                      'Get agreement and update the task before confirming.',
+                      'Get agreement and update the task before confirming.'.tr,
                     ),
                   ),
                 ),
@@ -185,42 +188,46 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                 // An empty day is not "fits": say so neutrally, as Today does.
                 if (viewModel.capacity.plannedMinutes == 0 &&
                     viewModel.capacity.availableMinutes == 0)
-                  const RpgPanel(
+                  RpgPanel(
                     child: Text(
-                      'Nothing planned yet. Add your free time and tasks on '
-                      'Today to see if this day fits.',
+                      ('Nothing planned yet. Add your free time and tasks on '
+                              'Today to see if this day fits.')
+                          .tr,
                     ),
                   )
                 else
-                  const RpgPanel(
+                  RpgPanel(
                     tone: RpgTone.calm,
-                    child: Text('No changes needed. Your plan fits this day.'),
+                    child: Text(
+                      'No changes needed. Your plan fits this day.'.tr,
+                    ),
                   ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
                   onPressed: () => context.go(AppRoutes.today),
                   icon: const Icon(Icons.today_outlined),
-                  label: const Text('Back to Today'),
+                  label: Text('Back to Today'.tr),
                 ),
               ] else ...[
                 const SizedBox(height: 26),
                 CollapsibleSection(
                   key: const ValueKey('council.plans'),
                   id: 'council.plans',
-                  title: 'Choose a plan',
-                  help: 'Suggestions only. Nothing moves until confirmed.',
+                  title: 'Choose a plan'.tr,
+                  help: 'Suggestions only. Nothing moves until confirmed.'.tr,
                   initiallyExpanded: true,
                   summary: viewModel.options.isEmpty
-                      ? 'No safe plan found'
-                      : '${viewModel.options.length} '
-                            '${viewModel.options.length == 1 ? 'plan' : 'plans'} to compare',
+                      ? 'No safe plan found'.tr
+                      : ('${viewModel.options.length} '
+                                '${viewModel.options.length == 1 ? 'plan' : 'plans'} to compare')
+                            .tr,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       OutlinedButton.icon(
                         onPressed: () => context.go(AppRoutes.today),
                         icon: const Icon(Icons.today_outlined),
-                        label: const Text('Back to Today'),
+                        label: Text('Back to Today'.tr),
                       ),
                       const SizedBox(height: 12),
                       if (viewModel.options.isEmpty)
@@ -232,14 +239,19 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                             description: option.description,
                             movedMinutes: option.movedMinutes,
                             recoveryMinutes: 0,
-                            protectedSummary: 'Existing protected tasks and recovery stay unchanged.',
+                            protectedSummary: 'Existing protected tasks and recovery stay unchanged.'
+                                .tr,
                             costSummary:
-                                '${option.allMoves.length} task moves to new times before their deadlines.',
+                                '${option.allMoves.length} task moves to new times before their deadlines.'
+                                    .tr,
                             roomSummary:
-                                '${option.movedMinutes} min moved from this day. Recovery time is not reserved by this suggestion.',
+                                '${option.movedMinutes} min moved from this day. Recovery time is not reserved by this suggestion.'
+                                    .tr,
                             reviewSummary: option.needsAgreement
                                 ? 'Get agreement before this change can be confirmed.'
-                                : 'Check the proposed time and deadline before confirming.',
+                                      .tr
+                                : 'Check the proposed time and deadline before confirming.'
+                                      .tr,
                             needsAgreement: option.needsAgreement,
                             isSelected: viewModel.selectedOptionId == option.id,
                             onTap: () => viewModel.selectOption(option.id),
@@ -263,8 +275,8 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
                               : const Icon(Icons.play_arrow_rounded),
                           label: Text(
                             viewModel.isSaving
-                                ? 'Saving plan…'
-                                : 'Confirm selected plan',
+                                ? 'Saving plan…'.tr
+                                : 'Confirm selected plan'.tr,
                           ),
                         ),
                       ],
@@ -289,7 +301,7 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            viewModel.errorMessage ?? 'The plan could not be confirmed.',
+            viewModel.errorMessage ?? 'The plan could not be confirmed.'.tr,
           ),
         ),
       );
@@ -303,8 +315,8 @@ class _WarCouncilScreenState extends State<WarCouncilScreen> {
 String _protectedSummary(WarCouncilViewModel viewModel) {
   final count =
       viewModel.protectedTasks.length + viewModel.protectedRecoverySlots.length;
-  if (count == 0) return 'Nothing fixed or protected on this day';
-  return '$count ${count == 1 ? 'item stays' : 'items stay'} in place';
+  if (count == 0) return 'Nothing fixed or protected on this day'.tr;
+  return '$count ${count == 1 ? 'item stays' : 'items stay'} in place'.tr;
 }
 
 class _NoPlanGuidance extends StatelessWidget {
@@ -315,9 +327,9 @@ class _NoPlanGuidance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (viewModel.capacity.overloadMinutes == 0) {
-      return const RpgPanel(
+      return RpgPanel(
         tone: RpgTone.calm,
-        child: Text('No capacity gap today.'),
+        child: Text('No capacity gap today.'.tr),
       );
     }
 
@@ -355,8 +367,8 @@ class _NoPlanGuidance extends StatelessWidget {
       SnackBar(
         content: Text(
           saved
-              ? 'Task updated. Council checked the day again.'
-              : viewModel.errorMessage ?? 'The task could not be saved.',
+              ? 'Task updated. Council checked the day again.'.tr
+              : viewModel.errorMessage ?? 'The task could not be saved.'.tr,
         ),
       ),
     );
@@ -372,7 +384,7 @@ class _DaySelector extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     children: [
       RpgSquareButton(
-        tooltip: 'Previous day',
+        tooltip: 'Previous day'.tr,
         onPressed: () => viewModel.selectDay(
           DateTime(
             viewModel.selectedDay.year,
@@ -392,7 +404,7 @@ class _DaySelector extends StatelessWidget {
         ),
       ),
       RpgSquareButton(
-        tooltip: 'Next day',
+        tooltip: 'Next day'.tr,
         onPressed: () => viewModel.selectDay(
           DateTime(
             viewModel.selectedDay.year,
@@ -428,23 +440,23 @@ class _CapacitySummary extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           PanelHeader(
-            'Time capacity',
+            'Time capacity'.tr,
             trailing: over
                 ? RpgTag(
-                    '${formatShortDuration(capacity.overloadMinutes)} over',
+                    '${formatShortDuration(capacity.overloadMinutes)} over'.tr,
                     tone: RpgTone.danger,
                   )
                 : capacity.availableMinutes == 0
-                ? const RpgTag('No time added', tone: RpgTone.muted)
-                : const RpgTag('Fits', tone: RpgTone.calm),
+                ? RpgTag('No time added'.tr, tone: RpgTone.muted)
+                : RpgTag('Fits'.tr, tone: RpgTone.calm),
           ),
           const SizedBox(height: 14),
           Row(
             children: [
               Expanded(
                 child: _Metric(
-                  label: 'Planned',
-                  value: '${capacity.plannedMinutes} min',
+                  label: 'Planned'.tr,
+                  value: '${capacity.plannedMinutes} min'.tr,
                   color: over ? BalanceColors.danger : BalanceColors.text,
                 ),
               ),
@@ -452,8 +464,8 @@ class _CapacitySummary extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _Metric(
-                  label: 'Available',
-                  value: '${capacity.availableMinutes} min',
+                  label: 'Available'.tr,
+                  value: '${capacity.availableMinutes} min'.tr,
                   color: BalanceColors.accentBright,
                 ),
               ),
@@ -475,15 +487,17 @@ class _CapacitySummary extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${capacity.plannedMinutes <= capacity.availableMinutes && capacity.overloadMinutes > 0 ? 'Deadline gap' : 'Capacity gap'}: ${capacity.overloadMinutes} minutes',
+                      '${capacity.plannedMinutes <= capacity.availableMinutes && capacity.overloadMinutes > 0 ? 'Deadline gap' : 'Capacity gap'}: ${capacity.overloadMinutes} minutes'
+                          .tr,
                     ),
                     if (over && dueBeforeFreeTime > 0) ...[
                       const SizedBox(height: 4),
                       Text(
                         [
                           if (extraWork > 0)
-                            '$extraWork min more work than free time',
-                          '$dueBeforeFreeTime min due before free time starts',
+                            '$extraWork min more work than free time'.tr,
+                          '$dueBeforeFreeTime min due before free time starts'
+                              .tr,
                         ].join(' · '),
                         style: TextStyle(
                           fontSize: 13,
@@ -520,16 +534,12 @@ class _ProtectedItems extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (showHeader) ...[
-            const RpgLabel(
-              'What stays protected',
-              tone: RpgTone.calm,
-              size: 13,
-            ),
+            RpgLabel('What stays protected'.tr, tone: RpgTone.calm, size: 13),
             const SizedBox(height: 8),
           ],
           if (tasks.isEmpty && recovery.isEmpty)
             Text(
-              'No fixed tasks or protected recovery on this day.',
+              'No fixed tasks or protected recovery on this day.'.tr,
               style: TextStyle(color: BalanceColors.textMuted),
             ),
           for (final task in tasks)
@@ -538,14 +548,14 @@ class _ProtectedItems extends StatelessWidget {
               leading: Icon(Icons.shield_outlined, color: BalanceColors.calm),
               title: Text(task.title),
               subtitle: Text(
-                task.isProtected ? 'Protected task' : 'Fixed task',
+                task.isProtected ? 'Protected task'.tr : 'Fixed task'.tr,
               ),
             ),
           for (final slot in recovery)
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.eco_outlined, color: BalanceColors.calm),
-              title: const Text('Protected recovery'),
+              title: Text('Protected recovery'.tr),
               subtitle: Text(
                 '${DateFormat.jm().format(slot.startAt.toLocal())}–${DateFormat.jm().format(slot.endAt.toLocal())}',
               ),
