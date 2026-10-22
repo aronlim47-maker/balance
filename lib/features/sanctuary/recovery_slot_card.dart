@@ -7,6 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../domain/models/recovery_slot.dart';
 import '../../core/l10n/tr.dart';
+import '../../core/l10n/dates.dart';
 
 /// One recovery slot in Sanctuary.
 ///
@@ -42,13 +43,13 @@ class RecoverySlotCard extends StatelessWidget {
         start.year == end.year &&
         start.month == end.month &&
         start.day == end.day;
-    final dayFormat = DateFormat('EEE, MMM d');
-    final timeFormat = DateFormat('h:mm a');
+    final dayFormat = AppDates.format('EEE, MMM d', DateFormat.MMMEd);
+    final timeFormat = AppDates.format('h:mm a', DateFormat.jm);
     final timeText = sameDay
         ? '${dayFormat.format(start)} · ${timeFormat.format(start)} – ${timeFormat.format(end)}'
         : '${dayFormat.format(start)} ${timeFormat.format(start)} – '
               '${dayFormat.format(end)} ${timeFormat.format(end)}';
-    final title = slot.selectedActivity ?? 'Free rest time'.tr;
+    final title = slot.selectedActivity?.tr ?? 'Free rest time'.tr;
 
     final card = RpgPanel(
       tone: slot.isProtected ? RpgTone.calm : RpgTone.muted,

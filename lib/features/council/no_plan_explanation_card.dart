@@ -6,6 +6,7 @@ import '../../core/theme/balance_colors.dart';
 import '../../domain/usecases/explain_no_feasible_plan.dart';
 import '../../domain/usecases/suggest_free_time.dart';
 import '../../core/l10n/tr.dart';
+import '../../core/l10n/dates.dart';
 
 /// Explains, in plain language, why Council has no safe move and what the
 /// student can do next. The buttons only navigate; nothing is changed here.
@@ -120,7 +121,7 @@ class NoPlanExplanationCard extends StatelessWidget {
                       icon: const Icon(Icons.event_available_outlined),
                       label: Text(
                         ('Add free time on '
-                                '${DateFormat('EEE d MMM').format(freeTime!.day)}')
+                                '${AppDates.format('EEE d MMM', DateFormat.MMMEd).format(freeTime!.day)}')
                             .tr,
                         textAlign: TextAlign.center,
                       ),
@@ -180,7 +181,10 @@ class _FreeTimeHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final day = DateFormat('EEE d MMM').format(suggestion.day);
+    final day = AppDates.format(
+      'EEE d MMM',
+      DateFormat.MMMEd,
+    ).format(suggestion.day);
     final from = DateFormat.jm().format(suggestion.start.toLocal());
     final to = DateFormat.jm().format(suggestion.end.toLocal());
     return Row(

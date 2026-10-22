@@ -21,6 +21,7 @@ import 'no_plan_explanation_card.dart';
 import 'trade_off_option_card.dart';
 import 'war_council_view_model.dart';
 import '../../core/l10n/tr.dart';
+import '../../core/l10n/dates.dart';
 
 class WarCouncilScreen extends StatefulWidget {
   const WarCouncilScreen({super.key});
@@ -397,7 +398,10 @@ class _DaySelector extends StatelessWidget {
       Expanded(
         child: Center(
           child: RpgLabel(
-            DateFormat('EEE d MMM').format(viewModel.selectedDay),
+            AppDates.format(
+              'EEE d MMM',
+              DateFormat.MMMEd,
+            ).format(viewModel.selectedDay),
             tone: RpgTone.neutral,
             size: 15,
           ),

@@ -13,8 +13,8 @@ import '../l10n/tr.dart';
 class ThemeToggleButton extends StatelessWidget {
   const ThemeToggleButton({super.key});
 
-  static final toLightLabel = 'Switch to light mode'.tr;
-  static final toDarkLabel = 'Switch to dark mode'.tr;
+  static String get toLightLabel => 'Switch to light mode'.tr;
+  static String get toDarkLabel => 'Switch to dark mode'.tr;
 
   @override
   Widget build(BuildContext context) {

@@ -16,8 +16,8 @@ import '../l10n/tr.dart';
 class SoundToggleButton extends StatefulWidget {
   const SoundToggleButton({super.key});
 
-  static final turnOffLabel = 'Turn background music off'.tr;
-  static final turnOnLabel = 'Turn background music on'.tr;
+  static String get turnOffLabel => 'Turn background music off'.tr;
+  static String get turnOnLabel => 'Turn background music on'.tr;
 
   @override
   State<SoundToggleButton> createState() => _SoundToggleButtonState();

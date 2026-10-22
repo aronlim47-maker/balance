@@ -9,7 +9,7 @@ import '../l10n/tr.dart';
 abstract final class AppErrorMessage {
   /// Shown when a recovery slot is outside every available block, which
   /// almost always means no availability was added for that day yet.
-  static final recoveryNeedsAvailability =
+  static String get recoveryNeedsAvailability =>
       ('Recovery time must be inside your available time. '
               'Add availability on Today first, then try again.')
           .tr;
@@ -178,7 +178,7 @@ abstract final class AppErrorMessage {
       return 'Choose a time before the task deadline.'.tr;
     }
     if (detail.contains(
-      'duration cannot be less than already allocated work'.tr,
+      'duration cannot be less than already allocated work',
     )) {
       return 'Duration cannot be below already allocated work. Review the plan first.'
           .tr;

@@ -6,6 +6,7 @@ import '../models/recovery_slot.dart';
 import '../models/task_item.dart';
 import 'daily_capacity.dart';
 import '../../core/l10n/tr.dart';
+import '../../core/l10n/dates.dart';
 
 /// A single task move that can be confirmed without another person's consent.
 class TradeOffMove {
@@ -663,41 +664,12 @@ DateTime? _firstFreeStart({
 DateTime _dateOnly(DateTime time) => DateTime(time.year, time.month, time.day);
 DateTime _later(DateTime a, DateTime b) => a.isAfter(b) ? a : b;
 DateTime _earlier(DateTime a, DateTime b) => a.isBefore(b) ? a : b;
-final _weekdays = [
-  'Mon',
-  'Tue'.tr,
-  'Wed'.tr,
-  'Thu'.tr,
-  'Fri'.tr,
-  'Sat'.tr,
-  'Sun'.tr,
-];
-final _months = [
-  'Jan'.tr,
-  'Feb'.tr,
-  'Mar'.tr,
-  'Apr'.tr,
-  'May',
-  'Jun'.tr,
-  'Jul'.tr,
-  'Aug'.tr,
-  'Sep'.tr,
-  'Oct'.tr,
-  'Nov'.tr,
-  'Dec'.tr,
-];
 
 /// "Mon 12 Oct", matching the dates shown elsewhere in the app.
-String _dateLabel(DateTime date) =>
-    '${_weekdays[date.weekday - 1]} ${date.day} ${_months[date.month - 1]}';
+String _dateLabel(DateTime date) => AppDates.weekdayDayMonth(date);
 
 /// "9:00 AM", matching the app's 12-hour times.
-String _timeLabel(DateTime time) {
-  final local = time.toLocal();
-  final hour = local.hour % 12 == 0 ? 12 : local.hour % 12;
-  final suffix = local.hour < 12 ? 'AM'.tr : 'PM'.tr;
-  return '$hour:${local.minute.toString().padLeft(2, '0')} $suffix';
-}
+String _timeLabel(DateTime time) => AppDates.clock(time);
 
 class _Interval {
   const _Interval(this.start, this.end);

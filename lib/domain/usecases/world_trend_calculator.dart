@@ -51,7 +51,7 @@ class WorldTrendCalculator {
     final end =
         asOf ??
         (byDate.isEmpty
-            ? throw ArgumentError('asOf is required when history is empty.'.tr)
+            ? throw ArgumentError('asOf is required when history is empty.')
             : byDate.keys.reduce((a, b) => a.compareTo(b) >= 0 ? a : b));
 
     DimensionReading reading(

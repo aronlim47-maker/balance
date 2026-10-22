@@ -7,6 +7,7 @@ import '../models/recovery_slot.dart';
 import '../models/task_item.dart';
 import 'daily_capacity.dart';
 import '../../core/l10n/tr.dart';
+import '../../core/l10n/dates.dart';
 
 /// Why Council could not find a safe move, in the order a student should read.
 enum NoPlanReasonKind {
@@ -295,38 +296,7 @@ DateTime? _firstFreeStart(
   return starts.isEmpty ? null : starts.first;
 }
 
-String _clock(DateTime time) {
-  // Rows from the server are UTC; show the phone's local time.
-  final local = time.toLocal();
-  final hour = local.hour % 12 == 0 ? 12 : local.hour % 12;
-  final minute = local.minute.toString().padLeft(2, '0');
-  return '$hour:$minute ${local.hour < 12 ? 'AM' : 'PM'}';
-}
+// Rows from the server are UTC; show the phone's local time.
+String _clock(DateTime time) => AppDates.clock(time);
 
-String _day(DateTime time) {
-  final weekdays = [
-    'Mon',
-    'Tue'.tr,
-    'Wed'.tr,
-    'Thu'.tr,
-    'Fri'.tr,
-    'Sat'.tr,
-    'Sun'.tr,
-  ];
-  final months = [
-    'Jan'.tr,
-    'Feb'.tr,
-    'Mar'.tr,
-    'Apr'.tr,
-    'May',
-    'Jun'.tr,
-    'Jul'.tr,
-    'Aug'.tr,
-    'Sep'.tr,
-    'Oct'.tr,
-    'Nov'.tr,
-    'Dec'.tr,
-  ];
-  final local = time.toLocal();
-  return '${weekdays[local.weekday - 1]} ${local.day} ${months[local.month - 1]}';
-}
+String _day(DateTime time) => AppDates.weekdayDayMonth(time.toLocal());

@@ -29,7 +29,7 @@ class _Step {
   final _Art art;
 }
 
-final _steps = [
+List<_Step> get _steps => [
   _Step(
     page: 'Today'.tr,
     title: 'Add your free time'.tr,

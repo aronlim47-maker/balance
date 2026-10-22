@@ -375,7 +375,7 @@ class _ProfileContent extends StatelessWidget {
     BuildContext context,
     ProfileViewModel profile,
   ) async {
-    var timeZone = profile.userProfile?.timeZone ?? 'UTC'.tr;
+    var timeZone = profile.userProfile?.timeZone ?? 'UTC';
     final selected = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(

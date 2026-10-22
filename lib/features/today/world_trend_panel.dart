@@ -6,6 +6,7 @@ import '../../domain/models/local_date.dart';
 import '../../domain/models/world_trend_models.dart';
 import '../../domain/usecases/world_trend_calculator.dart';
 import '../../core/l10n/tr.dart';
+import '../../core/l10n/dates.dart';
 
 /// Seven-day cumulative workload trend (Rev7 14.4.1 WL05).
 ///
@@ -34,32 +35,7 @@ class WorldTrendPanel extends StatelessWidget {
   final bool todayIsPartial;
 
   static const _barsAfterDays = 3;
-  static final _weekdays = [
-    'Mon',
-    'Tue'.tr,
-    'Wed'.tr,
-    'Thu'.tr,
-    'Fri'.tr,
-    'Sat'.tr,
-    'Sun'.tr,
-  ];
-  static final _months = [
-    'Jan'.tr,
-    'Feb'.tr,
-    'Mar'.tr,
-    'Apr'.tr,
-    'May',
-    'Jun'.tr,
-    'Jul'.tr,
-    'Aug'.tr,
-    'Sep'.tr,
-    'Oct'.tr,
-    'Nov'.tr,
-    'Dec'.tr,
-  ];
-
-  static String _date(LocalDate d) =>
-      '${d.value.day} ${_months[d.value.month - 1]}';
+  static String _date(LocalDate d) => AppDates.dayMonth(d.value);
 
   @override
   Widget build(BuildContext context) {
@@ -137,12 +113,9 @@ class WorldTrendPanel extends StatelessWidget {
                 for (var k = 0; k < 7; k++)
                   Expanded(
                     child: _DayBar(
-                      label:
-                          _weekdays[report.windowStart
-                                  .addDays(k)
-                                  .value
-                                  .weekday -
-                              1],
+                      label: AppDates.weekday(
+                        report.windowStart.addDays(k).value,
+                      ),
                       value: values[k],
                       isToday: k == 6,
                     ),

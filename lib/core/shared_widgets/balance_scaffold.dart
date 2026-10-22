@@ -57,7 +57,7 @@ class BalanceScaffold extends StatelessWidget {
     AppRoutes.journey,
   ];
 
-  static final _labels = [
+  static List<String> get _labels => [
     'Today',
     'Quests'.tr,
     'Council'.tr,

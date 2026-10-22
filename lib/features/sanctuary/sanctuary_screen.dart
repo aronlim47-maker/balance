@@ -18,15 +18,16 @@ import 'camp_scene.dart';
 import 'recovery_slot_card.dart';
 import 'sanctuary_view_model.dart';
 import '../../core/l10n/tr.dart';
+import '../../core/l10n/dates.dart';
 
 /// Optional recovery ideas. Sanctuary is support, not therapy.
-final recoverySuggestions = <String>[
-  'Short walk'.tr,
-  'Phone-free rest'.tr,
-  'Sleep preparation'.tr,
-  'Grounding exercise'.tr,
-  'Reflection prompt'.tr,
-  'Visit a campus support service'.tr,
+const recoverySuggestions = <String>[
+  'Short walk',
+  'Phone-free rest',
+  'Sleep preparation',
+  'Grounding exercise',
+  'Reflection prompt',
+  'Visit a campus support service',
 ];
 
 /// Reads an optional dependency; screens in tests may not provide it.
@@ -315,8 +316,9 @@ class _RecoveryContent extends StatelessWidget {
     );
     if (confirmed != true || !context.mounted) return;
     final removed = await model.remove(slot);
-    if (removed && context.mounted)
+    if (removed && context.mounted) {
       _snack(context, 'Recovery time removed.'.tr);
+    }
   }
 
   Future<void> _setDone(
@@ -354,7 +356,7 @@ class _FeaturedSlot extends StatelessWidget {
     if (!start.isAfter(now)) return 'Happening now'.tr;
     if (diff == 0) return start.hour >= 18 ? 'Tonight'.tr : 'Today'.tr;
     if (diff == 1) return 'Tomorrow'.tr;
-    return DateFormat('EEEE d MMM').format(start);
+    return AppDates.format('EEEE d MMM', DateFormat.MMMMEEEEd).format(start);
   }
 
   @override
@@ -407,7 +409,7 @@ class _FeaturedSlot extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    slot.selectedActivity!,
+                    slot.selectedActivity!.tr,
                     style: const TextStyle(
                       fontFamily: AppTheme.displayFont,
                       fontWeight: FontWeight.w700,
@@ -509,7 +511,7 @@ class _RecoveryFormState extends State<_RecoveryForm> {
     }
     final sameDay = DateUtils.isSameDay(day, start);
     final time = DateFormat.jm();
-    final date = DateFormat('EEE d MMM');
+    final date = AppDates.format('EEE d MMM', DateFormat.MMMEd);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -616,7 +618,10 @@ class _RecoveryFormState extends State<_RecoveryForm> {
             SizedBox(width: 52, child: RpgLabel(label, size: 12)),
             Expanded(
               child: Text(
-                DateFormat('EEE, MMM d · h:mm a').format(value),
+                AppDates.format(
+                  'EEE, MMM d · h:mm a',
+                  () => DateFormat.MMMEd().add_jm(),
+                ).format(value),
                 style: const TextStyle(
                   fontFamily: AppTheme.displayFont,
                   fontWeight: FontWeight.w700,
@@ -666,7 +671,7 @@ class _RecoveryFormState extends State<_RecoveryForm> {
             const SizedBox(height: 10),
             for (final suggestion in recoverySuggestions) ...[
               DiamondOptionRow(
-                title: suggestion,
+                title: suggestion.tr,
                 selected: choice == suggestion,
                 tone: RpgTone.calm,
                 onTap: () => setState(() => choice = suggestion),

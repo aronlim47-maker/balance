@@ -16,7 +16,7 @@ abstract interface class ReminderStore {
 
 class DeviceReminderStore implements ReminderStore {
   late final _prefs = SharedPreferencesAsync();
-  String _key(String owner) => 'balance.reminders.v1.$owner'.tr;
+  String _key(String owner) => 'balance.reminders.v1.$owner';
   @override
   Future<ReminderPreferences> read(String owner) async {
     final raw = await _prefs.getString(_key(owner));

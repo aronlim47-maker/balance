@@ -12,6 +12,7 @@ import '../../core/theme/balance_colors.dart';
 import '../../domain/models/achievement_models.dart';
 import '../auth/auth_view_model.dart';
 import '../../core/l10n/tr.dart';
+import '../../core/l10n/dates.dart';
 
 /// Badge colour for earned achievements.
 Color get _gold => BalanceColors.gold;
@@ -124,7 +125,7 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) {
     final unlocked = award != null;
     final status = unlocked
-        ? 'Unlocked ${DateFormat('d MMM').format(award!.awardedAt.toLocal())}'
+        ? 'Unlocked ${AppDates.format('d MMM', DateFormat.MMMd).format(award!.awardedAt.toLocal())}'
               .tr
         : 'Locked'.tr;
     return Semantics(
@@ -259,7 +260,7 @@ void _showDetails(
             const SizedBox(height: 12),
             Text(
               unlocked
-                  ? 'Unlocked on ${DateFormat('d MMMM y').format(award.awardedAt.toLocal())}'
+                  ? 'Unlocked on ${AppDates.format('d MMMM y', DateFormat.yMMMMd).format(award.awardedAt.toLocal())}'
                         .tr
                   : definition.key == 'team_coordination'
                   ? 'Needs shared tasks, which arrive in a later version.'.tr

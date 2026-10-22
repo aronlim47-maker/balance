@@ -16,6 +16,7 @@ import '../../data/services/verified_progress_service.dart';
 import '../../data/repositories/world_history_repository.dart';
 import '../../core/utils/app_error_message.dart';
 import '../../core/l10n/tr.dart';
+import '../../core/l10n/dates.dart';
 
 class JourneyScreen extends StatelessWidget {
   const JourneyScreen({super.key});
@@ -71,8 +72,8 @@ class _JourneyContent extends StatelessWidget {
                 Expanded(
                   child: Center(
                     child: RpgLabel(
-                      '${DateFormat('EEE d MMM').format(viewModel.weekStart)} – '
-                      '${DateFormat('EEE d MMM').format(viewModel.weekStart.add(const Duration(days: 6)))}',
+                      '${AppDates.format('EEE d MMM', DateFormat.MMMEd).format(viewModel.weekStart)} – '
+                      '${AppDates.format('EEE d MMM', DateFormat.MMMEd).format(viewModel.weekStart.add(const Duration(days: 6)))}',
                       tone: RpgTone.neutral,
                       size: 15,
                     ),

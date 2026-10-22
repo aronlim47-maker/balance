@@ -33,6 +33,7 @@ import '../../data/repositories/world_history_repository.dart';
 import '../../data/services/verified_progress_service.dart';
 import '../../core/utils/app_error_message.dart';
 import '../../core/l10n/tr.dart';
+import '../../core/l10n/dates.dart';
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({super.key});
@@ -66,7 +67,10 @@ class _TodayContent extends StatelessWidget {
           ('Check whether today\'s work fits your free time, then add '
                   'details. Use the arrows to look at other days.')
               .tr,
-      subtitle: DateFormat('EEEE, d MMMM').format(viewModel.selectedDay),
+      subtitle: AppDates.format(
+        'EEEE, d MMMM',
+        DateFormat.MMMMEEEEd,
+      ).format(viewModel.selectedDay),
       headerTrailing: _StatusBadge(label: viewModel.worldStatus.label),
       currentIndex: 0,
       actions: [
@@ -212,7 +216,7 @@ class _TodayContent extends StatelessWidget {
                             : () => _copyFromPreviousDay(context, viewModel),
                         icon: const Icon(Icons.content_copy_outlined),
                         label: Text(
-                          'Copy from ${DateFormat('EEE d MMM').format(viewModel.selectedDay.subtract(const Duration(days: 1)))}'
+                          'Copy from ${AppDates.format('EEE d MMM', DateFormat.MMMEd).format(viewModel.selectedDay.subtract(const Duration(days: 1)))}'
                               .tr,
                         ),
                       ),
@@ -446,7 +450,7 @@ class _TodayContent extends StatelessWidget {
       for (var i = 1; i <= 6; i++) DateTime(day.year, day.month, day.day + i),
     ];
     final range =
-        '${DateFormat('EEE d MMM').format(targets.first)} – ${DateFormat('EEE d MMM').format(targets.last)}';
+        '${AppDates.format('EEE d MMM', DateFormat.MMMEd).format(targets.first)} – ${AppDates.format('EEE d MMM', DateFormat.MMMEd).format(targets.last)}';
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
