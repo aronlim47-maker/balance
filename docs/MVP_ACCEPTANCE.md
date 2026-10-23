@@ -1,6 +1,6 @@
 # MVP 1 acceptance and judge walkthrough
 
-This document records the acceptance criteria for the initial version of personal features. Developers and the AI ​​must check off items based on actual test results; the mere presence of source code, the use of simulated data, or local unit tests cannot substitute for verification via Supabase and testing on actual devices.
+This document records the acceptance criteria for the initial version of personal features. Developers and the AI must check off items based on actual test results; the mere presence of source code, the use of simulated data, or local unit tests cannot substitute for verification via Supabase and testing on actual devices.
 
 ## Implemented personal scope
 
@@ -36,8 +36,19 @@ separate backlog items.
 - [x] Mobile redirect allowlist configured with the exact approved callback.
 - [ ] Signup/resend/reset email flows verified on a real device.
 - [ ] Recovery tested with app open/closed, expired links and wrong/new passwords.
-- [ ] Profile time zone matches device; Today and Profile show matching recorded scores.
-- [ ] Real device full journey passes; English labels, text size and keyboard are usable.
+- [x] Profile time zone matches device; Today and Profile show matching recorded scores.
+  13 Oct, Matthew, Samsung Galaxy A55 5G (Android 16), cloud account: Profile showed
+  `Asia/Kuala_Lumpur` (smoke S03); Profile and Today both showed World Status 47/100
+  (S21 Profile screen and S22 Today). See docs/BUILDING_EVIDENCE_PACK.md.
+- [x] Text size and keyboard usable on a real device. 23 Oct, Tan Yi Ming, HONOR 400 Pro
+  (MagicOS 10, Android 16), Balance v1.0.6, Text size Huge / Display size Large: Today,
+  Quests, task forms, Council (including a plan card and Confirm), Sanctuary, Journey and
+  Profile readable and scrollable; keyboard does not hide the fields or Create task.
+  Minor mid-word wrapping recorded as D16. Evidence: docs/evidence/Honor_400_Pro/.
+- [ ] Real device full journey passes with English labels. Partial: 13 Oct, Matthew,
+  Samsung Galaxy A55 5G (Android 16), Balance v1.0.3, unedited recording: J3, J4, J6, J7,
+  J8 Pass; J5 Partial (D15: Confirm does not reserve recovery time). Leave unchecked until
+  D15 is fixed or the team agrees to accept it as a disclosed limitation.
 - [ ] Release signing and permanent application ID selected for final distribution.
 - [ ] GitHub checks pass for the exact submitted commit.
 
@@ -170,6 +181,32 @@ MVP3 currently has bounded, explainable rules-based Council alternatives; this i
 not personalized forecasting or health prediction. Evaluate recommendation quality
 on realistic calendars and close real-device and remote Confirm/Undo acceptance
 before marking those gates complete.
+
+13 October real-device run (Matthew, Samsung Galaxy A55 5G, Android 16, Balance v1.0.3,
+Supabase cloud mode, test account): smoke test S01–S22, journey J3–J8 with an unedited
+recording, device-matrix row and defect retests are recorded in
+`docs/BUILDING_EVIDENCE_PACK.md`. Profile showed `Asia/Kuala_Lumpur`; Profile and Today
+showed the same World Status 47/100. Retests: D02, D04, D05, D07, D10, D12 pass; D01
+partial; D06 not reproduced; D03 and D08 still open; D15 opened (J5 expects the recovery
+slot to move with the task, but Council states recovery time is not reserved by a
+suggestion). Build commit hash: (fill in).
+
+20 October local verification (Matthew's PC): `flutter analyze` reported no issues,
+`flutter test --coverage` passed 450 tests, and `python tools/check_coverage.py --min 70`
+reported 93.4% critical-code line coverage (2607/2792 lines).
+
+23 October real-device text-size and keyboard run (Tan Yi Ming, HONOR 400 Pro, MagicOS 10,
+Android 16, Balance v1.0.6, cloud test account): Text size Huge and Display size Large
+(both maximum). Today, Quests, New task/Edit task, Council (empty state, "no free time"
+message, a plan card moving 120 minutes to Sun 25 Oct, Plan confirmed), Sanctuary,
+Journey and Profile scrolled and stayed readable with no overlapping text. With the
+keyboard open the Title and Estimated minutes fields stayed visible and Create task was
+reachable. Defect D16 (Minor): long headings and labels break mid-word ("AVAILABIL-ITY",
+"WAR COUNCI-L", "JOURN-EY", "Coordinatio-n"). Not covered: TalkBack, contrast, touch
+targets, Undo and Plan history on this device. Screenshots and write-up:
+`docs/evidence/Honor_400_Pro/`. This run used v1.0.6 and the 13 October run used v1.0.3;
+the team must confirm which commit is submitted. Email flows and GitHub checks are not
+covered by these runs.
 
 Record the commit hash, migration list actually applied, device/OS, build command,
 test date and result. Capture failure messages without passwords, tokens or keys.
