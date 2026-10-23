@@ -5,7 +5,7 @@ the day is over capacity, compares safe ways to fix it, changes nothing until th
 confirms, protects real free time for rest, and lets the student reflect privately.
 
 **Time needed:** about 15 minutes for the full walkthrough. **Help needed:** none.
-**App version:** this guide matches Balance **v1.0.4** (13 October 2026), the
+**App version:** this guide matches Balance **v1.0.6** (16 October 2026), the
 [latest release](https://github.com/aronlim47-maker/balance/releases/latest).
 
 This guide has three parts:
@@ -195,7 +195,8 @@ instead of overwriting the newer change.
 **Please always undo your plan**, so the sample day stays ready for the next judge.
 
 On a day that already fits, Council shows one line instead of options: *No changes needed.
-Your plan fits this day.*
+Your plan fits this day.* On a day with no tasks and no free time added, it says *Nothing
+planned yet* instead.
 
 <img src="images/guide/17_council_fits.png" width="200" alt="Council on a day that fits">
 
@@ -306,7 +307,7 @@ There are no streaks, rankings or penalties for skipping.
 | --- | --- |
 | **LOAD:** Low / Building / High / Over capacity / No data | Summary of the five workload bars (0–24 Low, 25–49 Building, 50–74 High, 75–100 Over capacity). |
 | ← *Viewing …* → | Change the day shown. |
-| **Time capacity** | Planned vs available time; tag **FITS**, **NO TIME ADDED** or **…H OVER**. |
+| **Time capacity** | Planned vs available time; tag **FITS**, **NO TIME ADDED** or **…H OVER**. The tag shows the full capacity gap, the same number as Council; it can be larger than the red bar when work is due before the free time starts (the Capacity gap card explains the split). |
 | **Capacity gap** / **Plan is balanced** | The verdict for the day. |
 | *I reviewed this overload* | Appears for an overload with a later deadline; recording it early can earn *Early Review*. |
 | **Availability** | Free time blocks; **Add**, **⋮ Edit/Delete**, **Copy from**, **Repeat for the next 6 days**. |
@@ -413,6 +414,7 @@ There are no streaks, rankings or penalties for skipping.
 | No sound | Check that the music note at the top of the page is gold, **Profile → Sound effects**, and the phone's media volume. |
 | Music is playing and you want quiet | Tap the gold music note at the top of any main page. |
 | Sign-in fails | Check the email and password from the submission form for typing errors. |
+| *For security, wait … seconds* and the button reads **Try again in …s** | Too many requests in a short time. Wait for the countdown; the button unlocks by itself. |
 | "Can't install app" | Uninstall any earlier Balance build first, then install again. |
 
 ## What Balance does not claim

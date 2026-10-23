@@ -86,8 +86,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                     const SizedBox(height: 22),
                     FilledButton(
-                      onPressed: auth.isLoading ? null : _submit,
-                      child: Text(auth.isLoading ? 'Signing in…' : 'Sign in'),
+                      onPressed: auth.isLoading || auth.isWaiting
+                          ? null
+                          : _submit,
+                      child: Text(
+                        auth.isLoading
+                            ? 'Signing in…'
+                            : auth.isWaiting
+                            ? 'Try again in ${auth.retrySecondsLeft}s'
+                            : 'Sign in',
+                      ),
                     ),
                     TextButton(
                       onPressed: auth.isLoading

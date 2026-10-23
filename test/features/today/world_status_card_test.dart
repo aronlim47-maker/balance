@@ -115,6 +115,44 @@ void main() {
     expect(find.textContaining('Beyond capacity'), findsOneWidget);
   });
 
+  testWidgets('the tag shows the full gap, the same number as Council', (
+    tester,
+  ) async {
+    // Smoke test D16: 120 min planned, 60 min free, all of it due before the
+    // free time starts. Planned minus available is 1h, but 2h must move.
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: TimeCapacityPanel(
+            plannedMinutes: 120,
+            availableMinutes: 60,
+            overloadMinutes: 120,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('2H OVER'), findsOneWidget);
+    expect(find.text('1H OVER'), findsNothing);
+    expect(find.textContaining('Beyond capacity · 1h'), findsOneWidget);
+
+    // Planned fits the free time, but the work is due before it starts.
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: TimeCapacityPanel(
+            plannedMinutes: 60,
+            availableMinutes: 120,
+            overloadMinutes: 60,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('1H OVER'), findsOneWidget);
+    expect(find.text('FITS'), findsNothing);
+  });
+
   testWidgets('shows change since yesterday only where both days are known', (
     tester,
   ) async {

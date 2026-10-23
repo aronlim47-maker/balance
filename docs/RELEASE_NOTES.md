@@ -1,5 +1,49 @@
 # Balance release notes
 
+## v1.0.6 — 16 October 2026
+
+Clearer messages when sign-up or sign-in is temporarily limited. Install it over any earlier
+version; your sign-in and settings stay. Judges: the
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+applies unchanged.
+
+### Fixes
+
+- When the server asks you to wait (for example after tapping Sign up twice), Balance says
+  how many seconds to wait, and the button counts down (*Try again in 42s*) and unlocks by
+  itself. Before, it said only "Could not complete the account request".
+- Too many verification emails: Balance explains that new emails are paused for up to an
+  hour and that the first email may already be in the inbox or spam folder.
+- Too many attempts from one device, or an email that could not be sent, each have their
+  own message with how long to wait.
+- Any other account error shows its error code, so the team can help.
+
+### Quality
+
+- 450 automated tests; critical code 93.4% line coverage.
+
+## v1.0.5 — 13 October 2026
+
+Consistency fixes from the second physical-phone retest (HONOR 400 Pro). Install it over any
+earlier version; your sign-in and settings stay. Judges: the
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+applies unchanged; the sample day works exactly as before.
+
+### Fixes
+
+- Today's Time capacity tag now shows the full capacity gap, the same number as Council and
+  the Capacity gap card. Before, a day with work due before its free time could read
+  *1H OVER* on Today and *2H OVER* on Council.
+- Council on a day with no tasks and no free time says *Nothing planned yet* instead of the
+  green *No changes needed. Your plan fits this day.*
+- Sanctuary's folded *Next rest* line uses 12-hour time like the rest of the page.
+
+### Quality
+
+- 446 automated tests; critical code 93.1% line coverage.
+
 ## v1.0.4 — 13 October 2026
 
 Two small wording fixes found while retesting v1.0.3. Install it over any earlier version;

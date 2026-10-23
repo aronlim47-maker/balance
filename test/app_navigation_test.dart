@@ -66,10 +66,12 @@ void main() {
     expect(find.byType(WarCouncilScreen), findsOneWidget);
     final returnButton = find.text('Back to Today');
     await tester.scrollUntilVisible(returnButton, 250);
-    // A day without overload says so plainly instead of offering plans.
+    // An empty day says so neutrally instead of offering plans (smoke test
+    // D15: not the green "No changes needed").
+    expect(find.textContaining('Nothing planned yet'), findsOneWidget);
     expect(
       find.text('No changes needed. Your plan fits this day.'),
-      findsOneWidget,
+      findsNothing,
     );
     expect(find.text('Confirm selected plan'), findsNothing);
     await tester.ensureVisible(returnButton);

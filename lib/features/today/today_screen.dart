@@ -152,6 +152,7 @@ class _TodayContent extends StatelessWidget {
                 TimeCapacityPanel(
                   plannedMinutes: viewModel.plannedMinutes,
                   availableMinutes: viewModel.availableMinutes,
+                  overloadMinutes: viewModel.overloadMinutes,
                 ),
                 const SizedBox(height: 12),
                 CapacityGapCard(
