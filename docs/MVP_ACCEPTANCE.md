@@ -44,11 +44,11 @@ separate backlog items.
   (MagicOS 10, Android 16), Balance v1.0.6, Text size Huge / Display size Large: Today,
   Quests, task forms, Council (including a plan card and Confirm), Sanctuary, Journey and
   Profile readable and scrollable; keyboard does not hide the fields or Create task.
-  Minor mid-word wrapping recorded as D16. Evidence: docs/evidence/Honor_400_Pro/.
-- [ ] Real device full journey passes with English labels. Partial: 13 Oct, Matthew,
-  Samsung Galaxy A55 5G (Android 16), Balance v1.0.3, unedited recording: J3, J4, J6, J7,
-  J8 Pass; J5 Partial (D15: Confirm does not reserve recovery time). Leave unchecked until
-  D15 is fixed or the team agrees to accept it as a disclosed limitation.
+  Minor mid-word wrapping recorded as D18. Evidence: docs/evidence/Honor_400_Pro/.
+- [x] Real device full journey passes with English labels. J3-J8 Pass on Samsung Galaxy A55 5G
+  (Matthew, 13 Oct, v1.0.3, unedited recording) and on HONOR 400 Pro (Tan, 13 Oct, v1.0.2).
+  J5/J6 expectations were corrected on 14 Oct (D17, closed by design: Council moves tasks only;
+  recovery time is protected separately in Sanctuary). See docs/BUILDING_EVIDENCE_PACK.md.
 - [ ] Release signing and permanent application ID selected for final distribution.
 - [ ] GitHub checks pass for the exact submitted commit.
 
@@ -187,9 +187,10 @@ Supabase cloud mode, test account): smoke test S01–S22, journey J3–J8 with a
 recording, device-matrix row and defect retests are recorded in
 `docs/BUILDING_EVIDENCE_PACK.md`. Profile showed `Asia/Kuala_Lumpur`; Profile and Today
 showed the same World Status 47/100. Retests: D02, D04, D05, D07, D10, D12 pass; D01
-partial; D06 not reproduced; D03 and D08 still open; D15 opened (J5 expects the recovery
+partial; D06 not reproduced; D03 and D08 still open; D17 logged (J5 expected the recovery
 slot to move with the task, but Council states recovery time is not reserved by a
-suggestion). Build commit hash: (fill in).
+suggestion) and closed by design on 14 October, with the J5/J6 expectations corrected.
+Build commit hash: (fill in).
 
 20 October local verification (Matthew's PC): `flutter analyze` reported no issues,
 `flutter test --coverage` passed 450 tests, and `python tools/check_coverage.py --min 70`
@@ -201,9 +202,10 @@ Android 16, Balance v1.0.6, cloud test account): Text size Huge and Display size
 message, a plan card moving 120 minutes to Sun 25 Oct, Plan confirmed), Sanctuary,
 Journey and Profile scrolled and stayed readable with no overlapping text. With the
 keyboard open the Title and Estimated minutes fields stayed visible and Create task was
-reachable. Defect D16 (Minor): long headings and labels break mid-word ("AVAILABIL-ITY",
-"WAR COUNCI-L", "JOURN-EY", "Coordinatio-n"). Not covered: TalkBack, contrast, touch
-targets, Undo and Plan history on this device. Screenshots and write-up:
+reachable. Defect D18 (Minor): long headings and labels break mid-word ("AVAILABIL-ITY",
+"WAR COUNCI-L", "JOURN-EY", "Coordinatio-n"). TalkBack, contrast and touch-target checks
+were run on this phone on 13 October (v1.0.2, section G of the evidence pack); Undo and
+Plan history were not repeated on v1.0.6. Screenshots and write-up:
 `docs/evidence/Honor_400_Pro/`. This run used v1.0.6 and the 13 October run used v1.0.3;
 the team must confirm which commit is submitted. Email flows and GitHub checks are not
 covered by these runs.
