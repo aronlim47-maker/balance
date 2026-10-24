@@ -50,7 +50,12 @@ separate backlog items.
   J5/J6 expectations were corrected on 14 Oct (D17, closed by design: Council moves tasks only;
   recovery time is protected separately in Sanctuary). See docs/BUILDING_EVIDENCE_PACK.md.
 - [ ] Release signing and permanent application ID selected for final distribution.
-- [ ] GitHub checks pass for the exact submitted commit.
+- [ ] GitHub checks pass for the exact submitted commit. Evidence ready, tick when Lim confirms
+  which commit is submitted: 24 Oct, Tan Yi Ming, Balance checks #182, commit
+  `33ecdb27ac25121f18f0d910a58206e46a50d574` on master (merge of pull request #52): job `verify`
+  passed (analyze, tests, critical-code coverage, web compilation check, SQL syntax check; the
+  SQL step is syntax only, not a database or RLS execution test).
+  Evidence: docs/evidence/CI_actions.jpg, docs/evidence/CI_verify_steps.jpg.
 
 ## Judge walkthrough
 
@@ -209,6 +214,14 @@ Plan history were not repeated on v1.0.6. Screenshots and write-up:
 `docs/evidence/Honor_400_Pro/`. This run used v1.0.6 and the 13 October run used v1.0.3;
 the team must confirm which commit is submitted. Email flows and GitHub checks are not
 covered by these runs.
+
+24 October GitHub checks (Tan Yi Ming): Balance checks run #182 (push to master, commit
+`33ecdb27ac25121f18f0d910a58206e46a50d574`, merge of pull request #52) succeeded in 3m 1s.
+Steps: flutter pub get, flutter analyze, flutter test --coverage, line coverage of critical
+code, web compilation check (test configuration, not a deployed release) and SQL syntax check
+(not a database or RLS execution test). Two non-blocking annotations: Node.js 20 deprecation
+warning and an ubuntu-latest migration notice. Screenshots: docs/evidence/CI_actions.jpg and
+docs/evidence/CI_verify_steps.jpg.
 
 Record the commit hash, migration list actually applied, device/OS, build command,
 test date and result. Capture failure messages without passwords, tokens or keys.
