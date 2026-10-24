@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/shared_widgets/password_field.dart';
 import 'auth_view_model.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -16,12 +17,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmController.dispose();
     super.dispose();
   }
 
@@ -85,16 +88,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             : null,
                       ),
                       const SizedBox(height: 14),
-                      TextFormField(
+                      PasswordField(
                         controller: _passwordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: Icon(Icons.lock_outline),
-                        ),
+                        autofillHints: const [AutofillHints.newPassword],
                         validator: (value) => value == null || value.length < 8
                             ? 'Password must be at least 8 characters.'
                             : null,
+                      ),
+                      const SizedBox(height: 14),
+                      PasswordField(
+                        controller: _confirmController,
+                        labelText: 'Confirm password',
+                        autofillHints: const [AutofillHints.newPassword],
+                        validator: (value) => value == _passwordController.text
+                            ? null
+                            : 'Passwords do not match.',
                       ),
                       if (auth.errorMessage != null) ...[
                         const SizedBox(height: 14),
