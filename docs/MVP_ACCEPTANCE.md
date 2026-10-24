@@ -55,7 +55,7 @@ separate backlog items.
   `33ecdb27ac25121f18f0d910a58206e46a50d574` on master (merge of pull request #52): job `verify`
   passed (analyze, tests, critical-code coverage, web compilation check, SQL syntax check; the
   SQL step is syntax only, not a database or RLS execution test).
-  Evidence: docs/evidence/CI_actions.jpg, docs/evidence/CI_verify_steps.jpg.
+  Evidence: docs/evidence/CI/CI_actions.png, docs/evidence/CI/CI_verify_steps.png.
 
 ## Judge walkthrough
 
@@ -220,8 +220,8 @@ covered by these runs.
 Steps: flutter pub get, flutter analyze, flutter test --coverage, line coverage of critical
 code, web compilation check (test configuration, not a deployed release) and SQL syntax check
 (not a database or RLS execution test). Two non-blocking annotations: Node.js 20 deprecation
-warning and an ubuntu-latest migration notice. Screenshots: docs/evidence/CI_actions.jpg and
-docs/evidence/CI_verify_steps.jpg.
+warning and an ubuntu-latest migration notice. Screenshots: docs/evidence/CI/CI_actions.png and
+docs/evidence/CI/CI_verify_steps.png.
 
 Record the commit hash, migration list actually applied, device/OS, build command,
 test date and result. Capture failure messages without passwords, tokens or keys.
