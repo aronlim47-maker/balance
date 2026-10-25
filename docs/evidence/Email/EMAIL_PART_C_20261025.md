@@ -11,8 +11,8 @@
 ## Result
 
 **Partly tested.** The reset email arrived and its link opened the "Choose a new password" screen.
-Validation, the new password and the old password were checked. App-open (second run, to be confirmed) and expired-link
-cases were not tested (see below), so acceptance line 39 stays unticked.
+Validation, the new password and the old password were checked. App closed (20:16) and app open (23:18) were both tested. The expired-link
+case was not tested (see below), so acceptance line 39 stays unticked until agreed with Lim.
 
 | Time | Step | Outcome | File |
 | --- | --- | --- | --- |
@@ -30,7 +30,7 @@ Same account, after the reset screen gained show/hide eye buttons (PasswordField
 | Time | Step | Outcome | File |
 | --- | --- | --- | --- |
 | 23:17 | Account help, "Send password reset link" | Request made; email arrived in the same minute | `RESET2_request_app.png`, `RESET2_inbox.png` |
-| 23:18 | Tapped "Reset password" in the email (app open in the background: Tan to confirm) | App opened on "Choose a new password", both fields have an eye button | `RECOVERY_choose_password.png` |
+| 23:18 | Tapped "Reset password" in the email (Balance still running in the background, confirmed by Tan) | App opened on "Choose a new password", both fields have an eye button | `RECOVERY_choose_password.png` |
 | 23:19 | Different confirmation (dummy text, shown with the eye) | "Passwords do not match." | `RECOVERY_mismatch.png` |
 | 23:19 | `abc` in both fields | "Use at least 8 characters." | `RECOVERY_short.png` |
 | 23:22 | Valid new password saved | App opened the Beginner guide, step 1 of 5 (signed in) | `RECOVERY2_success_beginner_guide.png` |
@@ -54,4 +54,4 @@ Same account, after the reset screen gained show/hide eye buttons (PasswordField
 ## Acceptance
 
 - Line 38 (signup, resend, reset flows on a real device): supported by Parts A, B and C.
-- Line 39 (recovery with app open and closed, expired links, wrong and new passwords): wrong and new passwords shown; open/closed and expired not complete. Leave unticked until done or agreed with Lim.
+- Line 39 (recovery with app open and closed, expired links, wrong and new passwords): wrong and new passwords shown, app closed (20:16) and app open (23:18) tested; expired link not tested. Leave unticked until the expired link is tested or Lim agrees it is not needed.
