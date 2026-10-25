@@ -92,6 +92,7 @@ void main() {
     await tester.enterText(fields.at(0), 'Ming');
     await tester.enterText(fields.at(1), 'student@example.com');
     await tester.enterText(fields.at(2), 'secret-pass');
+    await tester.enterText(fields.at(3), 'secret-pass');
     await tester.ensureVisible(find.text('Sign up'));
     await tester.tap(find.text('Sign up'));
     await tester.pump();
