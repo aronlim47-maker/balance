@@ -14,6 +14,10 @@ class AuthViewModel extends LifecycleNotifier {
         if (isDisposed) return;
         if (state.event == AuthChangeEvent.passwordRecovery) {
           _recoveryUserId = state.session?.user.id;
+          // A new screen: the "link will arrive shortly" note from the
+          // request step no longer applies.
+          _noticeMessage = null;
+          _errorMessage = null;
         } else if (state.event == AuthChangeEvent.signedOut) {
           _recoveryUserId = null;
         } else if (state.event == AuthChangeEvent.signedIn) {

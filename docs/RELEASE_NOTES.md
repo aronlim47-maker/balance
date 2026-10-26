@@ -1,5 +1,31 @@
 # Balance release notes
 
+## v1.0.7 — 26 October 2026
+
+Easier passwords on sign-up and reset. Install it over any earlier version; your sign-in and
+settings stay. Judges: the
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+applies unchanged; the judge account signs in exactly as before.
+
+### New
+
+- Sign-up asks for the password twice (**Confirm password**) and both fields have the eye
+  button to show or hide what you typed.
+- The **Choose a new password** screen (from a reset email) also has show/hide on both
+  fields.
+
+### Fixes
+
+- Choosing your old password again when resetting it now says *Choose a password that is
+  different from your old one* instead of an error code.
+- Opening a reset link no longer shows the earlier "a reset link will arrive shortly"
+  message on the Choose a new password screen.
+
+### Quality
+
+- 458 automated tests; critical code 93.4% line coverage.
+
 ## v1.0.6 — 16 October 2026
 
 Clearer messages when sign-up or sign-in is temporarily limited. Install it over any earlier

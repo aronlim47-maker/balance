@@ -85,6 +85,10 @@ abstract final class AppErrorMessage {
         detail.contains('invalid email or password')) {
       return 'The email or password is incorrect. Try again.';
     }
+    if (code == 'same_password' ||
+        detail.contains('different from the old password')) {
+      return 'Choose a password that is different from your old one.';
+    }
     if (detail.contains('email not confirmed') ||
         detail.contains('email not verified')) {
       return 'Verify your email address before signing in.';

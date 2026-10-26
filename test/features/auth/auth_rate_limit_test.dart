@@ -60,6 +60,19 @@ void main() {
     );
   });
 
+  test('reusing the old password gets its own message', () {
+    expect(
+      _message(
+        const AuthException(
+          'New password should be different from the old password.',
+          statusCode: '422',
+          code: 'same_password',
+        ),
+      ),
+      'Choose a password that is different from your old one.',
+    );
+  });
+
   test('an unknown auth error names its code but never its message', () {
     final message = _message(
       const AuthException('private server detail', code: 'unexpected_failure'),
