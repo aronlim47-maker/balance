@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/shared_widgets/password_field.dart';
 import 'auth_view_model.dart';
 
 /// Supabase verifies email links before the recovery route becomes available.
@@ -84,24 +85,18 @@ class _AccountHelpScreenState extends State<AccountHelpScreen> {
                               : 'Enter a valid email address.',
                         ),
                       ] else ...[
-                        TextFormField(
+                        PasswordField(
                           controller: _password,
-                          obscureText: true,
+                          labelText: 'New password',
                           autofillHints: const [AutofillHints.newPassword],
-                          decoration: const InputDecoration(
-                            labelText: 'New password',
-                          ),
                           validator: (value) => (value ?? '').length >= 8
                               ? null
                               : 'Use at least 8 characters.',
                         ),
                         const SizedBox(height: 16),
-                        TextFormField(
+                        PasswordField(
                           controller: _confirmation,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Confirm password',
-                          ),
+                          labelText: 'Confirm password',
                           validator: (value) => value == _password.text
                               ? null
                               : 'Passwords do not match.',

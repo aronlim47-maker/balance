@@ -34,8 +34,16 @@ separate backlog items.
 - [ ] Two Auth users cannot read or change each other's tasks, plans, reviews or awards.
 - [ ] Duplicate/uncertain requests and concurrent Confirm/Undo keep consistent records.
 - [x] Mobile redirect allowlist configured with the exact approved callback.
-- [ ] Signup/resend/reset email flows verified on a real device.
-- [ ] Recovery tested with app open/closed, expired links and wrong/new passwords.
+- [x] Signup/resend/reset email flows verified on a real device. 24-25 Oct, Tan Yi Ming, HONOR 400 Pro
+  (MagicOS 10, Android 16), Supabase default email template: sign-up verification link
+  opened the app and signed in (Part A); resend verification delivered after the project email
+  limit (2 per hour) paused it once (Part B); password reset email delivered and the link opened
+  "Choose a new password" twice (Part C). Evidence: docs/evidence/Email/.
+- [ ] Recovery tested with app open/closed, expired links and wrong/new passwords. Partly done,
+  25 Oct, Tan Yi Ming: app closed (20:16) and app open (23:18) both opened "Choose a new password";
+  mismatched and short (under 8 characters) passwords rejected; old password rejected and new
+  password accepted; a used link opened while signed in did not crash. Not yet tested: an
+  expired link and a used link while signed out. Evidence: docs/evidence/Email/.
 - [x] Profile time zone matches device; Today and Profile show matching recorded scores.
   13 Oct, Matthew, Samsung Galaxy A55 5G (Android 16), cloud account: Profile showed
   `Asia/Kuala_Lumpur` (smoke S03); Profile and Today both showed World Status 47/100
@@ -222,6 +230,18 @@ code, web compilation check (test configuration, not a deployed release) and SQL
 (not a database or RLS execution test). Two non-blocking annotations: Node.js 20 deprecation
 warning and an ubuntu-latest migration notice. Screenshots: docs/evidence/CI/CI_actions.png and
 docs/evidence/CI/CI_verify_steps.png.
+
+25 October email flows (Tan Yi Ming, HONOR 400 Pro, MagicOS 10, Android 16, Balance v(fill in)):
+Part A sign-up verification passed (email in about 20 seconds, link signed the account in).
+Part B resend verification passed on the second attempt: the first was blocked by the Supabase
+built-in email limit (2 auth emails per hour for the whole project) and the app showed a
+waiting message. Part C password reset: the email arrived within the same minute; app closed and
+app open both reached "Choose a new password"; mismatch and short passwords were rejected; the
+old password failed and the new one worked. The reset screen now has show/hide buttons (added
+after the first run and retested). Minor defects: D19 stale "reset link will arrive" notice on
+the reset screen; D20 raw `same_password` code in the message; default Supabase email
+template; new accounts start on the UTC time zone. Not tested: expired link, used link while
+signed out. Screenshots and write-ups: `docs/evidence/Email/`.
 
 Record the commit hash, migration list actually applied, device/OS, build command,
 test date and result. Capture failure messages without passwords, tokens or keys.
