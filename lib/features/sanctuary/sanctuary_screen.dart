@@ -10,6 +10,7 @@ import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
 import '../../data/repositories/availability_repository.dart';
+import '../../data/repositories/plan_repository.dart';
 import '../../data/repositories/recovery_repository.dart';
 import '../../data/repositories/task_repository.dart';
 import '../../domain/usecases/free_windows.dart';
@@ -46,6 +47,7 @@ class SanctuaryScreen extends StatelessWidget {
       context.read<RecoveryRepository?>(),
       availabilityRepository: _maybeRead<AvailabilityRepository>(context),
       taskRepository: _maybeRead<TaskRepository>(context),
+      planRepository: _maybeRead<PlanRepository?>(context),
     )..load(),
     child: const _RecoveryContent(),
   );

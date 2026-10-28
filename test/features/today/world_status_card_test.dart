@@ -96,7 +96,7 @@ void main() {
     expect(find.text('NO TIME ADDED YET'), findsOneWidget);
     expect(find.text('NO TIME ADDED'), findsOneWidget);
     expect(find.text('FITS'), findsNothing);
-    expect(find.textContaining('Fits today'), findsNothing);
+    expect(find.textContaining('Fits in free time'), findsNothing);
   });
 
   testWidgets('Fits appears only when time exists and nothing is over', (

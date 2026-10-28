@@ -2,9 +2,11 @@ import '../../core/state/lifecycle_notifier.dart';
 
 import '../../core/utils/app_error_message.dart';
 import '../../data/repositories/availability_repository.dart';
+import '../../data/repositories/plan_repository.dart';
 import '../../data/repositories/recovery_repository.dart';
 import '../../data/repositories/task_repository.dart';
 import '../../domain/models/availability_block.dart';
+import '../../domain/models/plan_reservation.dart';
 import '../../domain/models/recovery_slot.dart';
 import '../../domain/models/task_item.dart';
 import '../../domain/usecases/free_windows.dart';
@@ -14,6 +16,7 @@ class SanctuaryViewModel extends LifecycleNotifier {
     this.repository, {
     this.availabilityRepository,
     this.taskRepository,
+    this.planRepository,
   });
   final RecoveryRepository? repository;
 
@@ -21,9 +24,13 @@ class SanctuaryViewModel extends LifecycleNotifier {
   /// offers no suggestions.
   final AvailabilityRepository? availabilityRepository;
   final TaskRepository? taskRepository;
+
+  /// Confirmed Council plans reserve time too; suggestions skip it.
+  final PlanRepository? planRepository;
   List<RecoverySlot> slots = [];
   List<AvailabilityBlock> _availability = [];
   List<TaskItem> _tasks = [];
+  List<PlanReservation> _reservations = [];
 
   /// Free time on [day] where a recovery slot fits (see [freeWindowsOn]).
   List<FreeWindow> freeWindows(DateTime day, {String? exceptSlotId}) =>
@@ -32,6 +39,7 @@ class SanctuaryViewModel extends LifecycleNotifier {
         availability: _availability,
         tasks: _tasks,
         recovery: slots,
+        reservations: _reservations,
         exceptSlotId: exceptSlotId,
         now: DateTime.now(),
       );
@@ -66,9 +74,12 @@ class SanctuaryViewModel extends LifecycleNotifier {
         final availability =
             await availabilityRepository?.fetchAvailability() ?? const [];
         final tasks = await taskRepository?.fetchTasks() ?? const [];
+        final reservations =
+            await planRepository?.fetchPlanReservations() ?? const [];
         if (isDisposed || version != _loadVersion) return;
         _availability = availability;
         _tasks = tasks;
+        _reservations = reservations;
       } catch (_) {}
     } catch (e) {
       if (isDisposed || version != _loadVersion) return;
