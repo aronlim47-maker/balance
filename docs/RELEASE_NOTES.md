@@ -2,7 +2,7 @@
 
 ## v1.0.9 — 28 October 2026
 
-The judging build. It includes everything in v1.0.8 (which was tagged but not published) and
+The judging build. It includes everything in v1.0.8 and
 two fixes from a full-app test. Install it over any earlier version; your sign-in and
 settings stay. Judges: the
 [user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
@@ -28,7 +28,7 @@ applies unchanged.
   reminders, the beginner guide, Back navigation and offline refresh.
 - 467 automated tests; critical code 93.4% line coverage.
 
-## v1.0.8 — 26 October 2026 (tagged, not published; included in v1.0.9)
+## v1.0.8 — 26 October 2026
 
 Checked on phones and tablets of every size. Install it over any earlier version; your
 sign-in and settings stay. Judges: the
