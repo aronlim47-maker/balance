@@ -1,6 +1,34 @@
 # Balance release notes
 
-## v1.0.8 — 26 October 2026
+## v1.0.9 — 28 October 2026
+
+The judging build. It includes everything in v1.0.8 (which was tagged but not published) and
+two fixes from a full-app test. Install it over any earlier version; your sign-in and
+settings stay. Judges: the
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+applies unchanged.
+
+### Fixes
+
+- After a confirmed Council plan moved work into your free time, **Protect recovery time**
+  no longer suggests that same time. Before, it could offer a window the plan was already
+  using, and saving was refused.
+- The time capacity legend reads *Fits in free time · 2h* instead of *Fits today*, which was
+  wrong when viewing another day.
+- From v1.0.8: on very small phones (320 dp wide) drop-down lists no longer run off the
+  right edge; long choices end with "…".
+
+### Quality
+
+- Checked on a small phone, compact Android, Galaxy A55, a large phone, phone landscape, an
+  open foldable and a tablet in portrait and landscape: every main page, the task form,
+  Profile and the beginner guide lay out without overflow.
+- Full-app test on the release build: Council confirm and undo, Sanctuary, Profile,
+  reminders, the beginner guide, Back navigation and offline refresh.
+- 467 automated tests; critical code 93.4% line coverage.
+
+## v1.0.8 — 26 October 2026 (tagged, not published; included in v1.0.9)
 
 Checked on phones and tablets of every size. Install it over any earlier version; your
 sign-in and settings stay. Judges: the
