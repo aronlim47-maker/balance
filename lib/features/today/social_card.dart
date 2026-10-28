@@ -179,6 +179,7 @@ class _SocialEventSheetState extends State<SocialEventSheet> {
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<SocialPressure>(
+            isExpanded: true,
             initialValue: _pressure,
             decoration: const InputDecoration(labelText: 'Pressure'),
             items: [

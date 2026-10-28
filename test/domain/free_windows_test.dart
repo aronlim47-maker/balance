@@ -1,5 +1,6 @@
 import 'package:balance/domain/enums/task_status.dart';
 import 'package:balance/domain/models/availability_block.dart';
+import 'package:balance/domain/models/plan_reservation.dart';
 import 'package:balance/domain/models/recovery_slot.dart';
 import 'package:balance/domain/models/task_item.dart';
 import 'package:balance/domain/usecases/free_windows.dart';
@@ -51,6 +52,48 @@ void main() {
       recovery: [RecoverySlot(id: 'r', startAt: at(11), endAt: at(11, 30))],
     );
     expect(fmt(windows), '10:0-11:0, 11:30-12:0');
+  });
+
+  test('time a confirmed plan moved here is not offered (D18)', () {
+    // A Council plan moved 60 min of an unscheduled task to 19:00-20:00.
+    final moved = TaskItem(
+      id: 'moved',
+      title: 'Report',
+      estimatedMinutes: 180,
+      remainingMinutes: 120,
+      dueAt: at(23).add(const Duration(days: 1)),
+    );
+    final reservation = PlanReservation(
+      taskId: 'moved',
+      startAt: at(19),
+      endAt: at(20),
+    );
+    final windows = freeWindowsOn(
+      day,
+      availability: [block(19, 21)],
+      tasks: [moved],
+      recovery: const [],
+      reservations: [reservation],
+    );
+    expect(fmt(windows), '20:0-21:0');
+
+    // Once the task is done, its reserved time is free again.
+    final done = freeWindowsOn(
+      day,
+      availability: [block(19, 21)],
+      tasks: [
+        TaskItem(
+          id: 'moved',
+          title: 'Report',
+          estimatedMinutes: 180,
+          dueAt: at(23),
+          status: TaskStatus.completed,
+        ),
+      ],
+      recovery: const [],
+      reservations: [reservation],
+    );
+    expect(fmt(done), '19:0-21:0');
   });
 
   test('blocked time, done tasks and short gaps', () {

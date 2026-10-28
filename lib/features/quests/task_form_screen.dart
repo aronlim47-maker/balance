@@ -136,6 +136,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<LoadCategory>(
+              isExpanded: true,
               initialValue: _loadCategory,
               decoration: InputDecoration(
                 labelText: 'Task category',
@@ -160,6 +161,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             ],
             const SizedBox(height: 12),
             DropdownButtonFormField<TaskFlexibility>(
+              isExpanded: true,
               initialValue: _flexibility,
               decoration: const InputDecoration(labelText: 'Flexibility'),
               items: const [
@@ -183,6 +185,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             if (_isEditing) ...[
               const SizedBox(height: 12),
               DropdownButtonFormField<TaskStatus>(
+                isExpanded: true,
                 initialValue: _status,
                 decoration: const InputDecoration(labelText: 'Status'),
                 items: const [
@@ -212,6 +215,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             ),
             if (_isProtected)
               DropdownButtonFormField<String?>(
+                isExpanded: true,
                 initialValue: _protectedCommitmentType,
                 decoration: const InputDecoration(
                   labelText: 'Protected commitment type',

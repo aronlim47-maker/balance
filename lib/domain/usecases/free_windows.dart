@@ -1,5 +1,6 @@
 import '../enums/task_status.dart';
 import '../models/availability_block.dart';
+import '../models/plan_reservation.dart';
 import '../models/recovery_slot.dart';
 import '../models/task_item.dart';
 
@@ -12,7 +13,8 @@ class FreeWindow {
 }
 
 /// Free time on [day] that a recovery slot could use: available blocks minus
-/// blocked time, scheduled planned work and other recovery slots.
+/// blocked time, scheduled planned work, time reserved by confirmed Council
+/// plans and other recovery slots.
 ///
 /// Mirrors the server rule that recovery must sit inside available time without
 /// overlapping planned work, so a suggested window can be saved as is. Windows
@@ -23,6 +25,7 @@ List<FreeWindow> freeWindowsOn(
   required List<AvailabilityBlock> availability,
   required List<TaskItem> tasks,
   required List<RecoverySlot> recovery,
+  List<PlanReservation> reservations = const [],
   String? exceptSlotId,
   DateTime? now,
   int minMinutes = 15,
@@ -49,6 +52,14 @@ List<FreeWindow> freeWindowsOn(
           task.scheduledStart!.toLocal(),
           task.scheduledEnd!.toLocal(),
         ),
+    // Work a confirmed plan moved here (smoke test D18). Reservations of
+    // finished or removed tasks no longer hold time, as in DailyCapacity.
+    for (final reservation in reservations)
+      if (tasks.any(
+        (task) =>
+            task.id == reservation.taskId && task.status == TaskStatus.planned,
+      ))
+        FreeWindow(reservation.startAt.toLocal(), reservation.endAt.toLocal()),
     for (final slot in recovery)
       if (slot.id != exceptSlotId)
         FreeWindow(slot.startAt.toLocal(), slot.endAt.toLocal()),

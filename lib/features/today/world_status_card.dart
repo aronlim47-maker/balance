@@ -453,7 +453,7 @@ class TimeCapacityPanel extends StatelessWidget {
               if (availableMinutes > 0)
                 _Legend(
                   color: BalanceColors.accent,
-                  text: 'Fits today · ${formatShortDuration(fits)}',
+                  text: 'Fits in free time · ${formatShortDuration(fits)}',
                 ),
               if (over > 0)
                 _Legend(
