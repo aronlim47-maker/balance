@@ -5,7 +5,7 @@ the day is over capacity, compares safe ways to fix it, changes nothing until th
 confirms, protects real free time for rest, and lets the student reflect privately.
 
 **Time needed:** about 15 minutes for the full walkthrough. **Help needed:** none.
-**App version:** this guide matches Balance **v1.0.9** (28 October 2026), the
+**App version:** this guide matches Balance **v1.0.10** (29 October 2026), the
 [latest release](https://github.com/aronlim47-maker/balance/releases/latest).
 
 This guide has three parts:
