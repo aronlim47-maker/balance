@@ -115,6 +115,11 @@ void main() {
       NoPlanReasonKind.protectedStays,
     ]);
     expect(explanation.reasons.first.message, contains('"Reading"'));
+    // Other days may have some free time, just not enough (D23).
+    expect(
+      explanation.reasons.first.message,
+      startsWith('Not enough free time was found'),
+    );
     expect(explanation.reasons.last.message, contains('fixed'));
   });
 

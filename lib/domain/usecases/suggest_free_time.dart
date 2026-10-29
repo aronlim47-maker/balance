@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../enums/task_flexibility.dart';
 import '../enums/task_status.dart';
 import '../models/availability_block.dart';
@@ -99,43 +101,56 @@ FreeTimeSuggestion? suggestFreeTime({
     ) {
       if (DailyCapacity.sameDay(target, selectedDay)) continue;
       // Room for the whole gap plus anything the target day is already over.
-      final alreadyOver = capacityOn(target).overloadMinutes;
-      final needed = _roundUp(gap + alreadyOver, 15);
-      if (best != null && needed > best.minutes) continue;
-      final window = _freeWindow(
-        day: target,
-        minutes: needed,
-        notBefore: localNow,
-        notAfter: task.dueAt,
-        busy: busy,
-      );
-      if (window == null) continue;
-      final options = generateTradeOffs(
-        day: selectedDay,
-        tasks: allTasks,
-        availability: [
-          ...allAvailability,
-          AvailabilityBlock(
-            id: 'suggested',
-            startAt: window.start,
-            endAt: window.end,
-            isAvailable: true,
-          ),
-        ],
-        reservations: allReservations,
-        recoverySlots: allRecovery,
-        now: localNow,
-      );
-      if (options.isEmpty) continue;
-      final suggestion = FreeTimeSuggestion(
-        day: target,
-        minutes: needed,
-        taskTitle: task.title,
-        start: window.start,
-        end: window.end,
-        dayAlreadyOverMinutes: alreadyOver,
-      );
-      if (best == null || better(suggestion, best)) best = suggestion;
+      // Free time the target day still has spare counts too (D24), so try
+      // the smaller amount first; Council checks each one below.
+      final capacity = capacityOn(target);
+      final alreadyOver = capacity.overloadMinutes;
+      final spare = alreadyOver > 0
+          ? 0
+          : math.max(0, capacity.availableMinutes - capacity.plannedMinutes);
+      final full = _roundUp(gap + alreadyOver, 15);
+      final amounts = <int>{
+        if (spare > 0) _roundUp(math.max(15, gap - spare), 15),
+        full,
+      };
+      for (final needed in amounts) {
+        if (best != null && needed > best.minutes) continue;
+        final window = _freeWindow(
+          day: target,
+          minutes: needed,
+          notBefore: localNow,
+          notAfter: task.dueAt,
+          busy: busy,
+        );
+        if (window == null) continue;
+        final options = generateTradeOffs(
+          day: selectedDay,
+          tasks: allTasks,
+          availability: [
+            ...allAvailability,
+            AvailabilityBlock(
+              id: 'suggested',
+              startAt: window.start,
+              endAt: window.end,
+              isAvailable: true,
+            ),
+          ],
+          reservations: allReservations,
+          recoverySlots: allRecovery,
+          now: localNow,
+        );
+        if (options.isEmpty) continue;
+        final suggestion = FreeTimeSuggestion(
+          day: target,
+          minutes: needed,
+          taskTitle: task.title,
+          start: window.start,
+          end: window.end,
+          dayAlreadyOverMinutes: alreadyOver,
+        );
+        if (best == null || better(suggestion, best)) best = suggestion;
+        break;
+      }
     }
   }
   return best;

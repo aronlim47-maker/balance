@@ -178,4 +178,42 @@ void main() {
     expect(onlyNextDay.minutes, 180);
     expect(onlyNextDay.dayAlreadyOverMinutes, 60);
   });
+
+  test('counts free time the other day still has spare (D24)', () {
+    // 31 Oct: 300 min of flexible work, no free time. 30 Oct: 9 AM-5 PM free
+    // with 300 min of its own work, so 180 min spare. Two more hours on
+    // 30 Oct are enough; five would be more than the student needs.
+    final suggestion = suggestFreeTime(
+      day: DateTime(2026, 10, 31),
+      tasks: [
+        TaskItem(
+          id: 'essay',
+          title: 'Essay',
+          estimatedMinutes: 300,
+          dueAt: DateTime(2026, 10, 30, 20, 41),
+        ),
+        TaskItem(
+          id: 'lab',
+          title: 'Lab report',
+          estimatedMinutes: 300,
+          dueAt: DateTime(2026, 10, 31, 20, 44),
+        ),
+      ],
+      availability: [
+        AvailabilityBlock(
+          id: 'fri',
+          startAt: DateTime(2026, 10, 30, 9),
+          endAt: DateTime(2026, 10, 30, 17),
+          isAvailable: true,
+        ),
+      ],
+      now: DateTime(2026, 10, 29, 20, 45),
+    );
+    expect(suggestion, isNotNull);
+    expect(suggestion!.day, DateTime(2026, 10, 30));
+    expect(suggestion.minutes, 120);
+    expect(suggestion.taskTitle, 'Lab report');
+    expect(suggestion.start, DateTime(2026, 10, 30, 17));
+    expect(suggestion.end, DateTime(2026, 10, 30, 19));
+  });
 }

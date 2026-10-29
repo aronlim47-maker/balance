@@ -54,7 +54,7 @@ void main() {
     expect(fmt(windows), '10:0-11:0, 11:30-12:0');
   });
 
-  test('time a confirmed plan moved here is not offered (D18)', () {
+  test('time a confirmed plan moved here is not offered (D21)', () {
     // A Council plan moved 60 min of an unscheduled task to 19:00-20:00.
     final moved = TaskItem(
       id: 'moved',

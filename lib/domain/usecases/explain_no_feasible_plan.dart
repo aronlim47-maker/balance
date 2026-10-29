@@ -170,9 +170,10 @@ NoPlanExplanation explainNoFeasiblePlan({
       NoPlanReason(
         NoPlanReasonKind.noLaterFreeTime,
         blocking.isEmpty
-            ? 'No free time was found for "${task.title}" on another day '
-                  'before it is due. Add free time on another day before its '
-                  'deadline.'
+            // Other days may have some free time, just not enough (D23).
+            ? 'Not enough free time was found for "${task.title}" on other '
+                  'days before it is due. Add free time on another day before '
+                  'its deadline.'
             : '"${task.title}" does not fit before it is due because protected '
                   'recovery time (${_day(blocking.first.startAt)}, '
                   '${_clock(blocking.first.startAt)}) uses free time it needs. '
