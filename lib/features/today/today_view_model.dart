@@ -313,7 +313,8 @@ class TodayViewModel extends LifecycleNotifier {
         ..addAll(results[0] as List<TaskItem>);
       _availability
         ..clear()
-        ..addAll(results[1] as List<AvailabilityBlock>);
+        ..addAll(results[1] as List<AvailabilityBlock>)
+        ..sort((a, b) => a.startAt.compareTo(b.startAt));
       _reservations
         ..clear()
         ..addAll(
@@ -618,8 +619,26 @@ class TodayViewModel extends LifecycleNotifier {
     }
   }
 
+  /// Time blocks never overlap (the server enforces it), so Blocked time goes
+  /// in a gap between Available blocks (D25).
+  static const availabilityOverlapMessage =
+      'Time blocks cannot overlap. To mark busy time inside your free time, '
+      'first shorten the Available block, then add the Blocked time in the '
+      'gap.';
+
   Future<bool> saveAvailability(AvailabilityBlock block) async {
     if (isDisposed || _isSavingAvailability) return false;
+    final overlaps = _availability.any(
+      (item) =>
+          item.id != block.id &&
+          item.startAt.isBefore(block.endAt) &&
+          item.endAt.isAfter(block.startAt),
+    );
+    if (overlaps) {
+      _errorMessage = availabilityOverlapMessage;
+      notifyListeners();
+      return false;
+    }
     _isSavingAvailability = true;
     _invalidateLoads();
     _errorMessage = null;

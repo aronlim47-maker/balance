@@ -19,8 +19,8 @@ class AvailabilityService implements AvailabilityRepository {
           .from('availability_blocks')
           .select()
           .eq('user_id', owner)
-          .order('start_at')
-          .order('id'),
+          .order('start_at', ascending: true)
+          .order('id', ascending: true),
     );
     return rows.map(AvailabilityMapper.fromJson).toList(growable: false);
   }

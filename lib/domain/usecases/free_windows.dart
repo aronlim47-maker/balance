@@ -52,7 +52,7 @@ List<FreeWindow> freeWindowsOn(
           task.scheduledStart!.toLocal(),
           task.scheduledEnd!.toLocal(),
         ),
-    // Work a confirmed plan moved here (smoke test D18). Reservations of
+    // Work a confirmed plan moved here (defect D21). Reservations of
     // finished or removed tasks no longer hold time, as in DailyCapacity.
     for (final reservation in reservations)
       if (tasks.any(

@@ -118,11 +118,14 @@ NoPlanExplanation explainNoFeasiblePlan({
     reasons.add(
       NoPlanReason(
         NoPlanReasonKind.dueBeforeFreeTime,
+        // True whether the deadline is before the free time starts or just
+        // before enough of it has passed (D26).
         firstFree == null
-            ? '$dueBefore min of work is due before enough free time is '
-                  'available.'
-            : '$dueBefore min of work is due before your free time starts '
-                  '(${_clock(firstFree)}). Add earlier free time or ask for a '
+            ? '$dueBefore min of work is due before there is enough free '
+                  'time for it.'
+            : '$dueBefore min of work is due before there is enough free '
+                  'time for it (free time on this day starts at '
+                  '${_clock(firstFree)}). Add earlier free time or ask for a '
                   'later deadline.',
       ),
     );
@@ -170,9 +173,10 @@ NoPlanExplanation explainNoFeasiblePlan({
       NoPlanReason(
         NoPlanReasonKind.noLaterFreeTime,
         blocking.isEmpty
-            ? 'No free time was found for "${task.title}" on another day '
-                  'before it is due. Add free time on another day before its '
-                  'deadline.'
+            // Other days may have some free time, just not enough (D23).
+            ? 'Not enough free time was found for "${task.title}" on other '
+                  'days before it is due. Add free time on another day before '
+                  'its deadline.'
             : '"${task.title}" does not fit before it is due because protected '
                   'recovery time (${_day(blocking.first.startAt)}, '
                   '${_clock(blocking.first.startAt)}) uses free time it needs. '

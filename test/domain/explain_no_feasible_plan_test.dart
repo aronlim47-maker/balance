@@ -64,6 +64,11 @@ void main() {
     ]);
     expect(explanation.reasons[0].message, contains('190 min'));
     expect(explanation.reasons[0].message, contains('7:00 PM'));
+    // True also when the deadline is after the free time starts (D26).
+    expect(
+      explanation.reasons[0].message,
+      contains('due before there is enough free time for it'),
+    );
     expect(explanation.reasons[1].message, contains('"Lab report" (50 min)'));
     expect(explanation.reasons[1].message, contains('no other day'));
     expect(explanation.reasons[1].taskId, 'lab');
@@ -115,6 +120,11 @@ void main() {
       NoPlanReasonKind.protectedStays,
     ]);
     expect(explanation.reasons.first.message, contains('"Reading"'));
+    // Other days may have some free time, just not enough (D23).
+    expect(
+      explanation.reasons.first.message,
+      startsWith('Not enough free time was found'),
+    );
     expect(explanation.reasons.last.message, contains('fixed'));
   });
 

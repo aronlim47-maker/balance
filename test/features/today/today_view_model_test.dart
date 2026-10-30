@@ -79,6 +79,47 @@ void main() {
     expect(viewModel.availabilityForDay, isEmpty);
   });
 
+  test('blocked time inside free time explains how to add it (D25)', () async {
+    final availability = LocalAvailabilityRepository();
+    final viewModel = TodayViewModel(LocalTaskRepository(), availability)
+      ..selectDay(today);
+    await viewModel.load();
+    final free = AvailabilityBlock(
+      id: '',
+      startAt: today.add(const Duration(hours: 9)),
+      endAt: today.add(const Duration(hours: 17)),
+      isAvailable: true,
+    );
+    expect(await viewModel.saveAvailability(free), isTrue);
+
+    final lunch = AvailabilityBlock(
+      id: '',
+      startAt: today.add(const Duration(hours: 12)),
+      endAt: today.add(const Duration(hours: 13)),
+      isAvailable: false,
+    );
+    expect(await viewModel.saveAvailability(lunch), isFalse);
+    expect(viewModel.errorMessage, TodayViewModel.availabilityOverlapMessage);
+    expect(viewModel.availabilityForDay, hasLength(1));
+
+    // Editing a block may keep its own time.
+    final saved = viewModel.availabilityForDay.single;
+    expect(
+      await viewModel.saveAvailability(
+        AvailabilityBlock(
+          id: saved.id,
+          startAt: saved.startAt,
+          endAt: today.add(const Duration(hours: 12)),
+          isAvailable: true,
+        ),
+      ),
+      isTrue,
+    );
+    // Then the blocked time fits in the gap.
+    expect(await viewModel.saveAvailability(lunch), isTrue);
+    expect(viewModel.availabilityForDay, hasLength(2));
+  });
+
   test(
     'explicit category makes Errands known without inventing activity data',
     () async {

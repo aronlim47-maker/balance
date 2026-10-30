@@ -40,8 +40,8 @@ void main() {
     );
     expect(
       find.textContaining(
-        '300 min is beyond your free time and 300 min is due before your '
-        'free time starts.',
+        '300 min is beyond your free time and 300 min is due before there '
+        'is enough free time for it.',
       ),
       findsOneWidget,
     );
@@ -56,7 +56,9 @@ void main() {
       ),
     );
     expect(
-      find.textContaining('All of it is due before your free time starts.'),
+      find.textContaining(
+        'All of it is due before there is enough free time for it.',
+      ),
       findsOneWidget,
     );
   });

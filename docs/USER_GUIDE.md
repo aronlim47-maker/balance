@@ -5,7 +5,7 @@ the day is over capacity, compares safe ways to fix it, changes nothing until th
 confirms, protects real free time for rest, and lets the student reflect privately.
 
 **Time needed:** about 15 minutes for the full walkthrough. **Help needed:** none.
-**App version:** this guide matches Balance **v1.0.9** (28 October 2026), the
+**App version:** this guide matches Balance **v1.0.11** (30 October 2026), the
 [latest release](https://github.com/aronlim47-maker/balance/releases/latest).
 
 This guide has three parts:
@@ -410,6 +410,7 @@ There are no streaks, rankings or penalties for skipping.
 | Council shows **No Feasible Plan** on the sample day | A recovery slot is using the next day's free time; the explanation names it. Remove it in **SANCTUARY** (step 6.5). |
 | *This task is part of your plan history, so it cannot be deleted* | Plan history keeps every task that was part of a confirmed plan. Use **⋮ → Mark as done**; the task stops counting on every day. |
 | *No free time in the 7 days from …* when protecting rest | Add availability on **TODAY** for one of those days first, then add recovery time again. |
+| *Time blocks cannot overlap* when adding **Blocked** time | Time blocks never overlap. Shorten the Available block first (for example 9:00 AM – 12:00 PM), then add Blocked time in the gap (12:00 PM – 1:00 PM) and another Available block after it. |
 | The beginner guide does not appear | It shows once per phone. Open **Profile → Beginner guide**. |
 | No sound | Check that the music note at the top of the page is gold, **Profile → Sound effects**, and the phone's media volume. |
 | Music is playing and you want quiet | Tap the gold music note at the top of any main page. |

@@ -483,7 +483,7 @@ class _CapacitySummary extends StatelessWidget {
                         [
                           if (extraWork > 0)
                             '$extraWork min more work than free time',
-                          '$dueBeforeFreeTime min due before free time starts',
+                          '$dueBeforeFreeTime min due before there is enough free time',
                         ].join(' · '),
                         style: TextStyle(
                           fontSize: 13,

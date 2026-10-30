@@ -13,7 +13,7 @@ class CapacityGapCard extends StatelessWidget {
   final int overloadMinutes;
 
   /// When given, the card explains a gap larger than "planned − available"
-  /// (work due before the free time starts) and treats an empty day as
+  /// (work due before there is enough free time for it) and treats an empty day as
   /// "nothing planned yet" rather than balanced.
   final int? plannedMinutes;
   final int? availableMinutes;
@@ -27,9 +27,9 @@ class CapacityGapCard extends StatelessWidget {
     final dueEarly = overloadMinutes - beyond;
     if (dueEarly <= 0) return base;
     return beyond == 0
-        ? '$base All of it is due before your free time starts.'
+        ? '$base All of it is due before there is enough free time for it.'
         : '$base $beyond min is beyond your free time and $dueEarly min is due '
-              'before your free time starts.';
+              'before there is enough free time for it.';
   }
 
   @override

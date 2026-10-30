@@ -1,8 +1,56 @@
 # Balance release notes
 
+## v1.0.11 — 30 October 2026
+
+The judging build. Three small fixes from a full-app test of v1.0.10. Install it over any
+earlier version; your sign-in and settings stay. Judges: the
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+applies unchanged.
+
+### Fixes
+
+- A day's time blocks, recovery slots and other lists are always shown earliest first.
+  Before, after the app reloaded, a day with several time blocks could list them from latest
+  to earliest. Totals were never affected.
+- When work is due before enough free time has passed, Council and Today now say *due before
+  there is enough free time for it*. Before, they said *due before your free time starts*,
+  which was wrong when the deadline was later in the day.
+- Adding **Blocked** time inside an Available block now explains what to do: time blocks
+  cannot overlap, so shorten the Available block first and add the Blocked time in the gap.
+
+### Quality
+
+- Full-app test of the published v1.0.10 on Android 15, including Blocked time, fixed work in
+  Council, Sanctuary, reflections, light mode and a tablet with large text.
+- 470 automated tests; critical code 93.5% line coverage.
+
+## v1.0.10 — 29 October 2026
+
+Two small Council fixes from a full-app test of v1.0.9. Install it over
+any earlier version; your sign-in and settings stay. Judges: the
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+applies unchanged.
+
+### Fixes
+
+- When Council finds no plan, its free-time hint now asks for the smallest amount that
+  works. It counts free time the other day still has spare, so a day with 3h free that needs
+  5h more work is asked for 2h, not 5h.
+- The no-plan reason says *Not enough free time was found … on other days* instead of
+  *No free time was found*, which was wrong when another day had some free time, just not
+  enough.
+
+### Quality
+
+- Full-app test of the published v1.0.9 on Android 15: free time, task form checks, Council
+  no-plan hint, confirm and undo, Sanctuary, Profile, Back navigation, offline and reconnect.
+- 468 automated tests; critical code 93.4% line coverage.
+
 ## v1.0.9 — 28 October 2026
 
-The judging build. It includes everything in v1.0.8 and
+It includes everything in v1.0.8 and
 two fixes from a full-app test. Install it over any earlier version; your sign-in and
 settings stay. Judges: the
 [user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
