@@ -118,11 +118,14 @@ NoPlanExplanation explainNoFeasiblePlan({
     reasons.add(
       NoPlanReason(
         NoPlanReasonKind.dueBeforeFreeTime,
+        // True whether the deadline is before the free time starts or just
+        // before enough of it has passed (D26).
         firstFree == null
-            ? '$dueBefore min of work is due before enough free time is '
-                  'available.'
-            : '$dueBefore min of work is due before your free time starts '
-                  '(${_clock(firstFree)}). Add earlier free time or ask for a '
+            ? '$dueBefore min of work is due before there is enough free '
+                  'time for it.'
+            : '$dueBefore min of work is due before there is enough free '
+                  'time for it (free time on this day starts at '
+                  '${_clock(firstFree)}). Add earlier free time or ask for a '
                   'later deadline.',
       ),
     );

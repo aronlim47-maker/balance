@@ -19,8 +19,8 @@ class TaskService implements TaskRepository {
           .from('tasks')
           .select()
           .eq('user_id', owner)
-          .order('due_at')
-          .order('id'),
+          .order('due_at', ascending: true)
+          .order('id', ascending: true),
     );
     return rows.map(TaskMapper.fromJson).toList(growable: false);
   }

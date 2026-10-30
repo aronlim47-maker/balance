@@ -20,7 +20,7 @@ class AchievementService implements AchievementRepository {
           'achievement_key,practical_name,rpg_name,condition_text,display_order',
         )
         .eq('rule_version', 'achievement_v1')
-        .order('display_order');
+        .order('display_order', ascending: true);
     final awardsFuture = _client
         .from('user_achievements')
         .select('achievement_key,awarded_at')

@@ -42,7 +42,8 @@ void main() {
         reasons: [
           NoPlanReason(
             NoPlanReasonKind.dueBeforeFreeTime,
-            '190 min of work is due before your free time starts (7:00 PM).',
+            '190 min of work is due before there is enough free time for it '
+            '(free time on this day starts at 7:00 PM).',
           ),
           NoPlanReason(
             NoPlanReasonKind.noOtherDay,

@@ -19,8 +19,8 @@ class RecoveryService implements RecoveryRepository {
           .from('recovery_slots')
           .select()
           .eq('user_id', owner)
-          .order('start_at')
-          .order('id'),
+          .order('start_at', ascending: true)
+          .order('id', ascending: true),
     );
     return rows.map(RecoveryMapper.fromJson).toList(growable: false);
   }

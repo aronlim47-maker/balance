@@ -28,8 +28,8 @@ class SocialService implements SocialRepository {
           .eq('user_id', userId)
           .gt('end_at', start.toUtc().toIso8601String())
           .lt('start_at', end.toUtc().toIso8601String())
-          .order('start_at')
-          .order('id'),
+          .order('start_at', ascending: true)
+          .order('id', ascending: true),
     );
     return rows
         .map((row) {
