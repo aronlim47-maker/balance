@@ -243,6 +243,15 @@ the reset screen; D20 raw `same_password` code in the message; default Supabase 
 template; new accounts start on the UTC time zone. Not tested: expired link, used link while
 signed out. Screenshots and write-ups: `docs/evidence/Email/`.
 
+31 October unaided user test (Tan Yi Ming): three students who had not used Balance (T1-T3)
+did the five section F tasks on their own phones with prepared tester accounts, then filled
+in a feedback form without names or emails. System Usability Scale 60.0, 97.5 and 87.5
+(mean 81.7). Task completion: (fill in from the observer sheet). Top problems: a crowded
+first screen, rest time not visible on Today, unclear terms such as "Protected task".
+Changed: Today shows the day's rest time (pending merge). D28 (Beginner guide not shown
+to a new account on a used phone) fixed in code, device retest pending. Details:
+`docs/evidence/User_Test/USER_TEST_20261031.md` and section F of the evidence pack.
+
 Record the commit hash, migration list actually applied, device/OS, build command,
 test date and result. Capture failure messages without passwords, tokens or keys.
 Use `20261003_FIX_AND_DATABASE_HANDOFF.md` for the SQL and retry contracts. Final
