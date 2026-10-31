@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/router/app_router.dart';
 import '../../core/shared_widgets/balance_scaffold.dart';
 import '../../core/shared_widgets/collapsible_section.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
@@ -18,6 +20,7 @@ import '../../data/repositories/task_repository.dart';
 import '../../domain/models/availability_block.dart';
 import '../../domain/models/check_in.dart';
 import '../../domain/models/movement_models.dart';
+import '../../domain/models/recovery_slot.dart';
 import '../../domain/models/social_event_record.dart';
 import '../../domain/models/task_item.dart';
 import 'availability_form_sheet.dart';
@@ -291,6 +294,38 @@ class _TodayContent extends StatelessWidget {
                         ),
                         trailing: const Icon(Icons.chevron_right),
                       ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          CollapsibleSection(
+            key: const ValueKey('today.rest'),
+            id: 'today.rest',
+            title: 'Rest time',
+            help:
+                'Recovery time you protected in Sanctuary for this day. '
+                'Council never moves it. Add or change it in Sanctuary.',
+            summary: _restSummary(viewModel),
+            action: TextButton(
+              onPressed: () => context.go(AppRoutes.sanctuary),
+              child: const Text('Sanctuary'),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (viewModel.recoverySlotsForDay.isEmpty)
+                  const _EmptyCard(
+                    message:
+                        'No rest time is protected on this day. Add it in '
+                        'Sanctuary.',
+                  )
+                else
+                  ...viewModel.recoverySlotsForDay.map(
+                    (slot) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _RestCard(slot: slot),
                     ),
                   ),
               ],
@@ -886,6 +921,48 @@ class _StatusBadge extends StatelessWidget {
       ],
     );
   }
+}
+
+String _restSummary(TodayViewModel viewModel) {
+  final slots = viewModel.recoverySlotsForDay;
+  if (slots.isEmpty) return 'None protected for this day';
+  final total = formatShortDuration(viewModel.recoveryMinutesForDay);
+  if (slots.length > 1) return '${slots.length} slots · $total protected';
+  final slot = slots.single;
+  return '${DateFormat.jm().format(slot.startAt.toLocal())} – '
+      '${DateFormat.jm().format(slot.endAt.toLocal())} · $total protected';
+}
+
+class _RestCard extends StatelessWidget {
+  const _RestCard({required this.slot});
+
+  final RecoverySlot slot;
+
+  @override
+  Widget build(BuildContext context) => RpgPanel(
+    tone: RpgTone.calm,
+    padding: EdgeInsets.zero,
+    child: ListTile(
+      leading: Icon(
+        Icons.local_fire_department_outlined,
+        color: BalanceColors.calm,
+      ),
+      title: Text(
+        slot.selectedActivity ?? 'Free rest time',
+        style: const TextStyle(
+          fontFamily: AppTheme.displayFont,
+          fontWeight: FontWeight.w700,
+          fontSize: 16,
+          letterSpacing: 0.8,
+        ),
+      ),
+      subtitle: Text(
+        '${DateFormat.jm().format(slot.startAt.toLocal())} – '
+        '${DateFormat.jm().format(slot.endAt.toLocal())}'
+        '${slot.completedAt != null ? ' · Done' : ''}',
+      ),
+    ),
+  );
 }
 
 class _AvailabilityCard extends StatelessWidget {
