@@ -74,6 +74,13 @@ class AuthViewModel extends LifecycleNotifier {
   String? get errorMessage => _errorMessage;
   String? get noticeMessage => _noticeMessage;
   String? get currentUserEmail => _repository?.currentUser?.email;
+  /// When the signed-in account confirmed its email (or was created, if it
+  /// never needed to). Used to tell a brand-new account from an old one.
+  DateTime? get currentUserConfirmedAt {
+    final user = _repository?.currentUser;
+    if (user == null) return null;
+    return DateTime.tryParse(user.emailConfirmedAt ?? user.createdAt)?.toLocal();
+  }
   String? get currentUserName {
     final value = _repository?.currentUser?.userMetadata?['display_name'];
     return value is String && value.trim().isNotEmpty ? value.trim() : null;

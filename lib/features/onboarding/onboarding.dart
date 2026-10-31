@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/router/app_router.dart';
 import '../../core/shared_widgets/rpg_widgets.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/balance_colors.dart';
+import '../auth/auth_view_model.dart';
 
 const _seenKey = 'balance.onboarding.v1';
+const _accountKeyPrefix = 'balance.onboarding.v2.';
 
 enum _Art { time, tasks, overload, fix, rest }
 
@@ -81,7 +84,26 @@ const _steps = [
   ),
 ];
 
-/// Shows the beginner guide the first time on this device.
+/// Whether to show the beginner guide to this account on this device.
+///
+/// The guide is shown once per account. A device that already showed it to
+/// someone earlier must still show it to a brand-new account, so the old
+/// "seen on this device" flag only hides it for accounts that were confirmed
+/// more than a day ago (existing users who have already seen it).
+bool shouldShowGuide({
+  required bool seenByAccount,
+  required bool seenOnDevice,
+  DateTime? confirmedAt,
+  DateTime? now,
+}) {
+  if (seenByAccount) return false;
+  if (!seenOnDevice) return true;
+  if (confirmedAt == null) return false;
+  return (now ?? DateTime.now()).difference(confirmedAt) <
+      const Duration(hours: 24);
+}
+
+/// Shows the beginner guide the first time each account opens Today.
 /// If device storage is unavailable, it stays hidden rather than nagging.
 class OnboardingGate extends StatefulWidget {
   const OnboardingGate({super.key, required this.child});
@@ -100,10 +122,24 @@ class _OnboardingGateState extends State<OnboardingGate> {
 
   Future<void> _maybeShow() async {
     try {
+      AuthViewModel? auth;
+      try {
+        auth = context.read<AuthViewModel>();
+      } catch (_) {}
+      final accountKey = '$_accountKeyPrefix${auth?.currentUserId ?? 'local'}';
       final prefs = SharedPreferencesAsync();
-      if (await prefs.getBool(_seenKey) ?? false) return;
+      final show = shouldShowGuide(
+        seenByAccount: await prefs.getBool(accountKey) ?? false,
+        seenOnDevice: await prefs.getBool(_seenKey) ?? false,
+        confirmedAt: auth?.currentUserConfirmedAt,
+      );
       if (!mounted) return;
+      if (!show) {
+        await prefs.setBool(accountKey, true);
+        return;
+      }
       final route = await showOnboarding(context);
+      await prefs.setBool(accountKey, true);
       await prefs.setBool(_seenKey, true);
       if (route != null && mounted) context.go(route);
     } catch (_) {}

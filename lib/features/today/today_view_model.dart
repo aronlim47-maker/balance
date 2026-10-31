@@ -159,6 +159,23 @@ class TodayViewModel extends LifecycleNotifier {
   List<AvailabilityBlock> get availabilityForDay =>
       _availability.where(_overlapsSelectedDay).toList();
 
+  /// Rest (recovery) time protected on this day, earliest first. Shown on
+  /// Today so the day's rest is visible next to its free time and tasks.
+  List<RecoverySlot> get recoverySlotsForDay =>
+      _recoverySlots
+          .where(
+            (slot) =>
+                DailyCapacity.overlapsDay(slot.startAt, slot.endAt, _selectedDay),
+          )
+          .toList()
+        ..sort((a, b) => a.startAt.compareTo(b.startAt));
+
+  /// Total minutes of [recoverySlotsForDay].
+  int get recoveryMinutesForDay => recoverySlotsForDay.fold(
+    0,
+    (sum, slot) => sum + slot.endAt.difference(slot.startAt).inMinutes,
+  );
+
   DailyCapacity get capacity => DailyCapacity.forDay(
     day: _selectedDay,
     tasks: _tasks,

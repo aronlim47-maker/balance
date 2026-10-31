@@ -169,6 +169,7 @@ Critical and Major must be fixed or disclosed before 11 October.
 | D25 | 30 Oct 2026 | Android emulator (Medium Phone), v1.0.10 | Full-app test (Today, Blocked time) | Adding Blocked 12:00–1:00 PM inside Available 9:00 AM–5:00 PM was refused with the generic "This time overlaps another item". Time blocks never overlap (server rule), so Blocked time belongs in a gap, but neither the message nor the guide said so. | A message that says how to add Blocked time. | Minor (UX) | Lim | (after `2729534`) | Fixed: the app checks first and says "Time blocks cannot overlap. To mark busy time inside your free time, first shorten the Available block, then add the Blocked time in the gap."; guide troubleshooting row added; unit test added Retest 30 Oct 2026 on v1.0.11 (R17): **Pass** |
 | D26 | 30 Oct 2026 | Android emulator (Medium Phone), v1.0.10 | Full-app test (Council, 420 min due 3:41 PM with free time from 9:00 AM) | Council said "79 min of work is due before your free time starts (9:00 AM)", although the work was due at 3:41 PM; the free time before the deadline was just not enough. The same wording was on the Council capacity panel and the Today capacity card. | Wording true in both cases. | Minor (copy) | Lim | (after `2729534`) | Fixed: "due before there is enough free time for it (free time on this day starts at 9:00 AM)" in all three places; tests updated Retest 30 Oct 2026: **Pass** (unit and widget tests; text in v1.0.11) |
 | D27 | 30 Oct 2026 | Android emulator (Medium Phone and 1280×800 dp tablet), v1.0.10 | Full-app test (Today after a reload) | After the app reloaded, a day's time blocks were listed latest first (1:00 PM, 12:00 PM, 9:00 AM); blocks added in the session were in order. Sanctuary listed recovery slots latest first too. Supabase's `.order()` sorts descending unless `ascending: true` is given. | Earliest first, always. | Minor (display order; totals unaffected) | Lim | (after `2729534`) | Fixed: every server sort states `ascending: true` (time blocks, recovery slots, social events, tasks, achievements); Today also sorts after loading; a test now fails if a sort leaves out its direction Retest 30 Oct 2026 on v1.0.11 (R17): **Pass** |
+| D28 | 31 Oct 2026 | HONOR 400 Pro | F (tester account set-up) | A new account that confirmed its email on a phone where the Beginner guide had already been shown did not see the guide: "seen" was saved once per phone, not per account. | Every new account sees the guide the first time it reaches Today. | Minor (first-use help missing) | Tan | (fill in) | Fixed in code: the guide is remembered per account, and a new account (email confirmed within 24 hours) sees it even on a used phone; unit tests in `test/features/onboarding/onboarding_gate_test.dart`. Device retest pending |
 ## E. Unedited core-flow recording
 
 1. Sign in on a **test account** before you start recording (so no password is filmed). Keep
@@ -212,6 +213,37 @@ After the test ask two questions and write the answers:
 
 Summary line for the judges: *N of M testers completed the journey unaided; median
 time mm:ss; top 3 problems and what we changed.*
+
+### Results, 31 October 2026 (Tan)
+
+Three students who had not used Balance (T1, T2, T3), each on their own phone (T1 vivo V29,
+Android 15; T3 Samsung Galaxy S24, Android 16; T2 not given), Balance v(fill in). Each used a
+prepared tester account with one over-capacity day (3h free, 5h planned, 2H OVER) and free
+time on the next day; the Beginner guide was skipped during set-up. Feedback came from a
+Google Form after the tasks (no names or emails). Full ratings and answers:
+`docs/evidence/User_Test/USER_TEST_20261031.md`.
+
+| Task | T1 | T2 | T3 |
+| --- | --- | --- | --- |
+| 1 Minutes over today | (fill in) | (fill in) | (fill in) |
+| 2 Plan accepted | (fill in) | (fill in) | (fill in) |
+| 3 Undo | (fill in) | (fill in) | (fill in) |
+| 4 Protect 30 minutes of rest | (fill in) | (fill in) | (fill in) |
+| 5 Weekly summary | (fill in) | (fill in) | (fill in) |
+
+System Usability Scale: T1 60.0, T2 97.5, T3 87.5 (mean 81.7, median 87.5). Lowest ratings:
+"I would trust the plan with a real deadline" and "I would use this during a busy week"
+(both mean 3.3 of 5). Three testers is a small pilot.
+
+Most confusing: Today shows a lot of text and buttons at once (T1, T3); rest time is not
+visible on Today (T2); "Protected task" and the scrollable filter row on Quests are unclear (T3).
+Exam weeks: helpful for several tasks and for a study-and-rest cycle (T2, T3); not worth it
+for only one or two tasks (T1).
+
+Summary for the judges: *(fill in N) of 3 testers completed the journey unaided; median
+time (fill in). Top problems: a crowded first screen, rest time not visible on Today, and
+unclear terms. Changed: Today now shows the day's rest time (pending merge); a day
+timetable, section colours and clearer wording are future work.*
 
 ## G. Accessibility checklist (Rev7 13.4)
 
@@ -268,3 +300,4 @@ exact wording.
 | 13 Oct 2026 | v1.0.2 (R10) | Physical-phone retest of the fixed defects on device 2 (HONOR 400 Pro) | D01 D02 D04 D05 D07 D10 D12 Pass; S21 confirm chime verified; D15 D16 logged | Tan; full smoke A not repeated on device 2 |
 | 13 Oct 2026 | v1.0.2 (R10) | Accessibility check (section G) with TalkBack on device 2 (HONOR 400 Pro) | Labels, focus order, touch targets, colour alone Pass; text scaling at the largest phone font not yet recorded | Tan; G01–G10 |
 | 23 Oct 2026 | v1.0.6 | Text size Huge / Display size Large and keyboard check on device 2 (HONOR 400 Pro) | Pass; D18 (minor word breaks) | Tan; `docs/evidence/Honor_400_Pro/` |
+| 31 Oct 2026 | v(fill in) | Unaided user test (section F), 3 testers on their own phones, feedback form | SUS 60.0 / 97.5 / 87.5 (mean 81.7); task results in section F; D28 logged | Tan; `docs/evidence/User_Test/` |
