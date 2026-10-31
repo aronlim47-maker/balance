@@ -5,7 +5,7 @@ the day is over capacity, compares safe ways to fix it, changes nothing until th
 confirms, protects real free time for rest, and lets the student reflect privately.
 
 **Time needed:** about 15 minutes for the full walkthrough. **Help needed:** none.
-**App version:** this guide matches Balance **v1.0.11** (30 October 2026), the
+**App version:** this guide matches Balance **v1.0.12** (31 October 2026), the
 [latest release](https://github.com/aronlim47-maker/balance/releases/latest).
 
 This guide has three parts:
@@ -223,7 +223,8 @@ music is on you hear a soft crackle that stops when you leave the page.
    Something else). The slot is protected whether or not you choose one.
 4. Tap **Save**. The slot appears under **All recovery slots** as **Free rest time** (or the
    activity you chose) with the tag **TIME RESERVED** and *30m held clear*. Your next
-   protected slot is also shown at the top under **Next rest**, with its day and time.
+   protected slot is also shown at the top under **Next rest**, with its day and time, and
+   **TODAY** lists the day's slots under **Rest time**.
    Once a slot has started, **Mark activity done** records it (before then the button reads
    *Mark done after it starts*); **Undo activity done** reverses it.
 5. **Please remove it afterwards**: open its **⋮** menu → **Remove** → **Remove**. A slot on the
@@ -312,6 +313,7 @@ There are no streaks, rankings or penalties for skipping.
 | *I reviewed this overload* | Appears for an overload with a later deadline; recording it early can earn *Early Review*. |
 | **Availability** | Free time blocks; **Add**, **⋮ Edit/Delete**, **Copy from**, **Repeat for the next 6 days**. |
 | **Planned tasks** | Work that counts on this day, with its minutes on this day and why: *Scheduled this day*, *Due this day* or *Moved here by a plan*. Tap for details. |
+| **Rest time** | Recovery time protected in **SANCTUARY** for this day, earliest first, e.g. *8:10 PM – 8:40 PM · 30m protected*. Council never moves it; **Sanctuary** opens the page to add or change it. |
 | **Workload Overview** | Load total and the five bars, ▲/▼ changes, Calamity trend, *How is this calculated?* |
 | **7-day workload trend** | Daily totals for the last seven days once three are recorded. |
 | **Optional updates** | Daily Review, Movement, Social. |
@@ -411,7 +413,7 @@ There are no streaks, rankings or penalties for skipping.
 | *This task is part of your plan history, so it cannot be deleted* | Plan history keeps every task that was part of a confirmed plan. Use **⋮ → Mark as done**; the task stops counting on every day. |
 | *No free time in the 7 days from …* when protecting rest | Add availability on **TODAY** for one of those days first, then add recovery time again. |
 | *Time blocks cannot overlap* when adding **Blocked** time | Time blocks never overlap. Shorten the Available block first (for example 9:00 AM – 12:00 PM), then add Blocked time in the gap (12:00 PM – 1:00 PM) and another Available block after it. |
-| The beginner guide does not appear | It shows once per phone. Open **Profile → Beginner guide**. |
+| The beginner guide does not appear | It shows once for each account, the first time it opens Today. To see it again, open **Profile → Beginner guide**. |
 | No sound | Check that the music note at the top of the page is gold, **Profile → Sound effects**, and the phone's media volume. |
 | Music is playing and you want quiet | Tap the gold music note at the top of any main page. |
 | Sign-in fails | Check the email and password from the submission form for typing errors. |

@@ -1,8 +1,28 @@
 # Balance release notes
 
+## v1.0.12 — 31 October 2026
+
+The judging build. Everything in v1.0.11, plus two small changes from the team. Install it
+over any earlier version; your sign-in and settings stay. Judges: the
+[user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
+([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
+covers both changes.
+
+### Changes
+
+- **TODAY** now has a **Rest time** section that lists the recovery time protected in
+  Sanctuary for the day shown, with a **Sanctuary** button to add or change it.
+- The beginner guide now shows once for each new account. Before, it showed once per phone,
+  so a second account signing in on the same phone never saw it.
+
+### Quality
+
+- Rest time checked on Android 15: adding, showing, removing, and other days staying empty.
+- 476 automated tests; critical code 93.5% line coverage.
+
 ## v1.0.11 — 30 October 2026
 
-The judging build. Three small fixes from a full-app test of v1.0.10. Install it over any
+Three small fixes from a full-app test of v1.0.10. Install it over any
 earlier version; your sign-in and settings stay. Judges: the
 [user guide](https://github.com/aronlim47-maker/balance/blob/master/docs/USER_GUIDE.md)
 ([PDF](https://github.com/aronlim47-maker/balance/blob/master/docs/Balance_User_Guide.pdf))
